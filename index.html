@@ -2615,10 +2615,39 @@ async function pushAllToCloud(){
 }
 
 /* ===================== 원격 변경 수신 ===================== */
+let initialSync = true;
+
 function startWatch(){
   Store.setOnRemote(async(col,data,by,at)=>{
-    // 상태 반영
+
     if(col==='settings'&&data){S.thrKRW=data.thrKRW??S.thrKRW;S.thrUSD=data.thrUSD??S.thrUSD;if(data.settleMode)S.settleMode=data.settleMode;}
+    else if(col==='fx'&&data){S.fx.rate=data.rate||S.fx.rate;S.fx.updated=data.updated;S.fxByYm=data.byYm||{};}
+    else if(col==='import'&&data){S.import={tx:data.tx||[],dcmYms:data.dcmYms||[],bcRanges:data.bcRanges||[]};refreshEff();}
+    else if(col==='navcfg'&&data){S.navcfg=data;buildNav();}
+    else if(col in S&&data!==undefined){S[col]=data===null?(Array.isArray(S[col])?[]:S[col]):data;}
+
+    if((col==='navcfg'||col==='linkcfg')&&!data)seedDefaults();
+
+    if($('#modal').classList.contains('open')){
+      if(!initialSync && by && by!==who()){
+        toast((by||'다른 운영진')+'님이 '+(VIEWS[col]||col)+' 데이터를 수정했습니다');
+      }
+      return;
+    }
+
+    render();
+
+    if(!initialSync && by && by!==who()){
+      toast((by||'다른 운영진')+'님의 변경이 반영되었습니다');
+    }
+  });
+
+  COLS.forEach(c=>Store.watch(c));
+
+  setTimeout(()=>{
+    initialSync = false;
+  },3000);
+}
     else if(col==='fx'&&data){S.fx.rate=data.rate||S.fx.rate;S.fx.updated=data.updated;S.fxByYm=data.byYm||{};}
     else if(col==='import'&&data){S.import={tx:data.tx||[],dcmYms:data.dcmYms||[],bcRanges:data.bcRanges||[]};refreshEff();}
     else if(col==='navcfg'&&data){S.navcfg=data;buildNav();}
