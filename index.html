@@ -7,10 +7,13 @@
 <meta name="color-scheme" content="light dark"/>
 <title>DINURE · Label Management</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" media="print" onload="this.media='all'">
+<!-- Syncopate: @import는 렌더를 막으므로 비동기 link로 로드 -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&display=swap" media="print" onload="this.media='all'">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&display=swap');
 /* Pretendard FOUT 방지: 캐시에 없으면 교체하지 않고 fallback 유지 */
 @font-face{font-family:"Pretendard Variable";font-display:optional}
 @font-face{font-family:Pretendard;font-display:optional}
@@ -37,8 +40,6 @@
   --scrim:rgba(0,0,0,.62);
   --pop-sh:0 14px 44px rgba(0,0,0,.55), 0 0 0 1px rgba(245,245,247,.08);
   --float-sh:0 1px 2px rgba(0,0,0,.22);
-  --bgmesh:radial-gradient(at 18% 22%,rgba(41,151,255,.20),transparent 45%),radial-gradient(at 82% 18%,rgba(120,80,220,.16),transparent 42%),radial-gradient(at 70% 82%,rgba(0,180,200,.14),transparent 45%),radial-gradient(at 25% 78%,rgba(41,151,255,.12),transparent 48%);
-  --mesh-op:.9;
   --selarrow:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A1A1A6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 10 6 6 6-6'/%3E%3C/svg%3E");
   --logo-grad:linear-gradient(140deg,#FFFFFF 0%,#9A9A9F 38%,#5A5A5E 100%);
 }
@@ -48,15 +49,13 @@
   --bg:#FFFFFF; --panel:#F5F5F7; --panel2:#F5F5F7; --card:#FFFFFF; --hov:#ECECF0; --sel:#E2E2E7; --sel2:#D6D6DB;
   --inp:#FFFFFF;
   --bd:rgba(29,29,31,.10); --bd2:rgba(29,29,31,.16); --bd3:rgba(29,29,31,.30);
-  --t1:#1D1D1F; --t2:#424245; --t3:#6E6E73; --t4:#86868B;
+  --t1:#1D1D1F; --t2:#424245; --t3:#6E6E73; --t4:#767679;
   --accent:#0071E3; --accent-bg:#0071E3; --accent-dim:rgba(0,113,227,.12);
   --ok:#248A3D; --warn:#B25000; --bad:#D70015; --info:#007AFF;
   --ok-bg:rgba(52,199,89,.13); --warn-bg:rgba(255,149,0,.13); --bad-bg:rgba(255,59,48,.10); --info-bg:rgba(0,122,255,.10);
   --scrim:rgba(29,29,31,.36);
   --pop-sh:0 14px 44px rgba(29,29,31,.16), 0 0 0 1px rgba(29,29,31,.05);
   --float-sh:0 1px 3px rgba(29,29,31,.07);
-  --bgmesh:radial-gradient(at 18% 22%,rgba(0,113,227,.12),transparent 45%),radial-gradient(at 82% 18%,rgba(140,100,230,.10),transparent 42%),radial-gradient(at 70% 82%,rgba(0,170,190,.10),transparent 45%),radial-gradient(at 25% 78%,rgba(0,113,227,.08),transparent 48%);
-  --mesh-op:.85;
   --selarrow:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236E6E73' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 10 6 6 6-6'/%3E%3C/svg%3E");
   --logo-grad:linear-gradient(140deg,#8A8A8F 0%,#48484A 42%,#1D1D1F 100%);
 }
@@ -73,7 +72,10 @@ a{color:var(--t2)}
 ::-webkit-scrollbar{width:10px;height:10px}
 ::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:99px;border:3px solid transparent;background-clip:content-box}
 ::-webkit-scrollbar-track{background:transparent}
-/* 전역 reduced-motion 차단 규칙 제거 — 오로라가 항상 자연스럽게 흐르도록 */
+/* 접근성: 모션 최소화를 선호하는 사용자에겐 애니메이션/전환을 사실상 제거 */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+}
 
 /* ============ floating app frame ============ */
 .app{display:flex;gap:var(--s3);padding:var(--s3);height:100dvh;background:var(--shell);position:relative;isolation:isolate}
@@ -561,7 +563,7 @@ const NC=s=>NORM(s).toLowerCase().replace(/[-_ ]/g,'');
 const won=n=>'₩'+Math.round(n||0).toLocaleString('ko-KR');
 const usd=n=>'$'+(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const pctf=n=>(Math.round(n*100)/100)+'%';
-const esc=s=>(s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const esc=s=>(s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const dedup=xs=>{const seen=new Set();return xs.filter(x=>seen.has(x)?false:(seen.add(x),true));};
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const todayISO=()=>new Date().toISOString().slice(0,10);
@@ -848,20 +850,6 @@ const Store=(()=>{
         }
         catch(e){console.warn('sync set 실패',k,e);toast('동기화 실패 — 네트워크/권한을 확인하세요');}
       }
-    },
-    /* 계약서 같은 대용량 단건: 개별 경로, 필요할 때만 로드 */
-    async getBlob(id){
-      if(fbReady){try{const s=await fdb.ref(ROOT+'/blobs/'+id).get();if(s.exists())return s.val();}catch(e){}}
-      if(mode==='idb')return await idb('get','blob:'+id);
-      return mem['blob:'+id]??null;
-    },
-    async setBlob(id,data){
-      if(mode==='idb')await idb('put','blob:'+id,data);else mem['blob:'+id]=data;
-      if(fbReady){try{await fdb.ref(ROOT+'/blobs/'+id).set(data);}catch(e){toast('계약서 업로드 동기화 실패');}}
-    },
-    async delBlob(id){
-      if(mode==='idb')await idb('del','blob:'+id);else delete mem['blob:'+id];
-      if(fbReady){try{await fdb.ref(ROOT+'/blobs/'+id).remove();}catch(e){}}
     }
   };
 })();
@@ -872,7 +860,6 @@ const S={ view:'home', fx:{rate:1380,updated:null}, fxByYm:{},
   settlements:[], settleRuns:[], overrides:{}, relOverrides:{}, artOverrides:{}, customCols:[],
   import:{tx:[],dcmYms:[],bcRanges:[]},
   releases:[], roster:[], presets:[], notes:[], links:[], extra:[], expenses:[],
-  fbAllow:[],
   navcfg:null, linkcfg:null,
   txFilter:{q:'',year:'',src:'',type:'',artist:'',group:'none'}, artistSort:{k:null,dir:-1,flips:0},
   settleTab:'overview', runOpen:null, noteSel:null, presetSel:null, relFilter:{q:'',st:''} };
@@ -891,7 +878,7 @@ function refreshEff(){ALLTX=buildEffective();ALLTX.forEach(t=>{t.key=KX(t.releas
 const maxId=()=>Math.max(0,...TX_DATA.map(t=>t.id),...S.import.tx.map(t=>t.id));
 
 const COLS=['settings','fx','settlements','settleRuns','expenses','overrides','relOverrides','artOverrides','customCols','import',
-  'releases','roster','presets','notes','links','extra','expenses','navcfg','linkcfg'];
+  'releases','roster','presets','notes','links','extra','navcfg','linkcfg'];
 async function loadState(){
   const s=await Store.get('settings');if(s){S.thrKRW=s.thrKRW??S.thrKRW;S.thrUSD=s.thrUSD??S.thrUSD;if(s.settleMode)S.settleMode=s.settleMode;if(s.theme)S.theme=s.theme;if(s.profile)S.profile=s.profile;}
   const fx=await Store.get('fx');if(fx){if(fx.rate)S.fx.rate=fx.rate;S.fx.updated=fx.updated;if(fx.byYm)S.fxByYm=fx.byYm;}
@@ -910,7 +897,6 @@ async function loadState(){
   S.expenses=await Store.get('expenses')||[];
   S.navcfg=await Store.get('navcfg')||null;
   S.linkcfg=await Store.get('linkcfg')||null;
-  S.fbAllow=JSON.parse(localStorage.getItem('dinure-allow')||'[]');
   const imp=await Store.get('import');if(imp)S.import={tx:imp.tx||[],dcmYms:imp.dcmYms||[],bcRanges:imp.bcRanges||[]};
   seedDefaults();
   refreshEff();
@@ -2444,19 +2430,11 @@ function renderSettings(v){
     <div class="frow" style="margin-bottom:14px">
       <div class="kvc" style="flex:2"><div class="l">로그인 계정</div><div class="v" style="font-size:var(--f13)">${esc(ai.email||'—')}</div></div>
     </div>
-    <div class="field"><label class="fl">추가 허용 구글 계정 이메일 (쉼표로 구분)</label>
-      <input type="text" id="fbAllow" value="${esc((S.fbAllow||[]).join(', '))}" placeholder="member@gmail.com, ...">
-      <small class="note">dinurerecordings@gmail.com 은 기본으로 허용됩니다. 여기에 추가한 계정도 로그인할 수 있습니다. (이 목록은 이 브라우저에 저장됩니다.)</small></div>
+    <small class="note">접근 권한은 <b>${esc(ALLOWED_EMAIL)}</b> 단일 계정으로 제한되며, 실제 통제는 서버(RTDB 보안 규칙)에서 강제됩니다.</small>
     <div style="display:flex;gap:8px;margin-top:14px">
-      <button class="btn sm pri" id="allowSave">허용 목록 저장</button>
       <button class="btn sm danger" id="fbOff">로그아웃</button>
     </div>`;
   v.appendChild(sy);
-  $('#allowSave').onclick=()=>{
-    S.fbAllow=$('#fbAllow').value.split(',').map(x=>x.trim()).filter(Boolean);
-    localStorage.setItem('dinure-allow',JSON.stringify(S.fbAllow));
-    toast('허용 목록을 저장했습니다');
-  };
   const fo=$('#fbOff');
   if(fo)fo.onclick=async()=>{if(await dlgConfirm('로그아웃할까요?',{ok:'로그아웃'})){await Store.signOut();location.reload();}};
 
@@ -2607,9 +2585,9 @@ const FBCFG={
   appId:"1:1032996038968:web:1ae69629ceb542ddecb9cd",
   measurementId:"G-E2PE40X4TH"
 };
-// 기본 허용 계정 + 설정에서 추가한 이메일
-function allowList(){return ['dinurerecordings@gmail.com',...(S.fbAllow||[])].map(x=>String(x).toLowerCase().trim()).filter(Boolean);}
-function isAllowed(email){return !!email&&allowList().includes(String(email).toLowerCase().trim());}
+// 허용 계정: 운영진은 모두 이 단일 계정으로 로그인. 실제 접근 통제는 RTDB 보안 규칙(서버)에서 강제.
+const ALLOWED_EMAIL='dinurerecordings@gmail.com';
+function isAllowed(email){return !!email&&String(email).toLowerCase().trim()===ALLOWED_EMAIL;}
 
 function gateMsg(t,err){const el=$('#gateMsg');if(el){el.textContent=t||'';el.style.color=err?'var(--bad)':'var(--t3)';}}
 function gateBusy(on,label){const b=$('#gateBtn');if(!b)return;b.disabled=on;b.querySelector('svg').style.opacity=on?'.4':'1';
@@ -2701,6 +2679,7 @@ boot();
    게이트가 숨겨지거나(로그인 완료) 탭이 백그라운드면 자동 정지해 부하를 최소화. */
 (function(){
   const canvas=document.getElementById('gateGrain'); if(!canvas)return;
+  const reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const ctx=canvas.getContext('2d',{alpha:true});
   const TILE=180, SPREAD=92;
   let DPR=Math.min(window.devicePixelRatio||1,1.5), W=0, H=0, running=true, last=0;
@@ -2730,16 +2709,20 @@ boot();
   }
   const INTERVAL=1000/10;   // 10fps
   function loop(t){ if(!running)return;
-    if(canvas.offsetParent!==null && t-last>=INTERVAL){ last=t; paint(); }  // 게이트 보일 때만(로그인 후 자동 정지)
+    if(canvas.offsetParent===null){running=false;return;}  // 게이트 숨김(로그인 완료) → 루프 완전 정지
+    if(t-last>=INTERVAL){ last=t; paint(); }
     requestAnimationFrame(loop); }
-  document.addEventListener('visibilitychange',()=>{ if(document.hidden){running=false;} else if(!running){running=true;last=0;requestAnimationFrame(loop);} }); // 탭 숨기면 정지
-  let rt; window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(resize,150);},{passive:true});
-  resize(); requestAnimationFrame(loop);
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden){running=false;} else if(!running&&canvas.offsetParent!==null){running=true;last=0;requestAnimationFrame(loop);} }); // 탭 숨기면 정지
+  let rt; window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{resize();if(reduceMotion&&canvas.offsetParent!==null)paint();},150);},{passive:true});
+  resize();
+  if(reduceMotion){ paint(); }   // 모션 최소화 선호 시: 움직이지 않는 정적 그레인 1프레임만
+  else { requestAnimationFrame(loop); }
 })();
 
 /* 로고 호버 회전: 올리면 천천히(8초/회전) 정방향 회전, 떼면 원래 위치(0°)로 빠르게 복귀.
    절반(180°)을 넘었으면 정방향으로 마저 돌고, 아니면 역회전. 복귀는 평소보다 빠르게. */
 (function(){
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return; // 모션 최소화 선호 시 회전 안 함
   function wire(el){
     let raf=null, ang=0, last=0, spin=false;
     const SPEED=360/8000; // deg/ms
