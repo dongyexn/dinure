@@ -416,7 +416,8 @@ img.noart{background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http:
 .snschip:hover{border-color:var(--accent);color:var(--t1);background:var(--hov)}
 
 /* ============ link category block ============ */
-.linkcat{display:block}
+.linkcat{display:block;margin-top:24px}
+.linkcat .linkgrid{margin-top:12px}
 .catgrp .draghandle{margin-right:-2px}
 
 /* ============ print ============ */
@@ -433,6 +434,38 @@ img.noart{background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http:
 
 /* ============ mobile ============ */
 #sideov{position:fixed;inset:0;background:var(--scrim);z-index:69;opacity:0;visibility:hidden;transition:.2s}
+/* ============ home widgets ============ */
+.homegrid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);align-items:start}
+.card.scrolly{max-height:340px;overflow-y:auto}
+.hstats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.hstat .hv{font-size:var(--f18);font-weight:600;color:var(--t1);line-height:1.1}
+.hstat .hl{font-size:var(--f11);color:var(--t4);margin-top:3px}
+.hsplit{margin-top:14px;display:flex;flex-direction:column;gap:9px;border-top:1px solid var(--bd);padding-top:13px}
+.trow{display:grid;grid-template-columns:64px 1fr 26px;gap:10px;align-items:center}
+.trow .tl{font-size:var(--f12);color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trow .tn{font-size:var(--f12);color:var(--t2);text-align:right}
+.prow{padding:9px 0}
+.prow:first-child{padding-top:0}
+.prow+.prow{border-top:1px solid var(--bd)}
+.prow .ph{display:flex;align-items:center;gap:8px}
+
+/* ============ settings 2-col ============ */
+.setgrid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4);align-items:start}
+.setcol{display:flex;flex-direction:column;gap:20px}
+.seth{font-size:var(--f12);font-weight:600;color:var(--t1);letter-spacing:-.01em;margin:0 2px 9px}
+.swatches{display:flex;gap:10px;margin-top:13px;flex-wrap:wrap}
+.swatch{all:unset;cursor:pointer;width:24px;height:24px;border-radius:50%;background:var(--sw);
+  outline:2px solid transparent;outline-offset:2px;box-shadow:var(--float-sh);transition:outline-color .12s,transform .12s}
+.swatch:hover{transform:scale(1.1)}
+.swatch.on{outline-color:var(--sw)}
+
+/* ============ mail/note category labels ============ */
+.plist .pcat{font-size:var(--f11);font-weight:600;letter-spacing:.03em;color:var(--accent);padding:12px 11px 5px}
+
+/* ============ link page spacing ============ */
+.linkhead{display:flex;justify-content:flex-end;gap:8px;margin-bottom:2px}
+.txsum{font-size:var(--f12);color:var(--t4);padding:4px 2px 0}
+
 @media (max-width:920px){
   .app{padding:0;gap:0;background:var(--bg)}
   .main{border:none;border-radius:0;box-shadow:none}
@@ -445,6 +478,7 @@ img.noart{background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http:
   .topbar{padding:0 14px;height:54px}
   .wrap{padding:16px 14px;gap:var(--s3);padding-bottom:calc(24px + env(safe-area-inset-bottom))}
   .kpis{grid-template-columns:1fr 1fr;gap:9px}
+  .homegrid,.setgrid{grid-template-columns:1fr}
   .card{padding:15px}
   .kpi .val{font-size:var(--f18)}
   .kpi .val.sm{font-size:var(--f18)}
@@ -856,7 +890,7 @@ const Store=(()=>{
 
 /* ===================== state ===================== */
 const S={ view:'home', fx:{rate:1380,updated:null}, fxByYm:{},
-  thrKRW:30000, thrUSD:10, settleMode:'release', theme:'dark', profile:{name:''},
+  thrKRW:30000, thrUSD:10, settleMode:'release', theme:'dark', themeColor:'default', profile:{name:''},
   settlements:[], settleRuns:[], overrides:{}, relOverrides:{}, artOverrides:{}, customCols:[],
   import:{tx:[],dcmYms:[],bcRanges:[]},
   releases:[], roster:[], presets:[], notes:[], links:[], extra:[], expenses:[],
@@ -880,7 +914,7 @@ const maxId=()=>Math.max(0,...TX_DATA.map(t=>t.id),...S.import.tx.map(t=>t.id));
 const COLS=['settings','fx','settlements','settleRuns','expenses','overrides','relOverrides','artOverrides','customCols','import',
   'releases','roster','presets','notes','links','extra','navcfg','linkcfg'];
 async function loadState(){
-  const s=await Store.get('settings');if(s){S.thrKRW=s.thrKRW??S.thrKRW;S.thrUSD=s.thrUSD??S.thrUSD;if(s.settleMode)S.settleMode=s.settleMode;if(s.theme)S.theme=s.theme;if(s.profile)S.profile=s.profile;}
+  const s=await Store.get('settings');if(s){S.thrKRW=s.thrKRW??S.thrKRW;S.thrUSD=s.thrUSD??S.thrUSD;if(s.settleMode)S.settleMode=s.settleMode;if(s.theme)S.theme=s.theme;if(s.themeColor)S.themeColor=s.themeColor;if(s.profile)S.profile=s.profile;}
   const fx=await Store.get('fx');if(fx){if(fx.rate)S.fx.rate=fx.rate;S.fx.updated=fx.updated;if(fx.byYm)S.fxByYm=fx.byYm;}
   S.settlements=await Store.get('settlements')||[];
   S.settleRuns=await Store.get('settleRuns')||[];
@@ -915,7 +949,7 @@ function seedDefaults(){
   }
 }
 const who=()=>S.profile.name||'운영진';
-const saveSettings=()=>Store.set('settings',{thrKRW:S.thrKRW,thrUSD:S.thrUSD,settleMode:S.settleMode,theme:S.theme,profile:S.profile},who());
+const saveSettings=()=>Store.set('settings',{thrKRW:S.thrKRW,thrUSD:S.thrUSD,settleMode:S.settleMode,theme:S.theme,themeColor:S.themeColor,profile:S.profile},who());
 const saveFx=()=>Store.set('fx',{rate:S.fx.rate,updated:S.fx.updated,byYm:S.fxByYm},who());
 const saveRuns=()=>Store.set('settleRuns',S.settleRuns,who());
 const saveSettle=()=>Store.set('settlements',S.settlements,who());
@@ -932,12 +966,32 @@ const saveExtra=()=>Store.set('extra',S.extra,who());
 const saveExpenses=()=>Store.set('expenses',S.expenses,who());
 const saveNavcfg=()=>Store.set('navcfg',S.navcfg,who());
 const saveLinkcfg=()=>Store.set('linkcfg',S.linkcfg,who());
+/* 화면 모드 — 다크/라이트 + 강조색 프리셋 (5종) */
+const THEME_COLORS=[
+  {k:'default',name:'블루',c:'#2997FF'},
+  {k:'violet', name:'바이올렛',c:'#8B5CF6'},
+  {k:'emerald',name:'에메랄드',c:'#10B981'},
+  {k:'amber',  name:'앰버',c:'#F59E0B'},
+  {k:'rose',   name:'로즈',c:'#FB5C7D'}
+];
+function hexA(hex,a){const h=hex.replace('#','');const f=h.length===3?h.split('').map(x=>x+x).join(''):h;const n=parseInt(f,16);return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;}
+function applyAccent(){
+  const r=document.documentElement.style;
+  ['--accent','--accent-bg','--accent-dim'].forEach(p=>r.removeProperty(p));
+  const t=THEME_COLORS.find(x=>x.k===S.themeColor);
+  if(t&&t.k!=='default'){
+    r.setProperty('--accent',t.c);
+    r.setProperty('--accent-bg',t.c);
+    r.setProperty('--accent-dim',hexA(t.c,S.theme==='dark'?.20:.13));
+  }
+}
 function applyTheme(){
   const dark=S.theme==='dark';
   document.documentElement.setAttribute('data-theme',dark?'dark':'light');
   document.documentElement.style.colorScheme=dark?'dark':'light';
   const meta=$('#themeColorMeta');if(meta)meta.setAttribute('content',dark?'#000000':'#FFFFFF');
-  const tb=$('#themeBtn');if(tb)tb.innerHTML=`<svg><use href="#i-${dark?'sun':'moon'}"/></svg>`;}
+  const tb=$('#themeBtn');if(tb)tb.innerHTML=`<svg><use href="#i-${dark?'sun':'moon'}"/></svg>`;
+  applyAccent();}
 
 /* ===================== FX ===================== */
 function rateFor(d){const ym=String(d||'').slice(0,7);return S.fxByYm[ym]||S.fx.rate;}
@@ -1137,37 +1191,77 @@ function renderHome(v){
      <div class="card kpi"><div class="lab"><span class="ind" style="background:var(--accent)"></span>파티 · 굿즈 순익</div><div class="val num">${won(exTotal)}</div><div class="meta">기타 수익 <b>${S.extra.length}</b>건</div></div>`;
   v.appendChild(k);
 
-  // 다가오는 릴리즈
+  // ── 1행: 다가오는 릴리즈(반폭) · 릴리즈 현황(반폭) ──
+  const gA=ce('div','homegrid');v.appendChild(gA);
   const up=S.releases.filter(relUpcoming).sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999'));
-  const upBox=ce('div');
-  upBox.appendChild(secH('다가오는 릴리즈',''));
-  if(up.length){
-    const c=ce('div','card flat');
-    up.slice(0,6).forEach(r=>c.appendChild(relRowEl(r)));
-    upBox.appendChild(c);
-  }else upBox.appendChild(ce('div','card empty','다가오는 릴리즈가 없습니다. 새 릴리즈를 등록해 일정을 관리하세요.'));
-  v.appendChild(upBox);
+  const upBox=ce('div');upBox.appendChild(secH('다가오는 릴리즈',''));
+  if(up.length){const c=ce('div','card flat');up.slice(0,5).forEach(r=>c.appendChild(relRowEl(r)));upBox.appendChild(c);}
+  else upBox.appendChild(ce('div','card empty','다가오는 릴리즈가 없습니다.'));
+  gA.appendChild(upBox);
+  gA.appendChild(releaseStatusWidget());
 
-  // 최근 회의록 + 빠른 작업
-  const row=ce('div');row.style.display='grid';row.style.gridTemplateColumns='1fr 1fr';row.style.gap='14px';
-  if(matchMedia('(max-width:920px)').matches)row.style.gridTemplateColumns='1fr';
+  // ── 2행: 발매 경로(반폭) · 정산 대기 전체(반폭) ──
+  const gB=ce('div','homegrid');v.appendChild(gB);
+  gB.appendChild(platformWidget(L));
+  const swBox=ce('div');
+  swBox.appendChild(secH('정산 대기','',payArts.length?`<span class="mut2" style="font-size:var(--f12)">${payArts.length}명 · ${won(payTotal)}</span>`:''));
+  if(payArts.length){const c=ce('div','card flat scrolly');
+    payArts.sort((a,b)=>b.payable-a.payable).forEach(a=>{
+      const r=ce('div','relrow');r.style.gridTemplateColumns='1fr auto';
+      r.innerHTML=`<div class="ti"><b>${esc(a.name)}</b><span>정산 가능 ${won(a.payable)}</span></div><span class="pill ok">대상</span>`;
+      r.onclick=()=>{go('settle');openArtist(a.name);};c.appendChild(r);});
+    swBox.appendChild(c);
+  }else swBox.appendChild(ce('div','card empty','임계를 통과한 정산 대상이 없습니다.'));
+  gB.appendChild(swBox);
+
+  // ── 3행: 최근 회의록 ──
   const n1=ce('div');n1.appendChild(secH('최근 회의록',''));
-  const recent=S.notes.slice().sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).slice(0,4);
+  const recent=S.notes.slice().sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).slice(0,5);
   if(recent.length){const c=ce('div','card flat');
     recent.forEach(n=>{const r=ce('div','relrow');r.style.gridTemplateColumns='1fr auto';
       r.innerHTML=`<div class="ti"><b>${esc(n.title||'(제목 없음)')}</b><span>${esc(n.date||'')} · ${esc(n.by||'')}</span></div><span class="dd">${ic('doc')}</span>`;
       r.onclick=()=>{S.noteSel=n.id;go('notes');};c.appendChild(r);});
     n1.appendChild(c);
   }else n1.appendChild(ce('div','card empty','아직 회의록이 없습니다.'));
-  const n2=ce('div');n2.appendChild(secH('정산 대기',''));
-  if(payArts.length){const c=ce('div','card flat');
-    payArts.sort((a,b)=>b.payable-a.payable).slice(0,4).forEach(a=>{
-      const r=ce('div','relrow');r.style.gridTemplateColumns='1fr auto';
-      r.innerHTML=`<div class="ti"><b>${esc(a.name)}</b><span>정산 가능 ${won(a.payable)}</span></div><span class="pill ok">대상</span>`;
-      r.onclick=()=>{go('settle');openArtist(a.name);};c.appendChild(r);});
-    n2.appendChild(c);
-  }else n2.appendChild(ce('div','card empty','임계를 통과한 정산 대상이 없습니다.'));
-  row.appendChild(n1);row.appendChild(n2);v.appendChild(row);
+  v.appendChild(n1);
+}
+
+/* 홈 위젯 — 릴리즈 현황 */
+function releaseStatusWidget(){
+  const rels=S.releases;const yr=String(new Date().getFullYear());
+  const total=rels.length;
+  const thisYear=rels.filter(r=>r.date&&r.date.slice(0,4)===yr).length;
+  const upcoming=rels.filter(relUpcoming).length;
+  const trkTotal=rels.reduce((s,r)=>s+((r.tracks||[]).filter(t=>t.title).length),0);
+  const types={};rels.forEach(r=>{const t=r.type||'기타';types[t]=(types[t]||0)+1;});
+  const wrap=ce('div');wrap.appendChild(secH('릴리즈 현황',''));
+  const c=ce('div','card');
+  const stat=(lab,val)=>`<div class="hstat"><div class="hv num">${val}</div><div class="hl">${lab}</div></div>`;
+  const rows=Object.entries(types).sort((a,b)=>b[1]-a[1]).map(([t,n])=>{
+    const w=Math.max(4,Math.round(n/Math.max(1,total)*100));
+    return `<div class="trow"><span class="tl">${esc(t)}</span><div class="bartrack"><div class="barfill" style="width:${w}%"></div></div><span class="tn num">${n}</span></div>`;
+  }).join('');
+  c.innerHTML=`<div class="hstats">${stat('총 릴리즈',total)}${stat(yr+' 발매',thisYear)}${stat('예정',upcoming)}${stat('트랙',trkTotal)}</div>
+    ${total?`<div class="hsplit">${rows}</div>`:'<div class="mut2" style="font-size:var(--f12);margin-top:8px">등록된 릴리즈가 없습니다.</div>'}`;
+  wrap.appendChild(c);return wrap;
+}
+
+/* 홈 위젯 — 발매 경로(플랫폼) 순수익 비중 */
+function platformWidget(L){
+  const ch={};ALLTX.forEach(t=>{const s=t.src;(ch[s]||(ch[s]={n:0,c:0}));ch[s].n+=txNetKRW(t);ch[s].c++;});
+  const ent=Object.entries(ch).sort((a,b)=>b[1].n-a[1].n);
+  const tot=ent.reduce((s,[,d])=>s+d.n,0)||1;
+  const wrap=ce('div');wrap.appendChild(secH('발매 경로','',`<span class="mut2 num" style="font-size:var(--f12)">순수익 ${won(L.net)}</span>`));
+  const c=ce('div','card');
+  if(!ent.length){c.innerHTML='<div class="mut2" style="font-size:var(--f12)">거래 데이터가 없습니다.</div>';wrap.appendChild(c);return wrap;}
+  c.innerHTML=ent.map(([k,d])=>{
+    const pct=d.n/tot*100;const isDcm=k.includes('DCM');
+    return `<div class="prow">
+      <div class="ph"><span class="pill ${isDcm?'info':'acc'}">${esc(k)}</span><span class="mut2 num" style="font-size:var(--f11)">${d.c.toLocaleString()}건</span><span class="num" style="margin-left:auto;font-weight:500;color:var(--t1)">${won(d.n)}</span></div>
+      <div class="bartrack" style="margin-top:7px"><div class="barfill ${isDcm?'':'over'}" style="width:${Math.max(3,pct).toFixed(1)}%"></div></div>
+      <div class="mut2 num" style="font-size:var(--f11);margin-top:3px">${pctf(pct)}</div></div>`;
+  }).join('');
+  wrap.appendChild(c);return wrap;
 }
 
 /* ===================== 릴리즈 ===================== */
@@ -1185,9 +1279,9 @@ function relRowEl(r){
 }
 function renderRel(v){
   const f=S.relFilter;const cust=S.customCols;
-  v.appendChild(secH('릴리즈','',`<button class="btn sm" id="addCol">${ic('plus')}열 추가</button><button class="btn sm pri" id="newRel">${ic('plus')}추가</button>`));
   const bar=ce('div','filters');
-  bar.innerHTML=`<input class="search" id="rq" type="text" placeholder="검색: 릴리즈 · 트랙 · 아티스트 · 카탈로그 · 장르" value="${esc(f.q)}">`;
+  bar.innerHTML=`<input class="search" id="rq" type="text" placeholder="검색: 릴리즈 · 트랙 · 아티스트 · 카탈로그 · 장르" value="${esc(f.q)}">
+    <button class="btn sm" id="addCol">${ic('plus')}열 추가</button><button class="btn sm pri" id="newRel">${ic('plus')}추가</button>`;
   v.appendChild(bar);
   const host=ce('div');v.appendChild(host);
   const draw=()=>{
@@ -1314,7 +1408,6 @@ function openRelease(id,draft){
   function draw(){
     sheet.innerHTML=`<span class="x" onclick="closeModal()">${ic('x')}</span>
       <h3>${isNew?'새 릴리즈':'릴리즈 편집'}</h3>
-      <div class="mut2" style="font-size:var(--f12)">${isNew?'발매 정보를 입력하세요. 저장하면 모든 운영진에게 공유됩니다.':esc(r.cat||'')}</div>
       <hr class="sep">
       <div class="imgpick">
         <label class="artup" title="클릭해서 앨범아트 업로드 — 자동으로 줄여서 저장됩니다">
@@ -1385,9 +1478,9 @@ function openRelease(id,draft){
 
 /* ===================== 아티스트 (roster) ===================== */
 function renderRoster(v){
-  v.appendChild(secH('아티스트','',`<button class="btn sm pri" id="newArt">${ic('plus')}추가</button>`));
   const bar=ce('div','filters');
-  bar.innerHTML=`<input class="search" id="aq" type="text" placeholder="검색: 아티스트 · 이메일">`;
+  bar.innerHTML=`<input class="search" id="aq" type="text" placeholder="검색: 아티스트 · 이메일">
+    <button class="btn sm pri" id="newArt">${ic('plus')}추가</button>`;
   v.appendChild(bar);
   const host=ce('div');v.appendChild(host);
   const draw=()=>{
@@ -1482,10 +1575,21 @@ function openRosterArtist(id){
   };
   openModal();
 }
+function artistArtUri(name){
+  const k=KX(name);
+  // 1) 릴리즈 데이터 연동: 릴리즈/트랙 아티스트에 이름이 포함된 가장 최근 릴리즈의 앨범아트
+  const rels=S.releases.filter(r=>
+    (r.artists||[]).some(a=>KX(a)===k) ||
+    (r.tracks||[]).some(t=>String(t.artists||'').split(',').some(a=>KX(a)===k))
+  ).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  for(const r of rels){const u=relArt(r);if(u)return u;}
+  // 2) 정산 레지스트리 폴백
+  const reg=REG_DATA.find(r=>(r.originals||[]).includes(name)||r.remixer===name);
+  return reg?artUri(reg.release):null;
+}
 function avatarMini(name,size){
-  size=size||34;const reg=REG_DATA.find(r=>(r.originals||[]).includes(name)||r.remixer===name);
-  const uri=reg?artUri(reg.release):null;const st=`width:${size}px;height:${size}px;border-radius:${Math.round(size/4)}px`;
-  return uri?`<img class="av" style="${st}" src="${uri}" alt="">`:`<span class="av" style="${st};display:inline-block"></span>`;
+  size=size||34;const uri=artistArtUri(name);const st=`width:${size}px;height:${size}px;border-radius:${Math.round(size/4)}px`;
+  return uri?`<img class="av" style="${st}" src="${uri}" onerror="artErr(this)" alt="">`:`<span class="av" style="${st};display:inline-block"></span>`;
 }
 function miniArt(rel){const u=artUri(rel);return u?`<img class="av" src="${u}" alt="">`:`<span class="av"></span>`;}
 
@@ -1513,7 +1617,7 @@ function renderMail(v){
   const pl=ce('div','plist');
   const cats=dedup(S.presets.map(p=>p.cat||'기타'));
   cats.forEach(cat=>{
-    pl.appendChild(ce('div','',`<div class="grp" style="padding:8px 11px 4px">${esc(cat)}</div>`));
+    pl.appendChild(ce('div','',`<div class="pcat">${esc(cat)}</div>`));
     S.presets.filter(p=>(p.cat||'기타')===cat).forEach(p=>{
       const b=ce('button',p.id===S.presetSel?'on':'',`<b>${esc(p.name)}</b><span>${esc((p.subject||'').slice(0,38))}</span>`);
       b.onclick=()=>{S.presetSel=p.id;render();};pl.appendChild(b);
@@ -1716,7 +1820,6 @@ function renderArtists(v){
   if(sk)arts.sort((a,b)=>dir*((a[sk]>b[sk])?1:(a[sk]<b[sk])?-1:0));
   else arts.sort((a,b)=>b.accrued-a.accrued);
   const max=Math.max(1,...arts.map(a=>a.accrued));
-  v.appendChild(secH('아티스트별 분배',`${arts.length}명 · DCM ${won(S.thrKRW)} / BC $${S.thrUSD} · ${L.mode==='release'?'계약별':'아티스트 합산'} 판정`));
   const c=ce('div','card flat tblx');
   const cols=[['name','아티스트'],['accrued','누적 분배 · 임계 추적'],['payable','정산가능'],['settled','정산'],['remaining','잔여']];
   let h='<table><thead><tr>'+cols.map(([k,l],i)=>`<th class="${i>=2?'r':''}" data-k="${k}">${l}${sk===k?`<span class="sa">${dir<0?' ↓':' ↑'}</span>`:''}</th>`).join('')+'</tr></thead><tbody>';
@@ -1766,7 +1869,7 @@ function txFiltered(){const f=S.txFilter;const q=KX(f.q);
 function renderTxBody(){
   const host=$('#txHost');host.innerHTML='';const f=S.txFilter;const rows=txFiltered();
   const sumN=rows.reduce((s,t)=>s+txNetKRW(t),0),sumG=rows.reduce((s,t)=>s+txGrossKRW(t),0);
-  host.appendChild(secH(rows.length.toLocaleString()+'건',`매출 ${won(sumG)} · 순수익 ${won(sumN)}`));
+  host.appendChild(ce('div','',`<div class="txsum num">거래 <b style="color:var(--t2)">${rows.length.toLocaleString()}</b>건 · 매출 ${won(sumG)} · 순수익 <b style="color:var(--t2)">${won(sumN)}</b></div>`));
   if(!rows.length){host.appendChild(ce('div','card empty','조건에 맞는 거래가 없습니다.'));return;}
   if(f.group!=='none'){host.appendChild(groupCard(rows,f.group));return;}
   const c=ce('div','card flat tblx');const show=rows.slice(0,400);
@@ -1862,7 +1965,6 @@ function renderCatalog(v){
   const list=relGroups();
   const tsum={},tcnt={};
   ALLTX.forEach(t=>{tsum[t.key]=(tsum[t.key]||0)+txNetKRW(t);tcnt[t.key]=(tcnt[t.key]||0)+1;});
-  v.appendChild(secH('릴리즈',`${list.length} 릴리즈 · ${REG_DATA.length} 트랙 — 앨범 칸 클릭 시 릴리즈 편집 · 분배 버튼으로 비율 수정`));
   const bar=ce('div','filters');
   bar.innerHTML=`<input class="search" id="cq" type="text" placeholder="검색: 릴리즈 · 트랙 · 아티스트">`;
   v.appendChild(bar);
@@ -2318,7 +2420,9 @@ function buildNoteEditor(host,n){
 
 /* ===================== 링크 ===================== */
 function renderLinks(v){
-  v.appendChild(secH('관련 사이트','',`<button class="btn sm" id="addCat">${ic('plus')}유형</button><button class="btn sm pri" id="addLink">${ic('plus')}추가</button>`));
+  const hbar=ce('div','linkhead');
+  hbar.innerHTML=`<button class="btn sm" id="addCat">${ic('plus')}유형</button><button class="btn sm pri" id="addLink">${ic('plus')}추가</button>`;
+  v.appendChild(hbar);
   const cats=S.linkcfg.cats.slice();
   const uncatted=S.links.filter(l=>!cats.includes(l.cat));
   const renameCat=(cur,val)=>{
@@ -2412,63 +2516,60 @@ function editLink(id){
 
 /* ===================== 설정 ===================== */
 function renderSettings(v){
-  // 테마
-  v.appendChild(secH('화면 모드',''));
-  const tm=ce('div','card');const dark=S.theme==='dark';
-  tm.innerHTML=`<div class="tabs"><button class="t ${dark?'on':''}" id="thDark">다크</button><button class="t ${!dark?'on':''}" id="thLight">라이트</button></div>`;
-  v.appendChild(tm);
+  const dark=S.theme==='dark';const rel=S.settleMode==='release';
+  const ai=Store.authInfo();const impN=S.import.tx.length;
+  const grid=ce('div','setgrid');v.appendChild(grid);
+  const colA=ce('div','setcol'),colB=ce('div','setcol');
+  grid.appendChild(colA);grid.appendChild(colB);
+  const sect=(col,title,el)=>{const w=ce('div');w.innerHTML=`<div class="seth">${esc(title)}</div>`;w.appendChild(el);col.appendChild(w);};
+
+  /* ── 화면 모드 (다크/라이트 + 강조색) ── */
+  const tm=ce('div','card');
+  tm.innerHTML=`<div class="tabs"><button class="t ${dark?'on':''}" id="thDark">다크</button><button class="t ${!dark?'on':''}" id="thLight">라이트</button></div>
+    <div class="swatches">${THEME_COLORS.map(t=>`<button class="swatch ${S.themeColor===t.k?'on':''}" data-tc="${t.k}" title="${esc(t.name)}" style="--sw:${t.c}"></button>`).join('')}</div>`;
+  sect(colA,'화면 모드',tm);
   $('#thLight').onclick=()=>{S.theme='light';saveSettings();applyTheme();render();};
   $('#thDark').onclick=()=>{S.theme='dark';saveSettings();applyTheme();render();};
+  tm.querySelectorAll('[data-tc]').forEach(b=>b.onclick=()=>{S.themeColor=b.dataset.tc;saveSettings();applyTheme();render();});
 
-  // 접근 · 동기화
-  v.appendChild(secH('접근 · 동기화 (Firebase)','구글 로그인한 허용 계정만 접속 — 모든 데이터 실시간 공유'));
-  const sy=ce('div','card');
-  const ai=Store.authInfo();
-  sy.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-      <i class="sydot on"></i><b style="font-size:var(--f13);font-weight:500;color:var(--t1)">동기화 켜짐</b>
-      <span class="mut2" style="font-size:var(--f12)">변경 사항이 즉시 모두에게 반영됩니다</span></div>
-    <div class="frow" style="margin-bottom:14px">
-      <div class="kvc" style="flex:2"><div class="l">로그인 계정</div><div class="v" style="font-size:var(--f13)">${esc(ai.email||'—')}</div></div>
-    </div>
-    <small class="note">접근 권한은 <b>${esc(ALLOWED_EMAIL)}</b> 단일 계정으로 제한되며, 실제 통제는 서버(RTDB 보안 규칙)에서 강제됩니다.</small>
-    <div style="display:flex;gap:8px;margin-top:14px">
-      <button class="btn sm danger" id="fbOff">로그아웃</button>
-    </div>`;
-  v.appendChild(sy);
-  const fo=$('#fbOff');
-  if(fo)fo.onclick=async()=>{if(await dlgConfirm('로그아웃할까요?',{ok:'로그아웃'})){await Store.signOut();location.reload();}};
-
-  // 정산 기준
-  v.appendChild(secH('정산 임계 · 판정 단위','계약 5.2(유통) / 5.3(밴드캠프) 반영'));
-  const th=ce('div','card');const rel=S.settleMode==='release';
+  /* ── 정산 임계 · 판정 단위 ── */
+  const th=ce('div','card');
   th.innerHTML=`<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px"><span class="mut" style="font-weight:500">판정 단위</span>
       <div class="tabs"><button class="t ${rel?'on':''}" id="modeRel">계약별 (릴리즈)</button><button class="t ${!rel?'on':''}" id="modeArt">아티스트 합산</button></div></div>
     <div class="filters">
       <label class="fl" style="margin:0">유통(DCM)</label><input id="thrK" type="number" value="${S.thrKRW}" style="width:110px"><span class="mut2">KRW</span>
       <label class="fl" style="margin:0 0 0 10px">밴드캠프</label><input id="thrU" type="number" value="${S.thrUSD}" style="width:80px"><span class="mut2">USD</span>
-      <button class="btn sm pri" id="thrSave">저장</button></div>
-    <small class="note">임계는 <b>순수익(분배 전 합계)</b>에 적용 — 넘으면 그 순수익의 50%(리믹스는 각 25%)가 아티스트 정산 가능액에 반영됩니다. <b>계약별</b>=릴리즈마다 판정(추천) / <b>아티스트 합산</b>=채널 순수익 합으로 판정. 정산 주기는 계약상 매년 6·12월(반기).</small>`;
-  v.appendChild(th);
+      <button class="btn sm pri" id="thrSave">저장</button></div>`;
+  sect(colA,'정산 임계 · 판정 단위',th);
   $('#modeRel').onclick=()=>{S.settleMode='release';saveSettings();render();};
   $('#modeArt').onclick=()=>{S.settleMode='artist';saveSettings();render();};
   $('#thrSave').onclick=()=>{S.thrKRW=parseFloat($('#thrK').value)||S.thrKRW;S.thrUSD=parseFloat($('#thrU').value)||S.thrUSD;saveSettings();render();toast('저장되었습니다');};
 
-  // 로우데이터
-  v.appendChild(secH('로우데이터 업데이트','매월 신규 매출 반영 — 브라우저에서 직접 처리'));
+  /* ── 접근 · 동기화 ── */
+  const sy=ce('div','card');
+  sy.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+      <i class="sydot on"></i><b style="font-size:var(--f13);font-weight:500;color:var(--t1)">동기화 켜짐</b></div>
+    <div class="kvc"><div class="l">로그인 계정</div><div class="v" style="font-size:var(--f13)">${esc(ai.email||'—')}</div></div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn sm danger" id="fbOff">로그아웃</button></div>`;
+  sect(colB,'접근 · 동기화',sy);
+  const fo=$('#fbOff');
+  if(fo)fo.onclick=async()=>{if(await dlgConfirm('로그아웃할까요?',{ok:'로그아웃'})){await Store.signOut();location.reload();}};
+
+  /* ── 로우데이터 업데이트 ── */
   const imp=ce('div','card');
-  const impN=S.import.tx.length;
   imp.innerHTML=`<div class="frow">
-    <div class="field"><b style="font-size:var(--f13);font-weight:500;color:var(--t1)">유통(DCM)</b><small class="note" style="margin-top:4px">정산 내역 파일 — <b>sheet001.htm</b> (또는 데이터가 든 .htm/.xls). 같은 정산월은 새 파일로 <b>대체</b>됩니다.</small>
+    <div class="field"><b style="font-size:var(--f13);font-weight:500;color:var(--t1)">유통(DCM)</b>
       <div class="filters" style="margin-top:8px"><label class="btn sm" style="cursor:pointer">파일 선택<input type="file" id="dcmFile" accept=".htm,.html,.xls,.xlsx" style="display:none"></label><span class="mut2" id="dcmName" style="font-size:var(--f12)"></span></div></div>
-    <div class="field"><b style="font-size:var(--f13);font-weight:500;color:var(--t1)">밴드캠프</b><small class="note" style="margin-top:4px">raw CSV(UTF-16). 같은 기간(거래일 범위)은 새 파일로 <b>대체</b>됩니다.</small>
+    <div class="field"><b style="font-size:var(--f13);font-weight:500;color:var(--t1)">밴드캠프</b>
       <div class="filters" style="margin-top:8px"><label class="btn sm" style="cursor:pointer">파일 선택<input type="file" id="bcFile" accept=".csv,.txt,.tsv" style="display:none"></label><span class="mut2" id="bcName" style="font-size:var(--f12)"></span></div></div>
   </div>
   <div style="display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap">
     <button class="btn pri" id="impRun" disabled>불러와서 반영</button>
-    ${impN?`<button class="btn ghost" id="impReset">가져온 데이터 초기화 (${impN}건)</button>`:''}
-    <span class="mut2" style="font-size:var(--f12);margin-left:auto">내장 기준 ${TX_DATA.length.toLocaleString()}건 · 현재 반영 ${ALLTX.length.toLocaleString()}건</span></div>
+    ${impN?`<button class="btn ghost" id="impReset">초기화 (${impN}건)</button>`:''}
+    <span class="mut2" style="font-size:var(--f12);margin-left:auto">반영 ${ALLTX.length.toLocaleString()}건</span></div>
   <pre id="impLog" style="display:none;background:var(--bg);border:1px solid var(--bd);border-radius:var(--rad);padding:10px;font-size:var(--f12);color:var(--t3);margin:10px 0 0;white-space:pre-wrap"></pre>`;
-  v.appendChild(imp);
+  sect(colB,'로우데이터 업데이트',imp);
   let dcmRows=null,bcRows=null;
   const setRun=()=>{$('#impRun').disabled=!(dcmRows||bcRows);};
   const log=m=>{const el=$('#impLog');el.style.display='block';el.textContent+=(el.textContent?'\n':'')+m;};
@@ -2497,15 +2598,13 @@ function renderSettings(v){
   const ir=$('#impReset');if(ir)ir.onclick=async()=>{if(await dlgConfirm('가져온 데이터를 모두 초기화할까요?\n내장 데이터는 유지됩니다.',{ok:'초기화',danger:true})){S.import={tx:[],dcmYms:[],bcRanges:[]};saveImport();refreshEff();render();}};
 
   // 백업
-  v.appendChild(secH('백업 · 복원','전체 입력 데이터를 JSON 파일로'));
   const bk=ce('div','card');
   bk.innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap">
     <button class="btn" id="bkExp">${ic('down')}내보내기</button>
     <label class="btn" style="cursor:pointer">${ic('up')}가져오기<input type="file" id="bkImp" accept=".json" style="display:none"></label>
     <span style="flex:1"></span>
-    <button class="btn danger ghost" id="wipeAll">입력 데이터 전체 초기화</button></div>
-  <small class="note">백업에는 릴리즈·아티스트·프리셋·회의록·정산 기록 등 모든 입력이 포함됩니다(내장 거래 데이터·계약서 PDF 제외). 동기화 사용 시에도 월 1회 백업을 권장합니다.</small>`;
-  v.appendChild(bk);
+    <button class="btn danger ghost" id="wipeAll">전체 초기화</button></div>`;
+  sect(colB,'백업 · 복원',bk);
   $('#bkExp').onclick=async()=>{
     const out={_app:'dinure-os',_at:new Date().toISOString()};
     for(const c of COLS)out[c]=await Store.get(c);
@@ -2725,7 +2824,8 @@ boot();
   if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return; // 모션 최소화 선호 시 회전 안 함
   function wire(el){
     let raf=null, ang=0, last=0, spin=false;
-    const SPEED=360/8000; // deg/ms
+    const SPEED=360/3200; // deg/ms — 한 바퀴 약 3.2초 (눈에 띄게)
+    el.style.cursor='pointer';
     const cur=()=>{const m=getComputedStyle(el).transform;if(!m||m==='none')return ang;const x=m.match(/matrix\(([^)]+)\)/);if(!x)return ang;const p=x[1].split(',').map(Number);return ((Math.atan2(p[1],p[0])*180/Math.PI)+360)%360;};
     function frame(t){ if(!spin){raf=null;return;} if(last)ang=(ang+(t-last)*SPEED)%360; last=t; el.style.transition='none'; el.style.transform='rotate('+ang+'deg)'; raf=requestAnimationFrame(frame); }
     el.addEventListener('mouseenter',()=>{ ang=cur(); last=0; spin=true; if(!raf)raf=requestAnimationFrame(frame); });
