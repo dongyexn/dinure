@@ -122,31 +122,31 @@ body:not(.authed) .app{display:none}
   background:radial-gradient(120% 110% at 80% 0%, #6FB2FB 0%, #549FF6 55%, #4C9AF5 100%);padding:24px;overflow:hidden}
 body.authed #gate{display:none}
 /* ---- gate aurora background (대형 radial 블롭 + 강한 blur, 전부 GPU transform 애니메이션) ---- */
-.gate-aurora{position:absolute;inset:0;z-index:0;overflow:hidden;filter:saturate(1.06);pointer-events:none}
-.gate-aurora .blob{position:absolute;border-radius:50%;will-change:transform;filter:blur(70px)}
+.gate-aurora{position:absolute;inset:0;z-index:0;overflow:hidden;filter:saturate(1.06);pointer-events:none;contain:layout paint style}
+.gate-aurora .blob{position:absolute;border-radius:50%;will-change:transform;filter:blur(36px);-webkit-backface-visibility:hidden;backface-visibility:hidden}
 .gate-aurora .b-blue{width:115vmax;height:115vmax;left:78%;top:2%;margin:-57.5vmax 0 0 -57.5vmax;
-  background:radial-gradient(circle,#3E92F4 0%,rgba(62,146,244,.55) 38%,transparent 66%);opacity:.9;filter:blur(80px);animation:gauA 16s ease-in-out -3s infinite alternate}
+  background:radial-gradient(circle,#3E92F4 0%,rgba(62,146,244,.55) 38%,transparent 72%);opacity:.9;filter:blur(40px);animation:gauA 28s ease-in-out -3s infinite alternate}
 .gate-aurora .b-yellow{width:74vmax;height:74vmax;left:3%;top:60%;margin:-37vmax 0 0 -37vmax;
-  background:radial-gradient(circle,#FFE85A 0%,rgba(255,232,90,.5) 40%,transparent 64%);opacity:.92;filter:blur(60px);animation:gauB 19s ease-in-out -8s infinite alternate}
+  background:radial-gradient(circle,#FFE85A 0%,rgba(255,232,90,.5) 40%,transparent 72%);opacity:.92;filter:blur(36px);animation:gauB 32s ease-in-out -8s infinite alternate}
 .gate-aurora .b-mint{width:62vmax;height:62vmax;left:15%;top:40%;margin:-31vmax 0 0 -31vmax;
-  background:radial-gradient(circle,#86E6AE 0%,rgba(134,230,174,.45) 42%,transparent 66%);opacity:.82;mix-blend-mode:screen;filter:blur(64px);animation:gauC 22s ease-in-out -14s infinite alternate}
+  background:radial-gradient(circle,#86E6AE 0%,rgba(134,230,174,.45) 42%,transparent 74%);opacity:.65;filter:blur(34px);animation:gauC 36s ease-in-out -14s infinite alternate}
 .gate-aurora .b-lavender{width:82vmax;height:82vmax;left:83%;top:56%;margin:-41vmax 0 0 -41vmax;
-  background:radial-gradient(circle,#CBC4F6 0%,rgba(203,196,246,.5) 40%,transparent 66%);opacity:.85;mix-blend-mode:screen;filter:blur(72px);animation:gauD 15s ease-in-out -5s infinite alternate}
+  background:radial-gradient(circle,#CBC4F6 0%,rgba(203,196,246,.5) 40%,transparent 72%);opacity:.68;filter:blur(38px);animation:gauD 30s ease-in-out -5s infinite alternate}
 .gate-aurora .b-peach{width:58vmax;height:58vmax;left:60%;top:66%;margin:-29vmax 0 0 -29vmax;
-  background:radial-gradient(circle,#FFC7B6 0%,rgba(255,199,182,.42) 44%,transparent 66%);opacity:.7;mix-blend-mode:screen;filter:blur(66px);animation:gauE 24s ease-in-out -19s infinite alternate}
+  background:radial-gradient(circle,#FFC7B6 0%,rgba(255,199,182,.42) 44%,transparent 74%);opacity:.55;filter:blur(34px);animation:gauE 38s ease-in-out -19s infinite alternate}
 .gate-aurora .b-pink{width:84vmax;height:84vmax;left:46%;top:84%;margin:-42vmax 0 0 -42vmax;
-  background:radial-gradient(circle,#FFB3C7 0%,rgba(255,179,199,.6) 40%,transparent 64%);opacity:.92;filter:blur(70px);animation:gauF 18s ease-in-out -11s infinite alternate}
+  background:radial-gradient(circle,#FFB3C7 0%,rgba(255,179,199,.6) 40%,transparent 72%);opacity:.75;filter:blur(36px);animation:gauF 34s ease-in-out -11s infinite alternate}
 .gate-aurora .b-magenta{width:98vmax;height:98vmax;left:8%;top:101%;margin:-49vmax 0 0 -49vmax;
-  background:radial-gradient(circle,#FF35C2 0%,rgba(255,53,194,.7) 36%,transparent 62%);opacity:.95;filter:blur(76px);animation:gauG 21s ease-in-out -23s infinite alternate}
+  background:radial-gradient(circle,#FF35C2 0%,rgba(255,53,194,.7) 36%,transparent 70%);opacity:.78;filter:blur(38px);animation:gauG 36s ease-in-out -23s infinite alternate}
 #gateGrain{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.07;mix-blend-mode:overlay;z-index:1}
 /* 큰 진폭(±8~12vmax)·스케일(~1.3)로 '눈에 띄는' 유체 이동, 15~24초로 빠르게 */
-@keyframes gauA{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(-8vmax,10vmax,0) scale(1.16)}100%{transform:translate3d(7vmax,-6vmax,0) scale(1.08)}}
-@keyframes gauB{0%{transform:translate3d(0,0,0) scale(1.02)}50%{transform:translate3d(11vmax,-7vmax,0) scale(1.22)}100%{transform:translate3d(-7vmax,9vmax,0) scale(1.1)}}
-@keyframes gauC{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(12vmax,9vmax,0) scale(1.26)}100%{transform:translate3d(-6vmax,-11vmax,0) scale(1.12)}}
-@keyframes gauD{0%{transform:translate3d(0,0,0) scale(1.04)}50%{transform:translate3d(-12vmax,-7vmax,0) scale(1.2)}100%{transform:translate3d(7vmax,11vmax,0) scale(1.1)}}
-@keyframes gauE{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(-10vmax,7vmax,0) scale(1.3)}100%{transform:translate3d(9vmax,-9vmax,0) scale(1.14)}}
-@keyframes gauF{0%{transform:translate3d(0,0,0) scale(1.02)}50%{transform:translate3d(9vmax,-11vmax,0) scale(1.18)}100%{transform:translate3d(-11vmax,5vmax,0) scale(1.08)}}
-@keyframes gauG{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(10vmax,-9vmax,0) scale(1.2)}100%{transform:translate3d(-9vmax,-12vmax,0) scale(1.1)}}
+@keyframes gauA{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(-4vmax,5vmax,0) scale(1.08)}100%{transform:translate3d(3.5vmax,-3vmax,0) scale(1.04)}}
+@keyframes gauB{0%{transform:translate3d(0,0,0) scale(1.02)}50%{transform:translate3d(5.5vmax,-3.5vmax,0) scale(1.10)}100%{transform:translate3d(-3.5vmax,4.5vmax,0) scale(1.05)}}
+@keyframes gauC{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(6vmax,4.5vmax,0) scale(1.12)}100%{transform:translate3d(-3vmax,-5.5vmax,0) scale(1.06)}}
+@keyframes gauD{0%{transform:translate3d(0,0,0) scale(1.02)}50%{transform:translate3d(-6vmax,-3.5vmax,0) scale(1.10)}100%{transform:translate3d(3.5vmax,5.5vmax,0) scale(1.05)}}
+@keyframes gauE{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(-5vmax,3.5vmax,0) scale(1.12)}100%{transform:translate3d(4.5vmax,-4.5vmax,0) scale(1.06)}}
+@keyframes gauF{0%{transform:translate3d(0,0,0) scale(1.01)}50%{transform:translate3d(4.5vmax,-5.5vmax,0) scale(1.08)}100%{transform:translate3d(-5.5vmax,2.5vmax,0) scale(1.04)}}
+@keyframes gauG{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(5vmax,-4.5vmax,0) scale(1.10)}100%{transform:translate3d(-4.5vmax,-6vmax,0) scale(1.05)}}
 .gatecard{position:relative;z-index:2;width:min(380px,100%);background:color-mix(in srgb,var(--panel2) 92%,transparent);
   border:1px solid var(--bd);border-radius:var(--rad-xl);box-shadow:var(--pop-sh);padding:38px 30px 30px;text-align:center;
   -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
@@ -2647,21 +2647,6 @@ function startWatch(){
   setTimeout(()=>{
     initialSync = false;
   },3000);
-}
-    else if(col==='fx'&&data){S.fx.rate=data.rate||S.fx.rate;S.fx.updated=data.updated;S.fxByYm=data.byYm||{};}
-    else if(col==='import'&&data){S.import={tx:data.tx||[],dcmYms:data.dcmYms||[],bcRanges:data.bcRanges||[]};refreshEff();}
-    else if(col==='navcfg'&&data){S.navcfg=data;buildNav();}
-    else if(col in S&&data!==undefined){S[col]=data===null?(Array.isArray(S[col])?[]:S[col]):data;}
-    if((col==='navcfg'||col==='linkcfg')&&!data)seedDefaults();
-    // 편집 중이면 화면은 그대로 두고 알림만
-    if($('#modal').classList.contains('open')){
-      if(by&&by!==who())toast((by||'다른 운영진')+'님이 '+(VIEWS[col]||col)+' 데이터를 수정했습니다');
-      return;
-    }
-    render();
-    if(by&&by!==who())toast((by||'다른 운영진')+'님의 변경이 반영되었습니다');
-  });
-  COLS.forEach(c=>Store.watch(c));
 }
 function updateSyncBadge(){
   const on=Store.cloud();
