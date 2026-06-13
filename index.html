@@ -170,7 +170,7 @@ body.authed #gate{display:none}
 /* ============ primitives ============ */
 .card{background:var(--card);border:1px solid var(--bd);border-radius:var(--rad-l);padding:var(--s4) 18px}
 .card.flat{padding:0;overflow:hidden}
-.card.flat.tblx{padding:0 5px}
+.card.flat.tblx{padding:0 5px;overflow:visible}
 .card.empty{color:var(--t4);text-align:center;padding:38px 18px;font-size:var(--f13);line-height:1.7}
 .sec-h{display:flex;align-items:center;gap:10px;margin:var(--s3) 2px 0;min-height:28px}
 .wrap>.sec-h:first-child{margin-top:0}
@@ -234,6 +234,8 @@ label.fl{font-size:var(--f12);color:var(--t3);display:block;margin-bottom:6px;fo
 table{width:100%;border-collapse:collapse;font-size:var(--f13)}
 th{font-size:var(--f12);font-weight:500;color:var(--t4);text-align:left;padding:11px 14px;border-bottom:1px solid var(--bd);white-space:nowrap}
 th.r,td.r{text-align:right}
+th.c,td.c{text-align:center}
+.tblx thead th{position:sticky;top:0;z-index:2;background:var(--card)}
 td{padding:10px 14px;border-bottom:1px solid var(--bd);vertical-align:middle}
 tbody tr:last-child td{border-bottom:none}
 tbody tr.rowlink{cursor:pointer;transition:background .12s}
@@ -342,6 +344,7 @@ img.noart{background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http:
 .imgpick{display:flex;gap:18px;align-items:stretch}
 .artup{position:relative;width:200px;height:200px;flex:none;align-self:flex-start;cursor:pointer;border-radius:12px;overflow:hidden}
 .artup .prev{width:100%;height:100%;border-radius:12px;object-fit:cover;background:var(--sel);border:1px solid var(--bd);display:block}
+.artup .prev.noart{background:transparent;border:1.5px dashed var(--bd2)}
 .artup .ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);
   color:#fff;font-size:var(--f11);font-weight:500;opacity:0;transition:opacity .15s;border-radius:12px;text-align:center;padding:6px}
 .artup:hover .ov{opacity:1}
@@ -528,27 +531,30 @@ img.noart{background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http:
 /* ===================== Liquid Glass 스킨 ===================== */
 [data-skin="glass"] .app::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
   background:
-    radial-gradient(42% 52% at 16% 18%, color-mix(in srgb,var(--accent) 24%,transparent), transparent 70%),
-    radial-gradient(46% 56% at 86% 12%, color-mix(in srgb,var(--info) 20%,transparent), transparent 70%),
-    radial-gradient(52% 62% at 78% 92%, color-mix(in srgb,var(--accent) 16%,transparent), transparent 72%);
-  filter:saturate(1.1)}
-/* 구조 패널에만 블러 적용 — 카드·KPI·입력은 반투명 배경만 (중첩 블러 제거로 성능 개선) */
+    radial-gradient(42% 52% at 16% 18%, color-mix(in srgb,var(--accent) 26%,transparent), transparent 70%),
+    radial-gradient(46% 56% at 86% 12%, color-mix(in srgb,var(--info) 22%,transparent), transparent 70%),
+    radial-gradient(52% 62% at 78% 92%, color-mix(in srgb,var(--accent) 18%,transparent), transparent 72%)}
+/* 항상 떠 있는 큰 표면(사이드바·메인·상단바)은 블러 없이 반투명만 —
+   뒤에 정적 그라데이션뿐이라 라이브 블러 이득은 거의 없고 스크롤 비용만 큼. */
 [data-skin="glass"] .side,
-[data-skin="glass"] .main,
+[data-skin="glass"] .main{
+  background:color-mix(in srgb, var(--card) 62%, transparent);
+  border:1px solid color-mix(in srgb, var(--t1) 12%, transparent);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,#fff 16%, transparent), 0 10px 34px rgba(0,0,0,.28)}
+[data-skin="glass"] .main{background:color-mix(in srgb, var(--bg) 55%, transparent)}
+[data-skin="glass"] .topbar{background:color-mix(in srgb, var(--card) 52%, transparent)}
+/* 실제 콘텐츠 위에 겹쳐 뜨는 오버레이에만 블러 유지 — 열릴 때만 비용 발생 */
 [data-skin="glass"] #sheet,
 [data-skin="glass"] #dlg .dbox,
 [data-skin="glass"] .gatecard{
-  background:color-mix(in srgb, var(--card) 55%, transparent);
-  -webkit-backdrop-filter:blur(14px) saturate(1.2);
-  backdrop-filter:blur(14px) saturate(1.2);
+  background:color-mix(in srgb, var(--card) 70%, transparent);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
   border:1px solid color-mix(in srgb, var(--t1) 12%, transparent);
   box-shadow:inset 0 1px 0 color-mix(in srgb,#fff 16%, transparent), 0 10px 34px rgba(0,0,0,.28)}
-[data-skin="glass"] .main{background:color-mix(in srgb, var(--bg) 46%, transparent)}
-[data-skin="glass"] .card{background:color-mix(in srgb, var(--card) 64%, transparent);border:1px solid color-mix(in srgb, var(--t1) 10%, transparent)}
-[data-skin="glass"] .card.flat{background:color-mix(in srgb, var(--card) 56%, transparent)}
-[data-skin="glass"] .topbar{background:transparent;-webkit-backdrop-filter:blur(12px) saturate(1.15);backdrop-filter:blur(12px) saturate(1.15)}
-[data-skin="glass"] .kpi,[data-skin="glass"] .linkcard{background:color-mix(in srgb, var(--card) 60%, transparent)}
-[data-skin="glass"] input,[data-skin="glass"] select,[data-skin="glass"] textarea,[data-skin="glass"] .search{background:color-mix(in srgb, var(--inp) 60%, transparent)}
+[data-skin="glass"] .card{background:color-mix(in srgb, var(--card) 70%, transparent);border:1px solid color-mix(in srgb, var(--t1) 10%, transparent)}
+[data-skin="glass"] .card.flat{background:color-mix(in srgb, var(--card) 60%, transparent)}
+[data-skin="glass"] .kpi,[data-skin="glass"] .linkcard{background:color-mix(in srgb, var(--card) 66%, transparent)}
+[data-skin="glass"] input,[data-skin="glass"] select,[data-skin="glass"] textarea,[data-skin="glass"] .search{background:color-mix(in srgb, var(--inp) 66%, transparent)}
 
 /* ===================== Spotify 톤 스킨 ===================== */
 [data-skin="spotify"]{
@@ -1371,7 +1377,7 @@ function renderRel(v){
   const f=S.relFilter;const cust=S.customCols;
   const bar=ce('div','filters');
   bar.innerHTML=`<input class="search" id="rq" type="text" placeholder="검색: 릴리즈 · 트랙 · 아티스트 · 카탈로그 · 장르" value="${esc(f.q)}">
-    <button class="btn sm" id="addCol">${ic('plus')}열 추가</button><button class="btn sm pri" id="newRel">${ic('plus')}추가</button>`;
+    <button class="btn sm pri" id="newRel">${ic('plus')}추가</button>`;
   v.appendChild(bar);
   const host=ce('div');v.appendChild(host);
   const draw=()=>{
@@ -1379,7 +1385,7 @@ function renderRel(v){
     const list=S.releases.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
     if(!list.length){host.appendChild(ce('div','card empty','아직 등록된 릴리즈가 없습니다. 첫 릴리즈를 등록해 보세요.'));return;}
     const card=ce('div','card flat tblx');
-    let head='<thead><tr><th style="width:150px;min-width:150px">앨범</th><th style="width:30px"></th><th>트랙</th><th>아티스트</th><th style="min-width:130px">버전</th><th>장르</th><th>BPM</th><th>KEY</th>'
+    let head='<thead><tr><th style="width:150px;min-width:150px">앨범</th><th style="width:30px"></th><th style="width:24%">트랙</th><th style="width:20%">아티스트</th><th style="width:90px">버전</th><th style="width:16%">장르</th><th style="width:52px">BPM</th><th style="width:52px">KEY</th>'
       + cust.map(c=>`<th style="white-space:nowrap">${esc(c.name)} <span data-delcol="${c.id}" title="열 삭제" style="cursor:pointer;color:var(--t4)">×</span></th>`).join('')
       + '</tr></thead>';
     let body='<tbody>';
@@ -1399,11 +1405,11 @@ function renderRel(v){
         if(!t){
           tds+=`<td colspan="${7+cust.length}" class="mut2" data-open="${r.id}" style="cursor:pointer">트랙 없음 — 클릭해서 추가</td>`;
         }else{
-          const cell=(fld,val,w)=>`<td style="padding:4px 6px"><input type="text" data-rid="${r.id}" data-ti="${i}" data-f="${fld}" value="${esc(val||'')}" style="width:${w||'100%'};min-width:70px;border-color:transparent;background:transparent;padding:5px 6px"></td>`;
+          const cell=(fld,val,w)=>`<td style="padding:4px 6px"><input type="text" title="${esc(val||'')}" data-rid="${r.id}" data-ti="${i}" data-f="${fld}" value="${esc(val||'')}" style="width:${w||'100%'};min-width:70px;border-color:transparent;background:transparent;padding:5px 6px"></td>`;
           tds+=`<td class="mut2 num" style="text-align:center;padding:4px 2px">${i+1}</td>`;
           tds+=cell('title',t.title);
           tds+=cell('artists',t.artists);
-          tds+=cell('version',t.version,'130px');
+          tds+=cell('version',t.version);
           tds+=`<td style="padding:4px 6px"><input type="text" list="relGenreDL" data-rid="${r.id}" data-ti="${i}" data-f="genre" value="${esc(t.genre||'')}" placeholder="장르" style="width:100%;min-width:84px;border-color:transparent;background:transparent;padding:5px 6px"></td>`;
           tds+=cell('bpm',t.bpm,'52px');
           tds+=cell('key',t.key,'52px');
@@ -1437,7 +1443,6 @@ function renderRel(v){
       if(await dlgConfirm('이 열을 삭제할까요?\n입력값은 보관되며 표시만 사라집니다.',{ok:'삭제',danger:true})){S.customCols=S.customCols.filter(c=>c.id!==x.dataset.delcol);saveCustomCols();render();}});
   };
   draw();
-  $('#addCol').onclick=async()=>{const name=((await dlgPrompt('새 열 이름','',{title:'열 추가',placeholder:'예: ISRC · 발매일 · 메모',ok:'추가'}))||'').trim();if(name){S.customCols.push({id:'c'+Date.now(),name});saveCustomCols();render();}};
   $('#newRel').onclick=()=>openRelease(null);
 }
 function genreOptions(){
@@ -1502,8 +1507,7 @@ function openRelease(id,draft){
       <hr class="sep">
       <div class="imgpick">
         <label class="artup" title="클릭해서 앨범아트 업로드 — 자동으로 줄여서 저장됩니다">
-          <img class="prev" id="rArtPrev" src="${relArt(r)}" onerror="artErr(this)" alt="">
-          <span class="ov">${relArt(r)?'이미지 변경':'앨범아트 업로드'}</span>
+          ${relArt(r)?`<img class="prev" id="rArtPrev" src="${relArt(r)}" onerror="artErr(this)" alt="">`:`<img class="prev noart" id="rArtPrev" alt="">`}          <span class="ov">${relArt(r)?'이미지 변경':'앨범아트 업로드'}</span>
           <input type="file" id="rArtFile" accept="image/*" style="display:none">
         </label>
         <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:space-between;gap:7px">
@@ -1523,12 +1527,12 @@ function openRelease(id,draft){
         </div>
       </div>
       <div class="field" style="margin-top:12px"><label class="fl">소개 문구 (릴리즈 카피)</label>
-        <textarea id="rCopy" rows="4" placeholder="네 문장 구조 · 단어 중복 없이 · 곡의 흐름 순서대로">${esc(r.copy)}</textarea></div>
+        <textarea id="rCopy" rows="5" placeholder="네 문장 구조 · 단어 중복 없이 · 곡의 흐름 순서대로">${esc(r.copy)}</textarea></div>
 
       <hr class="sep"><div class="fgrp" style="display:flex;align-items:center;justify-content:space-between;gap:8px">트랙리스트<button class="btn sm" id="addTrk">${ic('plus')}추가</button></div>
       <div id="rTrks" style="margin-top:10px"></div>
 
-      <div class="field" style="margin-top:14px"><label class="fl">메모</label><textarea id="rMemo" rows="2">${esc(r.memo||'')}</textarea></div>
+      <div class="field" style="margin-top:14px"><label class="fl">메모</label><textarea id="rMemo" rows="1">${esc(r.memo||'')}</textarea></div>
       <hr class="sep">
       <div style="display:flex;gap:8px;justify-content:flex-end">
         ${!isNew?'<button class="btn danger ghost" id="rDel">삭제</button>':''}
@@ -1693,7 +1697,6 @@ function avatarMini(name,size){
   size=size||34;const uri=artistArtUri(name);const st=`width:${size}px;height:${size}px;border-radius:${Math.round(size/4)}px`;
   return uri?`<img class="av" style="${st}" src="${uri}" data-ph="${esc(name)}" onerror="artErr(this)" alt="">`:phBox(name,'av',st+`;font-size:${Math.round(size*0.42)}px`);
 }
-function miniArt(rel){const u=relArtByName(rel);return u?`<img class="av" src="${u}" data-ph="${esc(rel||'')}" onerror="artErr(this)" alt="">`:phBox(rel||'','av','font-size:13px');}
 // 거래/명세 등에서 릴리즈명만 있을 때 릴리즈 데이터의 앨범아트를 우선 사용
 function relArtByName(name){
   if(!name)return artUri(name)||'';
@@ -1997,11 +2000,11 @@ function renderTxBody(){
   if(!rows.length){host.appendChild(ce('div','card empty','조건에 맞는 거래가 없습니다.'));return;}
   if(f.group!=='none'){host.appendChild(groupCard(rows,f.group));return;}
   const c=ce('div','card flat tblx');
-  const show=rows.slice().sort((a,b)=>(b.date||b.ym||'').localeCompare(a.date||a.ym||'')).slice(0,400);
+  const show=rows.slice().sort((a,b)=>(b.date||b.ym||'').localeCompare(a.date||a.ym||'')).slice(0,1000);
   let h='<table style="table-layout:fixed"><thead><tr><th style="width:7%">월</th><th style="width:6%">경로</th><th style="width:29%">릴리즈 / 곡</th><th style="width:15%">크레딧</th><th class="r" style="width:7%">판매</th><th class="r" style="width:12%">매출</th><th class="r" style="width:16%">순수익(KRW)</th><th style="width:8%">분배</th></tr></thead><tbody>';
   show.forEach(t=>{const ver=t.version&&t.version!=='-'?` <span class="mut2">(${esc(t.version)})</span>`:'';
     h+=`<tr><td class="mut2 num" style="white-space:nowrap">${esc(t.ym||'')}</td><td><span class="pill ${t.src.includes('DCM')?'info':'acc'}">${t.src.includes('DCM')?'DCM':'BC'}</span></td>
-      <td><div class="cellflex">${txArt(t)}<div style="min-width:0"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><b>${esc(t.track||t.release)}</b>${ver}</div><div class="mut2" style="font-size:var(--f12);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(t.release||'')}</div></div></div></td>
+      <td title="${esc((t.track||t.release||'')+(t.release&&t.track?' — '+t.release:''))}"><div class="cellflex">${txArt(t)}<div style="min-width:0"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><b>${esc(t.track||t.release)}</b>${ver}</div><div class="mut2" style="font-size:var(--f12);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(t.release||'')}</div></div></div></td>
       <td class="mut" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(t.credited||'')}</td><td class="r num mut2">${t.qty!=null?t.qty.toLocaleString():'—'}</td>
       <td class="r num mut">${t.cur==='USD'?usd(t.gross):won(t.gross)}</td>
       <td class="r num">${won(txNetKRW(t))}${t.cur==='USD'?'<div class="mut2 num" style="font-size:11px">'+usd(t.net)+' @₩'+Math.round(rateFor(t.date)).toLocaleString('ko-KR')+'</div>':''}</td>
@@ -2009,7 +2012,7 @@ function renderTxBody(){
   h+='</tbody></table>';c.innerHTML=h;
   host.appendChild(c);
   makeColResizable(c.querySelector('table'),'tx');
-  if(rows.length>400)host.appendChild(ce('div','',`<small class="note">상위 400건 표시 (총 ${rows.length.toLocaleString()}건). 필터로 좁혀 보세요.</small>`));
+  if(rows.length>1000)host.appendChild(ce('div','',`<small class="note">상위 1,000건 표시 (총 ${rows.length.toLocaleString()}건). 필터로 좁혀 보세요.</small>`));
 }
 function splitMini(t){const ps=partiesFor(t).filter(p=>p.name!=='LABEL');const names=ps.map(p=>esc(p.name)).join(', ');return `<span class="mut" title="레이블 50% · ${esc(names)}">${names||'—'}</span>`;}
 /* 표 열 너비 사용자 조정 — 핸들 드래그로 인접 두 열의 비율을 조정, 조정 중 % 표시, 설정은 저장됨 */
@@ -2023,7 +2026,7 @@ function makeColResizable(table,key){
   if(saved&&saved.length===ths.length)ths.forEach((th,i)=>th.style.width=saved[i]+'%');
   ths.forEach((th,i)=>{
     if(i===ths.length-1)return;
-    th.style.position='relative';
+    th.style.position='sticky';th.style.top='0';
     const h=ce('div','colresize');h.title='드래그해서 열 너비 조정';th.appendChild(h);
     h.addEventListener('click',e=>e.stopPropagation());
     h.addEventListener('pointerdown',e=>{
@@ -2135,7 +2138,7 @@ function renderCatalog(v){
   bar.innerHTML=`<input class="search" id="cq" type="text" placeholder="검색: 릴리즈 · 트랙 · 아티스트">`;
   v.appendChild(bar);
   const card=ce('div','card flat tblx');
-  let head='<thead><tr><th style="width:21%">앨범</th><th style="width:24%">트랙</th><th style="width:19%">아티스트</th><th style="width:10%">버전</th><th class="r" style="width:7%">거래</th><th class="r" style="width:12%">순수익</th><th style="width:7%">분배</th></tr></thead>';
+  let head='<thead><tr><th style="width:21%">앨범</th><th style="width:24%">트랙</th><th style="width:19%">아티스트</th><th style="width:10%">버전</th><th class="r" style="width:7%">거래</th><th class="r" style="width:12%">순수익</th><th class="c" style="width:7%">분배</th></tr></thead>';
   let body='<tbody>';
   list.forEach(R=>{
     const rel=relByCat(R.cat);const tracks=R.tracks;
@@ -2150,14 +2153,14 @@ function renderCatalog(v){
           <span class="mut2" style="font-size:11px">${esc(R.cat)} · ${esc(rel&&rel.type?rel.type:R.type)}</span></div></div></td>`;
       }
       const ver=tk?(tk.version||''):(r.version==='-'?'':r.version);
-      tds+=`<td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b style="font-weight:500">${esc(tk?tk.title:r.track)}</b></td>`;
-      tds+=`<td class="mut" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(tk&&tk.artists?tk.artists:(r.artist_raw||''))}</td>`;
+      tds+=`<td title="${esc(tk?tk.title:r.track)}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b style="font-weight:500">${esc(tk?tk.title:r.track)}</b></td>`;
+      tds+=`<td class="mut" title="${esc(tk&&tk.artists?tk.artists:(r.artist_raw||''))}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(tk&&tk.artists?tk.artists:(r.artist_raw||''))}</td>`;
       tds+=`<td class="mut2" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(ver||'—')}</td>`;
       tds+=`<td class="r num mut2">${(tcnt[r.k_rtv]||0).toLocaleString()}</td>`;
       tds+=`<td class="r num">${won(tsum[r.k_rtv]||0)}</td>`;
       const ps=(S.overrides[r.k_rtv]||r.split.map(s=>({name:s[0],pct:s[2]}))).filter(p=>p.name!=='LABEL');
       const sum=ps.map(p=>esc(p.name)+' '+pctf(p.pct)).join(' · ')||'레이블 100%';
-      tds+=`<td><button class="btn sm ghost" data-edit="${esc(r.k_rtv)}" title="${esc(sum)}">분배 ✎</button></td>`;
+      tds+=`<td class="c"><button class="btn sm ghost" data-edit="${esc(r.k_rtv)}" title="${esc(sum)}">분배 ✎</button></td>`;
       body+=`<tr data-s="${stext}">${tds}</tr>`;
     });
   });
@@ -2453,7 +2456,10 @@ function artistTx(name){const out=[];ALLTX.forEach(t=>{const p=partiesFor(t).fin
 function openArtist(name){
   const L=ledger();const a=L.artists.find(x=>x.name===name)||{name,accrued:0,qualified:0,settled:0,remaining:0,payable:0,locked:0,tx:0,ch:{DCM:{accrued:0,qualified:0},BC:{accrued:0,qualified:0}},basis:{DCM:0,BC:0},basisQual:{DCM:false,BC:false}};
   const list=artistTx(name);const dates=list.map(x=>x.t.date).filter(Boolean).sort();const pay=a.payable>0;
-  const byRel={};list.forEach(x=>{const k=x.t.release||x.t.track;(byRel[k]||(byRel[k]={rel:x.t.release,nk:0,gk:0,c:0}));byRel[k].nk+=x.nk;byRel[k].gk+=x.gk;byRel[k].c++;});
+  const byRel={};list.forEach(x=>{const t=x.t;const rel=t.cat?relByCat(t.cat):null;
+    const k=rel?('#'+KX(rel.cat)):('@'+KX(t.release||t.track||''));
+    const g=byRel[k]||(byRel[k]={rel:(rel?rel.title:(t.release||'')),t0:t,nk:0,gk:0,c:0});
+    g.nk+=x.nk;g.gk+=x.gk;g.c++;});
   const rels=Object.values(byRel).sort((a,b)=>b.nk-a.nk);
   const sheet=$('#sheet');
   const chRow=(lab,key,thrTxt,isUsd)=>{const cb=a.ch[key];const basis=a.basis[key];
@@ -2472,7 +2478,7 @@ function openArtist(name){
     <div id="aBody" style="margin-top:10px"></div>`;
   const body=$('#aBody');
   const drawRel=()=>{let h='<div class="card flat tblx"><table><thead><tr><th>릴리즈</th><th class="r">거래</th><th class="r">매출(귀속)</th><th class="r">순수익(귀속)</th></tr></thead><tbody>';
-    rels.forEach(r=>{h+=`<tr><td><div class="cellflex">${miniArt(r.rel)}<b>${esc(r.rel||'—')}</b></div></td><td class="r num mut2">${r.c}</td><td class="r num mut">${won(r.gk)}</td><td class="r num">${won(r.nk)}</td></tr>`;});h+='</tbody></table></div>';body.innerHTML=h;};
+    rels.forEach(r=>{h+=`<tr><td><div class="cellflex">${txArt(r.t0)}<b>${esc(r.rel||'(미지정)')}</b></div></td><td class="r num mut2">${r.c}</td><td class="r num mut">${won(r.gk)}</td><td class="r num">${won(r.nk)}</td></tr>`;});h+='</tbody></table></div>';body.innerHTML=h;};
   const drawTx=()=>{let h='<div class="card flat tblx"><table><thead><tr><th>월</th><th>경로</th><th>곡</th><th class="r">지분</th><th class="r">순수익(귀속)</th></tr></thead><tbody>';
     list.slice().sort((a,b)=>(b.t.date||'').localeCompare(a.t.date||'')).slice(0,200).forEach(x=>{h+=`<tr><td class="mut2 num">${esc(x.t.ym||'')}</td><td><span class="pill ${x.t.src.includes('DCM')?'info':'acc'}">${x.t.src.includes('DCM')?'DCM':'BC'}</span></td><td>${esc(x.t.track||x.t.release)}${x.t.version&&x.t.version!=='-'?' <span class="mut2">('+esc(x.t.version)+')</span>':''}</td><td class="r num mut">${pctf(x.pct)}</td><td class="r num">${won(x.nk)}</td></tr>`;});h+='</tbody></table></div>';body.innerHTML=h;};
   const drawStmt=()=>{const txt=statementText(name,a,rels,dates);
