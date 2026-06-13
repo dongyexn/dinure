@@ -125,9 +125,9 @@ a{color:var(--t2)}
 /* ============ login gate ============ */
 body:not(.authed) .app{display:none}
 #gate{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(180deg,rgba(8,8,12,.40) 0%,rgba(8,8,12,.62) 100%),url('./login-bg.jpg') center/cover no-repeat #0A0A0B;padding:24px;overflow:hidden}
+  background:radial-gradient(125% 125% at 50% 42%, transparent 52%, rgba(0,0,0,.42) 100%),linear-gradient(180deg,rgba(8,8,12,.40) 0%,rgba(8,8,12,.62) 100%),url('./login-bg.jpg') center/cover no-repeat #0A0A0B;padding:24px;overflow:hidden}
 body.authed #gate{display:none}
-#gateGrain{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.10;mix-blend-mode:overlay;z-index:1}
+#gateGrain{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.17;mix-blend-mode:overlay;z-index:1}
 /* 큰 진폭(±8~12vmax)·스케일(~1.3)로 '눈에 띄는' 유체 이동, 15~24초로 빠르게 */
 
 .gatecard{position:relative;z-index:2;width:min(380px,100%);background:color-mix(in srgb,var(--card) 97%,transparent);
@@ -2702,7 +2702,7 @@ boot();
 (function(){
   const canvas=document.getElementById('gateGrain'); if(!canvas)return;
   const ctx=canvas.getContext('2d',{alpha:true});
-  const TILE=180, SPREAD=60;
+  const TILE=180, SPREAD=92;
   let DPR=Math.min(window.devicePixelRatio||1,1.5), W=0, H=0, running=true, last=0;
   const tile=document.createElement('canvas'); tile.width=tile.height=TILE;
   const tctx=tile.getContext('2d'); const img=tctx.createImageData(TILE,TILE);
@@ -2710,7 +2710,24 @@ boot();
   function refreshTile(){const d=img.data;for(let i=0;i<d.length;i+=4){const v=128+(Math.random()*2-1)*SPREAD;d[i]=d[i+1]=d[i+2]=v;}tctx.putImageData(img,0,0);}
   function resize(){DPR=Math.min(window.devicePixelRatio||1,1.5);W=Math.floor(innerWidth*DPR);H=Math.floor(innerHeight*DPR);
     canvas.width=W;canvas.height=H;canvas.style.width=innerWidth+'px';canvas.style.height=innerHeight+'px';}
-  function paint(){refreshTile();ctx.fillStyle=ctx.createPattern(tile,'repeat');ctx.fillRect(0,0,W,H);}
+  function paint(){
+    refreshTile();
+    ctx.globalAlpha=1;
+    ctx.fillStyle=ctx.createPattern(tile,'repeat');
+    ctx.fillRect(0,0,W,H);
+    // 굵은 입자: 매 프레임 무작위로 흩뿌려 아날로그 필름 클럼프 느낌. 밀도가 프레임마다 살짝 변해 '가끔' 섞이는 느낌.
+    const area=(W*H)/(DPR*DPR);
+    const n=Math.round(area/9500*(0.65+Math.random()*0.7));
+    for(let i=0;i<n;i++){
+      const big=Math.random()<0.13;                       // 13%는 더 굵은 입자
+      const s=(big?2.4+Math.random()*4.2:1+Math.random()*1.5)*DPR;
+      const v=Math.random()<0.5?0:255;                    // 어둡거나 밝은 알갱이
+      ctx.globalAlpha=big?0.10+Math.random()*0.26:0.05+Math.random()*0.14;
+      ctx.fillStyle=v?'#fff':'#000';
+      ctx.fillRect(Math.random()*W,Math.random()*H,s,s);
+    }
+    ctx.globalAlpha=1;
+  }
   const INTERVAL=1000/10;   // 10fps
   function loop(t){ if(!running)return;
     if(canvas.offsetParent!==null && t-last>=INTERVAL){ last=t; paint(); }  // 게이트 보일 때만(로그인 후 자동 정지)
