@@ -150,6 +150,11 @@ body.authed #gate{display:none}
 .topbar{display:flex;align-items:center;gap:10px;padding:0 var(--s5);height:56px;border-bottom:1px solid var(--bd);flex:none;background:transparent}
 .hamb{display:none}
 .topbar h1{font-size:var(--f14);font-weight:600;color:var(--t1);margin:0;white-space:nowrap}
+.topactions{display:flex;align-items:center;gap:8px}
+.colresize{position:absolute;top:0;right:-4px;width:9px;height:100%;cursor:col-resize;z-index:4;touch-action:none}
+.colresize::after{content:"";position:absolute;top:25%;right:4px;width:2px;height:50%;background:transparent;border-radius:2px;transition:background .12s}
+.colresize:hover::after,.colresize.active::after{background:var(--accent)}
+.colresize-tip{position:fixed;display:none;transform:translateX(-50%);background:var(--sel);border:1px solid var(--bd2);color:var(--t1);font-size:11px;font-weight:500;padding:4px 8px;border-radius:7px;pointer-events:none;z-index:200;white-space:nowrap;box-shadow:var(--float-sh)}
 .spacer{flex:1}
 .fxchip{display:flex;align-items:center;gap:7px;font-size:var(--f12);color:var(--t3);border:1px solid var(--bd2);
   background:transparent;padding:6px 11px;border-radius:99px;cursor:pointer;transition:border-color .14s,background .14s}
@@ -439,16 +444,22 @@ img.noart{background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http:
 /* ============ home widgets ============ */
 .homecols{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4);align-items:start}
 .homecol{display:flex;flex-direction:column;gap:var(--s4);min-width:0}
+.homecol .card{transition:border-color .14s var(--ease)}
+.homecol>div>.card:hover{border-color:var(--bd3)}
 .card.scrolly{max-height:340px;overflow-y:auto}
 .hstats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.hstat{border-radius:8px;padding:6px 4px;transition:background .14s var(--ease)}
+.hstat:hover{background:var(--hov)}
 .hstat .hv{font-size:var(--f18);font-weight:600;color:var(--t1);line-height:1.1}
 .hstat .hl{font-size:var(--f11);color:var(--t4);margin-top:3px}
 .hsplit{margin-top:14px;display:flex;flex-direction:column;gap:9px;border-top:1px solid var(--bd);padding-top:13px}
-.trow{display:grid;grid-template-columns:64px 1fr 26px;gap:10px;align-items:center}
+.trow{display:grid;grid-template-columns:64px 1fr 26px;gap:10px;align-items:center;padding:4px 6px;margin:0 -6px;border-radius:6px;transition:background .14s var(--ease)}
+.trow:hover{background:var(--hov)}
 .trow .tl{font-size:var(--f12);color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trow .tn{font-size:var(--f12);color:var(--t2);text-align:right}
-.prow{padding:9px 0}
-.prow:first-child{padding-top:0}
+.prow{padding:9px 8px;margin:0 -8px;border-radius:8px;transition:background .14s var(--ease)}
+.prow:hover{background:var(--hov)}
+.prow:first-child{padding-top:9px}
 .prow+.prow{border-top:1px solid var(--bd)}
 .prow .ph{display:flex;align-items:center;gap:8px}
 
@@ -473,9 +484,8 @@ img.noart{background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http:
 .plist .pcat{font-size:var(--f11);font-weight:600;letter-spacing:.03em;color:var(--accent);padding:12px 11px 5px}
 
 /* ============ link page spacing ============ */
-.linkhead{display:flex;justify-content:flex-end;gap:8px;margin:0}
-.linkhead+.linkcat{margin-top:0}
-.linkhead+.linkcat>.catgrp{margin-top:0}
+.linkcat:first-child{margin-top:0}
+.linkcat:first-child>.catgrp{margin-top:0}
 .txsum{font-size:var(--f12);color:var(--t4);padding:4px 2px 0}
 
 @media (max-width:920px){
@@ -571,6 +581,7 @@ img.noart{background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http:
       <button class="iconbtn hamb" id="hamb"><svg><use href="#i-menu"/></svg></button>
       <h1 id="vTitle"></h1>
       <div class="spacer"></div>
+      <div class="topactions" id="topActions"></div>
     </header>
     <div class="view" id="viewport"><div class="wrap" id="view"></div></div>
   </div>
@@ -902,7 +913,7 @@ const Store=(()=>{
 
 /* ===================== state ===================== */
 const S={ view:'home', fx:{rate:1380,updated:null}, fxByYm:{},
-  thrKRW:30000, thrUSD:10, settleMode:'release', theme:'dark', themeColor:'default', profile:{name:''},
+  thrKRW:30000, thrUSD:10, settleMode:'release', theme:'dark', themeColor:'default', profile:{name:''}, colWidths:{},
   settlements:[], settleRuns:[], overrides:{}, relOverrides:{}, artOverrides:{}, customCols:[],
   import:{tx:[],dcmYms:[],bcRanges:[]},
   releases:[], roster:[], presets:[], notes:[], links:[], extra:[], expenses:[],
@@ -926,7 +937,7 @@ const maxId=()=>Math.max(0,...TX_DATA.map(t=>t.id),...S.import.tx.map(t=>t.id));
 const COLS=['settings','fx','settlements','settleRuns','expenses','overrides','relOverrides','artOverrides','customCols','import',
   'releases','roster','presets','notes','links','extra','navcfg','linkcfg'];
 async function loadState(){
-  const s=await Store.get('settings');if(s){S.thrKRW=s.thrKRW??S.thrKRW;S.thrUSD=s.thrUSD??S.thrUSD;if(s.settleMode)S.settleMode=s.settleMode;if(s.theme)S.theme=s.theme;if(s.themeColor)S.themeColor=THEME_COLORS.some(t=>t.k===s.themeColor)?s.themeColor:'default';if(s.profile)S.profile=s.profile;}
+  const s=await Store.get('settings');if(s){S.thrKRW=s.thrKRW??S.thrKRW;S.thrUSD=s.thrUSD??S.thrUSD;if(s.settleMode)S.settleMode=s.settleMode;if(s.theme)S.theme=s.theme;if(s.themeColor)S.themeColor=THEME_COLORS.some(t=>t.k===s.themeColor)?s.themeColor:'default';if(s.profile)S.profile=s.profile;if(s.colWidths)S.colWidths=s.colWidths;}
   const fx=await Store.get('fx');if(fx){if(fx.rate)S.fx.rate=fx.rate;S.fx.updated=fx.updated;if(fx.byYm)S.fxByYm=fx.byYm;}
   S.settlements=await Store.get('settlements')||[];
   S.settleRuns=await Store.get('settleRuns')||[];
@@ -961,7 +972,7 @@ function seedDefaults(){
   }
 }
 const who=()=>S.profile.name||'운영진';
-const saveSettings=()=>Store.set('settings',{thrKRW:S.thrKRW,thrUSD:S.thrUSD,settleMode:S.settleMode,theme:S.theme,themeColor:S.themeColor,profile:S.profile},who());
+const saveSettings=()=>Store.set('settings',{thrKRW:S.thrKRW,thrUSD:S.thrUSD,settleMode:S.settleMode,theme:S.theme,themeColor:S.themeColor,profile:S.profile,colWidths:S.colWidths},who());
 const saveFx=()=>Store.set('fx',{rate:S.fx.rate,updated:S.fx.updated,byYm:S.fxByYm},who());
 const saveRuns=()=>Store.set('settleRuns',S.settleRuns,who());
 const saveSettle=()=>Store.set('settlements',S.settlements,who());
@@ -981,7 +992,7 @@ const saveLinkcfg=()=>Store.set('linkcfg',S.linkcfg,who());
 /* 화면 모드 — 다크/라이트 + 테마(메인·보조·배경 동시 변경) */
 const THEME_COLORS=[
   {k:'default',name:'블루',  accent:'#2997FF', sub:'#64D2FF', tint:'#2997FF'},
-  {k:'navy',   name:'네이비', accent:'#5B9BFF', sub:'#8FC0FF', tint:'#284B86'}
+  {k:'navy',   name:'네이비', accent:'#2E8BFF', sub:'#7FB4FF', tint:'#274B86'}
 ];
 const _SURF=['shell','bg','panel','panel2','card','hov','sel','inp'];
 const _BASE_DARK ={shell:'#000000',bg:'#0A0A0B',panel:'#141415',panel2:'#101011',card:'#1D1D1F',hov:'#27272A',sel:'#2C2C2E',inp:'#141415'};
@@ -1083,6 +1094,7 @@ function render(){
   $('#vTitle').textContent=VIEWS[S.view];
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.view));
   $('#gearBtn').classList.toggle('on',S.view==='settings');
+  const ta=$('#topActions');if(ta)ta.innerHTML='';
   renderUpnext();
   const v=$('#view');v.innerHTML='';
   (({home:renderHome,rel:renderRel,roster:renderRoster,mail:renderMail,settle:renderSettleView,
@@ -1247,16 +1259,16 @@ function renderHome(v){
     n1.appendChild(c);
   }else n1.appendChild(ce('div','card empty','아직 회의록이 없습니다.'));
 
-  // 좌측: 다가오는 릴리즈 · 정산 대기 · 발매 경로 / 우측: 릴리즈 현황 · 최근 회의록 · 최근 발매
-  colL.appendChild(upBox);colL.appendChild(swBox);colL.appendChild(platformWidget(L));
-  colR.appendChild(releaseStatusWidget());colR.appendChild(n1);colR.appendChild(recentReleasesWidget());
+  // 좌측: 다가오는 릴리즈 · 최신 릴리즈 · 회의록 / 우측: 릴리즈 현황 · 발매 경로 · 정산 대기
+  colL.appendChild(upBox);colL.appendChild(recentReleasesWidget());colL.appendChild(n1);
+  colR.appendChild(releaseStatusWidget());colR.appendChild(platformWidget(L));colR.appendChild(swBox);
 }
 
 /* 홈 위젯 — 최근 발매 (릴리즈 관련) */
 function recentReleasesWidget(){
   const today=todayISO();
   const out=S.releases.filter(r=>r.date&&r.date<=today).sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,5);
-  const wrap=ce('div');wrap.appendChild(secH('최근 발매',''));
+  const wrap=ce('div');wrap.appendChild(secH('최신 릴리즈',''));
   if(out.length){const c=ce('div','card flat');out.forEach(r=>c.appendChild(relRowEl(r)));wrap.appendChild(c);}
   else wrap.appendChild(ce('div','card empty','발매된 릴리즈가 아직 없습니다.'));
   return wrap;
@@ -1272,12 +1284,12 @@ function releaseStatusWidget(){
   const types={};rels.forEach(r=>{const t=r.type||'기타';types[t]=(types[t]||0)+1;});
   const wrap=ce('div');wrap.appendChild(secH('릴리즈 현황',''));
   const c=ce('div','card');
-  const stat=(lab,val)=>`<div class="hstat"><div class="hv num">${val}</div><div class="hl">${lab}</div></div>`;
+  const stat=(lab,val,tip)=>`<div class="hstat" title="${esc(tip||lab)}"><div class="hv num">${val}</div><div class="hl">${lab}</div></div>`;
   const rows=Object.entries(types).sort((a,b)=>b[1]-a[1]).map(([t,n])=>{
     const w=Math.max(4,Math.round(n/Math.max(1,total)*100));
     return `<div class="trow" title="${esc(t)} ${n}개 · 전체의 ${Math.round(n/Math.max(1,total)*100)}%"><span class="tl">${esc(t)}</span><div class="bartrack"><div class="barfill" style="width:${w}%"></div></div><span class="tn num">${n}</span></div>`;
   }).join('');
-  c.innerHTML=`<div class="hstats">${stat('총 릴리즈',total)}${stat(yr+' 발매',thisYear)}${stat('예정',upcoming)}${stat('트랙',trkTotal)}</div>
+  c.innerHTML=`<div class="hstats">${stat('총 릴리즈',total,'등록된 릴리즈 전체')}${stat(yr+' 발매',thisYear,yr+'년에 발매된 릴리즈')}${stat('예정',upcoming,'발매 예정(미래 날짜) 릴리즈')}${stat('트랙',trkTotal,'전체 릴리즈의 트랙 수 합계')}</div>
     ${total?`<div class="hsplit">${rows}</div>`:'<div class="mut2" style="font-size:var(--f12);margin-top:8px">등록된 릴리즈가 없습니다.</div>'}`;
   wrap.appendChild(c);return wrap;
 }
@@ -1893,6 +1905,7 @@ function renderArtists(v){
     render();});
   c.querySelectorAll('tr[data-a]').forEach(tr=>tr.onclick=()=>openArtist(tr.dataset.a));
   v.appendChild(c);
+  makeColResizable(c.querySelector('table'),'artists');
 }
 
 /* ---- 거래 ---- */
@@ -1937,9 +1950,48 @@ function renderTxBody(){
       <td>${splitMini(t)}${t.risky?' <span class="pill warn" title="자동 분배 — 릴리즈 탭에서 확인·수정 권장">확인</span>':''}</td></tr>`;});
   h+='</tbody></table>';c.innerHTML=h;
   host.appendChild(c);
+  makeColResizable(c.querySelector('table'),'tx');
   if(rows.length>400)host.appendChild(ce('div','',`<small class="note">상위 400건 표시 (총 ${rows.length.toLocaleString()}건). 필터로 좁혀 보세요.</small>`));
 }
 function splitMini(t){const ps=partiesFor(t).filter(p=>p.name!=='LABEL');const names=ps.map(p=>esc(p.name)).join(', ');return `<span class="mut" title="레이블 50% · ${esc(names)}">${names||'—'}</span>`;}
+/* 표 열 너비 사용자 조정 — 핸들 드래그로 인접 두 열의 비율을 조정, 조정 중 % 표시, 설정은 저장됨 */
+let _crTip=null;
+function makeColResizable(table,key){
+  if(!table||!table.tHead||!table.tHead.rows.length)return;
+  const ths=[...table.tHead.rows[0].cells];
+  if(ths.length<2)return;
+  table.style.tableLayout='fixed';
+  const saved=S.colWidths&&S.colWidths[key];
+  if(saved&&saved.length===ths.length)ths.forEach((th,i)=>th.style.width=saved[i]+'%');
+  ths.forEach((th,i)=>{
+    if(i===ths.length-1)return;
+    th.style.position='relative';
+    const h=ce('div','colresize');h.title='드래그해서 열 너비 조정';th.appendChild(h);
+    h.addEventListener('click',e=>e.stopPropagation());
+    h.addEventListener('pointerdown',e=>{
+      e.preventDefault();e.stopPropagation();
+      const tableW=table.clientWidth||1, next=ths[i+1], startX=e.clientX;
+      const w1=th.getBoundingClientRect().width, w2=next.getBoundingClientRect().width, pair=w1+w2;
+      h.classList.add('active');try{h.setPointerCapture(e.pointerId);}catch(_){}
+      if(!_crTip){_crTip=ce('div','colresize-tip');document.body.appendChild(_crTip);}
+      _crTip.style.display='block';
+      const move=ev=>{
+        const n1=Math.max(44,Math.min(pair-44,w1+(ev.clientX-startX))), n2=pair-n1;
+        const p1=n1/tableW*100, p2=n2/tableW*100;
+        th.style.width=p1.toFixed(2)+'%';next.style.width=p2.toFixed(2)+'%';
+        _crTip.textContent=Math.round(p1)+'%  ·  '+Math.round(p2)+'%';
+        _crTip.style.left=ev.clientX+'px';_crTip.style.top=(th.getBoundingClientRect().bottom+10)+'px';
+      };
+      const up=()=>{
+        document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',up);
+        h.classList.remove('active');if(_crTip)_crTip.style.display='none';
+        const ws=ths.map(t=>+(t.getBoundingClientRect().width/tableW*100).toFixed(2));
+        S.colWidths=S.colWidths||{};S.colWidths[key]=ws;saveSettings();
+      };
+      document.addEventListener('pointermove',move);document.addEventListener('pointerup',up);
+    });
+  });
+}
 function groupCard(rows,by){
   const key=t=>by==='ym'?t.ym:by==='year'?(t.ym?t.ym.slice(0,4):'?'):by==='track'?(t.track||t.release):by==='release'?t.release:'';
   const G={};
@@ -2051,6 +2103,7 @@ function renderCatalog(v){
   });
   body+='</tbody>';
   const tbl=ce('table');tbl.style.tableLayout='fixed';tbl.innerHTML=head+body;card.appendChild(tbl);v.appendChild(card);
+  makeColResizable(tbl,'catalog');
   v.appendChild(ce('div','',`<small class="note">릴리즈명 · 트랙 메타데이터는 <b>릴리즈</b> 페이지와 연동됩니다. 분배 비율 수정은 매칭된 거래에 즉시 반영됩니다.</small>`));
   $('#cq').oninput=()=>{const q=KX($('#cq').value);card.querySelectorAll('tbody tr').forEach(tr=>{tr.style.display=(!q||tr.dataset.s.includes(q))?'':'none';});};
   card.querySelectorAll('td[data-rel]').forEach(td=>td.onclick=()=>openReleaseByCat(td.dataset.rel));
@@ -2474,9 +2527,8 @@ function buildNoteEditor(host,n){
 
 /* ===================== 링크 ===================== */
 function renderLinks(v){
-  const hbar=ce('div','linkhead');
-  hbar.innerHTML=`<button class="btn sm" id="addCat">${ic('plus')}유형</button><button class="btn sm pri" id="addLink">${ic('plus')}추가</button>`;
-  v.appendChild(hbar);
+  const ta=$('#topActions');
+  if(ta)ta.innerHTML=`<button class="btn sm" id="addCat">${ic('plus')}유형</button><button class="btn sm pri" id="addLink">${ic('plus')}추가</button>`;
   const cats=S.linkcfg.cats.slice();
   const uncatted=S.links.filter(l=>!cats.includes(l.cat));
   const renameCat=(cur,val)=>{
@@ -2876,13 +2928,33 @@ boot();
    절반(180°)을 넘었으면 정방향으로 마저 돌고, 아니면 역회전. 복귀는 평소보다 빠르게. */
 (function(){
   function wire(el){
-    let raf=null, ang=0, last=0, spin=false;
-    const SPEED=360/3200; // deg/ms — 한 바퀴 약 3.2초 (눈에 띄게)
-    el.style.cursor='pointer';el.style.transformOrigin='50% 50%';
-    const cur=()=>{const m=getComputedStyle(el).transform;if(!m||m==='none')return ang;const x=m.match(/matrix\(([^)]+)\)/);if(!x)return ang;const p=x[1].split(',').map(Number);return ((Math.atan2(p[1],p[0])*180/Math.PI)+360)%360;};
-    function frame(t){ if(!spin){raf=null;return;} if(last)ang=(ang+(t-last)*SPEED)%360; last=t; el.style.transition='none'; el.style.transform='rotate('+ang+'deg)'; raf=requestAnimationFrame(frame); }
-    el.addEventListener('mouseenter',()=>{ ang=cur(); last=0; spin=true; if(!raf)raf=requestAnimationFrame(frame); });
-    el.addEventListener('mouseleave',()=>{ spin=false; ang=cur(); const target=ang>180?360:0; el.style.transition='transform .32s cubic-bezier(.4,0,.2,1)'; el.style.transform='rotate('+target+'deg)'; });
+    let raf=null, ang=0, last=0, spinning=false;
+    const SPEED=360/2400; // deg/ms — 한 바퀴 약 2.4초
+    el.style.cursor='pointer';
+    el.style.transformOrigin='50% 50%';
+    function step(t){
+      if(!spinning){raf=null;return;}
+      if(last) ang+=(t-last)*SPEED;
+      last=t;
+      el.style.transition='none';
+      el.style.transform='rotate('+ang+'deg)';
+      raf=requestAnimationFrame(step);
+    }
+    el.addEventListener('mouseenter',function(){
+      spinning=true; last=0;
+      if(!raf) raf=requestAnimationFrame(step);
+    });
+    el.addEventListener('mouseleave',function(){
+      spinning=false;
+      if(raf){cancelAnimationFrame(raf);raf=null;}
+      const target=Math.round(ang/360)*360;          // 가장 가까운 정위치(원래 상태)
+      el.style.transition='transform .3s cubic-bezier(.25,.1,.25,1)';
+      el.style.transform='rotate('+target+'deg)';      // 빠르게 원위치로 복귀
+      ang=0;
+      const done=function(e){ if(e&&e.propertyName!=='transform')return;
+        el.style.transition=''; el.style.transform=''; el.removeEventListener('transitionend',done); };
+      el.addEventListener('transitionend',done);
+    });
   }
   document.querySelectorAll('.brand .logo,.gatecard .logo').forEach(wire);
 })();
