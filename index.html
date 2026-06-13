@@ -621,12 +621,9 @@ function _dlg({title,msg,input,placeholder,ok,danger,cancel}){
 const dlgConfirm=(msg,opt={})=>_dlg({msg,...opt});
 const dlgPrompt=(msg,def='',opt={})=>_dlg({msg,input:def,...opt});
 const artUri=rel=>{const k=KX(rel);if(S.artOverrides[k])return S.artOverrides[k];const a=ART_DATA[k];return a?a.uri:null;};
-function fileToThumb(file,max,cb){
-  if(!file||!/^image\//.test(file.type)){cb(null);return;}
-  const fr=new FileReader();
-  fr.onload=()=>{const img=new Image();img.onload=()=>{const sc=Math.min(1,max/Math.max(img.width,img.height));const w=Math.round(img.width*sc),h=Math.round(img.height*sc);const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);cb(cv.toDataURL('image/jpeg',0.84));};img.onerror=()=>cb(null);img.src=fr.result;};
-  fr.onerror=()=>cb(null);fr.readAsDataURL(file);
-}
+// 앨범아트: 카탈로그 번호(DIN-045 → DIN045)로 같은 폴더의 art/DIN045.jpg 를 가리킴 (정적 폴더, 읽기 전용)
+const catKey=c=>(c||'').replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+const artCatUrl=cat=>{const k=catKey(cat);return k?`./art/${k}.jpg`:'';};
 
 /* ===================== split engine (검증 완료 — 원본 이식) ===================== */
 const VTYPES=['extended club mix','extended mix','club mix','radio edit','radio mix','original mix','vocal mix','instrumental','extended','respray','rework','bootleg','remix','edit','flip','vip','dub','mix','version'];
@@ -1206,7 +1203,7 @@ function renderHome(v){
 
 /* ===================== 릴리즈 ===================== */
 const relUpcoming=r=>!r.date||r.date>=todayISO();
-function relArt(r){return r.artUri||artUri(r.title)||'';}
+function relArt(r){return r.artUri||artUri(r.title)||artCatUrl(r.cat)||'';}
 function relRowEl(r){
   const d=dday(r.date);const up=relUpcoming(r);
   const gv=r.genre||(r.tracks||[]).map(t=>t.genre).filter(Boolean)[0]||'';
@@ -1351,11 +1348,10 @@ function openRelease(id,draft){
       <div class="mut2" style="font-size:var(--f12)">${isNew?'발매 정보를 입력하세요. 저장하면 모든 운영진에게 공유됩니다.':esc(r.cat||'')}</div>
       <hr class="sep">
       <div class="imgpick">
-        <label class="artup" title="클릭해서 앨범아트 업로드">
+        <div class="artup" title="앨범아트는 레포의 art/ 폴더에서 카탈로그 번호로 자동 로드됩니다">
           <img class="prev" id="rArtPrev" src="${relArt(r)}" onerror="this.removeAttribute('src');this.classList.add('noart')" alt="">
-          <span class="ov">${r.artUri||relArt(r)?'이미지 변경':'앨범아트 업로드'}</span>
-          <input type="file" id="rArtFile" accept="image/*" style="display:none">
-        </label>
+          <span class="ov">${catKey(r.cat)?'art/'+catKey(r.cat)+'.jpg':'카탈로그 번호 필요'}</span>
+        </div>
         <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:space-between;gap:7px">
           <div class="frow">
             <div class="field" style="flex:2"><label class="fl">릴리즈명</label><input type="text" id="rTitle" value="${esc(r.title)}" placeholder="예: Step Forward"></div>
@@ -1396,7 +1392,6 @@ function openRelease(id,draft){
     collectTrks();
   }
   function bind(){
-    $('#rArtFile').onchange=e=>{const f=e.target.files[0];fileToThumb(f,600,uri=>{if(uri){collect();r.artUri=uri;const p=$('#rArtPrev');p.classList.remove('noart');p.src=uri;}else toast('이미지를 읽지 못했습니다');});};
     $('#addTrk').onclick=()=>{collectTrks();r.tracks.push({title:'',version:'',artists:'',genre:'',bpm:'',key:''});renderTrks();};
     const del=$('#rDel');if(del)del.onclick=async()=>{
       if(!await dlgConfirm('이 릴리즈를 삭제할까요?',{ok:'삭제',danger:true}))return;
