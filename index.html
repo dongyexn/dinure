@@ -102,7 +102,7 @@ a{color:var(--t2)}
 .nav button:hover{background:var(--hov);color:var(--t1)}
 .nav button.on{background:var(--sel);color:var(--t1);font-weight:500}
 .nav button.on svg{opacity:1}
-.side .grp{font-size:var(--f11);color:var(--t4);padding:16px 10px 6px;font-weight:500;letter-spacing:.04em;display:flex;align-items:center}
+.side .grp{font-size:var(--f11);color:var(--accent);padding:16px 10px 6px;font-weight:600;letter-spacing:.04em;display:flex;align-items:center}
 .side .navgroup:first-child .grp{padding-top:4px}
 .upwrap{margin-top:auto;padding-top:12px}
 .upnext{display:flex;flex-direction:column;gap:1px}
@@ -437,7 +437,8 @@ img.noart{background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http:
 /* ============ mobile ============ */
 #sideov{position:fixed;inset:0;background:var(--scrim);z-index:69;opacity:0;visibility:hidden;transition:.2s}
 /* ============ home widgets ============ */
-.homegrid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);align-items:start}
+.homecols{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4);align-items:start}
+.homecol{display:flex;flex-direction:column;gap:var(--s4);min-width:0}
 .card.scrolly{max-height:340px;overflow-y:auto}
 .hstats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .hstat .hv{font-size:var(--f18);font-weight:600;color:var(--t1);line-height:1.1}
@@ -455,7 +456,8 @@ img.noart{background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http:
 .setgrid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4);align-items:start}
 .setcol{display:flex;flex-direction:column;gap:20px}
 .seth{font-size:var(--f12);font-weight:600;color:var(--t1);letter-spacing:-.01em;margin:0 2px 9px}
-.setrow{display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap}
+.thmrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.thmrow .swatches{margin-left:auto}
 .swatches{display:flex;gap:10px;flex-wrap:nowrap}
 .swatch{all:unset;cursor:pointer;width:26px;height:26px;border-radius:50%;
   background:linear-gradient(135deg,var(--sw) 0 55%,var(--sw2) 55% 100%);
@@ -471,7 +473,9 @@ img.noart{background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http:
 .plist .pcat{font-size:var(--f11);font-weight:600;letter-spacing:.03em;color:var(--accent);padding:12px 11px 5px}
 
 /* ============ link page spacing ============ */
-.linkhead{display:flex;justify-content:flex-end;gap:8px;margin-bottom:2px}
+.linkhead{display:flex;justify-content:flex-end;gap:8px;margin:0}
+.linkhead+.linkcat{margin-top:0}
+.linkhead+.linkcat>.catgrp{margin-top:0}
 .txsum{font-size:var(--f12);color:var(--t4);padding:4px 2px 0}
 
 @media (max-width:920px){
@@ -486,7 +490,7 @@ img.noart{background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http:
   .topbar{padding:0 14px;height:54px}
   .wrap{padding:16px 14px;gap:var(--s3);padding-bottom:calc(24px + env(safe-area-inset-bottom))}
   .kpis{grid-template-columns:1fr 1fr;gap:9px}
-  .homegrid,.setgrid{grid-template-columns:1fr}
+  .homecols,.setgrid{grid-template-columns:1fr}
   .card{padding:15px}
   .kpi .val{font-size:var(--f18)}
   .kpi .val.sm{font-size:var(--f18)}
@@ -922,7 +926,7 @@ const maxId=()=>Math.max(0,...TX_DATA.map(t=>t.id),...S.import.tx.map(t=>t.id));
 const COLS=['settings','fx','settlements','settleRuns','expenses','overrides','relOverrides','artOverrides','customCols','import',
   'releases','roster','presets','notes','links','extra','navcfg','linkcfg'];
 async function loadState(){
-  const s=await Store.get('settings');if(s){S.thrKRW=s.thrKRW??S.thrKRW;S.thrUSD=s.thrUSD??S.thrUSD;if(s.settleMode)S.settleMode=s.settleMode;if(s.theme)S.theme=s.theme;if(s.themeColor)S.themeColor=s.themeColor;if(s.profile)S.profile=s.profile;}
+  const s=await Store.get('settings');if(s){S.thrKRW=s.thrKRW??S.thrKRW;S.thrUSD=s.thrUSD??S.thrUSD;if(s.settleMode)S.settleMode=s.settleMode;if(s.theme)S.theme=s.theme;if(s.themeColor)S.themeColor=THEME_COLORS.some(t=>t.k===s.themeColor)?s.themeColor:'default';if(s.profile)S.profile=s.profile;}
   const fx=await Store.get('fx');if(fx){if(fx.rate)S.fx.rate=fx.rate;S.fx.updated=fx.updated;if(fx.byYm)S.fxByYm=fx.byYm;}
   S.settlements=await Store.get('settlements')||[];
   S.settleRuns=await Store.get('settleRuns')||[];
@@ -974,19 +978,16 @@ const saveExtra=()=>Store.set('extra',S.extra,who());
 const saveExpenses=()=>Store.set('expenses',S.expenses,who());
 const saveNavcfg=()=>Store.set('navcfg',S.navcfg,who());
 const saveLinkcfg=()=>Store.set('linkcfg',S.linkcfg,who());
-/* 화면 모드 — 다크/라이트 + 테마(메인·보조·배경 동시 변경) 5종 */
+/* 화면 모드 — 다크/라이트 + 테마(메인·보조·배경 동시 변경) */
 const THEME_COLORS=[
-  {k:'default',name:'블루',    accent:'#2997FF', sub:'#64D2FF', tint:'#2997FF'},
-  {k:'violet', name:'바이올렛', accent:'#8B5CF6', sub:'#C4B5FD', tint:'#7C5CFF'},
-  {k:'emerald',name:'에메랄드', accent:'#10B981', sub:'#5EEAD4', tint:'#10C57F'},
-  {k:'amber',  name:'앰버',    accent:'#F59E0B', sub:'#FCD34D', tint:'#F0A12B'},
-  {k:'rose',   name:'로즈',    accent:'#FB5C7D', sub:'#FDA4AF', tint:'#FB5C7D'}
+  {k:'default',name:'블루',  accent:'#2997FF', sub:'#64D2FF', tint:'#2997FF'},
+  {k:'navy',   name:'네이비', accent:'#5B9BFF', sub:'#8FC0FF', tint:'#284B86'}
 ];
 const _SURF=['shell','bg','panel','panel2','card','hov','sel','inp'];
 const _BASE_DARK ={shell:'#000000',bg:'#0A0A0B',panel:'#141415',panel2:'#101011',card:'#1D1D1F',hov:'#27272A',sel:'#2C2C2E',inp:'#141415'};
 const _BASE_LIGHT={shell:'#F5F5F7',bg:'#FFFFFF',panel:'#F5F5F7',panel2:'#F5F5F7',card:'#FFFFFF',hov:'#ECECF0',sel:'#E2E2E7',inp:'#FFFFFF'};
-const _TINT_DARK ={shell:16,bg:11,panel:12,panel2:12,card:8,hov:11,sel:12,inp:11};
-const _TINT_LIGHT={shell:10,bg:4, panel:8, panel2:8, card:3,hov:9, sel:10,inp:3};
+const _TINT_DARK ={shell:12,bg:8, panel:9, panel2:9, card:6,hov:8, sel:9, inp:8};
+const _TINT_LIGHT={shell:7, bg:3, panel:6, panel2:6, card:2,hov:6, sel:7, inp:2};
 function hexA(hex,a){const h=hex.replace('#','');const f=h.length===3?h.split('').map(x=>x+x).join(''):h;const n=parseInt(f,16);return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;}
 function applyAccent(){
   const r=document.documentElement.style;
@@ -1215,17 +1216,17 @@ function renderHome(v){
      <div class="card kpi" title="파티·굿즈 등 기타 수익 − 비용"><div class="lab"><span class="ind" style="background:var(--accent)"></span>파티 · 굿즈 순익</div><div class="val num">${won(exTotal)}</div><div class="meta">기타 수익 <b>${S.extra.length}</b>건</div></div>`;
   v.appendChild(k);
 
-  // ── 1행: 다가오는 릴리즈 · 릴리즈 현황 ──
-  const gA=ce('div','homegrid');v.appendChild(gA);
+  // ── 열 단위 레이아웃: 좌/우 두 칼럼에 위젯을 세로로 쌓음 ──
+  const grid=ce('div','homecols');const colL=ce('div','homecol'),colR=ce('div','homecol');
+  grid.appendChild(colL);grid.appendChild(colR);v.appendChild(grid);
+
+  // 다가오는 릴리즈
   const up=S.releases.filter(relUpcoming).sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999'));
   const upBox=ce('div');upBox.appendChild(secH('다가오는 릴리즈',''));
   if(up.length){const c=ce('div','card flat');up.slice(0,5).forEach(r=>c.appendChild(relRowEl(r)));upBox.appendChild(c);}
   else upBox.appendChild(ce('div','card empty','다가오는 릴리즈가 없습니다.'));
-  gA.appendChild(upBox);
-  gA.appendChild(releaseStatusWidget());
 
-  // ── 2행: 정산 대기 · 최근 회의록 ──
-  const gB=ce('div','homegrid');v.appendChild(gB);
+  // 정산 대기
   const swBox=ce('div');
   swBox.appendChild(secH('정산 대기','',payArts.length?`<span class="mut2" style="font-size:var(--f12)">${payArts.length}명 · ${won(payTotal)}</span>`:''));
   if(payArts.length){const c=ce('div','card flat scrolly');
@@ -1235,8 +1236,8 @@ function renderHome(v){
       r.onclick=()=>{openArtist(a.name);};c.appendChild(r);});
     swBox.appendChild(c);
   }else swBox.appendChild(ce('div','card empty','임계를 통과한 정산 대상이 없습니다.'));
-  gB.appendChild(swBox);
 
+  // 최근 회의록
   const n1=ce('div');n1.appendChild(secH('최근 회의록',''));
   const recent=S.notes.slice().sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).slice(0,5);
   if(recent.length){const c=ce('div','card flat');
@@ -1245,12 +1246,10 @@ function renderHome(v){
       r.onclick=()=>{S.noteSel=n.id;go('notes');};c.appendChild(r);});
     n1.appendChild(c);
   }else n1.appendChild(ce('div','card empty','아직 회의록이 없습니다.'));
-  gB.appendChild(n1);
 
-  // ── 3행: 발매 경로 · 최근 발매 ──
-  const gC=ce('div','homegrid');v.appendChild(gC);
-  gC.appendChild(platformWidget(L));
-  gC.appendChild(recentReleasesWidget());
+  // 좌측: 다가오는 릴리즈 · 정산 대기 · 발매 경로 / 우측: 릴리즈 현황 · 최근 회의록 · 최근 발매
+  colL.appendChild(upBox);colL.appendChild(swBox);colL.appendChild(platformWidget(L));
+  colR.appendChild(releaseStatusWidget());colR.appendChild(n1);colR.appendChild(recentReleasesWidget());
 }
 
 /* 홈 위젯 — 최근 발매 (릴리즈 관련) */
@@ -1928,7 +1927,7 @@ function renderTxBody(){
   if(f.group!=='none'){host.appendChild(groupCard(rows,f.group));return;}
   const c=ce('div','card flat tblx');
   const show=rows.slice().sort((a,b)=>(b.date||b.ym||'').localeCompare(a.date||a.ym||'')).slice(0,400);
-  let h='<table style="table-layout:fixed"><thead><tr><th style="width:64px">월</th><th style="width:58px">경로</th><th>릴리즈 / 곡</th><th style="width:130px">크레딧</th><th class="r" style="width:64px">판매</th><th class="r" style="width:104px">매출</th><th class="r" style="width:150px">순수익(KRW)</th><th style="width:120px">분배</th></tr></thead><tbody>';
+  let h='<table style="table-layout:fixed"><thead><tr><th style="width:7%">월</th><th style="width:6%">경로</th><th style="width:29%">릴리즈 / 곡</th><th style="width:15%">크레딧</th><th class="r" style="width:7%">판매</th><th class="r" style="width:12%">매출</th><th class="r" style="width:16%">순수익(KRW)</th><th style="width:8%">분배</th></tr></thead><tbody>';
   show.forEach(t=>{const ver=t.version&&t.version!=='-'?` <span class="mut2">(${esc(t.version)})</span>`:'';
     h+=`<tr><td class="mut2 num" style="white-space:nowrap">${esc(t.ym||'')}</td><td><span class="pill ${t.src.includes('DCM')?'info':'acc'}">${t.src.includes('DCM')?'DCM':'BC'}</span></td>
       <td><div class="cellflex">${txArt(t)}<div style="min-width:0"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><b>${esc(t.track||t.release)}</b>${ver}</div><div class="mut2" style="font-size:var(--f12);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(t.release||'')}</div></div></div></td>
@@ -2024,7 +2023,7 @@ function renderCatalog(v){
   bar.innerHTML=`<input class="search" id="cq" type="text" placeholder="검색: 릴리즈 · 트랙 · 아티스트">`;
   v.appendChild(bar);
   const card=ce('div','card flat tblx');
-  let head='<thead><tr><th style="width:150px;min-width:150px">앨범</th><th>트랙</th><th>아티스트</th><th>버전</th><th class="r">거래</th><th class="r">순수익</th><th>분배</th></tr></thead>';
+  let head='<thead><tr><th style="width:21%">앨범</th><th style="width:24%">트랙</th><th style="width:19%">아티스트</th><th style="width:10%">버전</th><th class="r" style="width:7%">거래</th><th class="r" style="width:12%">순수익</th><th style="width:7%">분배</th></tr></thead>';
   let body='<tbody>';
   list.forEach(R=>{
     const rel=relByCat(R.cat);const tracks=R.tracks;
@@ -2039,9 +2038,9 @@ function renderCatalog(v){
           <span class="mut2" style="font-size:11px">${esc(R.cat)} · ${esc(rel&&rel.type?rel.type:R.type)}</span></div></div></td>`;
       }
       const ver=tk?(tk.version||''):(r.version==='-'?'':r.version);
-      tds+=`<td><b style="font-weight:500">${esc(tk?tk.title:r.track)}</b></td>`;
-      tds+=`<td class="mut">${esc(tk&&tk.artists?tk.artists:(r.artist_raw||''))}</td>`;
-      tds+=`<td class="mut2">${esc(ver||'—')}</td>`;
+      tds+=`<td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b style="font-weight:500">${esc(tk?tk.title:r.track)}</b></td>`;
+      tds+=`<td class="mut" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(tk&&tk.artists?tk.artists:(r.artist_raw||''))}</td>`;
+      tds+=`<td class="mut2" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(ver||'—')}</td>`;
       tds+=`<td class="r num mut2">${(tcnt[r.k_rtv]||0).toLocaleString()}</td>`;
       tds+=`<td class="r num">${won(tsum[r.k_rtv]||0)}</td>`;
       const ps=(S.overrides[r.k_rtv]||r.split.map(s=>({name:s[0],pct:s[2]}))).filter(p=>p.name!=='LABEL');
@@ -2051,7 +2050,7 @@ function renderCatalog(v){
     });
   });
   body+='</tbody>';
-  const tbl=ce('table');tbl.innerHTML=head+body;card.appendChild(tbl);v.appendChild(card);
+  const tbl=ce('table');tbl.style.tableLayout='fixed';tbl.innerHTML=head+body;card.appendChild(tbl);v.appendChild(card);
   v.appendChild(ce('div','',`<small class="note">릴리즈명 · 트랙 메타데이터는 <b>릴리즈</b> 페이지와 연동됩니다. 분배 비율 수정은 매칭된 거래에 즉시 반영됩니다.</small>`));
   $('#cq').oninput=()=>{const q=KX($('#cq').value);card.querySelectorAll('tbody tr').forEach(tr=>{tr.style.display=(!q||tr.dataset.s.includes(q))?'':'none';});};
   card.querySelectorAll('td[data-rel]').forEach(td=>td.onclick=()=>openReleaseByCat(td.dataset.rel));
@@ -2580,8 +2579,8 @@ function renderSettings(v){
 
   /* ── 화면 모드 (다크/라이트 + 테마) ── */
   const tm=ce('div','card');
-  tm.innerHTML=`<div class="tabs"><button class="t ${dark?'on':''}" id="thDark">다크</button><button class="t ${!dark?'on':''}" id="thLight">라이트</button></div>
-    <div class="setrow"><span class="mut2" style="font-size:var(--f12)">테마</span>
+  tm.innerHTML=`<div class="thmrow">
+      <div class="tabs"><button class="t ${dark?'on':''}" id="thDark">다크</button><button class="t ${!dark?'on':''}" id="thLight">라이트</button></div>
       <div class="swatches">${THEME_COLORS.map(t=>`<button class="swatch ${S.themeColor===t.k?'on':''}" data-tc="${t.k}" title="${esc(t.name)}" style="--sw:${t.accent};--sw2:${t.sub}"></button>`).join('')}</div></div>`;
   sect(colA,'화면 모드',tm);
   $('#thLight').onclick=()=>{S.theme='light';saveSettings();applyTheme();render();};
@@ -2883,7 +2882,7 @@ boot();
     const cur=()=>{const m=getComputedStyle(el).transform;if(!m||m==='none')return ang;const x=m.match(/matrix\(([^)]+)\)/);if(!x)return ang;const p=x[1].split(',').map(Number);return ((Math.atan2(p[1],p[0])*180/Math.PI)+360)%360;};
     function frame(t){ if(!spin){raf=null;return;} if(last)ang=(ang+(t-last)*SPEED)%360; last=t; el.style.transition='none'; el.style.transform='rotate('+ang+'deg)'; raf=requestAnimationFrame(frame); }
     el.addEventListener('mouseenter',()=>{ ang=cur(); last=0; spin=true; if(!raf)raf=requestAnimationFrame(frame); });
-    el.addEventListener('mouseleave',()=>{ spin=false; ang=cur(); const target=ang>180?360:0; el.style.transition='transform .45s cubic-bezier(.22,1,.36,1)'; el.style.transform='rotate('+target+'deg)'; });
+    el.addEventListener('mouseleave',()=>{ spin=false; ang=cur(); const target=ang>180?360:0; el.style.transition='transform .32s cubic-bezier(.4,0,.2,1)'; el.style.transform='rotate('+target+'deg)'; });
   }
   document.querySelectorAll('.brand .logo,.gatecard .logo').forEach(wire);
 })();
