@@ -2667,11 +2667,23 @@ async function boot(){
     try{
       if(mode==='google'){
         // 리다이렉트 복귀 우선 처리(팝업 차단 환경)
+        // dinure-redirect-pending 플래그: signInWithRedirect 호출 직후 세팅,
+        // resumeRedirect 성공/실패 후 제거 → 무한 루프 방지
+        const redirectPending=sessionStorage.getItem('dinure-redirect-pending')==='1';
         const resumed=await Store.resumeRedirect(S.fbcfg,{allow}).catch(err=>{
+          sessionStorage.removeItem('dinure-redirect-pending');
           if(String(err.message||'').startsWith('NOT_ALLOWED')){toast('허용되지 않은 계정 — 동기화 중단',4000);}
           return false;});
-        if(!resumed){
-          await Store.connectFirebase(S.fbcfg,{auth:'google',allow});
+        if(resumed){
+          sessionStorage.removeItem('dinure-redirect-pending');
+        }else if(!redirectPending){
+          // 리다이렉트 진행 중이 아닐 때만 로그인 시도
+          // connectFirebase 내부에서 signInWithRedirect가 발생하면
+          // 플래그를 먼저 세워 다음 로드에서 루프하지 않도록 함
+          sessionStorage.setItem('dinure-redirect-pending','1');
+          const ok=await Store.connectFirebase(S.fbcfg,{auth:'google',allow});
+          // 팝업 성공(ok===true)이면 리다이렉트가 발생하지 않았으므로 플래그 제거
+          if(ok!==false)sessionStorage.removeItem('dinure-redirect-pending');
         }
       }else{
         await Store.connectFirebase(S.fbcfg,{auth:'anon'});
