@@ -1002,18 +1002,31 @@ const Store=(()=>{
   // 배열형 컬렉션(레코드 단위 분리 대상): 항목마다 id가 있는 것들
   const RECORD_COLS=new Set(['releases','roster','presets','notes','links','extra','expenses','settlements','customCols']);
   const selfRev={};  // path -> rev (내가 쓴 것 에코 무시)
+  const known={};    // col -> Set(id): 이 클라이언트가 '알고 있던' 레코드 (의도적 삭제 판별용)
+  const kset=col=>known[col]||(known[col]=new Set());
+  const stableStr=o=>{   // 키 순서에 무관한 직렬화 — 변경 여부 비교용
+    if(o===null||typeof o!=='object')return JSON.stringify(o);
+    if(Array.isArray(o))return '['+o.map(stableStr).join(',')+']';
+    return '{'+Object.keys(o).sort().map(k=>JSON.stringify(k)+':'+stableStr(o[k])).join(',')+'}';
+  };
   async function setRecordCol(col,arr,who){
     const itemsRef=fdb.ref(ROOT+'/'+col+'/items');
     const snap=await itemsRef.get();
     const remote=snap.val()||{};
     const localIds=new Set(arr.map(x=>x.id));
+    const seen=kset(col);
     const updates={};
+    // 변경된 레코드만 업서트 — 동일 데이터는 건드리지 않아 다른 운영진의 동시 편집을 덮어쓰지 않는다
     arr.forEach(x=>{
+      const r=remote[x.id];
+      if(r&&stableStr(r.data)===stableStr(x))return;
       const rev=uid();selfRev[col+'/'+x.id]=rev;
       updates[x.id]={data:x,rev,by:who||'',at:Date.now()};
     });
-    Object.keys(remote).forEach(id=>{ if(!localIds.has(id)) updates[id]=null; });  // 삭제 반영
-    await itemsRef.update(updates);
+    // 삭제는 '내가 알고 있던 레코드'가 로컬에서 빠진 경우에만 — 남이 추가한 레코드는 삭제하지 않는다
+    Object.keys(remote).forEach(id=>{ if(!localIds.has(id)&&seen.has(id)) updates[id]=null; });
+    if(Object.keys(updates).length) await itemsRef.update(updates);
+    known[col]=new Set(localIds);
   }
   function watch(col){
     if(!fbReady)return;
@@ -1028,15 +1041,18 @@ const Store=(()=>{
       };
       itemsRef.on('child_added',snap=>{
         const v=snap.val();if(!v)return;const key=col+'/'+snap.key;
+        kset(col).add(snap.key);
         if(selfRev[key]===v.rev)return; lastRev[key]=v.rev;
         apply(arr=>arr.some(x=>x.id===snap.key)?arr.map(x=>x.id===snap.key?v.data:x):arr.concat([v.data]),v.by,v.at);
       });
       itemsRef.on('child_changed',snap=>{
         const v=snap.val();if(!v)return;const key=col+'/'+snap.key;
+        kset(col).add(snap.key);
         if(selfRev[key]===v.rev)return; lastRev[key]=v.rev;
         apply(arr=>arr.map(x=>x.id===snap.key?v.data:x),v.by,v.at);
       });
       itemsRef.on('child_removed',snap=>{
+        kset(col).delete(snap.key);
         apply(arr=>arr.filter(x=>x.id!==snap.key),'','');
       });
     }else{
@@ -1056,6 +1072,19 @@ const Store=(()=>{
       if(RECORD_COLS.has(col)){const s=await fdb.ref(ROOT+'/'+col+'/items').get();const v=s.val();return v?Object.values(v).map(x=>x.data):null;}
       const s=await fdb.ref(ROOT+'/'+col+'/_doc').get();const v=s.val();return v?v.data:null;
     }catch(e){return null;}},
+    // 클라우드(서버) 레코드를 이 기기 로컬에 그대로 반영 — 서버에 쓰지 않으므로 다른 운영진 데이터를 건드리지 않음
+    async pullCloud(){
+      if(!fbReady)return null;const out={};
+      for(const col of RECORD_COLS){try{
+        const s=await fdb.ref(ROOT+'/'+col+'/items').get();const v=s.val()||{};
+        const arr=Object.keys(v).map(id=>v[id].data);
+        if(mode==='idb')await idb('put',col,arr);else mem[col]=arr;
+        known[col]=new Set(arr.map(x=>x.id));
+        Object.keys(v).forEach(id=>{lastRev[col+'/'+id]=v[id].rev;});
+        out[col]=arr;
+      }catch(e){}}
+      return out;
+    },
     authInfo(){return {mode:authMode,email:authUser?authUser.email:null,name:authUser?authUser.displayName:null,photo:authUser?authUser.photoURL:null};},
     async signOut(){if(window.firebase&&firebase.auth().currentUser){try{await firebase.auth().signOut();}catch(e){}}},
     async getLocal(k){if(mode==='idb'){const v=await idb('get',k);return v==null?null:v;}return mem[k]??null;},
@@ -1379,7 +1408,7 @@ function renderHome(v){
   k.innerHTML=
     `<div class="card kpi" title="등록된 릴리즈 전체"><div class="lab"><span class="ind" style="background:var(--t3)"></span>릴리즈</div><div class="val num">${relTotal}</div><div class="meta">${typeMeta}</div></div>
      <div class="card kpi" title="전체 릴리즈의 트랙 수 합계"><div class="lab"><span class="ind" style="background:var(--ok)"></span>트랙</div><div class="val num">${trkTotal}</div><div class="meta">아티스트 <b>${S.roster.length}</b>명</div></div>
-     <div class="card kpi" title="수수료 포함 총 매출"><div class="lab"><span class="ind" style="background:var(--accent)"></span>매출</div><div class="val num">${won(L.gross)}</div><div class="meta">수수료 포함</div></div>
+     <div class="card kpi" title="수수료 제외 실수령액(순수익)"><div class="lab"><span class="ind" style="background:var(--accent)"></span>매출</div><div class="val num">${won(L.gross)}</div><div class="meta">순수익 ${won(L.net)}</div></div>
      <div class="card kpi" title="임계 통과 정산 가능액"><div class="lab"><span class="ind" style="background:var(--info)"></span>정산 가능</div><div class="val num">${won(payTotal)}</div><div class="meta">대상 <b>${payArts.length}</b>명</div></div>`;
   v.appendChild(k);
 
@@ -2989,6 +3018,7 @@ function renderSettings(v){
   bk.innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap">
     <button class="btn" id="bkExp">${ic('down')}내보내기</button>
     <label class="btn" style="cursor:pointer">${ic('up')}가져오기<input type="file" id="bkImp" accept=".json" style="display:none"></label>
+    <button class="btn" id="cloudPull">${ic('down')}클라우드 기준 새로고침</button>
     <span style="flex:1"></span>
     <button class="btn danger ghost" id="wipeAll">전체 초기화</button></div>`;
   sect(colB,'백업 · 복원',bk);
@@ -3012,6 +3042,13 @@ function renderSettings(v){
       }catch(err){toast('백업 파일을 읽지 못했습니다');}
     };
     fr.readAsText(f);
+  };
+  const cp=$('#cloudPull');if(cp)cp.onclick=async()=>{
+    if(!Store.cloud()){toast('클라우드에 연결되어 있지 않습니다');return;}
+    if(!await dlgConfirm('이 기기의 릴리즈·아티스트·정산 등 데이터를 서버(클라우드) 기준으로 다시 불러옵니다.\n이 기기에서만 저장하고 아직 동기화되지 않은 변경이 있다면 사라질 수 있습니다. 계속할까요?',{ok:'새로고침'}))return;
+    const out=await Store.pullCloud();
+    if(out){Object.keys(out).forEach(col=>{if(col in S)S[col]=out[col];});render();toast('서버 기준으로 새로고침했습니다');}
+    else toast('새로고침에 실패했습니다');
   };
   $('#wipeAll').onclick=async()=>{
     if(!await dlgConfirm('릴리즈·아티스트·회의록·정산 기록 등 모든 입력 데이터를 삭제합니다. 정말 진행할까요?',{ok:'다음',danger:true}))return;
