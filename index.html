@@ -96,8 +96,8 @@ a{color:var(--t2)}
 .gatecard .logo{display:block;width:40px;height:40px;margin:0 auto 16px}
 /* 로고 호버 회전은 JS(wireLogoSpin)에서 제어 — 호버 시 천천히 회전, 떼면 원래 위치로 빠르게 복귀 */
 .brand .bt{min-width:0;display:flex;flex-direction:column;justify-content:center}
-.brand b{font-size:var(--f15);font-weight:700;letter-spacing:.1em;display:block;line-height:1.1;font-family:var(--font-display)}
-.brand small{display:block;font-size:9px;letter-spacing:.12em;color:var(--t4);font-weight:400;margin-top:1px;white-space:nowrap;font-family:var(--font-display)}
+.brand b{font-size:16px;font-weight:700;letter-spacing:.1em;display:block;line-height:1.1;font-family:var(--font-display)}
+.brand small{display:block;font-size:9.5px;letter-spacing:.12em;color:var(--t4);font-weight:400;margin-top:1px;white-space:nowrap;font-family:var(--font-display)}
 .nav{display:flex;flex-direction:column;gap:2px}
 .navgroup{display:flex;flex-direction:column;gap:2px}
 .nav button{all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--rad-s);
@@ -239,15 +239,13 @@ table{width:100%;border-collapse:collapse;font-size:var(--f13)}
 th{font-size:var(--f12);font-weight:500;color:var(--t4);text-align:left;padding:11px 14px;border-bottom:1px solid var(--bd);white-space:nowrap}
 th.r,td.r{text-align:right}
 th.c,td.c{text-align:center}
-.tblx thead th{position:sticky;top:0;z-index:2;background:var(--card)}
-/* 글래스: sticky 헤더가 불투명 var(--card)라 반투명 본문과 색이 달라 띠처럼 보이던 옥의티 — 글래스 채움에 맞춤 */
-[data-skin="glass"] .tblx thead th{background:var(--g-fill-strong)}
+.tblx thead th{position:sticky;top:0;z-index:2;background:transparent}
 td{padding:10px 14px;border-bottom:1px solid var(--bd);vertical-align:middle}
 tbody tr:last-child td{border-bottom:none}
 tbody tr.rowlink{cursor:pointer;transition:background .12s}
-tbody tr.rowlink:hover{background:var(--hov)}
 tbody tr.hovr{transition:background .12s}
-tbody tr.hovr:hover{background:var(--hov)}
+.tblx tbody tr{transition:background .12s}
+.tblx tbody tr:hover{background:var(--hov)}
 .txpager{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;padding:4px 0 2px}
 .txpager .btn{min-width:34px;justify-content:center}
 td .mut{color:var(--t3)} td .mut2,.mut2{color:var(--t4)} .mut{color:var(--t3)}
@@ -793,7 +791,7 @@ img.av,img.art{pointer-events:none}
   --ok:#1DB954;--ok-bg:rgba(29,185,84,.16);--logo-grad:linear-gradient(140deg,#1ED760,#1DB954 60%,#12833B)}
 [data-skin="spotify"] .card{border-radius:14px;border-color:transparent;background:#181818}
 [data-skin="spotify"] .card.flat{background:#161616}
-[data-skin="spotify"] .kpi:hover,[data-skin="spotify"] .card:hover{background:#1F1F1F}
+[data-skin="spotify"] .kpi:hover,[data-skin="spotify"] .card:not(.tblx):hover{background:#1F1F1F}
 [data-skin="spotify"] .btn.pri{color:#000;font-weight:700;border-radius:999px}
 [data-skin="spotify"] .btn.pri:hover{filter:none;transform:scale(1.03)}
 [data-skin="spotify"] .pill.acc,[data-skin="spotify"] .pill.ok{color:#000}
