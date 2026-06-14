@@ -95,9 +95,9 @@ a{color:var(--t2)}
 /* 게이트(로그인) 로고: 사이드바 로고와 같은 마스크를 쓰되 크게, 중앙 배치 */
 .gatecard .logo{display:block;width:40px;height:40px;margin:0 auto 16px}
 /* 로고 호버 회전은 JS(wireLogoSpin)에서 제어 — 호버 시 천천히 회전, 떼면 원래 위치로 빠르게 복귀 */
-.brand .bt{min-width:0}
-.brand b{font-size:var(--f14);font-weight:700;letter-spacing:.1em;display:block;line-height:1.1;font-family:var(--font-display)}
-.brand small{display:block;font-size:8px;letter-spacing:.12em;color:var(--t4);font-weight:400;margin-top:1px;white-space:nowrap;font-family:var(--font-display)}
+.brand .bt{min-width:0;display:flex;flex-direction:column;justify-content:center}
+.brand b{font-size:var(--f15);font-weight:700;letter-spacing:.1em;display:block;line-height:1.1;font-family:var(--font-display)}
+.brand small{display:block;font-size:9px;letter-spacing:.12em;color:var(--t4);font-weight:400;margin-top:1px;white-space:nowrap;font-family:var(--font-display)}
 .nav{display:flex;flex-direction:column;gap:2px}
 .navgroup{display:flex;flex-direction:column;gap:2px}
 .nav button{all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--rad-s);
@@ -264,8 +264,8 @@ img.noart{background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http:
 .cellflex b{font-weight:500;color:var(--t1)}
 
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s3)}
-.kpi{transition:border-color .14s var(--ease),transform .14s var(--ease)}
-.kpi:hover{border-color:var(--bd3);transform:translateY(-1px)}
+.kpi{transition:border-color .2s var(--ease),transform .26s var(--ease),box-shadow .26s var(--ease)}
+.kpi:hover{border-color:var(--bd3);transform:scale(1.02)}
 .kpi .lab{font-size:var(--f12);color:var(--t3);display:flex;align-items:center;gap:7px;font-weight:500}
 .kpi .val{font-size:var(--f22);font-weight:600;color:var(--t1);margin-top:8px;letter-spacing:-.02em;line-height:1.2;white-space:nowrap}
 .kpi .val.sm{font-size:var(--f22)}
@@ -308,6 +308,8 @@ img.noart{background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http:
   background:var(--card);border-radius:16px;padding:24px;
   transition:opacity .34s var(--ease-soft),transform .44s var(--ease-soft);box-shadow:var(--pop-sh)}
 #modal.in #sheet{opacity:1;transform:translate(-50%,-50%) scale(1)}
+/* 스킨(글래스)이 #sheet transition을 덮어써 opacity가 즉시 튀던 문제 방지 — 더 높은 특이도로 모달 전환 강제 */
+#modal #sheet{transition:opacity .36s var(--ease-soft),transform .42s var(--ease-soft);will-change:transform,opacity}
 #sheet.wide{width:min(980px,calc(100vw - 28px))}
 #sheet h3{font-size:var(--f16);font-weight:600;color:var(--t1);margin:0 0 4px;letter-spacing:-.01em}
 #sheet .x{position:sticky;top:0;float:right;cursor:pointer;color:var(--t4);width:30px;height:30px;display:flex;
@@ -631,8 +633,7 @@ img.av,img.art{pointer-events:none}
     radial-gradient(54% 64% at 90% 3%,  rgba(184,150,255,.44), transparent 66%),
     radial-gradient(60% 68% at 92% 94%, rgba(255,150,214,.38), transparent 68%),
     radial-gradient(56% 66% at 5% 92%,  rgba(140,242,220,.34), transparent 68%),
-    radial-gradient(82% 74% at 50% 50%, rgba(155,190,255,.16), transparent 76%);
-  filter:saturate(122%)}
+    radial-gradient(82% 74% at 50% 50%, rgba(155,190,255,.16), transparent 76%)}
 /* '리퀴드'한 흐름 — transform만 쓰는 합성 전용 애니메이션(메인스레드 0). 모션 선호시에만. */
 @media (prefers-reduced-motion: no-preference){
   [data-skin="glass"] .app::before{animation:gBloom 48s ease-in-out infinite alternate;will-change:transform}
@@ -686,19 +687,18 @@ img.av,img.art{pointer-events:none}
   border:none;
   box-shadow:inset 0 -1px 0 var(--bd)}
 
-/* 콘텐츠 위로 뜨는 오버레이 — 굴절감을 위해 강한 블러(열릴 때만 비용) + 더 불투명한 무광 채움 */
+/* 콘텐츠 위로 뜨는 오버레이 — 무광 채움이 거의 불투명이라 라이브 백드롭 블러는 보이지도 않으면서
+   매 프레임 재계산돼 열림 애니메이션을 뚝 끊었음. 블러를 빼 기본 스킨처럼 즉시 부드럽게 재생되게 함. */
 [data-skin="glass"] #sheet,
 [data-skin="glass"] #dlg .dbox,
 [data-skin="glass"] .gatecard{
-  background-color:var(--g-fill-strong);
-  -webkit-backdrop-filter:blur(var(--g-blur-strong)) saturate(var(--g-sat-strong));backdrop-filter:blur(var(--g-blur-strong)) saturate(var(--g-sat-strong));
+  background-color:color-mix(in srgb, var(--card) 96%, transparent);
   box-shadow:0 2px 10px rgba(0,0,0,.26), var(--g-sh-pop)}
 
-/* 카드 호버 — 떠오름(translateY) 없이 살짝 확대(제자리) + 그림자 깊게 + 엣지 밝게. 부드럽게 체감되도록. */
+/* 카드 호버 — 일반 레이아웃 카드는 확대 없이 그림자/엣지만(요청). 확대는 KPI·앨범아트에만. */
 [data-skin="glass"] .card:hover,
 [data-skin="glass"] .kpi:hover,
 [data-skin="glass"] .linkcard:hover{
-  transform:scale(1.015);
   box-shadow:var(--g-sh-1), var(--g-sh-2), var(--g-sh-hover)}
 [data-skin="glass"] .card:hover::after,
 [data-skin="glass"] .kpi:hover::after,
@@ -719,6 +719,21 @@ img.av,img.art{pointer-events:none}
 [data-skin="glass"] select:focus,
 [data-skin="glass"] textarea:focus,
 [data-skin="glass"] .search:focus-within{border-color:color-mix(in srgb,var(--accent) 50%,transparent)}
+
+/* 다크 모드 글래스 — '트와일라잇 오로라': 베이스를 순흑에서 깊은 인디고로 올려 라이트처럼 오로라 느낌을 주고,
+   카드는 엣지·상단 광택을 더 죽여 매트하게(가독성 유지). */
+[data-theme="dark"][data-skin="glass"]{
+  --shell:#0a1020;
+  --bg:#0e1628; --panel:#131d33; --panel2:#0f1830; --card:#172139; --hov:#1f2a47; --sel:#253250; --sel2:#2f3d5e;
+  --inp:#131d33;
+  --g-fill:color-mix(in srgb, var(--card) 86%, transparent);
+  --g-fill-strong:color-mix(in srgb, var(--card) 93%, transparent);
+  --g-fill-flat:color-mix(in srgb, var(--card) 76%, transparent);
+  --g-edge:rgba(255,255,255,.03);
+  --g-edge-lo:rgba(255,255,255,.006);
+  --g-edge-tint:rgba(150,205,255,.04);
+  --g-top-tint:rgba(255,255,255,.012);
+  --g-border:color-mix(in srgb,#fff 5%, transparent)}
 
 /* 라이트 모드 글래스 — 서리 낀 흰 유리(저광택). 토큰만 덮어쓰면 위 규칙이 그대로 재사용됨. */
 [data-theme="light"][data-skin="glass"]{
@@ -745,8 +760,7 @@ img.av,img.art{pointer-events:none}
     radial-gradient(48% 60% at 10% 6%,  rgba(120,200,255,.42), transparent 64%),
     radial-gradient(54% 64% at 90% 3%,  rgba(192,165,255,.40), transparent 66%),
     radial-gradient(60% 68% at 92% 94%, rgba(255,170,222,.34), transparent 68%),
-    radial-gradient(56% 66% at 5% 92%,  rgba(150,240,222,.32), transparent 68%);
-  filter:saturate(104%)}
+    radial-gradient(56% 66% at 5% 92%,  rgba(150,240,222,.32), transparent 68%)}
 [data-theme="light"][data-skin="glass"] .topbar{
   background-color:color-mix(in srgb,#fff 72%, transparent);
   box-shadow:inset 0 -1px 0 var(--bd)}
@@ -788,7 +802,7 @@ img.av,img.art{pointer-events:none}
 /* ===================== Instagram 톤 스킨 ===================== */
 [data-skin="instagram"]{
   --accent:#E1306C;--accent-bg:#E1306C;--accent-dim:rgba(225,48,108,.18);--info:#C13584;--info-bg:rgba(193,53,132,.15);
-  --logo-grad:linear-gradient(45deg,#FEDA77,#F58529,#DD2A7B 55%,#8134AF,#515BD4)}
+  --logo-grad:linear-gradient(45deg,#F77737,#E1306C 45%,#C13584,#833AB4 80%,#5851DB)}
 /* 라이트 — 인스타그램 기본(화이트, 중성 회색 보더) */
 [data-theme="light"][data-skin="instagram"]{
   --shell:#FAFAFA;--bg:#FFFFFF;--panel:#FAFAFA;--panel2:#FAFAFA;--card:#FFFFFF;--hov:#F2F2F2;--sel:#EFEFEF;--sel2:#E4E4E4;--inp:#FFFFFF;
@@ -800,7 +814,7 @@ img.av,img.art{pointer-events:none}
   --t1:#FFFFFF;--t2:#EDEDED;--t3:#A8A8A8;--t4:#737373;
   --bd:rgba(255,255,255,.10);--bd2:rgba(255,255,255,.16);--bd3:rgba(255,255,255,.28)}
 [data-skin="instagram"] .card{border-radius:14px}
-[data-skin="instagram"] .btn.pri{background:linear-gradient(45deg,#FEDA77,#F58529,#DD2A7B 55%,#8134AF,#515BD4);border-color:transparent;color:#fff;font-weight:600}
+[data-skin="instagram"] .btn.pri{background:linear-gradient(45deg,#F77737,#E1306C 45%,#C13584,#833AB4 80%,#5851DB);border-color:transparent;color:#fff;font-weight:600}
 [data-skin="instagram"] .btn.pri:hover{filter:brightness(1.06)}
 </style>
 <!-- glass-skin-end -->
@@ -1463,7 +1477,9 @@ function openModal(wide){const m=$('#modal');const sh=$('#sheet');
   sh.querySelector('.sheetgrip')?.remove();
   sh.insertAdjacentHTML('afterbegin','<div class="sheetgrip" aria-hidden="true"></div>');
   m.classList.add('open');document.body.classList.add('mopen');
-  requestAnimationFrame(()=>{m.classList.add('in');sh.scrollTop=0;});}
+  void sh.offsetWidth;   // 'from' 상태(opacity:0·scale .94)를 강제 커밋
+  m.classList.add('in');sh.scrollTop=0;   // 'to' 상태 — 커밋된 from에서 전환이 부드럽게 재생됨
+}
 function closeModal(){const m=$('#modal');m.classList.remove('in');document.body.classList.remove('mopen');
   _modalClearTO=setTimeout(()=>{m.classList.remove('open');$('#sheet').innerHTML='';$('#sheet').style.transform='';$('#sheet').style.transition='';const sc=m.querySelector('.scrim');if(sc)sc.style.opacity='';_modalClearTO=null;},340);}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#modal').classList.contains('open'))closeModal();});
