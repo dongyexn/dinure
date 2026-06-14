@@ -481,11 +481,6 @@ img.noart{background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http:
 .homecol .card{transition:border-color .14s var(--ease)}
 .homecol>div>.card:hover{border-color:var(--bd3)}
 .card.scrolly{max-height:340px;overflow-y:auto}
-.hstats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.hstat{border-radius:8px;padding:6px 4px;transition:background .14s var(--ease)}
-.hstat:hover{background:var(--hov)}
-.hstat .hv{font-size:var(--f18);font-weight:600;color:var(--t1);line-height:1.1}
-.hstat .hl{font-size:var(--f11);color:var(--t4);margin-top:3px}
 .hsplit{margin-top:14px;display:flex;flex-direction:column;gap:9px;border-top:1px solid var(--bd);padding-top:13px}
 .trow{display:grid;grid-template-columns:minmax(64px,max-content) 1fr 26px;gap:10px;align-items:center;padding:4px 6px;margin:0 -6px;border-radius:6px;transition:background .14s var(--ease)}
 .trow:hover{background:var(--hov)}
@@ -706,7 +701,7 @@ const ic=n=>`<svg style="width:14px;height:14px"><use href="#i-${n}"/></svg>`;
 const NORM=s=>(s==null?'':String(s)).normalize('NFKC').replace(/\u2019/g,"'").replace(/\s+/g,' ').trim();
 const KX=s=>NORM(s).toLowerCase().replace(/[^0-9a-z가-힣]/g,'');
 const NC=s=>NORM(s).toLowerCase().replace(/[-_ ]/g,'');
-const won=n=>'₩'+Math.round(n||0).toLocaleString('ko-KR');
+const won=n=>'₩'+Math.floor(n||0).toLocaleString('ko-KR');
 const usd=n=>'$'+(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const pctf=n=>(Math.round(n*100)/100)+'%';
 const esc=s=>(s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -994,6 +989,8 @@ const Store=(()=>{
     }catch(e){return null;}},
     authInfo(){return {mode:authMode,email:authUser?authUser.email:null,name:authUser?authUser.displayName:null,photo:authUser?authUser.photoURL:null};},
     async signOut(){if(window.firebase&&firebase.auth().currentUser){try{await firebase.auth().signOut();}catch(e){}}},
+    async getLocal(k){if(mode==='idb'){const v=await idb('get',k);return v==null?null:v;}return mem[k]??null;},
+    async setLocal(k,v){if(mode==='idb')await idb('put',k,v);else mem[k]=v;},   // 이 기기 전용 — 동기화하지 않음
     async get(k){if(mode==='idb'){const v=await idb('get',k);return v==null?null:v;}return mem[k]??null;},
     async set(k,v,who){
       if(mode==='idb')await idb('put',k,v);else mem[k]=v;
@@ -1010,7 +1007,7 @@ const Store=(()=>{
 
 /* ===================== state ===================== */
 const S={ view:'home', fx:{rate:1380,updated:null}, fxByYm:{},
-  thrKRW:30000, thrUSD:10, settleMode:'release', theme:'dark', skin:'default', profile:{name:''}, colWidths:{}, artistQuery:'', taxRate:3.3,
+  thrKRW:30000, thrUSD:10, settleMode:'release', theme:'dark', skin:'default', profile:{name:''}, operator:'', colWidths:{}, artistQuery:'', taxRate:3.3,
   settlements:[], settleRuns:[], overrides:{}, relOverrides:{}, artOverrides:{}, customCols:[],
   import:{tx:[],dcmYms:[],bcRanges:[]},
   releases:[], roster:[], presets:[], notes:[], links:[], extra:[], expenses:[],
@@ -1069,7 +1066,7 @@ function seedDefaults(){
     S.linkcfg={cats:cats.length?cats:['플랫폼','스토어','SNS','도구','정산','유통']};
   }
 }
-const who=()=>S.profile.name||'운영진';
+const who=()=>S.operator||S.profile.name||'운영진';
 const saveSettings=()=>Store.set('settings',{thrKRW:S.thrKRW,thrUSD:S.thrUSD,settleMode:S.settleMode,theme:S.theme,skin:S.skin,profile:S.profile,colWidths:S.colWidths,taxRate:S.taxRate},who());
 const saveFx=()=>Store.set('fx',{rate:S.fx.rate,updated:S.fx.updated,byYm:S.fxByYm},who());
 const saveRuns=()=>Store.set('settleRuns',S.settleRuns,who());
@@ -1298,15 +1295,19 @@ function dndRename(el,cur,apply){
 function renderHome(v){
   const L=ledger();
   const payArts=L.artists.filter(a=>a.payable>0);const payTotal=payArts.reduce((s,a)=>s+a.payable,0);
-  const ymNow=todayISO().slice(0,7);
-  const mNet=ALLTX.filter(t=>t.ym===ymNow).reduce((s,t)=>s+txNetKRW(t),0);
-  const exTotal=S.extra.reduce((s,x)=>s+(+x.amount||0)-(+x.cost||0),0);
-  const k=ce('div','grid kpis');k.className='kpis';
+  // 릴리즈 중심 KPI 헤더 (재무 지표는 정산 페이지 헤더에 있으므로 홈에서는 릴리즈 현황을 헤더로)
+  const rls=S.releases;const yr=String(new Date().getFullYear());
+  const relTotal=rls.length;
+  const relThisYear=rls.filter(r=>r.date&&r.date.slice(0,4)===yr).length;
+  const upRels=rls.filter(relUpcoming).sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999'));
+  const trkTotal=rls.reduce((s,r)=>s+((r.tracks||[]).filter(t=>t.title).length),0);
+  const nextUp=upRels.find(r=>r.date);const nud=nextUp?dday(nextUp.date):null;
+  const k=ce('div','kpis');
   k.innerHTML=
-    `<div class="card kpi" title="음원 순수익 누계 — 유통(DCM)+밴드캠프, 수수료 제외"><div class="lab"><span class="ind" style="background:var(--t3)"></span>누적 순수익</div><div class="val num">${won(L.net)}</div><div class="meta">거래 <b>${ALLTX.length.toLocaleString()}</b>건 · 음원</div></div>
-     <div class="card kpi" title="임계를 통과해 지금 정산 가능한 금액 합계"><div class="lab"><span class="ind" style="background:var(--ok)"></span>정산 가능</div><div class="val num">${won(payTotal)}</div><div class="meta">대상 <b>${payArts.length}</b>명</div></div>
-     <div class="card kpi" title="${ymNow.replace('-','.')} 음원 순수익"><div class="lab"><span class="ind" style="background:var(--info)"></span>이번 달 순수익</div><div class="val num">${won(mNet)}</div><div class="meta">${ymNow.replace('-','.')} · 음원</div></div>
-     <div class="card kpi" title="파티·굿즈 등 기타 수익 − 비용"><div class="lab"><span class="ind" style="background:var(--accent)"></span>파티 · 굿즈 순익</div><div class="val num">${won(exTotal)}</div><div class="meta">기타 수익 <b>${S.extra.length}</b>건</div></div>`;
+    `<div class="card kpi" title="등록된 릴리즈 전체"><div class="lab"><span class="ind" style="background:var(--t3)"></span>총 릴리즈</div><div class="val num">${relTotal}</div><div class="meta">아티스트 <b>${S.roster.length}</b>명</div></div>
+     <div class="card kpi" title="${yr}년에 발매된 릴리즈"><div class="lab"><span class="ind" style="background:var(--info)"></span>${yr} 발매</div><div class="val num">${relThisYear}</div><div class="meta">올해 발매</div></div>
+     <div class="card kpi" title="발매 예정(미래 날짜) 릴리즈"><div class="lab"><span class="ind" style="background:var(--accent)"></span>예정</div><div class="val num">${upRels.length}</div><div class="meta">${nextUp?'다음 발매 '+ddayTxt(nud):'예정 없음'}</div></div>
+     <div class="card kpi" title="전체 릴리즈의 트랙 수 합계"><div class="lab"><span class="ind" style="background:var(--ok)"></span>트랙</div><div class="val num">${trkTotal}</div><div class="meta">릴리즈당 평균 <b>${relTotal?(trkTotal/relTotal).toFixed(1):'0'}</b></div></div>`;
   v.appendChild(k);
 
   // ── 열 단위 레이아웃: 좌/우 두 칼럼에 위젯을 세로로 쌓음 ──
@@ -1314,7 +1315,7 @@ function renderHome(v){
   grid.appendChild(colL);grid.appendChild(colR);v.appendChild(grid);
 
   // 다가오는 릴리즈
-  const up=S.releases.filter(relUpcoming).sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999'));
+  const up=upRels;
   const upBox=ce('div');upBox.appendChild(secH('다가오는 릴리즈',''));
   if(up.length){const c=ce('div','card flat');up.slice(0,5).forEach(r=>c.appendChild(relRowEl(r)));upBox.appendChild(c);}
   else upBox.appendChild(ce('div','card empty','다가오는 릴리즈가 없습니다.'));
@@ -1340,7 +1341,7 @@ function renderHome(v){
     n1.appendChild(c);
   }else n1.appendChild(ce('div','card empty','아직 회의록이 없습니다.'));
 
-  // 좌측: 다가오는 릴리즈 · 최신 릴리즈 · 회의록 / 우측: 릴리즈 현황 · 발매 경로 · 정산 대기
+  // 좌측: 다가오는 릴리즈 · 최신 릴리즈 · 회의록 / 우측: 릴리즈 구성 · 매출 현황 · 정산 대기
   colL.appendChild(upBox);colL.appendChild(recentReleasesWidget());colL.appendChild(n1);
   colR.appendChild(releaseStatusWidget());colR.appendChild(platformWidget(L));colR.appendChild(swBox);
 }
@@ -1355,33 +1356,28 @@ function recentReleasesWidget(){
   return wrap;
 }
 
-/* 홈 위젯 — 릴리즈 현황 */
+/* 홈 위젯 — 릴리즈 구성(유형 분포 막대) */
 function releaseStatusWidget(){
-  const rels=S.releases;const yr=String(new Date().getFullYear());
-  const total=rels.length;
-  const thisYear=rels.filter(r=>r.date&&r.date.slice(0,4)===yr).length;
-  const upcoming=rels.filter(relUpcoming).length;
-  const trkTotal=rels.reduce((s,r)=>s+((r.tracks||[]).filter(t=>t.title).length),0);
+  const rels=S.releases;const total=rels.length;
   const types={};rels.forEach(r=>{const t=r.type||'기타';types[t]=(types[t]||0)+1;});
-  const wrap=ce('div');wrap.appendChild(secH('릴리즈 현황',''));
+  const wrap=ce('div');wrap.appendChild(secH('릴리즈 구성',''));
   const c=ce('div','card');
-  const stat=(lab,val,tip)=>`<div class="hstat" title="${esc(tip||lab)}"><div class="hv num">${val}</div><div class="hl">${lab}</div></div>`;
   const TYPEPAL=['#2997FF','#64D2FF','#5EEAD4','#FBBF24','#FB7185','#A78BFA','#34D399','#F472B6'];
   const rows=Object.entries(types).sort((a,b)=>b[1]-a[1]).map(([t,n],i)=>{
     const w=Math.max(4,Math.round(n/Math.max(1,total)*100));const col=TYPEPAL[i%TYPEPAL.length];
     return `<div class="trow" title="${esc(t)} ${n}개 · 전체의 ${Math.round(n/Math.max(1,total)*100)}%"><span class="tl"><span class="tdot" style="background:${col}"></span>${esc(t)}</span><div class="bartrack"><div class="barfill" style="width:${w}%;background:${col}"></div></div><span class="tn num">${n}</span></div>`;
   }).join('');
-  c.innerHTML=`<div class="hstats">${stat('총 릴리즈',total,'등록된 릴리즈 전체')}${stat(yr+' 발매',thisYear,yr+'년에 발매된 릴리즈')}${stat('예정',upcoming,'발매 예정(미래 날짜) 릴리즈')}${stat('트랙',trkTotal,'전체 릴리즈의 트랙 수 합계')}</div>
-    ${total?`<div class="hsplit">${rows}</div>`:'<div class="mut2" style="font-size:var(--f12);margin-top:8px">등록된 릴리즈가 없습니다.</div>'}`;
+  c.innerHTML=total?`<div class="hsplit" style="border-top:none;padding-top:2px;margin-top:0">${rows}</div>`
+    :'<div class="mut2" style="font-size:var(--f12)">등록된 릴리즈가 없습니다.</div>';
   wrap.appendChild(c);return wrap;
 }
 
-/* 홈 위젯 — 발매 경로(플랫폼) 순수익 비중 */
+/* 홈 위젯 — 매출 현황(발매 경로별 매출·순수익 비중) */
 function platformWidget(L){
   const ch={};ALLTX.forEach(t=>{const s=t.src;(ch[s]||(ch[s]={n:0,c:0}));ch[s].n+=txNetKRW(t);ch[s].c++;});
   const ent=Object.entries(ch).sort((a,b)=>b[1].n-a[1].n);
   const tot=ent.reduce((s,[,d])=>s+d.n,0)||1;
-  const wrap=ce('div');wrap.appendChild(secH('발매 경로','',`<span class="mut2 num" style="font-size:var(--f12)">순수익 ${won(L.net)}</span>`));
+  const wrap=ce('div');wrap.appendChild(secH('매출 현황','',`<span class="mut2 num" style="font-size:var(--f12)">매출 ${won(L.gross)} · 순수익 ${won(L.net)}</span>`));
   const c=ce('div','card');
   if(!ent.length){c.innerHTML='<div class="mut2" style="font-size:var(--f12)">거래 데이터가 없습니다.</div>';wrap.appendChild(c);return wrap;}
   c.innerHTML=ent.map(([k,d])=>{
@@ -2263,7 +2259,7 @@ function openNewRun(){
   const L=ledger();
   const cands=L.artists.filter(a=>a.payable>0).sort((a,b)=>b.payable-a.payable);
   if(!cands.length){toast('임계를 통과한 정산 대상이 없습니다');return;}
-  const items=cands.map(a=>({artist:a.name,payable:a.payable,amount:Math.max(0,Math.round(a.payable)),include:true,memo:''}));
+  const items=cands.map(a=>({artist:a.name,payable:a.payable,amount:Math.max(0,Math.floor(a.payable)),include:true,memo:''}));
   const sheet=$('#sheet');
   sheet.innerHTML=`<span class="x" onclick="closeModal()">${ic('x')}</span><h3>새 정산 회차</h3>
     <div class="mut2" style="font-size:var(--f12)">임계 통과 ${cands.length}명 · 기준: DCM ${won(S.thrKRW)} / BC $${S.thrUSD} · ${S.settleMode==='release'?'계약별':'아티스트 합산'} 판정 · 환율 ${fxCtxText()}</div>
@@ -2293,7 +2289,7 @@ function openNewRun(){
     const it=items[+cb.dataset.inc];it.include=cb.checked;
     cb.closest('tr').style.opacity=cb.checked?'':'0.4';upd();});
   sheet.querySelectorAll('[data-amt]').forEach(inp=>{
-    const warn=()=>{const it=items[+inp.dataset.amt];inp.style.color=(+inp.value||0)>Math.round(it.payable)+1?'var(--warn)':'';};
+    const warn=()=>{const it=items[+inp.dataset.amt];inp.style.color=(+inp.value||0)>Math.floor(it.payable)+1?'var(--warn)':'';};
     inp.oninput=()=>{items[+inp.dataset.amt].amount=+inp.value||0;warn();upd();};warn();});
   sheet.querySelectorAll('[data-memo]').forEach(inp=>inp.oninput=()=>{items[+inp.dataset.memo].memo=inp.value;});
   $('#runCreate').onclick=()=>{
@@ -2303,11 +2299,12 @@ function openNewRun(){
     const date=$('#runDate').value||todayISO();
     const run={id:uid(),name,date,by:who(),createdAt:Date.now(),status:'open',
       snapshot:{thrKRW:S.thrKRW,thrUSD:S.thrUSD,mode:S.settleMode,fxRate:S.fx.rate,fxByYm:deep(S.fxByYm)},
-      items:inc.map(x=>({artist:x.artist,amount:Math.round(+x.amount||0),payable:Math.round(x.payable),paid:false,memo:x.memo.trim()}))};
+      items:inc.map(x=>({artist:x.artist,amount:Math.floor(+x.amount||0),payable:Math.floor(x.payable),paid:false,memo:x.memo.trim()}))};
     S.settleRuns.push(run);
     run.items.forEach(x=>S.settlements.push({id:uid(),artist:x.artist,amount:x.amount,date,memo:x.memo||name,by:who(),runId:run.id}));
     S.runOpen=run.id;
     saveRuns();saveSettle();closeModal();render();
+    logAudit('settle','정산 회차 생성', name+' · '+run.items.length+'명 · '+won(run.items.reduce((s,x)=>s+x.amount,0)), {runId:run.id, count:run.items.length});
     toast(`정산 회차 생성 — ${run.items.length}명 · ${won(run.items.reduce((s,x)=>s+x.amount,0))}`);
   };
   upd();openModal(true);
@@ -2323,7 +2320,7 @@ function renderSettle(v){
   v.appendChild(k);
 
   /* --- 정산 회차 --- */
-  v.appendChild(secH('정산 회차','임계 통과자 일괄 정산 — 확정하면 금액·기준이 잠깁니다',`<button class="btn sm pri" id="newRun">${ic('plus')}추가</button>`));
+  v.appendChild(secH('정산 회차','임계 통과자 일괄 정산 — 확정하면 금액·기준이 잠깁니다',`<button class="btn sm" id="auditBtn">${ic('list')}이력</button><button class="btn sm pri" id="newRun">${ic('plus')}추가</button>`));
   const runs=S.settleRuns.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   if(runs.length){
     const wrap=ce('div');wrap.style.display='flex';wrap.style.flexDirection='column';wrap.style.gap='10px';
@@ -2365,7 +2362,7 @@ function renderSettle(v){
     wrap.querySelectorAll('[data-stmt]').forEach(b=>b.onclick=e=>{e.stopPropagation();openArtist(b.dataset.stmt);});
     wrap.querySelectorAll('[data-lock]').forEach(b=>b.onclick=async e=>{e.stopPropagation();
       if(!await dlgConfirm('이 회차를 확정할까요?\n확정하면 금액과 기준이 잠기고, 포함된 기록은 삭제할 수 없습니다.',{ok:'확정'}))return;
-      const run=S.settleRuns.find(r=>r.id===b.dataset.lock);if(run){run.status='locked';run.lockedAt=Date.now();saveRuns();render();toast('회차가 확정되었습니다');}});
+      const run=S.settleRuns.find(r=>r.id===b.dataset.lock);if(run){run.status='locked';run.lockedAt=Date.now();saveRuns();logAudit('settle','정산 회차 확정',(run.name||run.date||run.id),{runId:run.id});render();toast('회차가 확정되었습니다');}});
     wrap.querySelectorAll('[data-unlock]').forEach(b=>b.onclick=async e=>{e.stopPropagation();
       if(!await dlgConfirm('확정을 해제할까요? 금액·기준 수정이 다시 가능해집니다.',{ok:'해제'}))return;
       const run=S.settleRuns.find(r=>r.id===b.dataset.unlock);if(run){run.status='open';saveRuns();render();}});
@@ -2374,9 +2371,9 @@ function renderSettle(v){
       if(!await dlgConfirm(`'${run.name}' 회차와 포함된 정산 기록 ${run.items.length}건을 삭제할까요?\n삭제하면 해당 금액이 정산 가능액으로 되돌아갑니다.`,{ok:'삭제',danger:true}))return;
       S.settleRuns=S.settleRuns.filter(r=>r.id!==run.id);
       S.settlements=S.settlements.filter(s=>s.runId!==run.id);
-      saveRuns();saveSettle();render();toast('회차를 삭제했습니다');});
+      saveRuns();saveSettle();logAudit('settle','정산 회차 삭제',(run.name||run.id)+' · '+run.items.length+'건 되돌림',{runId:run.id});render();toast('회차를 삭제했습니다');});
   }else v.appendChild(ce('div','card empty','아직 정산 회차가 없습니다. "새 정산 회차"로 임계 통과자를 한 번에 정산하세요.'));
-  $('#newRun').onclick=openNewRun;
+  $('#newRun').onclick=openNewRun;$('#auditBtn').onclick=openAuditLog;
 
   /* --- 개별 기록 추가 --- */
   v.appendChild(secH('개별 정산 기록','단건 수정·예외 처리용'));
@@ -2389,10 +2386,10 @@ function renderSettle(v){
     <input id="sMemo" class="search" type="text" placeholder="메모 (계좌·기간 등)"><button class="btn pri" id="sAdd">기록</button></div>
   <small class="note">정산액은 즉시 정산 가능·잔여에서 차감됩니다.</small>`;
   v.appendChild(add);
-  $('#sFull').onclick=()=>{const a=L.artists.find(x=>x.name===$('#sA').value);if(a)$('#sAmt').value=Math.max(0,Math.round(a.payable));};
+  $('#sFull').onclick=()=>{const a=L.artists.find(x=>x.name===$('#sA').value);if(a)$('#sAmt').value=Math.max(0,Math.floor(a.payable));};
   $('#sAdd').onclick=()=>{const name=$('#sA').value,amt=parseFloat($('#sAmt').value);
     if(!name||!amt||amt<=0){toast('아티스트와 0보다 큰 정산액을 입력하세요');return;}
-    S.settlements.push({id:Date.now(),artist:name,amount:Math.round(amt),date:$('#sDate').value,memo:$('#sMemo').value.trim(),by:who()});saveSettle();render();};
+    S.settlements.push({id:Date.now(),artist:name,amount:Math.floor(amt),date:$('#sDate').value,memo:$('#sMemo').value.trim(),by:who()});saveSettle();logAudit('settle','개별 정산 기록',name+' · '+won(Math.floor(amt)),{artist:name,amount:Math.floor(amt)});render();};
 
   /* --- 전체 기록 --- */
   v.appendChild(secH('전체 정산 기록',''));
@@ -2510,7 +2507,7 @@ function artistTx(name){const out=[];ALLTX.forEach(t=>{const p=partiesFor(t).fin
 function openArtist(name){
   const L=ledger();const a=L.artists.find(x=>x.name===name)||{name,accrued:0,qualified:0,settled:0,remaining:0,payable:0,locked:0,tx:0,ch:{DCM:{accrued:0,qualified:0},BC:{accrued:0,qualified:0}},basis:{DCM:0,BC:0},basisQual:{DCM:false,BC:false}};
   const list=artistTx(name);const dates=list.map(x=>x.t.date).filter(Boolean).sort();const pay=a.payable>0;
-  const taxRate=S.taxRate||0;const wTax=Math.round(a.payable*taxRate/100);const wNet=a.payable-wTax;
+  const taxRate=S.taxRate||0;const wTax=Math.floor(a.payable*taxRate/100);const wNet=a.payable-wTax;
   const byRel={};list.forEach(x=>{const t=x.t;const rel=t.cat?relByCat(t.cat):null;
     const k=rel?('#'+KX(rel.cat)):('@'+KX(t.release||t.track||''));
     const g=byRel[k]||(byRel[k]={rel:(rel?rel.title:(t.release||'')),t0:t,nk:0,gk:0,c:0});
@@ -2566,7 +2563,7 @@ function statementText(name,a,rels,dates){
   rels.forEach(r=>{s+='· '+(r.rel||'-')+' : '+won(r.nk)+'\n';});
   s+='--------------------------------\n';
   s+='누적 분배 : '+won(a.accrued)+'\n정산 가능 : '+won(a.payable)+'\n정산됨   : '+won(a.settled)+'\n잔여     : '+won(a.remaining)+'\n';
-  if((S.taxRate||0)>0&&a.payable>0){const tr=S.taxRate,tax=Math.round(a.payable*tr/100);
+  if((S.taxRate||0)>0&&a.payable>0){const tr=S.taxRate,tax=Math.floor(a.payable*tr/100);
     s+='--------------------------------\n[원천징수 '+tr+'%]\n지급액   : '+won(a.payable)+'\n원천징수 : -'+won(tax)+'\n실지급액 : '+won(a.payable-tax)+'\n';}
   s+='--------------------------------\n';
   s+=a.payable>0?('정산 가능액 '+won(a.payable)+' — 정산 대상\n'):('현재 임계 미달, 누적 '+won(a.accrued)+' (정산 가능 0)\n');
@@ -2575,7 +2572,7 @@ function statementText(name,a,rels,dates){
 }
 function statementHTML(name,a,rels,dates){
   const period=dates.length?dates[0]+' ~ '+dates[dates.length-1]:'-';
-  const tr=S.taxRate||0,tax=tr>0?Math.round(a.payable*tr/100):0,netPay=a.payable-tax;
+  const tr=S.taxRate||0,tax=tr>0?Math.floor(a.payable*tr/100):0,netPay=a.payable-tax;
   const relRows=rels.map(r=>`<tr><td>${esc(r.rel||'-')}</td><td class="r">${won(r.nk)}</td></tr>`).join('')
     ||'<tr><td colspan="2" style="text-align:center;color:#999">내역 없음</td></tr>';
   return `<div class="stmt">
@@ -2874,18 +2871,18 @@ function renderSettings(v){
       S.import.tx=S.import.tx.filter(t=>!(t.src==='유통(DCM)'&&dcmYms.includes(t.ym)));
       S.import.dcmYms=dedup(S.import.dcmYms.concat(dcmYms));
       S.import.tx=S.import.tx.concat(dcmTx);
-      log(`유통(DCM): ${dcmTx.length}건 반영 — 정산월 ${dcmYms.join(', ')} 대체`);}
+      log(`유통(DCM): ${dcmTx.length}건 반영 — 정산월 ${dcmYms.join(', ')} 대체`);logAudit('revenue','유통(DCM) 반영','정산월 '+dcmYms.join(', ')+' · '+dcmTx.length+'건',{months:dcmYms,count:dcmTx.length});}
     if(bcTx&&bcRange){
       S.import.tx=S.import.tx.filter(t=>!(t.src==='밴드캠프'&&t.date&&t.date>=bcRange[0]&&t.date<=bcRange[1]));
       S.import.bcRanges=S.import.bcRanges.filter(r=>!(r[0]>=bcRange[0]&&r[1]<=bcRange[1]));
       S.import.bcRanges.push(bcRange);
       S.import.tx=S.import.tx.concat(bcTx);
-      log(`밴드캠프: ${bcTx.length}건 반영 — ${bcRange[0]} ~ ${bcRange[1]} 대체`);}
+      log(`밴드캠프: ${bcTx.length}건 반영 — ${bcRange[0]} ~ ${bcRange[1]} 대체`);logAudit('revenue','밴드캠프 반영',bcRange[0]+'~'+bcRange[1]+' · '+bcTx.length+'건',{range:bcRange,count:bcTx.length});}
     const risky=S.import.tx.filter(t=>t.risky).length;
     if(risky)log(`자동 분배 ${risky}건 — 정산 › 거래에서 "확인" 표시를 점검하세요`);
     saveImport();refreshEff();render();toast('로우데이터가 반영되었습니다');
   };
-  const ir=$('#impReset');if(ir)ir.onclick=async()=>{if(await dlgConfirm('가져온 데이터를 모두 초기화할까요?\n내장 데이터는 유지됩니다.',{ok:'초기화',danger:true})){S.import={tx:[],dcmYms:[],bcRanges:[]};saveImport();refreshEff();render();}};
+  const ir=$('#impReset');if(ir)ir.onclick=async()=>{if(await dlgConfirm('가져온 데이터를 모두 초기화할까요?\n내장 데이터는 유지됩니다.',{ok:'초기화',danger:true})){S.import={tx:[],dcmYms:[],bcRanges:[]};saveImport();logAudit('revenue','임포트 초기화','가져온 매출 데이터 전체 삭제');refreshEff();render();}};
 
   // 백업
   const bk=ce('div','card');
@@ -2923,6 +2920,40 @@ function renderSettings(v){
     location.reload();
   };
 }
+/* ===================== 이력 (매출·정산 전용, append-only) ===================== */
+// 클라우드 연결 시에만 기록. dinureos/audit/items 에 push (RTDB 규칙으로 수정·삭제 불가).
+function logAudit(scope, action, detail, meta){   // scope: 'revenue' | 'settle'
+  if(!Store.cloud()) return;
+  try{
+    firebase.database().ref('dinureos/audit/items').push({
+      ts: firebase.database.ServerValue.TIMESTAMP,
+      actor: who(), scope, action,
+      detail: String(detail||''), meta: meta||null
+    });
+  }catch(e){ console.warn('audit 기록 실패', e); }
+}
+async function openAuditLog(){
+  openModal(true);
+  const sh=$('#sheet');
+  sh.innerHTML=`<span class="x" onclick="closeModal()">${ic('x')}</span><h3>이력 — 매출·정산</h3>
+    <div class="mut2" style="font-size:var(--f12)">매출 반영·정산 회차·개별 기록의 변경만 기록됩니다 · 최근 200건</div>
+    <div id="auditList" class="mut" style="margin-top:14px">불러오는 중…</div>`;
+  if(!Store.cloud()){ $('#auditList').innerHTML='<div class="mut">클라우드 연결 시 이력이 표시됩니다.</div>'; return; }
+  try{
+    const snap=await firebase.database().ref('dinureos/audit/items').limitToLast(200).get();
+    const rows=Object.values(snap.val()||{}).sort((a,b)=>(b.ts||0)-(a.ts||0));
+    $('#auditList').innerHTML = rows.length ? rows.map(r=>{
+      const t=r.ts?new Date(r.ts).toLocaleString('ko-KR'):'—';
+      const chip=r.scope==='revenue'?'<span class="pill info">매출</span>':'<span class="pill ok">정산</span>';
+      return `<div style="display:flex;gap:8px;align-items:baseline;padding:8px 0;border-top:1px solid var(--bd)">
+        <span class="mut2 num" style="white-space:nowrap;font-size:var(--f11)">${esc(t)}</span>${chip}
+        <b style="white-space:nowrap">${esc(r.action||'')}</b>
+        <span class="mut" style="min-width:0;overflow:hidden;text-overflow:ellipsis">${esc(r.detail||'')}</span>
+        <span class="mut2" style="margin-left:auto;white-space:nowrap;font-size:var(--f11)">${esc(r.actor||'')}</span></div>`;
+    }).join('') : '<div class="mut">기록 없음</div>';
+  }catch(e){ $('#auditList').innerHTML='<div class="mut">이력을 불러오지 못했습니다 — 네트워크/권한을 확인하세요.</div>'; }
+}
+
 async function pushAllToCloud(){
   for(const c of COLS){
     const remote=await Store.getRemote(c);
@@ -2985,15 +3016,39 @@ function gateBusy(on,label){const b=$('#gateBtn');if(!b)return;b.disabled=on;b.q
 // 허용 계정 진입 — 앱 공개 + 동기화 시작
 async function enterApp(u){
   S.profile.name=u.displayName||(u.email||'').split('@')[0]||'';
-  $('#whoName').textContent=u.email||who();
   Store.bindDB();
   // 최초 1회: 클라우드가 비어 있으면 이 브라우저의 로컬 데이터로 시드
   try{ if((await Store.getRemote('releases'))==null) await pushAllToCloud(); }catch(e){}
+  // 로컬 닉네임(이 기기 전용, 동기화 안 됨) — 이력의 actor로 사용
+  const nick=await Store.getLocal('operator');
+  S.operator=nick||'';
   startWatch();
   updateSyncBadge();
-  document.body.classList.add('authed');
+  document.body.classList.add('authed');   // 게이트 숨김 → 닉네임 다이얼로그가 위로 보임
   render();
+  const wn=$('#whoName');
+  if(wn){ wn.textContent=nick||u.email||who(); wn.style.cursor='pointer'; wn.title='닉네임 변경'; wn.onclick=renameOperator; }
+  if(!nick)await askNickname();   // 처음 들어올 때 닉네임 입력 (필수)
   if(REF_FAIL.length)toast('정산 데이터를 불러오지 못했습니다: '+REF_FAIL.join(', ')+' — 네트워크/파일을 확인하세요',5500);
+}
+// 처음 진입 시 닉네임 입력 — 비우면 다시 묻는다(취소 불가)
+async function askNickname(){
+  let nick='';
+  do{ nick=((await dlgPrompt('이 기기에서 사용할 닉네임을 입력하세요\n정산·매출 이력에 "누가"로 기록됩니다.','',{title:'닉네임 설정',ok:'시작',cancel:false}))||'').trim(); }while(!nick);
+  await Store.setLocal('operator',nick);
+  S.operator=nick;
+  const wn=$('#whoName');if(wn)wn.textContent=nick;
+  toast('닉네임이 설정되었습니다 — '+nick);
+}
+// 닉네임 변경(오타 수정 등) — 이 기기 전용
+async function renameOperator(){
+  const cur=S.operator||'';
+  const v=((await dlgPrompt('닉네임 변경 (이 기기 전용)',cur,{title:'닉네임',ok:'저장'}))||'').trim();
+  if(!v||v===cur)return;
+  await Store.setLocal('operator',v);
+  S.operator=v;
+  const wn=$('#whoName');if(wn)wn.textContent=v;
+  toast('닉네임을 변경했습니다 — '+v);
 }
 
 function showGate(msg,err){document.body.classList.remove('authed');gateBusy(false);gateMsg(msg,err);}
