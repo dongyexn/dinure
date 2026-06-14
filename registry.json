@@ -1,0 +1,3272 @@
+[
+{
+"cat": "DIN-001",
+"catkey": "din001",
+"type": "싱글",
+"release": "Dinure Collection 01",
+"track": "Oslo",
+"version": "-",
+"artist_raw": "Wibber",
+"originals": [
+"Wibber"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Wibber",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection01|oslo|",
+"k_tv": "oslo|",
+"k_cat_tv": "din001|oslo|"
+},
+{
+"cat": "DIN-001",
+"catkey": "din001",
+"type": "싱글",
+"release": "Dinure Collection 01",
+"track": "Skyfallin",
+"version": "-",
+"artist_raw": "LOFTIER",
+"originals": [
+"LOFTIER"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"LOFTIER",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection01|skyfallin|",
+"k_tv": "skyfallin|",
+"k_cat_tv": "din001|skyfallin|"
+},
+{
+"cat": "DIN-001",
+"catkey": "din001",
+"type": "싱글",
+"release": "Dinure Collection 01",
+"track": "Lifespan",
+"version": "-",
+"artist_raw": "GreenNavy",
+"originals": [
+"GreenNavy"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"GreenNavy",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection01|lifespan|",
+"k_tv": "lifespan|",
+"k_cat_tv": "din001|lifespan|"
+},
+{
+"cat": "DIN-002",
+"catkey": "din002",
+"type": "싱글",
+"release": "Cycle II",
+"track": "Cycle II",
+"version": "-",
+"artist_raw": "BLACKNYAO",
+"originals": [
+"BLACKNYAO"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"BLACKNYAO",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "cycleii|cycleii|",
+"k_tv": "cycleii|",
+"k_cat_tv": "din002|cycleii|"
+},
+{
+"cat": "DIN-003",
+"catkey": "din003",
+"type": "싱글",
+"release": "Charybdis",
+"track": "Charybdis",
+"version": "-",
+"artist_raw": "LOFTIER",
+"originals": [
+"LOFTIER"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"LOFTIER",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "charybdis|charybdis|",
+"k_tv": "charybdis|",
+"k_cat_tv": "din003|charybdis|"
+},
+{
+"cat": "DIN-004",
+"catkey": "din004",
+"type": "EP",
+"release": "Dinure Collection 02: Silent Moments",
+"track": "Dream Trip",
+"version": "-",
+"artist_raw": "LOFTIER",
+"originals": [
+"LOFTIER"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"LOFTIER",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection02silentmoments|dreamtrip|",
+"k_tv": "dreamtrip|",
+"k_cat_tv": "din004|dreamtrip|"
+},
+{
+"cat": "DIN-004",
+"catkey": "din004",
+"type": "EP",
+"release": "Dinure Collection 02: Silent Moments",
+"track": "Red Eyes",
+"version": "-",
+"artist_raw": "GreenNavy",
+"originals": [
+"GreenNavy"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"GreenNavy",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection02silentmoments|redeyes|",
+"k_tv": "redeyes|",
+"k_cat_tv": "din004|redeyes|"
+},
+{
+"cat": "DIN-004",
+"catkey": "din004",
+"type": "EP",
+"release": "Dinure Collection 02: Silent Moments",
+"track": "Come",
+"version": "-",
+"artist_raw": "Aintion",
+"originals": [
+"Aintion"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Aintion",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection02silentmoments|come|",
+"k_tv": "come|",
+"k_cat_tv": "din004|come|"
+},
+{
+"cat": "DIN-004",
+"catkey": "din004",
+"type": "EP",
+"release": "Dinure Collection 02: Silent Moments",
+"track": "First Footprint",
+"version": "-",
+"artist_raw": "somyu",
+"originals": [
+"somyu"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"somyu",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection02silentmoments|firstfootprint|",
+"k_tv": "firstfootprint|",
+"k_cat_tv": "din004|firstfootprint|"
+},
+{
+"cat": "DIN-004",
+"catkey": "din004",
+"type": "EP",
+"release": "Dinure Collection 02: Silent Moments",
+"track": "Yuletide",
+"version": "-",
+"artist_raw": "Wibber",
+"originals": [
+"Wibber"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Wibber",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection02silentmoments|yuletide|",
+"k_tv": "yuletide|",
+"k_cat_tv": "din004|yuletide|"
+},
+{
+"cat": "DIN-005",
+"catkey": "din005",
+"type": "싱글",
+"release": "Strangers In Love",
+"track": "Strangers In Love",
+"version": "-",
+"artist_raw": "Division One (KR)",
+"originals": [
+"Division One (KR)"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Division One (KR)",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "strangersinlove|strangersinlove|",
+"k_tv": "strangersinlove|",
+"k_cat_tv": "din005|strangersinlove|"
+},
+{
+"cat": "DIN-006",
+"catkey": "din006",
+"type": "싱글",
+"release": "Where I Am",
+"track": "Where I Am",
+"version": "-",
+"artist_raw": "Aintion",
+"originals": [
+"Aintion"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Aintion",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "whereiam|whereiam|",
+"k_tv": "whereiam|",
+"k_cat_tv": "din006|whereiam|"
+},
+{
+"cat": "DIN-007",
+"catkey": "din007",
+"type": "싱글",
+"release": "Too Early",
+"track": "Too Early",
+"version": "-",
+"artist_raw": "Naqus feat. Serge Orvin",
+"originals": [
+"Naqus",
+"Serge Orvin"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Naqus",
+"artist",
+25.0
+],
+[
+"Serge Orvin",
+"artist",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "tooearly|tooearly|",
+"k_tv": "tooearly|",
+"k_cat_tv": "din007|tooearly|"
+},
+{
+"cat": "DIN-008",
+"catkey": "din008",
+"type": "싱글",
+"release": "What I Remembered / Collected Memories",
+"track": "What I Remembered",
+"version": "-",
+"artist_raw": "ØNSEAL",
+"originals": [
+"ØNSEAL"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"ØNSEAL",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "whatirememberedcollectedmemories|whatiremembered|",
+"k_tv": "whatiremembered|",
+"k_cat_tv": "din008|whatiremembered|"
+},
+{
+"cat": "DIN-008",
+"catkey": "din008",
+"type": "싱글",
+"release": "What I Remembered / Collected Memories",
+"track": "Collected Memories",
+"version": "-",
+"artist_raw": "ØNSEAL",
+"originals": [
+"ØNSEAL"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"ØNSEAL",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "whatirememberedcollectedmemories|collectedmemories|",
+"k_tv": "collectedmemories|",
+"k_cat_tv": "din008|collectedmemories|"
+},
+{
+"cat": "DIN-009",
+"catkey": "din009",
+"type": "싱글",
+"release": "Gravity",
+"track": "Gravity",
+"version": "-",
+"artist_raw": "Plutian",
+"originals": [
+"Plutian"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Plutian",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "gravity|gravity|",
+"k_tv": "gravity|",
+"k_cat_tv": "din009|gravity|"
+},
+{
+"cat": "DIN-010",
+"catkey": "din010",
+"type": "싱글",
+"release": "Time Break",
+"track": "Time Break",
+"version": "-",
+"artist_raw": "Casepeat",
+"originals": [
+"Casepeat"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Casepeat",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "timebreak|timebreak|",
+"k_tv": "timebreak|",
+"k_cat_tv": "din010|timebreak|"
+},
+{
+"cat": "DIN-011",
+"catkey": "din011",
+"type": "싱글",
+"release": "Run Away",
+"track": "Run Away",
+"version": "-",
+"artist_raw": "Aintion",
+"originals": [
+"Aintion"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Aintion",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "runaway|runaway|",
+"k_tv": "runaway|",
+"k_cat_tv": "din011|runaway|"
+},
+{
+"cat": "DIN-012",
+"catkey": "din012",
+"type": "싱글",
+"release": "All Over You",
+"track": "All Over You",
+"version": "-",
+"artist_raw": "Ryota Arai",
+"originals": [
+"Ryota Arai"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Ryota Arai",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "alloveryou|alloveryou|",
+"k_tv": "alloveryou|",
+"k_cat_tv": "din012|alloveryou|"
+},
+{
+"cat": "DIN-013",
+"catkey": "din013",
+"type": "컴필레이션",
+"release": "Dinure Collection 03: The Diversion",
+"track": "Lifespan",
+"version": "somyu Remix",
+"artist_raw": "GreenNavy",
+"originals": [
+"GreenNavy"
+],
+"remixer": "somyu",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"somyu",
+"arranger",
+25.0
+],
+[
+"GreenNavy",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection03thediversion|lifespan|somyuremix",
+"k_tv": "lifespan|somyuremix",
+"k_cat_tv": "din013|lifespan|somyuremix"
+},
+{
+"cat": "DIN-013",
+"catkey": "din013",
+"type": "컴필레이션",
+"release": "Dinure Collection 03: The Diversion",
+"track": "Red Eyes",
+"version": "ØNSEAL Remix",
+"artist_raw": "",
+"originals": [
+"GreenNavy"
+],
+"remixer": "ØNSEAL",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"ØNSEAL",
+"arranger",
+25.0
+],
+[
+"GreenNavy",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection03thediversion|redeyes|nsealremix",
+"k_tv": "redeyes|nsealremix",
+"k_cat_tv": "din013|redeyes|nsealremix"
+},
+{
+"cat": "DIN-013",
+"catkey": "din013",
+"type": "컴필레이션",
+"release": "Dinure Collection 03: The Diversion",
+"track": "Cycle II",
+"version": "GreenNavy Remix",
+"artist_raw": "BLACKNYAO",
+"originals": [
+"BLACKNYAO"
+],
+"remixer": "GreenNavy",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"GreenNavy",
+"arranger",
+25.0
+],
+[
+"BLACKNYAO",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection03thediversion|cycleii|greennavyremix",
+"k_tv": "cycleii|greennavyremix",
+"k_cat_tv": "din013|cycleii|greennavyremix"
+},
+{
+"cat": "DIN-013",
+"catkey": "din013",
+"type": "컴필레이션",
+"release": "Dinure Collection 03: The Diversion",
+"track": "Strangers In Love",
+"version": "Aintion Remix",
+"artist_raw": "Division One (KR)",
+"originals": [
+"Division One (KR)"
+],
+"remixer": "Aintion",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Aintion",
+"arranger",
+25.0
+],
+[
+"Division One (KR)",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection03thediversion|strangersinlove|aintionremix",
+"k_tv": "strangersinlove|aintionremix",
+"k_cat_tv": "din013|strangersinlove|aintionremix"
+},
+{
+"cat": "DIN-013",
+"catkey": "din013",
+"type": "컴필레이션",
+"release": "Dinure Collection 03: The Diversion",
+"track": "First Footprint",
+"version": "BLACKNYAO Remix",
+"artist_raw": "somyu",
+"originals": [
+"somyu"
+],
+"remixer": "BLACKNYAO",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"BLACKNYAO",
+"arranger",
+25.0
+],
+[
+"somyu",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection03thediversion|firstfootprint|blacknyaoremix",
+"k_tv": "firstfootprint|blacknyaoremix",
+"k_cat_tv": "din013|firstfootprint|blacknyaoremix"
+},
+{
+"cat": "DIN-013",
+"catkey": "din013",
+"type": "컴필레이션",
+"release": "Dinure Collection 03: The Diversion",
+"track": "Too Early",
+"version": "Gony Slowly Remix",
+"artist_raw": "Naqus feat. Serge Orvin",
+"originals": [
+"Naqus",
+"Serge Orvin"
+],
+"remixer": "Gony Slowly",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Gony Slowly",
+"arranger",
+25.0
+],
+[
+"Naqus",
+"original",
+12.5
+],
+[
+"Serge Orvin",
+"original",
+12.5
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection03thediversion|tooearly|gonyslowlyremix",
+"k_tv": "tooearly|gonyslowlyremix",
+"k_cat_tv": "din013|tooearly|gonyslowlyremix"
+},
+{
+"cat": "DIN-013",
+"catkey": "din013",
+"type": "컴필레이션",
+"release": "Dinure Collection 03: The Diversion",
+"track": "Charybdis",
+"version": "Plutian Remix",
+"artist_raw": "LOFTIER",
+"originals": [
+"LOFTIER"
+],
+"remixer": "Plutian",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Plutian",
+"arranger",
+25.0
+],
+[
+"LOFTIER",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection03thediversion|charybdis|plutianremix",
+"k_tv": "charybdis|plutianremix",
+"k_cat_tv": "din013|charybdis|plutianremix"
+},
+{
+"cat": "DIN-013",
+"catkey": "din013",
+"type": "컴필레이션",
+"release": "Dinure Collection 03: The Diversion",
+"track": "Strangers In Love",
+"version": "LOFTIER Remix",
+"artist_raw": "Division One (KR)",
+"originals": [
+"Division One (KR)"
+],
+"remixer": "LOFTIER",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"LOFTIER",
+"arranger",
+25.0
+],
+[
+"Division One (KR)",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection03thediversion|strangersinlove|loftierremix",
+"k_tv": "strangersinlove|loftierremix",
+"k_cat_tv": "din013|strangersinlove|loftierremix"
+},
+{
+"cat": "DIN-013",
+"catkey": "din013",
+"type": "컴필레이션",
+"release": "Dinure Collection 03: The Diversion",
+"track": "Too Early",
+"version": "Casepeat Remix",
+"artist_raw": "Naqus feat. Serge Orvin",
+"originals": [
+"Naqus",
+"Serge Orvin"
+],
+"remixer": "Casepeat",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Casepeat",
+"arranger",
+25.0
+],
+[
+"Naqus",
+"original",
+12.5
+],
+[
+"Serge Orvin",
+"original",
+12.5
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection03thediversion|tooearly|casepeatremix",
+"k_tv": "tooearly|casepeatremix",
+"k_cat_tv": "din013|tooearly|casepeatremix"
+},
+{
+"cat": "DIN-013",
+"catkey": "din013",
+"type": "컴필레이션",
+"release": "Dinure Collection 03: The Diversion",
+"track": "Cycle II",
+"version": "GreenNavy Extended Mix",
+"artist_raw": "BLACKNYAO",
+"originals": [
+"BLACKNYAO"
+],
+"remixer": "GreenNavy",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"GreenNavy",
+"arranger",
+25.0
+],
+[
+"BLACKNYAO",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection03thediversion|cycleii|greennavyextendedmix",
+"k_tv": "cycleii|greennavyextendedmix",
+"k_cat_tv": "din013|cycleii|greennavyextendedmix"
+},
+{
+"cat": "DIN-013",
+"catkey": "din013",
+"type": "컴필레이션",
+"release": "Dinure Collection 03: The Diversion",
+"track": "Too Early",
+"version": "Gony Slowly Extended Mix",
+"artist_raw": "Naqus feat. Serge Orvin",
+"originals": [
+"Naqus",
+"Serge Orvin"
+],
+"remixer": "Gony Slowly",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Gony Slowly",
+"arranger",
+25.0
+],
+[
+"Naqus",
+"original",
+12.5
+],
+[
+"Serge Orvin",
+"original",
+12.5
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection03thediversion|tooearly|gonyslowlyextendedmix",
+"k_tv": "tooearly|gonyslowlyextendedmix",
+"k_cat_tv": "din013|tooearly|gonyslowlyextendedmix"
+},
+{
+"cat": "DIN-013",
+"catkey": "din013",
+"type": "컴필레이션",
+"release": "Dinure Collection 03: The Diversion",
+"track": "Charybdis",
+"version": "Plutian Extended Mix",
+"artist_raw": "LOFTIER",
+"originals": [
+"LOFTIER"
+],
+"remixer": "Plutian",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Plutian",
+"arranger",
+25.0
+],
+[
+"LOFTIER",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection03thediversion|charybdis|plutianextendedmix",
+"k_tv": "charybdis|plutianextendedmix",
+"k_cat_tv": "din013|charybdis|plutianextendedmix"
+},
+{
+"cat": "DIN-013",
+"catkey": "din013",
+"type": "컴필레이션",
+"release": "Dinure Collection 03: The Diversion",
+"track": "Strangers In Love",
+"version": "LOFTIER Extended Mix",
+"artist_raw": "Division One (KR)",
+"originals": [
+"Division One (KR)"
+],
+"remixer": "LOFTIER",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"LOFTIER",
+"arranger",
+25.0
+],
+[
+"Division One (KR)",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection03thediversion|strangersinlove|loftierextendedmix",
+"k_tv": "strangersinlove|loftierextendedmix",
+"k_cat_tv": "din013|strangersinlove|loftierextendedmix"
+},
+{
+"cat": "DIN-013",
+"catkey": "din013",
+"type": "컴필레이션",
+"release": "Dinure Collection 03: The Diversion",
+"track": "Too Early",
+"version": "Casepeat Extended Mix",
+"artist_raw": "Naqus feat. Serge Orvin",
+"originals": [
+"Naqus",
+"Serge Orvin"
+],
+"remixer": "Casepeat",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Casepeat",
+"arranger",
+25.0
+],
+[
+"Naqus",
+"original",
+12.5
+],
+[
+"Serge Orvin",
+"original",
+12.5
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection03thediversion|tooearly|casepeatextendedmix",
+"k_tv": "tooearly|casepeatextendedmix",
+"k_cat_tv": "din013|tooearly|casepeatextendedmix"
+},
+{
+"cat": "DIN-014",
+"catkey": "din014",
+"type": "싱글",
+"release": "Adelaide",
+"track": "Adelaide",
+"version": "-",
+"artist_raw": "Euphoric Heart",
+"originals": [
+"Euphoric Heart"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Euphoric Heart",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "adelaide|adelaide|",
+"k_tv": "adelaide|",
+"k_cat_tv": "din014|adelaide|"
+},
+{
+"cat": "DIN-016",
+"catkey": "din016",
+"type": "싱글",
+"release": "Dream Trip",
+"track": "Dream Trip",
+"version": "Club Mix",
+"artist_raw": "LOFTIER",
+"originals": [
+"LOFTIER"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"LOFTIER",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "dreamtrip|dreamtrip|clubmix",
+"k_tv": "dreamtrip|clubmix",
+"k_cat_tv": "din016|dreamtrip|clubmix"
+},
+{
+"cat": "DIN-017",
+"catkey": "din017",
+"type": "싱글",
+"release": "Sonar",
+"track": "Sonar",
+"version": "-",
+"artist_raw": "Plutian",
+"originals": [
+"Plutian"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Plutian",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "sonar|sonar|",
+"k_tv": "sonar|",
+"k_cat_tv": "din017|sonar|"
+},
+{
+"cat": "DIN-018",
+"catkey": "din018",
+"type": "싱글",
+"release": "Shadowed Love",
+"track": "Shadowed Love",
+"version": "-",
+"artist_raw": "A. Ki",
+"originals": [
+"A. Ki"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"A. Ki",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "shadowedlove|shadowedlove|",
+"k_tv": "shadowedlove|",
+"k_cat_tv": "din018|shadowedlove|"
+},
+{
+"cat": "DIN-019",
+"catkey": "din019",
+"type": "싱글",
+"release": "Yoyo",
+"track": "Yoyo",
+"version": "Naqus Respray",
+"artist_raw": "0555",
+"originals": [
+"0555"
+],
+"remixer": "Naqus",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Naqus",
+"arranger",
+25.0
+],
+[
+"0555",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "yoyo|yoyo|naqusrespray",
+"k_tv": "yoyo|naqusrespray",
+"k_cat_tv": "din019|yoyo|naqusrespray"
+},
+{
+"cat": "DIN-020",
+"catkey": "din020",
+"type": "EP",
+"release": "Gamer;s Switch",
+"track": "Gamer;s Switch",
+"version": "Original Mix",
+"artist_raw": "BLACKNYAO",
+"originals": [
+"BLACKNYAO"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"BLACKNYAO",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "gamersswitch|gamersswitch|originalmix",
+"k_tv": "gamersswitch|originalmix",
+"k_cat_tv": "din020|gamersswitch|originalmix"
+},
+{
+"cat": "DIN-020",
+"catkey": "din020",
+"type": "EP",
+"release": "Gamer;s Switch",
+"track": "Artificial Sea VII",
+"version": "-",
+"artist_raw": "BLACKNYAO",
+"originals": [
+"BLACKNYAO"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"BLACKNYAO",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "gamersswitch|artificialseavii|",
+"k_tv": "artificialseavii|",
+"k_cat_tv": "din020|artificialseavii|"
+},
+{
+"cat": "DIN-020",
+"catkey": "din020",
+"type": "EP",
+"release": "Gamer;s Switch",
+"track": "Sunken City",
+"version": "-",
+"artist_raw": "BLACKNYAO",
+"originals": [
+"BLACKNYAO"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"BLACKNYAO",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "gamersswitch|sunkencity|",
+"k_tv": "sunkencity|",
+"k_cat_tv": "din020|sunkencity|"
+},
+{
+"cat": "DIN-020",
+"catkey": "din020",
+"type": "EP",
+"release": "Gamer;s Switch",
+"track": "One Day, from Far Away",
+"version": "-",
+"artist_raw": "BLACKNYAO",
+"originals": [
+"BLACKNYAO"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"BLACKNYAO",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "gamersswitch|onedayfromfaraway|",
+"k_tv": "onedayfromfaraway|",
+"k_cat_tv": "din020|onedayfromfaraway|"
+},
+{
+"cat": "DIN-021",
+"catkey": "din021",
+"type": "EP",
+"release": "LIFT OFF",
+"track": "Lift Off",
+"version": "Original Mix",
+"artist_raw": "LOFTIER",
+"originals": [
+"LOFTIER"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"LOFTIER",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "liftoff|liftoff|originalmix",
+"k_tv": "liftoff|originalmix",
+"k_cat_tv": "din021|liftoff|originalmix"
+},
+{
+"cat": "DIN-021",
+"catkey": "din021",
+"type": "EP",
+"release": "LIFT OFF",
+"track": "DOKI DOKI",
+"version": "-",
+"artist_raw": "LOFTIER",
+"originals": [
+"LOFTIER"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"LOFTIER",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "liftoff|dokidoki|",
+"k_tv": "dokidoki|",
+"k_cat_tv": "din021|dokidoki|"
+},
+{
+"cat": "DIN-021",
+"catkey": "din021",
+"type": "EP",
+"release": "LIFT OFF",
+"track": "Is Like Dat?",
+"version": "-",
+"artist_raw": "LOFTIER",
+"originals": [
+"LOFTIER"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"LOFTIER",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "liftoff|islikedat|",
+"k_tv": "islikedat|",
+"k_cat_tv": "din021|islikedat|"
+},
+{
+"cat": "DIN-021",
+"catkey": "din021",
+"type": "EP",
+"release": "LIFT OFF",
+"track": "Hyperwave",
+"version": "-",
+"artist_raw": "LOFTIER",
+"originals": [
+"LOFTIER"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"LOFTIER",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "liftoff|hyperwave|",
+"k_tv": "hyperwave|",
+"k_cat_tv": "din021|hyperwave|"
+},
+{
+"cat": "DIN-022",
+"catkey": "din022",
+"type": "싱글",
+"release": "Over The Existence",
+"track": "Over The Existence",
+"version": "-",
+"artist_raw": "ondabii & Naqus",
+"originals": [
+"ondabii",
+"Naqus"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"ondabii",
+"artist",
+25.0
+],
+[
+"Naqus",
+"artist",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "overtheexistence|overtheexistence|",
+"k_tv": "overtheexistence|",
+"k_cat_tv": "din022|overtheexistence|"
+},
+{
+"cat": "DIN-023",
+"catkey": "din023",
+"type": "EP",
+"release": "Suryeo / Nanmu",
+"track": "Suryeo",
+"version": "-",
+"artist_raw": "Euphoric Heart",
+"originals": [
+"Euphoric Heart"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Euphoric Heart",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "suryeonanmu|suryeo|",
+"k_tv": "suryeo|",
+"k_cat_tv": "din023|suryeo|"
+},
+{
+"cat": "DIN-023",
+"catkey": "din023",
+"type": "EP",
+"release": "Suryeo / Nanmu",
+"track": "Nanmu",
+"version": "-",
+"artist_raw": "Euphoric Heart",
+"originals": [
+"Euphoric Heart"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Euphoric Heart",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "suryeonanmu|nanmu|",
+"k_tv": "nanmu|",
+"k_cat_tv": "din023|nanmu|"
+},
+{
+"cat": "DIN-023",
+"catkey": "din023",
+"type": "EP",
+"release": "Suryeo / Nanmu",
+"track": "Suryeo",
+"version": "Extended Mix",
+"artist_raw": "Euphoric Heart",
+"originals": [
+"Euphoric Heart"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Euphoric Heart",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "suryeonanmu|suryeo|extendedmix",
+"k_tv": "suryeo|extendedmix",
+"k_cat_tv": "din023|suryeo|extendedmix"
+},
+{
+"cat": "DIN-023",
+"catkey": "din023",
+"type": "EP",
+"release": "Suryeo / Nanmu",
+"track": "Nanmu",
+"version": "-",
+"artist_raw": "Euphoric Heart",
+"originals": [
+"Euphoric Heart"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Euphoric Heart",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "suryeonanmu|nanmu|",
+"k_tv": "nanmu|",
+"k_cat_tv": "din023|nanmu|"
+},
+{
+"cat": "DIN-024",
+"catkey": "din024",
+"type": "싱글",
+"release": "Confliction",
+"track": "Confliction",
+"version": "-",
+"artist_raw": "Hiroki Nagamine",
+"originals": [
+"Hiroki Nagamine"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Hiroki Nagamine",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "confliction|confliction|",
+"k_tv": "confliction|",
+"k_cat_tv": "din024|confliction|"
+},
+{
+"cat": "DIN-025",
+"catkey": "din025",
+"type": "싱글",
+"release": "Hot Blooded",
+"track": "Hot Blooded",
+"version": "-",
+"artist_raw": "Xeno",
+"originals": [
+"Xeno"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Xeno",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "hotblooded|hotblooded|",
+"k_tv": "hotblooded|",
+"k_cat_tv": "din025|hotblooded|"
+},
+{
+"cat": "DIN-026",
+"catkey": "din026",
+"type": "싱글",
+"release": "Artificial Sea VII / Sunken City",
+"track": "Artificial Sea VII",
+"version": "-",
+"artist_raw": "BLACKNYAO",
+"originals": [
+"BLACKNYAO"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"BLACKNYAO",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "artificialseaviisunkencity|artificialseavii|",
+"k_tv": "artificialseavii|",
+"k_cat_tv": "din026|artificialseavii|"
+},
+{
+"cat": "DIN-026",
+"catkey": "din026",
+"type": "싱글",
+"release": "Artificial Sea VII / Sunken City",
+"track": "Sunken City",
+"version": "GreenNavy Edit",
+"artist_raw": "BLACKNYAO",
+"originals": [
+"BLACKNYAO"
+],
+"remixer": "GreenNavy",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"GreenNavy",
+"arranger",
+25.0
+],
+[
+"BLACKNYAO",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "artificialseaviisunkencity|sunkencity|greennavyedit",
+"k_tv": "sunkencity|greennavyedit",
+"k_cat_tv": "din026|sunkencity|greennavyedit"
+},
+{
+"cat": "DIN-027",
+"catkey": "din027",
+"type": "싱글",
+"release": "Filament",
+"track": "Filament",
+"version": "-",
+"artist_raw": "plotter",
+"originals": [
+"plotter"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"plotter",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "filament|filament|",
+"k_tv": "filament|",
+"k_cat_tv": "din027|filament|"
+},
+{
+"cat": "DIN-028",
+"catkey": "din028",
+"type": "싱글",
+"release": "Confliction (Remixes)",
+"track": "Confliction",
+"version": "somyu Remix",
+"artist_raw": "Hiroki Nagamine",
+"originals": [
+"Hiroki Nagamine"
+],
+"remixer": "somyu",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"somyu",
+"arranger",
+25.0
+],
+[
+"Hiroki Nagamine",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "conflictionremixes|confliction|somyuremix",
+"k_tv": "confliction|somyuremix",
+"k_cat_tv": "din028|confliction|somyuremix"
+},
+{
+"cat": "DIN-029",
+"catkey": "din029",
+"type": "싱글",
+"release": "Sonar (Euphoric Heart Remix)",
+"track": "Sonar",
+"version": "Euphoric Heart Remix",
+"artist_raw": "Plutian",
+"originals": [
+"Plutian"
+],
+"remixer": "Euphoric Heart",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Euphoric Heart",
+"arranger",
+25.0
+],
+[
+"Plutian",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "sonareuphoricheartremix|sonar|euphoricheartremix",
+"k_tv": "sonar|euphoricheartremix",
+"k_cat_tv": "din029|sonar|euphoricheartremix"
+},
+{
+"cat": "DIN-030",
+"catkey": "din030",
+"type": "싱글",
+"release": "Motion Blur",
+"track": "Motion Blur",
+"version": "-",
+"artist_raw": "Ixia",
+"originals": [
+"Ixia"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Ixia",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "motionblur|motionblur|",
+"k_tv": "motionblur|",
+"k_cat_tv": "din030|motionblur|"
+},
+{
+"cat": "DIN-031",
+"catkey": "din031",
+"type": "싱글",
+"release": "Adventurer",
+"track": "Adventurer",
+"version": "-",
+"artist_raw": "Danwun",
+"originals": [
+"Danwun"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Danwun",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "adventurer|adventurer|",
+"k_tv": "adventurer|",
+"k_cat_tv": "din031|adventurer|"
+},
+{
+"cat": "DIN-032",
+"catkey": "din032",
+"type": "싱글",
+"release": "Apricity",
+"track": "Apricity",
+"version": "-",
+"artist_raw": "Regret Zone",
+"originals": [
+"Regret Zone"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Regret Zone",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "apricity|apricity|",
+"k_tv": "apricity|",
+"k_cat_tv": "din032|apricity|"
+},
+{
+"cat": "DIN-033",
+"catkey": "din033",
+"type": "싱글",
+"release": "Life Cycle",
+"track": "Life Cycle",
+"version": "-",
+"artist_raw": "Dalmoori",
+"originals": [
+"Dalmoori"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Dalmoori",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "lifecycle|lifecycle|",
+"k_tv": "lifecycle|",
+"k_cat_tv": "din033|lifecycle|"
+},
+{
+"cat": "DIN-034",
+"catkey": "din034",
+"type": "싱글",
+"release": "Say Goodbye",
+"track": "Say Goodbye",
+"version": "-",
+"artist_raw": "Kohta Imafuku",
+"originals": [
+"Kohta Imafuku"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Kohta Imafuku",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "saygoodbye|saygoodbye|",
+"k_tv": "saygoodbye|",
+"k_cat_tv": "din034|saygoodbye|"
+},
+{
+"cat": "DIN-035",
+"catkey": "din035",
+"type": "EP",
+"release": "GHT / Iridium / 160PING",
+"track": "GHT",
+"version": "-",
+"artist_raw": "0555",
+"originals": [
+"0555"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"0555",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "ghtiridium160ping|ght|",
+"k_tv": "ght|",
+"k_cat_tv": "din035|ght|"
+},
+{
+"cat": "DIN-035",
+"catkey": "din035",
+"type": "EP",
+"release": "GHT / Iridium / 160PING",
+"track": "Iridium",
+"version": "-",
+"artist_raw": "0555",
+"originals": [
+"0555"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"0555",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "ghtiridium160ping|iridium|",
+"k_tv": "iridium|",
+"k_cat_tv": "din035|iridium|"
+},
+{
+"cat": "DIN-035",
+"catkey": "din035",
+"type": "EP",
+"release": "GHT / Iridium / 160PING",
+"track": "160PING",
+"version": "-",
+"artist_raw": "0555",
+"originals": [
+"0555"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"0555",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "ghtiridium160ping|160ping|",
+"k_tv": "160ping|",
+"k_cat_tv": "din035|160ping|"
+},
+{
+"cat": "DIN-035",
+"catkey": "din035",
+"type": "EP",
+"release": "GHT / Iridium / 160PING",
+"track": "GHT",
+"version": "Extended Mix",
+"artist_raw": "0555",
+"originals": [
+"0555"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"0555",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "ghtiridium160ping|ght|extendedmix",
+"k_tv": "ght|extendedmix",
+"k_cat_tv": "din035|ght|extendedmix"
+},
+{
+"cat": "DIN-035",
+"catkey": "din035",
+"type": "EP",
+"release": "GHT / Iridium / 160PING",
+"track": "Iridium",
+"version": "-",
+"artist_raw": "0555",
+"originals": [
+"0555"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"0555",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "ghtiridium160ping|iridium|",
+"k_tv": "iridium|",
+"k_cat_tv": "din035|iridium|"
+},
+{
+"cat": "DIN-035",
+"catkey": "din035",
+"type": "EP",
+"release": "GHT / Iridium / 160PING",
+"track": "160PING",
+"version": "-",
+"artist_raw": "0555",
+"originals": [
+"0555"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"0555",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "ghtiridium160ping|160ping|",
+"k_tv": "160ping|",
+"k_cat_tv": "din035|160ping|"
+},
+{
+"cat": "DIN-036",
+"catkey": "din036",
+"type": "싱글",
+"release": "Panorama",
+"track": "Panorama",
+"version": "-",
+"artist_raw": "ØNSEAL",
+"originals": [
+"ØNSEAL"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"ØNSEAL",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "panorama|panorama|",
+"k_tv": "panorama|",
+"k_cat_tv": "din036|panorama|"
+},
+{
+"cat": "DINC-001",
+"catkey": "dinc001",
+"type": "컴필레이션",
+"release": "Best of DINURE 2022-2025",
+"track": "Oslo",
+"version": "Original Mix",
+"artist_raw": "Wibber",
+"originals": [
+"Wibber"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Wibber",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "bestofdinure20222025|oslo|originalmix",
+"k_tv": "oslo|originalmix",
+"k_cat_tv": "dinc001|oslo|originalmix"
+},
+{
+"cat": "DINC-001",
+"catkey": "dinc001",
+"type": "컴필레이션",
+"release": "Best of DINURE 2022-2025",
+"track": "Lifespan",
+"version": "-",
+"artist_raw": "GreenNavy",
+"originals": [
+"GreenNavy"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"GreenNavy",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "bestofdinure20222025|lifespan|",
+"k_tv": "lifespan|",
+"k_cat_tv": "dinc001|lifespan|"
+},
+{
+"cat": "DINC-001",
+"catkey": "dinc001",
+"type": "컴필레이션",
+"release": "Best of DINURE 2022-2025",
+"track": "Charybdis",
+"version": "Extended Mix",
+"artist_raw": "LOFTIER",
+"originals": [
+"LOFTIER"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"LOFTIER",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "bestofdinure20222025|charybdis|extendedmix",
+"k_tv": "charybdis|extendedmix",
+"k_cat_tv": "dinc001|charybdis|extendedmix"
+},
+{
+"cat": "DINC-001",
+"catkey": "dinc001",
+"type": "컴필레이션",
+"release": "Best of DINURE 2022-2025",
+"track": "Strangers In Love",
+"version": "-",
+"artist_raw": "Division One (KR)",
+"originals": [
+"Division One (KR)"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Division One (KR)",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "bestofdinure20222025|strangersinlove|",
+"k_tv": "strangersinlove|",
+"k_cat_tv": "dinc001|strangersinlove|"
+},
+{
+"cat": "DINC-001",
+"catkey": "dinc001",
+"type": "컴필레이션",
+"release": "Best of DINURE 2022-2025",
+"track": "Where I Am",
+"version": "-",
+"artist_raw": "Aintion",
+"originals": [
+"Aintion"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Aintion",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "bestofdinure20222025|whereiam|",
+"k_tv": "whereiam|",
+"k_cat_tv": "dinc001|whereiam|"
+},
+{
+"cat": "DINC-001",
+"catkey": "dinc001",
+"type": "컴필레이션",
+"release": "Best of DINURE 2022-2025",
+"track": "Collected Memories",
+"version": "-",
+"artist_raw": "ØNSEAL",
+"originals": [
+"ØNSEAL"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"ØNSEAL",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "bestofdinure20222025|collectedmemories|",
+"k_tv": "collectedmemories|",
+"k_cat_tv": "dinc001|collectedmemories|"
+},
+{
+"cat": "DINC-001",
+"catkey": "dinc001",
+"type": "컴필레이션",
+"release": "Best of DINURE 2022-2025",
+"track": "Red Eyes",
+"version": "ØNSEAL Remix",
+"artist_raw": "GreenNavy",
+"originals": [
+"GreenNavy"
+],
+"remixer": "ØNSEAL",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"ØNSEAL",
+"arranger",
+25.0
+],
+[
+"GreenNavy",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "bestofdinure20222025|redeyes|nsealremix",
+"k_tv": "redeyes|nsealremix",
+"k_cat_tv": "dinc001|redeyes|nsealremix"
+},
+{
+"cat": "DINC-001",
+"catkey": "dinc001",
+"type": "컴필레이션",
+"release": "Best of DINURE 2022-2025",
+"track": "First Footprint",
+"version": "BLACKNYAO Remix",
+"artist_raw": "somyu",
+"originals": [
+"somyu"
+],
+"remixer": "BLACKNYAO",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"BLACKNYAO",
+"arranger",
+25.0
+],
+[
+"somyu",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "bestofdinure20222025|firstfootprint|blacknyaoremix",
+"k_tv": "firstfootprint|blacknyaoremix",
+"k_cat_tv": "dinc001|firstfootprint|blacknyaoremix"
+},
+{
+"cat": "DINC-001",
+"catkey": "dinc001",
+"type": "컴필레이션",
+"release": "Best of DINURE 2022-2025",
+"track": "Shadowed Love",
+"version": "Extended Mix",
+"artist_raw": "A. Ki",
+"originals": [
+"A. Ki"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"A. Ki",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "bestofdinure20222025|shadowedlove|extendedmix",
+"k_tv": "shadowedlove|extendedmix",
+"k_cat_tv": "dinc001|shadowedlove|extendedmix"
+},
+{
+"cat": "DINC-001",
+"catkey": "dinc001",
+"type": "컴필레이션",
+"release": "Best of DINURE 2022-2025",
+"track": "Sunken City",
+"version": "Original Mix",
+"artist_raw": "BLACKNYAO",
+"originals": [
+"BLACKNYAO"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"BLACKNYAO",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "bestofdinure20222025|sunkencity|originalmix",
+"k_tv": "sunkencity|originalmix",
+"k_cat_tv": "dinc001|sunkencity|originalmix"
+},
+{
+"cat": "DINC-001",
+"catkey": "dinc001",
+"type": "컴필레이션",
+"release": "Best of DINURE 2022-2025",
+"track": "Confliction",
+"version": "somyu Extended Mix",
+"artist_raw": "Hiroki Nagamine",
+"originals": [
+"Hiroki Nagamine"
+],
+"remixer": "somyu",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"somyu",
+"arranger",
+25.0
+],
+[
+"Hiroki Nagamine",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "bestofdinure20222025|confliction|somyuextendedmix",
+"k_tv": "confliction|somyuextendedmix",
+"k_cat_tv": "dinc001|confliction|somyuextendedmix"
+},
+{
+"cat": "DINC-001",
+"catkey": "dinc001",
+"type": "컴필레이션",
+"release": "Best of DINURE 2022-2025",
+"track": "Motion Blur",
+"version": "Original Mix",
+"artist_raw": "Ixia",
+"originals": [
+"Ixia"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Ixia",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "bestofdinure20222025|motionblur|originalmix",
+"k_tv": "motionblur|originalmix",
+"k_cat_tv": "dinc001|motionblur|originalmix"
+},
+{
+"cat": "DIN-037",
+"catkey": "din037",
+"type": "컴필레이션",
+"release": "Dinure Collection 04: The Disclosure",
+"track": "Strangers In Love",
+"version": "Xeno Remix",
+"artist_raw": "Division One (KR)",
+"originals": [
+"Division One (KR)"
+],
+"remixer": "Xeno",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Xeno",
+"arranger",
+25.0
+],
+[
+"Division One (KR)",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection04thedisclosure|strangersinlove|xenoremix",
+"k_tv": "strangersinlove|xenoremix",
+"k_cat_tv": "din037|strangersinlove|xenoremix"
+},
+{
+"cat": "DIN-037",
+"catkey": "din037",
+"type": "컴필레이션",
+"release": "Dinure Collection 04: The Disclosure",
+"track": "Adventurer",
+"version": "Naqus Remix",
+"artist_raw": "Danwun",
+"originals": [
+"Danwun"
+],
+"remixer": "Naqus",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Naqus",
+"arranger",
+25.0
+],
+[
+"Danwun",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection04thedisclosure|adventurer|naqusremix",
+"k_tv": "adventurer|naqusremix",
+"k_cat_tv": "din037|adventurer|naqusremix"
+},
+{
+"cat": "DIN-037",
+"catkey": "din037",
+"type": "컴필레이션",
+"release": "Dinure Collection 04: The Disclosure",
+"track": "Say Goodbye",
+"version": "Euphoric Heart Remix",
+"artist_raw": "Kohta Imafuku",
+"originals": [
+"Kohta Imafuku"
+],
+"remixer": "Euphoric Heart",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Euphoric Heart",
+"arranger",
+25.0
+],
+[
+"Kohta Imafuku",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection04thedisclosure|saygoodbye|euphoricheartremix",
+"k_tv": "saygoodbye|euphoricheartremix",
+"k_cat_tv": "din037|saygoodbye|euphoricheartremix"
+},
+{
+"cat": "DIN-037",
+"catkey": "din037",
+"type": "컴필레이션",
+"release": "Dinure Collection 04: The Disclosure",
+"track": "All Over You",
+"version": "Kohta Imafuku Remix",
+"artist_raw": "Ryota Arai",
+"originals": [
+"Ryota Arai"
+],
+"remixer": "Kohta Imafuku",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Kohta Imafuku",
+"arranger",
+25.0
+],
+[
+"Ryota Arai",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection04thedisclosure|alloveryou|kohtaimafukuremix",
+"k_tv": "alloveryou|kohtaimafukuremix",
+"k_cat_tv": "din037|alloveryou|kohtaimafukuremix"
+},
+{
+"cat": "DIN-037",
+"catkey": "din037",
+"type": "컴필레이션",
+"release": "Dinure Collection 04: The Disclosure",
+"track": "Sunken City",
+"version": "A. Ki Remix",
+"artist_raw": "BLACKNYAO",
+"originals": [
+"BLACKNYAO"
+],
+"remixer": "A. Ki",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"A. Ki",
+"arranger",
+25.0
+],
+[
+"BLACKNYAO",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection04thedisclosure|sunkencity|akiremix",
+"k_tv": "sunkencity|akiremix",
+"k_cat_tv": "din037|sunkencity|akiremix"
+},
+{
+"cat": "DIN-037",
+"catkey": "din037",
+"type": "컴필레이션",
+"release": "Dinure Collection 04: The Disclosure",
+"track": "Life Cycle",
+"version": "LOFTIER Remix",
+"artist_raw": "Dalmoori",
+"originals": [
+"Dalmoori"
+],
+"remixer": "LOFTIER",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"LOFTIER",
+"arranger",
+25.0
+],
+[
+"Dalmoori",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection04thedisclosure|lifecycle|loftierremix",
+"k_tv": "lifecycle|loftierremix",
+"k_cat_tv": "din037|lifecycle|loftierremix"
+},
+{
+"cat": "DIN-037",
+"catkey": "din037",
+"type": "컴필레이션",
+"release": "Dinure Collection 04: The Disclosure",
+"track": "Strangers In Love",
+"version": "Xeno Extended Mix",
+"artist_raw": "Division One (KR)",
+"originals": [
+"Division One (KR)"
+],
+"remixer": "Xeno",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Xeno",
+"arranger",
+25.0
+],
+[
+"Division One (KR)",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection04thedisclosure|strangersinlove|xenoextendedmix",
+"k_tv": "strangersinlove|xenoextendedmix",
+"k_cat_tv": "din037|strangersinlove|xenoextendedmix"
+},
+{
+"cat": "DIN-037",
+"catkey": "din037",
+"type": "컴필레이션",
+"release": "Dinure Collection 04: The Disclosure",
+"track": "Adventurer",
+"version": "Naqus Extended Mix",
+"artist_raw": "Danwun",
+"originals": [
+"Danwun"
+],
+"remixer": "Naqus",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Naqus",
+"arranger",
+25.0
+],
+[
+"Danwun",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection04thedisclosure|adventurer|naqusextendedmix",
+"k_tv": "adventurer|naqusextendedmix",
+"k_cat_tv": "din037|adventurer|naqusextendedmix"
+},
+{
+"cat": "DIN-037",
+"catkey": "din037",
+"type": "컴필레이션",
+"release": "Dinure Collection 04: The Disclosure",
+"track": "Say Goodbye",
+"version": "Euphoric Heart Extended Mix",
+"artist_raw": "Kohta Imafuku",
+"originals": [
+"Kohta Imafuku"
+],
+"remixer": "Euphoric Heart",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Euphoric Heart",
+"arranger",
+25.0
+],
+[
+"Kohta Imafuku",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection04thedisclosure|saygoodbye|euphoricheartextendedmix",
+"k_tv": "saygoodbye|euphoricheartextendedmix",
+"k_cat_tv": "din037|saygoodbye|euphoricheartextendedmix"
+},
+{
+"cat": "DIN-037",
+"catkey": "din037",
+"type": "컴필레이션",
+"release": "Dinure Collection 04: The Disclosure",
+"track": "All Over You",
+"version": "Kohta Imafuku Extended Mix",
+"artist_raw": "Ryota Arai",
+"originals": [
+"Ryota Arai"
+],
+"remixer": "Kohta Imafuku",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Kohta Imafuku",
+"arranger",
+25.0
+],
+[
+"Ryota Arai",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection04thedisclosure|alloveryou|kohtaimafukuextendedmix",
+"k_tv": "alloveryou|kohtaimafukuextendedmix",
+"k_cat_tv": "din037|alloveryou|kohtaimafukuextendedmix"
+},
+{
+"cat": "DIN-037",
+"catkey": "din037",
+"type": "컴필레이션",
+"release": "Dinure Collection 04: The Disclosure",
+"track": "Sunken City",
+"version": "A. Ki Extended Mix",
+"artist_raw": "BLACKNYAO",
+"originals": [
+"BLACKNYAO"
+],
+"remixer": "A. Ki",
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"A. Ki",
+"arranger",
+25.0
+],
+[
+"BLACKNYAO",
+"original",
+25.0
+]
+],
+"flag": null,
+"k_rtv": "dinurecollection04thedisclosure|sunkencity|akiextendedmix",
+"k_tv": "sunkencity|akiextendedmix",
+"k_cat_tv": "din037|sunkencity|akiextendedmix"
+},
+{
+"cat": "DIN-038",
+"catkey": "din038",
+"type": "싱글",
+"release": "Virtualized",
+"track": "Virtualized",
+"version": "-",
+"artist_raw": "Fros7novA ashryn7",
+"originals": [
+"Fros7novA ashryn7"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Fros7novA ashryn7",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "virtualized|virtualized|",
+"k_tv": "virtualized|",
+"k_cat_tv": "din038|virtualized|"
+},
+{
+"cat": "DIN-039",
+"catkey": "din039",
+"type": "싱글",
+"release": "Indiana / IXI Fossler",
+"track": "Indiana",
+"version": "Extended Mix",
+"artist_raw": "Euphoric Heart",
+"originals": [
+"Euphoric Heart"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Euphoric Heart",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "indianaixifossler|indiana|extendedmix",
+"k_tv": "indiana|extendedmix",
+"k_cat_tv": "din039|indiana|extendedmix"
+},
+{
+"cat": "DIN-039",
+"catkey": "din039",
+"type": "싱글",
+"release": "Indiana / IXI Fossler",
+"track": "IXI Fossler",
+"version": "-",
+"artist_raw": "Euphoric Heart",
+"originals": [
+"Euphoric Heart"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Euphoric Heart",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "indianaixifossler|ixifossler|",
+"k_tv": "ixifossler|",
+"k_cat_tv": "din039|ixifossler|"
+},
+{
+"cat": "DIN-040",
+"catkey": "din040",
+"type": "싱글",
+"release": "Higher",
+"track": "Higher",
+"version": "-",
+"artist_raw": "Danwun",
+"originals": [
+"Danwun"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Danwun",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "higher|higher|",
+"k_tv": "higher|",
+"k_cat_tv": "din040|higher|"
+},
+{
+"cat": "DIN-041",
+"catkey": "din041",
+"type": "싱글",
+"release": "Love / Stay Away",
+"track": "Love",
+"version": "Original Mix",
+"artist_raw": "dongyexn",
+"originals": [
+"dongyexn"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"dongyexn",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "lovestayaway|love|originalmix",
+"k_tv": "love|originalmix",
+"k_cat_tv": "din041|love|originalmix"
+},
+{
+"cat": "DIN-041",
+"catkey": "din041",
+"type": "싱글",
+"release": "Love / Stay Away",
+"track": "Stay Away",
+"version": "-",
+"artist_raw": "dongyexn",
+"originals": [
+"dongyexn"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"dongyexn",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "lovestayaway|stayaway|",
+"k_tv": "stayaway|",
+"k_cat_tv": "din041|stayaway|"
+},
+{
+"cat": "DIN-042",
+"catkey": "din042",
+"type": "싱글",
+"release": "Panorama of Memories",
+"track": "Panorama of Memories",
+"version": "-",
+"artist_raw": "ØNSEAL",
+"originals": [
+"ØNSEAL"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"ØNSEAL",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "panoramaofmemories|panoramaofmemories|",
+"k_tv": "panoramaofmemories|",
+"k_cat_tv": "din042|panoramaofmemories|"
+},
+{
+"cat": "DIN-043",
+"catkey": "din043",
+"type": "싱글",
+"release": "Schema",
+"track": "Schema",
+"version": "Original Mix",
+"artist_raw": "Ixia",
+"originals": [
+"Ixia"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Ixia",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "schema|schema|originalmix",
+"k_tv": "schema|originalmix",
+"k_cat_tv": "din043|schema|originalmix"
+},
+{
+"cat": "DIN-044",
+"catkey": "din044",
+"type": "싱글",
+"release": "Step Forward",
+"track": "Step Forward",
+"version": "-",
+"artist_raw": "Kaselia",
+"originals": [
+"Kaselia"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"Kaselia",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "stepforward|stepforward|",
+"k_tv": "stepforward|",
+"k_cat_tv": "din044|stepforward|"
+},
+{
+"cat": "DIN-045",
+"catkey": "din045",
+"type": "싱글",
+"release": "covalence",
+"track": "covalence",
+"version": "Original Mix",
+"artist_raw": "GreenNavy",
+"originals": [
+"GreenNavy"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"GreenNavy",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "covalence|covalence|originalmix",
+"k_tv": "covalence|originalmix",
+"k_cat_tv": "din045|covalence|originalmix"
+},
+{
+"cat": "DIN-045",
+"catkey": "din045",
+"type": "싱글",
+"release": "covalence",
+"track": "bind",
+"version": "Original Mix",
+"artist_raw": "GreenNavy",
+"originals": [
+"GreenNavy"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"GreenNavy",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "covalence|bind|originalmix",
+"k_tv": "bind|originalmix",
+"k_cat_tv": "din045|bind|originalmix"
+},
+{
+"cat": "DIN-045",
+"catkey": "din045",
+"type": "싱글",
+"release": "covalence",
+"track": "covalence",
+"version": "Extended Mix",
+"artist_raw": "GreenNavy",
+"originals": [
+"GreenNavy"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"GreenNavy",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "covalence|covalence|extendedmix",
+"k_tv": "covalence|extendedmix",
+"k_cat_tv": "din045|covalence|extendedmix"
+},
+{
+"cat": "DIN-045",
+"catkey": "din045",
+"type": "싱글",
+"release": "covalence",
+"track": "bind",
+"version": "Extended Mix",
+"artist_raw": "GreenNavy",
+"originals": [
+"GreenNavy"
+],
+"remixer": null,
+"split": [
+[
+"LABEL",
+"label",
+50.0
+],
+[
+"GreenNavy",
+"artist",
+50.0
+]
+],
+"flag": null,
+"k_rtv": "covalence|bind|extendedmix",
+"k_tv": "bind|extendedmix",
+"k_cat_tv": "din045|bind|extendedmix"
+}
+]
