@@ -312,6 +312,7 @@ img.noart{background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http:
 #sheet .x{position:sticky;top:0;float:right;cursor:pointer;color:var(--t4);width:30px;height:30px;display:flex;
   align-items:center;justify-content:center;border-radius:var(--rad-s);margin:-6px -6px 0 8px;z-index:2;background:var(--card)}
 #sheet .x:hover{background:var(--hov);color:var(--t1)}
+.sheetgrip{display:none}
 .sep{border:none;border-top:1px solid var(--bd);margin:18px 0}
 .kv{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
 .kvc{background:var(--panel);border:1px solid var(--bd);border-radius:var(--rad);padding:12px 14px}
@@ -549,7 +550,9 @@ img.av,img.art{pointer-events:none}
   .kpi .val{font-size:var(--f18)}
   .kpi .val.sm{font-size:var(--f18)}
   .kv{grid-template-columns:1fr 1fr}
-  .mailgrid,.notegrid{grid-template-columns:1fr}
+  .mailgrid,.notegrid{grid-template-columns:minmax(0,1fr)}
+  /* 모바일에서 1fr 트랙이 자식 min-content에 밀려 컨테이너보다 넓어지는 것 방지: 트랙 최소폭 0 + 자식 min-width:0 */
+  .kpis>*,.relgrid>*,.linkgrid>*,.mailgrid>*,.notegrid>*,.homecols>*,.setgrid>*,.kv>*{min-width:0}
   .barrow{grid-template-columns:120px 1fr 86px;gap:8px}
   .doc{padding:0}
   #sheet{top:auto;right:0;bottom:0;left:0;width:auto;transform:translateY(16px);max-height:93dvh;border-radius:18px 18px 0 0;
@@ -568,58 +571,73 @@ img.av,img.art{pointer-events:none}
   .iconbtn{width:38px;height:38px}
   .imgpick{flex-direction:column;gap:12px}
   .artup{width:100%;height:auto;aspect-ratio:1;align-self:auto}
-  .artup .ov{opacity:1;background:rgba(0,0,0,.28)}
-  .linkgrid{grid-template-columns:1fr 1fr}
+  .artup .ov{opacity:0;background:rgba(0,0,0,.32);transition:opacity .15s}
+  .artup .prev.noart + .ov{opacity:1}
+  .artup:active .ov{opacity:1}
+  .linkgrid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  /* 아티스트 테이블: 모바일에선 가로 스크롤 대신 화면에 맞춤 — 칩(음원/SNS) 컬럼 숨기고 고정레이아웃 해제.
+     상세는 행을 탭하면 열리는 정보창에 모두 있음. */
+  .tblx table.rostbl{min-width:0;table-layout:auto}
+  .rostbl th,.rostbl td{width:auto!important}
+  .rostbl th:nth-child(4),.rostbl th:nth-child(5),
+  .rostbl td:nth-child(4),.rostbl td:nth-child(5){display:none}
+  .rostbl th:nth-child(3),.rostbl td:nth-child(3){max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rostbl .colresize{display:none}
+  /* 바텀시트 그립 — 상단 바를 끌어내려 닫기(X 대신). 데스크톱에선 숨김. */
+  .sheetgrip{display:flex;justify-content:center;align-items:flex-start;position:sticky;top:-6px;z-index:6;height:26px;margin:-10px 0 4px;cursor:grab;touch-action:none}
+  .sheetgrip::before{content:"";width:40px;height:5px;border-radius:99px;background:var(--t4);opacity:.5}
+  .sheetgrip:active{cursor:grabbing}
+  #sheet .x{display:none}
   .tabs.full{overflow-x:auto}
 }
-/* ===================== Liquid Glass 스킨 (렌즈 엣지·깊이·경량) ===================== */
+/* ===================== Liquid Glass 스킨 (매트 프로스트·경량) ===================== */
 /* 설계 원칙
-   · 진짜 유리처럼: 반투명 패널 + 모서리를 감싸는 스펙큘러 림(빛 굴절) + 방향성 광택 + 부유하는 깊이.
+   · 매트 프로스트: 광택(스펙큘러 하이라이트·대각 sheen·코너 핫스팟)을 걷어내고, 불투명한 무광 패널 +
+     아주 옅은 중성 엣지 + 부드러운 확산 그림자로 '서리 낀 유리'를 표현. 다크 모드에서 특히 무광.
    · 경량: backdrop-filter(blur)는 '고정 크롬(사이드바·상단바)'과 '오버레이'에만. 카드/콘텐츠는 blur 없이
-     반투명 채움 + 그라데이션(배경) + 마스킹된 림 링(::after) + box-shadow로만 표현 → 전부 GPU 합성, 정적.
+     반투명 채움 + 1px 보더 + box-shadow로만 → 전부 GPU 합성, 정적. 매 프레임 블러 재계산 없음.
    · 접근성: prefers-reduced-transparency / prefers-reduced-motion / backdrop-filter 미지원 폴백 내장. */
 
 /* 스킨 토큰 — 라이트/다크는 토큰만 덮어써서 규칙은 1벌만 유지(DRY) */
 [data-skin="glass"]{
-  --g-fill:color-mix(in srgb, var(--card) 58%, transparent);
-  --g-fill-strong:color-mix(in srgb, var(--card) 70%, transparent);
-  --g-rim-hi:rgba(255,255,255,.58);
-  --g-rim-lo:rgba(255,255,255,.05);
-  --g-rim-tint:color-mix(in srgb, var(--accent) 22%, transparent);
-  --g-sheen:rgba(255,255,255,.10);
-  --g-hotspot:rgba(255,255,255,.16);
-  --g-top:rgba(255,255,255,.22);
-  --g-border:color-mix(in srgb,#fff 14%, transparent);
-  --g-sh-1:0 1px 2px rgba(0,0,0,.18);
-  --g-sh-2:0 2px 8px rgba(0,0,0,.22);
-  --g-sh-3:0 20px 46px -16px rgba(0,0,0,.50);
-  --g-sh-hover:0 26px 56px -14px rgba(0,0,0,.56);
-  --g-sh-pop:0 40px 80px -24px rgba(0,0,0,.62);
-  --g-blur:16px;
+  --g-fill:color-mix(in srgb, var(--card) 84%, transparent);
+  --g-fill-strong:color-mix(in srgb, var(--card) 92%, transparent);
+  --g-fill-flat:color-mix(in srgb, var(--card) 72%, transparent);
+  --g-edge:rgba(255,255,255,.085);
+  --g-edge-lo:rgba(255,255,255,.015);
+  --g-top-tint:rgba(255,255,255,.03);
+  --g-border:color-mix(in srgb,#fff 8%, transparent);
+  --g-sh-1:0 1px 2px rgba(0,0,0,.20);
+  --g-sh-2:0 6px 18px -8px rgba(0,0,0,.34);
+  --g-sh-3:0 20px 46px -26px rgba(0,0,0,.44);
+  --g-sh-hover:0 16px 38px -18px rgba(0,0,0,.46);
+  --g-sh-pop:0 34px 76px -30px rgba(0,0,0,.54);
+  --g-blur:18px;
   --g-blur-strong:26px;
+  --g-sat:118%;
+  --g-sat-strong:124%;
 }
 
-/* 배경 컬러 블룸 — 유리가 머금고 굴절시킬 '빛'. 정적이라 런타임 비용 0. */
+/* 배경 컬러 블룸 — 무광이라 채도·강도를 크게 낮춘 중성 톤. 정적이라 런타임 비용 0. */
 [data-skin="glass"] .app::before{content:"";position:absolute;inset:-12%;z-index:-1;pointer-events:none;
   background:
-    radial-gradient(38% 46% at 12% 14%, color-mix(in srgb,var(--accent) 38%,transparent), transparent 66%),
-    radial-gradient(42% 50% at 90% 8%,  color-mix(in srgb,var(--info)   32%,transparent), transparent 68%),
-    radial-gradient(46% 56% at 84% 92%, color-mix(in srgb,var(--accent) 26%,transparent), transparent 70%),
-    radial-gradient(40% 48% at 8% 88%,  color-mix(in srgb,var(--info)   22%,transparent), transparent 70%),
-    radial-gradient(72% 82% at 50% 50%, color-mix(in srgb,var(--info)    8%,transparent), transparent 80%);
-  filter:saturate(116%)}
+    radial-gradient(52% 60% at 14% 10%, color-mix(in srgb,var(--accent) 13%,transparent), transparent 72%),
+    radial-gradient(56% 64% at 88% 6%,  color-mix(in srgb,var(--info)    9%,transparent), transparent 74%),
+    radial-gradient(60% 70% at 84% 94%, color-mix(in srgb,var(--accent)  8%,transparent), transparent 76%),
+    radial-gradient(84% 92% at 50% 50%, rgba(255,255,255,.010), transparent 82%);
+  filter:saturate(80%)}
 /* '리퀴드'한 생동감 — transform만 쓰는 합성 전용 애니메이션(메인스레드 0). 모션 선호시에만. */
 @media (prefers-reduced-motion: no-preference){
-  [data-skin="glass"] .app::before{animation:gBloom 60s ease-in-out infinite alternate;will-change:transform}
+  [data-skin="glass"] .app::before{animation:gBloom 72s ease-in-out infinite alternate;will-change:transform}
 }
 @keyframes gBloom{
   0%{transform:translate3d(0,0,0) scale(1)}
-  50%{transform:translate3d(-1.6%,1.1%,0) scale(1.045)}
-  100%{transform:translate3d(1.6%,-1.1%,0) scale(1.02)}
+  50%{transform:translate3d(-1.2%,.9%,0) scale(1.035)}
+  100%{transform:translate3d(1.2%,-.9%,0) scale(1.015)}
 }
 
-/* 공통 유리 질감: 반투명 채움 + 코너 핫스팟 + 방향성 광택 + 하단 굴절 음영 + 깊이 그림자
-   (blur 없음 — 카드에는 비용이 큰 backdrop-filter 미적용) */
+/* 공통 무광 유리 질감: 불투명한 반투명 채움 + 아주 옅은 상단 톤 + 1px 보더 + 부드러운 깊이 그림자
+   (광택 그라데이션 없음, blur 없음 — 카드에는 backdrop-filter 미적용) */
 [data-skin="glass"] .side,
 [data-skin="glass"] .topbar,
 [data-skin="glass"] .card,
@@ -629,110 +647,105 @@ img.av,img.art{pointer-events:none}
 [data-skin="glass"] .gatecard{
   position:relative;
   background-color:var(--g-fill);
-  background-image:
-    radial-gradient(120% 92% at 8% -12%, var(--g-hotspot), transparent 46%),
-    linear-gradient(158deg, var(--g-sheen), transparent 42%),
-    linear-gradient(0deg, color-mix(in srgb,#000 6%,transparent), transparent 24%);
+  background-image:linear-gradient(180deg, var(--g-top-tint), transparent 40%);
   background-repeat:no-repeat;
   border:1px solid var(--g-border);
-  box-shadow:inset 0 1px 0 var(--g-top), var(--g-sh-1), var(--g-sh-2), var(--g-sh-3);
+  box-shadow:var(--g-sh-1), var(--g-sh-2), var(--g-sh-3);
   transition:box-shadow .24s var(--ease), transform .24s var(--ease), background-color .24s var(--ease)}
 
-/* 렌즈 엣지(시그니처) — 둥근 모서리를 따라 흐르는 1.25px 그라데이션 림. 마스킹된 보더 링이라 경량. */
+/* 무광 엣지 — 둥근 모서리를 따라 흐릿하게 도는 1px 중성 하이라이트(스펙큘러 아님). 마스킹된 보더 링, 경량. */
 [data-skin="glass"] .side::after,
 [data-skin="glass"] .card::after,
 [data-skin="glass"] .linkcard::after,
 [data-skin="glass"] #sheet::after,
 [data-skin="glass"] #dlg .dbox::after,
 [data-skin="glass"] .gatecard::after{
-  content:"";position:absolute;inset:0;border-radius:inherit;padding:1.25px;pointer-events:none;z-index:1;
-  background:linear-gradient(150deg, var(--g-rim-hi) 0%, var(--g-rim-lo) 30%, transparent 58%, var(--g-rim-tint) 100%);
+  content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;z-index:1;
+  background:linear-gradient(162deg, var(--g-edge) 0%, var(--g-edge-lo) 38%, transparent 72%);
   -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite:xor;
           mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
           mask-composite:exclude}
 
-/* 고정 크롬 — 뒤 블룸을 머금는 가벼운 블러 */
+/* 고정 크롬 — 뒤 블룸을 머금는 가벼운 블러(채도는 무광이라 낮게) */
 [data-skin="glass"] .side,
 [data-skin="glass"] .topbar{
-  -webkit-backdrop-filter:blur(var(--g-blur)) saturate(180%);backdrop-filter:blur(var(--g-blur)) saturate(180%)}
-[data-skin="glass"] .main{background:color-mix(in srgb, var(--bg) 50%, transparent)}
-/* 상단바는 가장자리 바라서 풀 링 대신 상단 스펙큘러 + 하단 헤어라인이 자연스러움 */
+  -webkit-backdrop-filter:blur(var(--g-blur)) saturate(var(--g-sat));backdrop-filter:blur(var(--g-blur)) saturate(var(--g-sat))}
+[data-skin="glass"] .main{background:color-mix(in srgb, var(--bg) 62%, transparent)}
+/* 상단바 — 가장자리 바라서 풀 링 대신 하단 헤어라인만(무광이라 상단 광택 없음) */
 [data-skin="glass"] .topbar{
-  background-color:color-mix(in srgb, var(--card) 42%, transparent);
-  background-image:linear-gradient(180deg, rgba(255,255,255,.06), transparent 60%);
+  background-color:color-mix(in srgb, var(--card) 72%, transparent);
+  background-image:none;
   border:none;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.28), inset 0 -1px 0 var(--bd)}
+  box-shadow:inset 0 -1px 0 var(--bd)}
 
-/* 콘텐츠 위로 뜨는 오버레이 — 진짜 굴절감을 위해 강한 블러(열릴 때만 비용) + 더 또렷한 채움/그림자 */
+/* 콘텐츠 위로 뜨는 오버레이 — 굴절감을 위해 강한 블러(열릴 때만 비용) + 더 불투명한 무광 채움 */
 [data-skin="glass"] #sheet,
 [data-skin="glass"] #dlg .dbox,
 [data-skin="glass"] .gatecard{
   background-color:var(--g-fill-strong);
-  -webkit-backdrop-filter:blur(var(--g-blur-strong)) saturate(190%);backdrop-filter:blur(var(--g-blur-strong)) saturate(190%);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.30), 0 2px 10px rgba(0,0,0,.28), var(--g-sh-pop)}
+  -webkit-backdrop-filter:blur(var(--g-blur-strong)) saturate(var(--g-sat-strong));backdrop-filter:blur(var(--g-blur-strong)) saturate(var(--g-sat-strong));
+  box-shadow:0 2px 10px rgba(0,0,0,.26), var(--g-sh-pop)}
 
-/* 카드 호버 — 미세한 부양 + 림을 더 밝게(블러 변화 없이 transform/box-shadow만) */
+/* 카드 호버 — 미세한 부양 + 엣지를 살짝만 밝게(블러·광택 변화 없이 transform/box-shadow만) */
 [data-skin="glass"] .card:hover,
 [data-skin="glass"] .kpi:hover,
 [data-skin="glass"] .linkcard:hover{
   transform:translateY(-2px);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.30), var(--g-sh-1), var(--g-sh-2), var(--g-sh-hover)}
+  box-shadow:var(--g-sh-1), var(--g-sh-2), var(--g-sh-hover)}
 [data-skin="glass"] .card:hover::after,
 [data-skin="glass"] .kpi:hover::after,
 [data-skin="glass"] .linkcard:hover::after{
-  --g-rim-hi:rgba(255,255,255,.72);
-  --g-rim-tint:color-mix(in srgb, var(--accent) 34%, transparent)}
+  --g-edge:rgba(255,255,255,.15)}
 
-[data-skin="glass"] .card.flat{background-color:color-mix(in srgb, var(--card) 44%, transparent)}
+[data-skin="glass"] .card.flat{background-color:var(--g-fill-flat)}
 
-/* 입력 요소 — 은은한 유리(::after 링은 폼 요소에서 비신뢰라 제외, 내부 하이라이트로 표현) */
+/* 입력 요소 — 무광 유리(::after 링은 폼 요소에서 비신뢰라 제외, 내부 하이라이트 없이 평평하게) */
 [data-skin="glass"] input,
 [data-skin="glass"] select,
 [data-skin="glass"] textarea,
 [data-skin="glass"] .search{
-  background-color:color-mix(in srgb, var(--inp) 55%, transparent);
-  border-color:color-mix(in srgb,#fff 12%,transparent);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+  background-color:color-mix(in srgb, var(--inp) 80%, transparent);
+  border-color:color-mix(in srgb,#fff 8%,transparent);
+  box-shadow:none}
 [data-skin="glass"] input:focus,
 [data-skin="glass"] select:focus,
 [data-skin="glass"] textarea:focus,
-[data-skin="glass"] .search:focus-within{border-color:color-mix(in srgb,var(--accent) 55%,transparent)}
+[data-skin="glass"] .search:focus-within{border-color:color-mix(in srgb,var(--accent) 50%,transparent)}
 
-/* 라이트 모드 글래스 — 흰빛 유리. 토큰만 덮어쓰면 위 규칙이 그대로 재사용됨. */
+/* 라이트 모드 글래스 — 서리 낀 흰 유리(저광택). 토큰만 덮어쓰면 위 규칙이 그대로 재사용됨. */
 [data-theme="light"][data-skin="glass"]{
-  --g-fill:color-mix(in srgb,#fff 60%, transparent);
-  --g-fill-strong:color-mix(in srgb,#fff 74%, transparent);
-  --g-rim-hi:rgba(255,255,255,.95);
-  --g-rim-lo:rgba(255,255,255,.20);
-  --g-rim-tint:color-mix(in srgb, var(--accent) 26%, transparent);
-  --g-sheen:rgba(255,255,255,.50);
-  --g-hotspot:rgba(255,255,255,.70);
-  --g-top:rgba(255,255,255,.85);
-  --g-border:color-mix(in srgb,#fff 70%, transparent);
-  --g-sh-1:0 1px 2px rgba(20,28,54,.06);
-  --g-sh-2:0 2px 10px rgba(20,28,54,.08);
-  --g-sh-3:0 22px 48px -18px rgba(20,28,54,.18);
-  --g-sh-hover:0 26px 54px -16px rgba(20,28,54,.22);
-  --g-sh-pop:0 40px 80px -28px rgba(20,28,54,.26)}
+  --g-fill:color-mix(in srgb,#fff 82%, transparent);
+  --g-fill-strong:color-mix(in srgb,#fff 92%, transparent);
+  --g-fill-flat:color-mix(in srgb,#fff 70%, transparent);
+  --g-edge:rgba(255,255,255,.80);
+  --g-edge-lo:rgba(255,255,255,.28);
+  --g-top-tint:rgba(255,255,255,.40);
+  --g-border:color-mix(in srgb, var(--bd2) 72%, transparent);
+  --g-sh-1:0 1px 2px rgba(20,28,54,.05);
+  --g-sh-2:0 6px 16px -8px rgba(20,28,54,.10);
+  --g-sh-3:0 20px 44px -24px rgba(20,28,54,.14);
+  --g-sh-hover:0 16px 36px -18px rgba(20,28,54,.16);
+  --g-sh-pop:0 34px 74px -32px rgba(20,28,54,.20);
+  --g-sat:112%;
+  --g-sat-strong:118%}
 [data-theme="light"][data-skin="glass"] .app::before{
   background:
-    radial-gradient(38% 46% at 12% 14%, color-mix(in srgb,var(--accent) 22%,transparent), transparent 66%),
-    radial-gradient(42% 50% at 90% 8%,  color-mix(in srgb,var(--info)   18%,transparent), transparent 68%),
-    radial-gradient(46% 56% at 84% 92%, color-mix(in srgb,var(--accent) 16%,transparent), transparent 70%),
-    radial-gradient(40% 48% at 8% 88%,  color-mix(in srgb,var(--info)   14%,transparent), transparent 70%);
-  filter:saturate(108%)}
+    radial-gradient(52% 60% at 14% 10%, color-mix(in srgb,var(--accent) 11%,transparent), transparent 72%),
+    radial-gradient(56% 64% at 88% 6%,  color-mix(in srgb,var(--info)    8%,transparent), transparent 74%),
+    radial-gradient(60% 70% at 84% 94%, color-mix(in srgb,var(--accent)  6%,transparent), transparent 76%);
+  filter:saturate(90%)}
 [data-theme="light"][data-skin="glass"] .topbar{
-  background-color:color-mix(in srgb,#fff 50%, transparent);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.8), inset 0 -1px 0 var(--bd)}
+  background-color:color-mix(in srgb,#fff 72%, transparent);
+  box-shadow:inset 0 -1px 0 var(--bd)}
 
 /* 폴백 1 — backdrop-filter 미지원 브라우저: 크롬·오버레이를 더 불투명하게 */
 @supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
   [data-skin="glass"] .side,[data-skin="glass"] .topbar,
   [data-skin="glass"] #sheet,[data-skin="glass"] #dlg .dbox,[data-skin="glass"] .gatecard{
-    background-color:color-mix(in srgb, var(--card) 92%, transparent)}
+    background-color:color-mix(in srgb, var(--card) 94%, transparent)}
 }
-/* 폴백 2 — 투명도 감소 선호(접근성·저사양): 블러·림·블룸 제거, 불투명 처리 */
+/* 폴백 2 — 투명도 감소 선호(접근성·저사양): 블러·엣지·블룸 제거, 불투명 처리 */
 @media (prefers-reduced-transparency: reduce){
   [data-skin="glass"] .side,[data-skin="glass"] .topbar,[data-skin="glass"] .card,
   [data-skin="glass"] .linkcard,[data-skin="glass"] #sheet,[data-skin="glass"] #dlg .dbox,[data-skin="glass"] .gatecard{
@@ -1131,12 +1144,19 @@ const Store=(()=>{
     if(!fbReady)return;
     if(RECORD_COLS.has(col)){
       const itemsRef=fdb.ref(ROOT+'/'+col+'/items');
-      // child 단위 수신 → 로컬 배열 갱신
-      const apply=async(applyFn,by,at)=>{
-        let arr=await idb('get',col)||[];
-        arr=applyFn(arr);
-        await idb('put',col,arr);
-        if(onRemote)onRemote(col,arr,by,at);
+      // child 단위 수신 → 로컬 배열 갱신.
+      // ⚠️ 초기 동기화 시 child_added가 모든 레코드에 대해 버스트로 발생한다. 각 이벤트가
+      //   idb 읽기-수정-쓰기를 하므로 직렬화하지 않으면 서로 덮어써(last-write-wins) 레코드가
+      //   유실된다(특히 IDB가 비어있는 기기). 콜당 프라미스 큐로 순차 처리.
+      let _aq=Promise.resolve();
+      const apply=(applyFn,by,at)=>{
+        _aq=_aq.then(async()=>{
+          let arr=await idb('get',col)||[];
+          arr=applyFn(arr);
+          await idb('put',col,arr);
+          if(onRemote)onRemote(col,arr,by,at);
+        }).catch(()=>{});
+        return _aq;
       };
       itemsRef.on('child_added',snap=>{
         const v=snap.val();if(!v)return;const key=col+'/'+snap.key;
@@ -1425,12 +1445,55 @@ let _modalClearTO=null;
 function openModal(wide){const m=$('#modal');const sh=$('#sheet');
   if(_modalClearTO){clearTimeout(_modalClearTO);_modalClearTO=null;}
   sh.classList.toggle('wide',!!wide);
-  sh.scrollTop=0;sh.style.transform='';            // 매번 드래그/스크롤 위치 초기화
+  sh.scrollTop=0;sh.style.transform='';sh.style.transition='';   // 매번 드래그/스크롤 위치 초기화
+  const sc=m.querySelector('.scrim');if(sc)sc.style.opacity='';
+  // 바텀시트 상단 그립(끌어내려 닫기) — 콘텐츠 맨 앞에 1개만 유지
+  sh.querySelector('.sheetgrip')?.remove();
+  sh.insertAdjacentHTML('afterbegin','<div class="sheetgrip" aria-hidden="true"></div>');
   m.classList.add('open');document.body.classList.add('mopen');
   requestAnimationFrame(()=>{m.classList.add('in');sh.scrollTop=0;});}
 function closeModal(){const m=$('#modal');m.classList.remove('in');document.body.classList.remove('mopen');
-  _modalClearTO=setTimeout(()=>{m.classList.remove('open');$('#sheet').innerHTML='';$('#sheet').style.transform='';_modalClearTO=null;},200);}
+  _modalClearTO=setTimeout(()=>{m.classList.remove('open');$('#sheet').innerHTML='';$('#sheet').style.transform='';$('#sheet').style.transition='';const sc=m.querySelector('.scrim');if(sc)sc.style.opacity='';_modalClearTO=null;},200);}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#modal').classList.contains('open'))closeModal();});
+/* 바텀시트 끌어내려 닫기(모바일) — 상단 그립을 잡고 아래로 끌면 따라오고, 임계치 넘으면 닫힘 */
+(function(){
+  const mobile=()=>window.matchMedia('(max-width:920px)').matches;
+  let on=false,sy=0,dy=0,t0=0;
+  function down(e){
+    const grip=e.target&&e.target.closest?e.target.closest('.sheetgrip'):null;
+    if(!grip||!mobile())return;
+    const sh=$('#sheet');if(!sh)return;
+    on=true;dy=0;sy=e.clientY;t0=Date.now();sh.style.transition='none';
+    try{grip.setPointerCapture(e.pointerId);}catch(_){}
+    document.addEventListener('pointermove',move,{passive:false});
+    document.addEventListener('pointerup',up,{once:true});
+    document.addEventListener('pointercancel',up,{once:true});
+    e.preventDefault();
+  }
+  function move(e){
+    if(!on)return;
+    dy=Math.max(0,e.clientY-sy);
+    const sh=$('#sheet');if(sh)sh.style.transform='translateY('+dy+'px)';
+    const sc=document.querySelector('#modal .scrim');if(sc)sc.style.opacity=String(Math.max(0,1-dy/420));
+    e.preventDefault();
+  }
+  function up(){
+    document.removeEventListener('pointermove',move);
+    if(!on)return;on=false;
+    const sh=$('#sheet');const sc=document.querySelector('#modal .scrim');
+    const fast=dy>40 && dy/Math.max(1,Date.now()-t0)>0.6;
+    if(sh)sh.style.transition='transform .22s var(--ease)';
+    if(dy>96||fast){
+      if(sh)sh.style.transform='translateY(100%)';
+      setTimeout(()=>{if(sh)sh.style.transition='';closeModal();},170);
+    }else{
+      if(sh)sh.style.transform='';
+      if(sc)sc.style.opacity='';
+      setTimeout(()=>{if(sh)sh.style.transition='';},240);
+    }
+  }
+  document.addEventListener('pointerdown',down,{passive:false});
+})();
 
 /* ===================== drag & drop (desktop) ===================== */
 const GRIP=`<span class="draghandle" title="드래그해서 이동"><svg><use href="#i-grip"/></svg></span>`;
@@ -1845,7 +1908,7 @@ function renderRoster(v){
     if(q)list=list.filter(a=>KX(a.name+(a.realName||'')+(a.email||'')).includes(q));
     if(!list.length){host.appendChild(ce('div','card empty',S.roster.length?'조건에 맞는 아티스트가 없습니다.':'아직 등록된 아티스트가 없습니다. "새 아티스트"로 시작해 보세요.'));return;}
     const c=ce('div','card flat tblx');
-    let h='<table><thead><tr><th>아티스트</th><th>실명</th><th>이메일</th><th style="min-width:200px">음원 플랫폼</th><th style="min-width:160px">SNS</th></tr></thead><tbody>';
+    let h='<table class="rostbl"><thead><tr><th>아티스트</th><th>실명</th><th>이메일</th><th style="min-width:200px">음원 플랫폼</th><th style="min-width:160px">SNS</th></tr></thead><tbody>';
     list.forEach(a=>{
       const rn=[a.realName,a.realNameEn].filter(Boolean).join(' ');
       h+=`<tr class="rowlink" data-id="${a.id}">
@@ -3221,9 +3284,11 @@ async function pushAllToCloud(){
 
 /* ===================== 원격 변경 수신 ===================== */
 let initialSync = true;
+// 동기화로 들어오는 연속 변경(초기 버스트 포함)을 한 번의 렌더로 합치기 — 화면 깜빡임/버벅임 방지
+let _syncRenderTO=null;
+function syncRender(){clearTimeout(_syncRenderTO);_syncRenderTO=setTimeout(()=>{_syncRenderTO=null;render();},70);}
 function startWatch(){
   Store.setOnRemote(async(col,data,by,at)=>{
-    // 상태 반영
     if(col==='settings'&&data){S.thrKRW=data.thrKRW??S.thrKRW;S.thrUSD=data.thrUSD??S.thrUSD;if(data.settleMode)S.settleMode=data.settleMode;S.taxRate=data.taxRate??S.taxRate;}
     else if(col==='fx'&&data){S.fx.rate=data.rate||S.fx.rate;S.fx.updated=data.updated;S.fxByYm=data.byYm||{};}
     else if(col==='import'&&data){S.import={tx:data.tx||[],dcmYms:data.dcmYms||[],bcRanges:data.bcRanges||[]};refreshEff();}
@@ -3236,7 +3301,7 @@ function startWatch(){
       if(!initialSync && by && by!==who())toast((by||'다른 운영진')+'님이 '+(VIEWS[col]||col)+' 데이터를 수정했습니다');
       return;
     }
-    render();
+    syncRender();
     if(!initialSync && by && by!==who())toast((by||'다른 운영진')+'님의 변경이 반영되었습니다');
   });
   COLS.forEach(c=>Store.watch(c));
