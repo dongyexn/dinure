@@ -300,12 +300,12 @@ img.noart{background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http:
 /* ============ modal / sheet ============ */
 #modal{position:fixed;inset:0;z-index:60;display:none}
 #modal.open{display:block}
-#modal .scrim{position:absolute;inset:0;background:var(--scrim);opacity:0;transition:opacity .2s}
+#modal .scrim{position:absolute;inset:0;background:var(--scrim);opacity:0;transition:opacity .32s var(--ease)}
 #modal.in .scrim{opacity:1}
-#sheet{position:absolute;top:50%;left:50%;transform:translate(-50%,-48%) scale(.985);opacity:0;
+#sheet{position:absolute;top:50%;left:50%;transform:translate(-50%,-46%) scale(.97);opacity:0;
   width:min(760px,calc(100vw - 28px));max-height:min(88dvh,860px);overflow-y:auto;overscroll-behavior:contain;
   background:var(--card);border-radius:16px;padding:24px;
-  transition:opacity .2s var(--ease),transform .2s var(--ease);box-shadow:var(--pop-sh)}
+  transition:opacity .3s var(--ease),transform .34s var(--ease);box-shadow:var(--pop-sh)}
 #modal.in #sheet{opacity:1;transform:translate(-50%,-50%) scale(1)}
 #sheet.wide{width:min(980px,calc(100vw - 28px))}
 #sheet h3{font-size:var(--f16);font-weight:600;color:var(--t1);margin:0 0 4px;letter-spacing:-.01em}
@@ -376,10 +376,11 @@ img.noart{background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http:
 .relgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:var(--s4)}
 .relcard{cursor:pointer;display:flex;flex-direction:column;gap:10px;text-align:center}
 .relcard .cv{position:relative;width:100%;aspect-ratio:1/1;border-radius:var(--rad);overflow:hidden;background:var(--sel);border:1px solid var(--bd);transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
-.relcard .cv img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.relcard .cv img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;transition:transform .34s var(--ease)}
 /* 브라우저 '비주얼 검색'(Lens) 호버 버튼 억제 — 장식용 아트는 클릭 대상이 부모라 영향 없음(업로드 미리보기 .prev 제외) */
 img.av,img.art{pointer-events:none}
-.relcard:hover .cv{transform:translateY(-3px);box-shadow:0 16px 34px rgba(0,0,0,.40)}
+.relcard:hover .cv{box-shadow:0 10px 26px rgba(0,0,0,.28)}
+.relcard:hover .cv img{transform:scale(1.06)}
 .relcard .badge{position:absolute;top:8px;left:8px;font-size:10px;font-weight:600;letter-spacing:.03em;padding:2px 7px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 .relcard .ti b{display:block;font-size:var(--f13);font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .relcard .ti span{display:block;font-size:var(--f12);color:var(--t3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -603,10 +604,11 @@ img.av,img.art{pointer-events:none}
   --g-fill:color-mix(in srgb, var(--card) 84%, transparent);
   --g-fill-strong:color-mix(in srgb, var(--card) 92%, transparent);
   --g-fill-flat:color-mix(in srgb, var(--card) 72%, transparent);
-  --g-edge:rgba(255,255,255,.085);
-  --g-edge-lo:rgba(255,255,255,.015);
+  --g-edge:rgba(255,255,255,.045);
+  --g-edge-lo:rgba(255,255,255,.008);
+  --g-edge-tint:rgba(150,205,255,.05);
   --g-top-tint:rgba(255,255,255,.03);
-  --g-border:color-mix(in srgb,#fff 8%, transparent);
+  --g-border:color-mix(in srgb,#fff 4%, transparent);
   --g-sh-1:0 1px 2px rgba(0,0,0,.20);
   --g-sh-2:0 6px 18px -8px rgba(0,0,0,.34);
   --g-sh-3:0 20px 46px -26px rgba(0,0,0,.44);
@@ -618,14 +620,16 @@ img.av,img.art{pointer-events:none}
   --g-sat-strong:124%;
 }
 
-/* 배경 컬러 블룸 — 무광이라 채도·강도를 크게 낮춘 중성 톤. 정적이라 런타임 비용 0. */
+/* 배경 오로라 블룸 — 홀로그래픽 파스텔(시안·바이올렛·핑크·민트)을 부드럽게 겹쳐 신비로운 분위기.
+   카드 표면은 무광 유지, 배경만 오로라. 정적이라 런타임 비용 0. */
 [data-skin="glass"] .app::before{content:"";position:absolute;inset:-12%;z-index:-1;pointer-events:none;
   background:
-    radial-gradient(52% 60% at 14% 10%, color-mix(in srgb,var(--accent) 13%,transparent), transparent 72%),
-    radial-gradient(56% 64% at 88% 6%,  color-mix(in srgb,var(--info)    9%,transparent), transparent 74%),
-    radial-gradient(60% 70% at 84% 94%, color-mix(in srgb,var(--accent)  8%,transparent), transparent 76%),
-    radial-gradient(84% 92% at 50% 50%, rgba(255,255,255,.010), transparent 82%);
-  filter:saturate(80%)}
+    radial-gradient(46% 56% at 12% 12%, rgba(120,200,255,.26), transparent 70%),
+    radial-gradient(50% 60% at 86% 6%,  rgba(178,150,255,.24), transparent 72%),
+    radial-gradient(56% 64% at 88% 90%, rgba(255,150,212,.20), transparent 74%),
+    radial-gradient(52% 62% at 8% 86%,  rgba(140,238,216,.18), transparent 74%),
+    radial-gradient(72% 60% at 50% 48%, rgba(150,185,255,.09), transparent 80%);
+  filter:saturate(110%)}
 /* '리퀴드'한 생동감 — transform만 쓰는 합성 전용 애니메이션(메인스레드 0). 모션 선호시에만. */
 @media (prefers-reduced-motion: no-preference){
   [data-skin="glass"] .app::before{animation:gBloom 72s ease-in-out infinite alternate;will-change:transform}
@@ -651,9 +655,9 @@ img.av,img.art{pointer-events:none}
   background-repeat:no-repeat;
   border:1px solid var(--g-border);
   box-shadow:var(--g-sh-1), var(--g-sh-2), var(--g-sh-3);
-  transition:box-shadow .24s var(--ease), transform .24s var(--ease), background-color .24s var(--ease)}
+  transition:box-shadow .34s var(--ease), transform .34s var(--ease), background-color .34s var(--ease)}
 
-/* 무광 엣지 — 둥근 모서리를 따라 흐릿하게 도는 1px 중성 하이라이트(스펙큘러 아님). 마스킹된 보더 링, 경량. */
+/* 무광 엣지 — 둥근 모서리를 따라 흐릿하게 도는 1px 중성 하이라이트(스펙큘러 아님) + 끝에 옅은 오로라 틴트. 마스킹된 보더 링, 경량. */
 [data-skin="glass"] .side::after,
 [data-skin="glass"] .card::after,
 [data-skin="glass"] .linkcard::after,
@@ -661,7 +665,7 @@ img.av,img.art{pointer-events:none}
 [data-skin="glass"] #dlg .dbox::after,
 [data-skin="glass"] .gatecard::after{
   content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;z-index:1;
-  background:linear-gradient(162deg, var(--g-edge) 0%, var(--g-edge-lo) 38%, transparent 72%);
+  background:linear-gradient(162deg, var(--g-edge) 0%, var(--g-edge-lo) 36%, transparent 66%, var(--g-edge-tint) 100%);
   -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite:xor;
           mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -671,7 +675,7 @@ img.av,img.art{pointer-events:none}
 [data-skin="glass"] .side,
 [data-skin="glass"] .topbar{
   -webkit-backdrop-filter:blur(var(--g-blur)) saturate(var(--g-sat));backdrop-filter:blur(var(--g-blur)) saturate(var(--g-sat))}
-[data-skin="glass"] .main{background:color-mix(in srgb, var(--bg) 62%, transparent)}
+[data-skin="glass"] .main{background:color-mix(in srgb, var(--bg) 56%, transparent)}
 /* 상단바 — 가장자리 바라서 풀 링 대신 하단 헤어라인만(무광이라 상단 광택 없음) */
 [data-skin="glass"] .topbar{
   background-color:color-mix(in srgb, var(--card) 72%, transparent);
@@ -687,16 +691,15 @@ img.av,img.art{pointer-events:none}
   -webkit-backdrop-filter:blur(var(--g-blur-strong)) saturate(var(--g-sat-strong));backdrop-filter:blur(var(--g-blur-strong)) saturate(var(--g-sat-strong));
   box-shadow:0 2px 10px rgba(0,0,0,.26), var(--g-sh-pop)}
 
-/* 카드 호버 — 미세한 부양 + 엣지를 살짝만 밝게(블러·광택 변화 없이 transform/box-shadow만) */
+/* 카드 호버 — 떠오름(translateY) 없이 그림자만 살짝 깊게 + 엣지 살짝 밝게. 부드럽게. */
 [data-skin="glass"] .card:hover,
 [data-skin="glass"] .kpi:hover,
 [data-skin="glass"] .linkcard:hover{
-  transform:translateY(-2px);
   box-shadow:var(--g-sh-1), var(--g-sh-2), var(--g-sh-hover)}
 [data-skin="glass"] .card:hover::after,
 [data-skin="glass"] .kpi:hover::after,
 [data-skin="glass"] .linkcard:hover::after{
-  --g-edge:rgba(255,255,255,.15)}
+  --g-edge:rgba(255,255,255,.11)}
 
 [data-skin="glass"] .card.flat{background-color:var(--g-fill-flat)}
 
@@ -718,10 +721,11 @@ img.av,img.art{pointer-events:none}
   --g-fill:color-mix(in srgb,#fff 82%, transparent);
   --g-fill-strong:color-mix(in srgb,#fff 92%, transparent);
   --g-fill-flat:color-mix(in srgb,#fff 70%, transparent);
-  --g-edge:rgba(255,255,255,.80);
-  --g-edge-lo:rgba(255,255,255,.28);
+  --g-edge:rgba(255,255,255,.42);
+  --g-edge-lo:rgba(255,255,255,.15);
+  --g-edge-tint:rgba(120,180,255,.10);
   --g-top-tint:rgba(255,255,255,.40);
-  --g-border:color-mix(in srgb, var(--bd2) 72%, transparent);
+  --g-border:color-mix(in srgb, var(--bd2) 40%, transparent);
   --g-sh-1:0 1px 2px rgba(20,28,54,.05);
   --g-sh-2:0 6px 16px -8px rgba(20,28,54,.10);
   --g-sh-3:0 20px 44px -24px rgba(20,28,54,.14);
@@ -731,10 +735,11 @@ img.av,img.art{pointer-events:none}
   --g-sat-strong:118%}
 [data-theme="light"][data-skin="glass"] .app::before{
   background:
-    radial-gradient(52% 60% at 14% 10%, color-mix(in srgb,var(--accent) 11%,transparent), transparent 72%),
-    radial-gradient(56% 64% at 88% 6%,  color-mix(in srgb,var(--info)    8%,transparent), transparent 74%),
-    radial-gradient(60% 70% at 84% 94%, color-mix(in srgb,var(--accent)  6%,transparent), transparent 76%);
-  filter:saturate(90%)}
+    radial-gradient(48% 58% at 12% 12%, rgba(130,200,255,.20), transparent 72%),
+    radial-gradient(52% 62% at 86% 6%,  rgba(190,165,255,.17), transparent 74%),
+    radial-gradient(56% 64% at 88% 92%, rgba(255,170,220,.14), transparent 76%),
+    radial-gradient(50% 60% at 8% 86%,  rgba(160,240,222,.13), transparent 76%);
+  filter:saturate(96%)}
 [data-theme="light"][data-skin="glass"] .topbar{
   background-color:color-mix(in srgb,#fff 72%, transparent);
   box-shadow:inset 0 -1px 0 var(--bd)}
@@ -776,7 +781,7 @@ img.av,img.art{pointer-events:none}
 /* ===================== Instagram 톤 스킨 ===================== */
 [data-skin="instagram"]{
   --accent:#E1306C;--accent-bg:#E1306C;--accent-dim:rgba(225,48,108,.18);--info:#C13584;--info-bg:rgba(193,53,132,.15);
-  --logo-grad:linear-gradient(45deg,#FEDA77,#F58529,#DD2A7B 55%,#8134AF,#515BD4)}
+  --logo-grad:linear-gradient(45deg,#FFF1C9,#FEDA77,#F58529,#DD2A7B 55%,#8134AF,#515BD4)}
 /* 라이트 — 인스타그램 기본(화이트, 중성 회색 보더) */
 [data-theme="light"][data-skin="instagram"]{
   --shell:#FAFAFA;--bg:#FFFFFF;--panel:#FAFAFA;--panel2:#FAFAFA;--card:#FFFFFF;--hov:#F2F2F2;--sel:#EFEFEF;--sel2:#E4E4E4;--inp:#FFFFFF;
@@ -788,7 +793,7 @@ img.av,img.art{pointer-events:none}
   --t1:#FFFFFF;--t2:#EDEDED;--t3:#A8A8A8;--t4:#737373;
   --bd:rgba(255,255,255,.10);--bd2:rgba(255,255,255,.16);--bd3:rgba(255,255,255,.28)}
 [data-skin="instagram"] .card{border-radius:14px}
-[data-skin="instagram"] .btn.pri{background:linear-gradient(45deg,#FEDA77,#F58529,#DD2A7B 55%,#8134AF,#515BD4);border-color:transparent;color:#fff;font-weight:600}
+[data-skin="instagram"] .btn.pri{background:linear-gradient(45deg,#FFF1C9,#FEDA77,#F58529,#DD2A7B 55%,#8134AF,#515BD4);border-color:transparent;color:#fff;font-weight:600}
 [data-skin="instagram"] .btn.pri:hover{filter:brightness(1.06)}
 </style>
 <!-- glass-skin-end -->
@@ -1453,7 +1458,7 @@ function openModal(wide){const m=$('#modal');const sh=$('#sheet');
   m.classList.add('open');document.body.classList.add('mopen');
   requestAnimationFrame(()=>{m.classList.add('in');sh.scrollTop=0;});}
 function closeModal(){const m=$('#modal');m.classList.remove('in');document.body.classList.remove('mopen');
-  _modalClearTO=setTimeout(()=>{m.classList.remove('open');$('#sheet').innerHTML='';$('#sheet').style.transform='';$('#sheet').style.transition='';const sc=m.querySelector('.scrim');if(sc)sc.style.opacity='';_modalClearTO=null;},200);}
+  _modalClearTO=setTimeout(()=>{m.classList.remove('open');$('#sheet').innerHTML='';$('#sheet').style.transform='';$('#sheet').style.transition='';const sc=m.querySelector('.scrim');if(sc)sc.style.opacity='';_modalClearTO=null;},300);}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#modal').classList.contains('open'))closeModal();});
 /* 바텀시트 끌어내려 닫기(모바일) — 상단 그립을 잡고 아래로 끌면 따라오고, 임계치 넘으면 닫힘 */
 (function(){
@@ -2202,31 +2207,31 @@ function trendCard(labels,cum,monthly){
   let grid='';
   [0,.25,.5,.75,1].forEach(f=>{const yy=Yf(f);
     grid+=`<line x1="${padL}" y1="${yy.toFixed(1)}" x2="${W-padR}" y2="${yy.toFixed(1)}" stroke="var(--bd)" ${f>0&&f<1?'stroke-dasharray="2 4"':''}/>
-      <text x="${padL-7}" y="${(yy+3.4).toFixed(1)}" text-anchor="end" fill="var(--info)" font-size="9.5">${kfmt(mMax*f)}</text>
-      <text x="${W-padR+7}" y="${(yy+3.4).toFixed(1)}" text-anchor="start" fill="var(--accent)" font-size="9.5">${kfmt(cMax*f)}</text>`;});
+      <text x="${padL-7}" y="${(yy+3.2).toFixed(1)}" text-anchor="end" fill="var(--info)" font-size="8">${kfmt(mMax*f)}</text>
+      <text x="${W-padR+7}" y="${(yy+3.2).toFixed(1)}" text-anchor="start" fill="var(--warn)" font-size="8">${kfmt(cMax*f)}</text>`;});
   // 막대(월별) + 선(누계) + 포인트 + 연도 경계 + x 라벨
   let bars='',dots='',xlab='',dpath='';
   monthly.forEach((mv,i)=>{
     const cxC=cxOf(i),yTop=Yb(mv),bh=Math.max(0,(H-padB)-yTop);
     bars+=`<rect class="mbar" x="${(cxC-bw/2).toFixed(1)}" y="${yTop.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="2" fill="var(--info)" opacity=".5"/>`;
     dpath+=(i?'L':'M')+cxC.toFixed(1)+' '+Yc(cum[i]).toFixed(1)+' ';
-    dots+=`<circle cx="${cxC.toFixed(1)}" cy="${Yc(cum[i]).toFixed(1)}" r="2" fill="var(--accent)" opacity=".7"/>`;
+    dots+=`<circle cx="${cxC.toFixed(1)}" cy="${Yc(cum[i]).toFixed(1)}" r="2" fill="var(--warn)" opacity=".85"/>`;
     if(i>0&&labels[i].slice(0,4)!==labels[i-1].slice(0,4))
       xlab+=`<line x1="${(padL+band*i).toFixed(1)}" y1="${padT}" x2="${(padL+band*i).toFixed(1)}" y2="${H-padB}" stroke="var(--bd)" stroke-dasharray="2 4"/>`;
     const every=n<=14?1:n<=30?3:6;
     if(i%every===0||i===n-1)
-      xlab+=`<text x="${cxC.toFixed(1)}" y="${H-9}" fill="var(--t4)" font-size="9.5" text-anchor="middle">${labels[i].slice(2)}</text>`;
+      xlab+=`<text x="${cxC.toFixed(1)}" y="${H-9}" fill="var(--t4)" font-size="8" text-anchor="middle">${labels[i].slice(2)}</text>`;
   });
   let lastMk='';
   if(n){const lx=cxOf(n-1),ly=Yc(cum[n-1]);
-    lastMk=`<circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="3.5" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/>`;}
+    lastMk=`<circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="3.5" fill="var(--card)" stroke="var(--warn)" stroke-width="2"/>`;}
   c.innerHTML=`<div class="chartwrap">
     <svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block" preserveAspectRatio="xMidYMid meet">
       ${grid}${xlab}${bars}
-      <path d="${dpath}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="${dpath}" fill="none" stroke="var(--warn)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
       ${dots}${lastMk}
       <line class="cx" x1="0" y1="${padT}" x2="0" y2="${H-padB}" stroke="var(--t4)" stroke-width="1" stroke-dasharray="4 3" style="display:none"/>
-      <circle class="cdot" r="4.5" fill="var(--card)" stroke="var(--accent)" stroke-width="2" style="display:none"/>
+      <circle class="cdot" r="4.5" fill="var(--card)" stroke="var(--warn)" stroke-width="2" style="display:none"/>
       <rect class="covl" x="${padL}" y="${padT}" width="${innerW}" height="${plotH}" fill="transparent" style="cursor:crosshair"/>
     </svg><div class="ctip" style="display:none"></div></div>`;
   const svg=c.querySelector('svg'),dot=c.querySelector('.cdot'),cx=c.querySelector('.cx'),tip=c.querySelector('.ctip'),ov=c.querySelector('.covl'),bel=[...c.querySelectorAll('.mbar')];
