@@ -2341,15 +2341,14 @@ function renderCatalog(v){
       tds+=`<td class="r num">${won(tsum[r.k_rtv]||0)}</td>`;
       const ps=(S.overrides[r.k_rtv]||r.split.map(s=>({name:s[0],pct:s[2]}))).filter(p=>p.name!=='LABEL');
       const sum=ps.map(p=>esc(p.name)+' '+pctf(p.pct)).join(' · ')||'레이블 100%';
-      const canDel=(tcnt[r.k_rtv]||0)===0;
-      tds+=`<td class="c" style="white-space:nowrap"><button class="btn sm ghost" data-edit="${esc(r.k_rtv)}" title="${esc(sum)}">분배 ✎</button>${canDel?`<button class="iconbtn" data-delreg="${esc(r.id)}" title="레지스트리에서 이 트랙 삭제 (판매 0건)" style="margin-left:2px;vertical-align:middle"><svg><use href="#i-trash"/></svg></button>`:''}</td>`;
+      tds+=`<td class="c"><button class="btn sm ghost" data-edit="${esc(r.k_rtv)}" title="${esc(sum)}">분배 ✎</button></td>`;
       body+=`<tr data-s="${stext}">${tds}</tr>`;
     });
   });
   body+='</tbody>';
   const tbl=ce('table');tbl.style.tableLayout='fixed';tbl.innerHTML=head+body;card.appendChild(tbl);v.appendChild(card);
   makeColResizable(tbl,'catalog');
-  v.appendChild(ce('div','',`<small class="note">릴리즈명 · 트랙 메타데이터는 <b>릴리즈</b> 페이지와 연동됩니다. 분배 비율 수정은 매칭된 거래에 즉시 반영됩니다. 판매 0건인 트랙(데모·오기입)은 휴지통 아이콘으로 정산 레지스트리에서 삭제할 수 있습니다.</small>`));
+  v.appendChild(ce('div','',`<small class="note">릴리즈명 · 트랙 메타데이터는 <b>릴리즈</b> 페이지와 연동됩니다. 분배 비율 수정은 매칭된 거래에 즉시 반영됩니다.</small>`));
   $('#cq').oninput=()=>{const q=KX($('#cq').value);card.querySelectorAll('tbody tr').forEach(tr=>{tr.style.display=(!q||tr.dataset.s.includes(q))?'':'none';});};
   const ri=$('#regImp');if(ri)ri.onchange=e=>{
     const f=e.target.files[0];if(!f)return;
@@ -2371,15 +2370,6 @@ function renderCatalog(v){
   };
   card.querySelectorAll('td[data-rel]').forEach(td=>td.onclick=()=>openReleaseByCat(td.dataset.rel));
   card.querySelectorAll('[data-edit]').forEach(b=>b.onclick=(e)=>{e.stopPropagation();editSplit(b.dataset.edit);});
-  card.querySelectorAll('[data-delreg]').forEach(b=>b.onclick=async(e)=>{e.stopPropagation();
-    const ent=REG_DATA.find(x=>x.id===b.dataset.delreg);if(!ent)return;
-    const label=`${ent.release} · ${ent.track}${ent.version&&ent.version!=='-'?' ('+ent.version+')':''}`;
-    if(!await dlgConfirm(`정산 레지스트리에서 이 트랙을 삭제합니다.\n\n${label}\n\n판매 내역이 없는 곡만 삭제됩니다. 계속할까요?`,{ok:'삭제',danger:true}))return;
-    REG_DATA=REG_DATA.filter(x=>x.id!==ent.id);buildRegMaps();
-    Store.set('registry',REG_DATA,who());
-    logAudit('settle','레지스트리 트랙 삭제',ent.cat+' · '+ent.track+(ent.version&&ent.version!=='-'?' ('+ent.version+')':''));
-    render();toast('레지스트리에서 삭제했습니다');
-  });
 }
 function editSplit(k){
   const reg=REG_DATA.find(r=>r.k_rtv===k);if(!reg)return;
