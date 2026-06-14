@@ -572,79 +572,178 @@ img.av,img.art{pointer-events:none}
   .linkgrid{grid-template-columns:1fr 1fr}
   .tabs.full{overflow-x:auto}
 }
-/* ===================== Liquid Glass 스킨 (반투명·깊이 강화 · 경량) ===================== */
-/* 배경: 컬러 블룸 — 유리 표면이 머금을 '빛'. 정적이라 런타임 비용 없음. */
-[data-skin="glass"] .app::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
-  background:
-    radial-gradient(40% 50% at 14% 16%, color-mix(in srgb,var(--accent) 32%,transparent), transparent 68%),
-    radial-gradient(44% 54% at 88% 10%, color-mix(in srgb,var(--info) 26%,transparent), transparent 70%),
-    radial-gradient(50% 60% at 80% 94%, color-mix(in srgb,var(--accent) 22%,transparent), transparent 72%),
-    radial-gradient(60% 72% at 50% 52%, color-mix(in srgb,var(--info) 9%,transparent), transparent 82%)}
+/* ===================== Liquid Glass 스킨 (렌즈 엣지·깊이·경량) ===================== */
+/* 설계 원칙
+   · 진짜 유리처럼: 반투명 패널 + 모서리를 감싸는 스펙큘러 림(빛 굴절) + 방향성 광택 + 부유하는 깊이.
+   · 경량: backdrop-filter(blur)는 '고정 크롬(사이드바·상단바)'과 '오버레이'에만. 카드/콘텐츠는 blur 없이
+     반투명 채움 + 그라데이션(배경) + 마스킹된 림 링(::after) + box-shadow로만 표현 → 전부 GPU 합성, 정적.
+   · 접근성: prefers-reduced-transparency / prefers-reduced-motion / backdrop-filter 미지원 폴백 내장. */
 
-/* 공통 유리 질감: 반투명 + 상단 스펙큘러 림 + 표면 광택(sheen) + 깊이 그림자.
-   blur는 비용이 커서 '고정 크롬(사이드바·상단바)'과 '오버레이'에만 적용, 카드엔 미적용. */
+/* 스킨 토큰 — 라이트/다크는 토큰만 덮어써서 규칙은 1벌만 유지(DRY) */
+[data-skin="glass"]{
+  --g-fill:color-mix(in srgb, var(--card) 58%, transparent);
+  --g-fill-strong:color-mix(in srgb, var(--card) 70%, transparent);
+  --g-rim-hi:rgba(255,255,255,.58);
+  --g-rim-lo:rgba(255,255,255,.05);
+  --g-rim-tint:color-mix(in srgb, var(--accent) 22%, transparent);
+  --g-sheen:rgba(255,255,255,.10);
+  --g-hotspot:rgba(255,255,255,.16);
+  --g-top:rgba(255,255,255,.22);
+  --g-border:color-mix(in srgb,#fff 14%, transparent);
+  --g-sh-1:0 1px 2px rgba(0,0,0,.18);
+  --g-sh-2:0 2px 8px rgba(0,0,0,.22);
+  --g-sh-3:0 20px 46px -16px rgba(0,0,0,.50);
+  --g-sh-hover:0 26px 56px -14px rgba(0,0,0,.56);
+  --g-sh-pop:0 40px 80px -24px rgba(0,0,0,.62);
+  --g-blur:16px;
+  --g-blur-strong:26px;
+}
+
+/* 배경 컬러 블룸 — 유리가 머금고 굴절시킬 '빛'. 정적이라 런타임 비용 0. */
+[data-skin="glass"] .app::before{content:"";position:absolute;inset:-12%;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(38% 46% at 12% 14%, color-mix(in srgb,var(--accent) 38%,transparent), transparent 66%),
+    radial-gradient(42% 50% at 90% 8%,  color-mix(in srgb,var(--info)   32%,transparent), transparent 68%),
+    radial-gradient(46% 56% at 84% 92%, color-mix(in srgb,var(--accent) 26%,transparent), transparent 70%),
+    radial-gradient(40% 48% at 8% 88%,  color-mix(in srgb,var(--info)   22%,transparent), transparent 70%),
+    radial-gradient(72% 82% at 50% 50%, color-mix(in srgb,var(--info)    8%,transparent), transparent 80%);
+  filter:saturate(116%)}
+/* '리퀴드'한 생동감 — transform만 쓰는 합성 전용 애니메이션(메인스레드 0). 모션 선호시에만. */
+@media (prefers-reduced-motion: no-preference){
+  [data-skin="glass"] .app::before{animation:gBloom 60s ease-in-out infinite alternate;will-change:transform}
+}
+@keyframes gBloom{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  50%{transform:translate3d(-1.6%,1.1%,0) scale(1.045)}
+  100%{transform:translate3d(1.6%,-1.1%,0) scale(1.02)}
+}
+
+/* 공통 유리 질감: 반투명 채움 + 코너 핫스팟 + 방향성 광택 + 하단 굴절 음영 + 깊이 그림자
+   (blur 없음 — 카드에는 비용이 큰 backdrop-filter 미적용) */
 [data-skin="glass"] .side,
 [data-skin="glass"] .topbar,
 [data-skin="glass"] .card,
-[data-skin="glass"] .kpi,
 [data-skin="glass"] .linkcard,
 [data-skin="glass"] #sheet,
 [data-skin="glass"] #dlg .dbox,
 [data-skin="glass"] .gatecard{
-  background-color:color-mix(in srgb, var(--card) 52%, transparent);
-  background-image:linear-gradient(160deg, color-mix(in srgb,#fff 12%,transparent), transparent 42%);
-  border:1px solid color-mix(in srgb,#fff 14%, transparent);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb,#fff 34%,transparent),
-    inset 0 0 0 1px color-mix(in srgb,#fff 4%,transparent),
-    0 16px 42px rgba(0,0,0,.36);
-  transition:box-shadow .22s var(--ease), transform .22s var(--ease)}
+  position:relative;
+  background-color:var(--g-fill);
+  background-image:
+    radial-gradient(120% 92% at 8% -12%, var(--g-hotspot), transparent 46%),
+    linear-gradient(158deg, var(--g-sheen), transparent 42%),
+    linear-gradient(0deg, color-mix(in srgb,#000 6%,transparent), transparent 24%);
+  background-repeat:no-repeat;
+  border:1px solid var(--g-border);
+  box-shadow:inset 0 1px 0 var(--g-top), var(--g-sh-1), var(--g-sh-2), var(--g-sh-3);
+  transition:box-shadow .24s var(--ease), transform .24s var(--ease), background-color .24s var(--ease)}
+
+/* 렌즈 엣지(시그니처) — 둥근 모서리를 따라 흐르는 1.25px 그라데이션 림. 마스킹된 보더 링이라 경량. */
+[data-skin="glass"] .side::after,
+[data-skin="glass"] .card::after,
+[data-skin="glass"] .linkcard::after,
+[data-skin="glass"] #sheet::after,
+[data-skin="glass"] #dlg .dbox::after,
+[data-skin="glass"] .gatecard::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;padding:1.25px;pointer-events:none;z-index:1;
+  background:linear-gradient(150deg, var(--g-rim-hi) 0%, var(--g-rim-lo) 30%, transparent 58%, var(--g-rim-tint) 100%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+          mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask-composite:exclude}
 
 /* 고정 크롬 — 뒤 블룸을 머금는 가벼운 블러 */
 [data-skin="glass"] .side,
 [data-skin="glass"] .topbar{
-  -webkit-backdrop-filter:blur(16px) saturate(180%);backdrop-filter:blur(16px) saturate(180%)}
-[data-skin="glass"] .main{background:color-mix(in srgb, var(--bg) 52%, transparent)}
-[data-skin="glass"] .topbar{background-color:color-mix(in srgb, var(--card) 46%, transparent)}
+  -webkit-backdrop-filter:blur(var(--g-blur)) saturate(180%);backdrop-filter:blur(var(--g-blur)) saturate(180%)}
+[data-skin="glass"] .main{background:color-mix(in srgb, var(--bg) 50%, transparent)}
+/* 상단바는 가장자리 바라서 풀 링 대신 상단 스펙큘러 + 하단 헤어라인이 자연스러움 */
+[data-skin="glass"] .topbar{
+  background-color:color-mix(in srgb, var(--card) 42%, transparent);
+  background-image:linear-gradient(180deg, rgba(255,255,255,.06), transparent 60%);
+  border:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28), inset 0 -1px 0 var(--bd)}
 
-/* 콘텐츠 위로 뜨는 오버레이 — 진짜 굴절감을 위해 강한 블러(열릴 때만 비용) */
+/* 콘텐츠 위로 뜨는 오버레이 — 진짜 굴절감을 위해 강한 블러(열릴 때만 비용) + 더 또렷한 채움/그림자 */
 [data-skin="glass"] #sheet,
 [data-skin="glass"] #dlg .dbox,
 [data-skin="glass"] .gatecard{
-  background-color:color-mix(in srgb, var(--card) 62%, transparent);
-  -webkit-backdrop-filter:blur(26px) saturate(200%);backdrop-filter:blur(26px) saturate(200%)}
+  background-color:var(--g-fill-strong);
+  -webkit-backdrop-filter:blur(var(--g-blur-strong)) saturate(190%);backdrop-filter:blur(var(--g-blur-strong)) saturate(190%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.30), 0 2px 10px rgba(0,0,0,.28), var(--g-sh-pop)}
 
-/* 카드 호버 — 미세한 부양으로 깊이 강조(블러 없이 transform만) */
+/* 카드 호버 — 미세한 부양 + 림을 더 밝게(블러 변화 없이 transform/box-shadow만) */
 [data-skin="glass"] .card:hover,
-[data-skin="glass"] .kpi:hover{
-  transform:translateY(-1px);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb,#fff 42%,transparent),
-    inset 0 0 0 1px color-mix(in srgb,#fff 5%,transparent),
-    0 22px 54px rgba(0,0,0,.42)}
-[data-skin="glass"] .card.flat{background-color:color-mix(in srgb, var(--card) 46%, transparent)}
-[data-skin="glass"] input,[data-skin="glass"] select,[data-skin="glass"] textarea,[data-skin="glass"] .search{
-  background-color:color-mix(in srgb, var(--inp) 58%, transparent);
-  border-color:color-mix(in srgb,#fff 12%,transparent)}
+[data-skin="glass"] .kpi:hover,
+[data-skin="glass"] .linkcard:hover{
+  transform:translateY(-2px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.30), var(--g-sh-1), var(--g-sh-2), var(--g-sh-hover)}
+[data-skin="glass"] .card:hover::after,
+[data-skin="glass"] .kpi:hover::after,
+[data-skin="glass"] .linkcard:hover::after{
+  --g-rim-hi:rgba(255,255,255,.72);
+  --g-rim-tint:color-mix(in srgb, var(--accent) 34%, transparent)}
 
-/* 라이트 모드 글래스 — 흰빛 유리(밝은 림/그림자로 대비 보정) */
-[data-theme="light"][data-skin="glass"] .side,
-[data-theme="light"][data-skin="glass"] .topbar,
-[data-theme="light"][data-skin="glass"] .card,
-[data-theme="light"][data-skin="glass"] .kpi,
-[data-theme="light"][data-skin="glass"] .linkcard,
-[data-theme="light"][data-skin="glass"] #sheet,
-[data-theme="light"][data-skin="glass"] #dlg .dbox,
-[data-theme="light"][data-skin="glass"] .gatecard{
-  background-color:color-mix(in srgb,#fff 58%,transparent);
-  border-color:color-mix(in srgb,#fff 72%,transparent);
-  box-shadow:inset 0 1px 0 color-mix(in srgb,#fff 85%,transparent), 0 14px 38px rgba(20,28,54,.14)}
+[data-skin="glass"] .card.flat{background-color:color-mix(in srgb, var(--card) 44%, transparent)}
 
-/* 투명도 감소 선호(접근성·저사양) — 블러 제거, 불투명도 상향으로 자동 폴백 */
-@media (prefers-reduced-transparency: reduce){
+/* 입력 요소 — 은은한 유리(::after 링은 폼 요소에서 비신뢰라 제외, 내부 하이라이트로 표현) */
+[data-skin="glass"] input,
+[data-skin="glass"] select,
+[data-skin="glass"] textarea,
+[data-skin="glass"] .search{
+  background-color:color-mix(in srgb, var(--inp) 55%, transparent);
+  border-color:color-mix(in srgb,#fff 12%,transparent);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+[data-skin="glass"] input:focus,
+[data-skin="glass"] select:focus,
+[data-skin="glass"] textarea:focus,
+[data-skin="glass"] .search:focus-within{border-color:color-mix(in srgb,var(--accent) 55%,transparent)}
+
+/* 라이트 모드 글래스 — 흰빛 유리. 토큰만 덮어쓰면 위 규칙이 그대로 재사용됨. */
+[data-theme="light"][data-skin="glass"]{
+  --g-fill:color-mix(in srgb,#fff 60%, transparent);
+  --g-fill-strong:color-mix(in srgb,#fff 74%, transparent);
+  --g-rim-hi:rgba(255,255,255,.95);
+  --g-rim-lo:rgba(255,255,255,.20);
+  --g-rim-tint:color-mix(in srgb, var(--accent) 26%, transparent);
+  --g-sheen:rgba(255,255,255,.50);
+  --g-hotspot:rgba(255,255,255,.70);
+  --g-top:rgba(255,255,255,.85);
+  --g-border:color-mix(in srgb,#fff 70%, transparent);
+  --g-sh-1:0 1px 2px rgba(20,28,54,.06);
+  --g-sh-2:0 2px 10px rgba(20,28,54,.08);
+  --g-sh-3:0 22px 48px -18px rgba(20,28,54,.18);
+  --g-sh-hover:0 26px 54px -16px rgba(20,28,54,.22);
+  --g-sh-pop:0 40px 80px -28px rgba(20,28,54,.26)}
+[data-theme="light"][data-skin="glass"] .app::before{
+  background:
+    radial-gradient(38% 46% at 12% 14%, color-mix(in srgb,var(--accent) 22%,transparent), transparent 66%),
+    radial-gradient(42% 50% at 90% 8%,  color-mix(in srgb,var(--info)   18%,transparent), transparent 68%),
+    radial-gradient(46% 56% at 84% 92%, color-mix(in srgb,var(--accent) 16%,transparent), transparent 70%),
+    radial-gradient(40% 48% at 8% 88%,  color-mix(in srgb,var(--info)   14%,transparent), transparent 70%);
+  filter:saturate(108%)}
+[data-theme="light"][data-skin="glass"] .topbar{
+  background-color:color-mix(in srgb,#fff 50%, transparent);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.8), inset 0 -1px 0 var(--bd)}
+
+/* 폴백 1 — backdrop-filter 미지원 브라우저: 크롬·오버레이를 더 불투명하게 */
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
   [data-skin="glass"] .side,[data-skin="glass"] .topbar,
   [data-skin="glass"] #sheet,[data-skin="glass"] #dlg .dbox,[data-skin="glass"] .gatecard{
-    -webkit-backdrop-filter:none;backdrop-filter:none;background-color:var(--card)}
+    background-color:color-mix(in srgb, var(--card) 92%, transparent)}
+}
+/* 폴백 2 — 투명도 감소 선호(접근성·저사양): 블러·림·블룸 제거, 불투명 처리 */
+@media (prefers-reduced-transparency: reduce){
+  [data-skin="glass"] .side,[data-skin="glass"] .topbar,[data-skin="glass"] .card,
+  [data-skin="glass"] .linkcard,[data-skin="glass"] #sheet,[data-skin="glass"] #dlg .dbox,[data-skin="glass"] .gatecard{
+    -webkit-backdrop-filter:none;backdrop-filter:none;background-color:var(--card);background-image:none}
+  [data-skin="glass"] .side::after,[data-skin="glass"] .card::after,[data-skin="glass"] .linkcard::after,
+  [data-skin="glass"] #sheet::after,[data-skin="glass"] #dlg .dbox::after,[data-skin="glass"] .gatecard::after{display:none}
+  [data-skin="glass"] .app::before{display:none}
+}
+/* 모바일(≤920px)에서 사이드바는 오프캔버스 고정이라 position 복원(렌즈 엣지는 그대로 동작) */
+@media (max-width:920px){
+  [data-skin="glass"] .side{position:fixed}
 }
 
 /* ===================== Spotify 톤 스킨 ===================== */
