@@ -657,8 +657,8 @@ img.av,img.art{pointer-events:none}
 [data-skin="pastel"] .btn.pri{border-color:transparent;font-weight:600;border-radius:999px}
 [data-skin="pastel"] .btn.pri:hover{filter:brightness(1.04)}
 [data-skin="pastel"] .pill.acc{background:linear-gradient(135deg, color-mix(in srgb,var(--accent) 38%,transparent), color-mix(in srgb,var(--info) 38%,transparent));color:var(--t1);border-color:transparent}
-/* 스티키 헤더 — 카드 본문과 같은 틴트/공기감을 불투명하게(78% 반투명 대신 bg와 블렌드) */
-[data-skin="pastel"] .tblx thead th{background:linear-gradient(135deg, color-mix(in srgb,var(--accent) 13%,transparent), color-mix(in srgb,var(--info) 15%,transparent)), color-mix(in srgb,var(--card) 78%,var(--bg))}
+/* 스티키 헤더 — 그라데이션 없이, 카드에 로즈·세레니티를 살짝 섞은 단일 불투명색(비침 0) */
+[data-skin="pastel"] .tblx thead th{background:color-mix(in srgb, var(--info) 8%, color-mix(in srgb, var(--accent) 6%, var(--card)))}
 [data-skin="pastel"] .tblx thead th:first-child{border-top-left-radius:18px}
 [data-skin="pastel"] .tblx thead th:last-child{border-top-right-radius:18px}
 /* 몽실몽실 — 로즈쿼츠·세레니티 구름 그라데이션 */
