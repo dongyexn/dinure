@@ -33,15 +33,15 @@
 }
 [data-theme="dark"]{
   color-scheme:dark;
-  --shell:color-mix(in srgb,#1E3A8A 8%,#000000);
-  --bg:color-mix(in srgb,#1E3A8A 5%,#0A0A0B); --panel:color-mix(in srgb,#1E3A8A 6%,#141415); --panel2:color-mix(in srgb,#1E3A8A 6%,#101011); --card:color-mix(in srgb,#1E3A8A 4%,#1D1D1F); --hov:color-mix(in srgb,#1E3A8A 5%,#27272A); --sel:color-mix(in srgb,#1E3A8A 6%,#2C2C2E); --sel2:#3A3A3C;
-  --inp:color-mix(in srgb,#1E3A8A 5%,#141415);
+  --shell:color-mix(in srgb,#1E3A8A 4%,#000000);
+  --bg:color-mix(in srgb,#1E3A8A 3%,#0A0A0B); --panel:color-mix(in srgb,#1E3A8A 3%,#141415); --panel2:color-mix(in srgb,#1E3A8A 3%,#101011); --card:color-mix(in srgb,#1E3A8A 2%,#1D1D1F); --hov:color-mix(in srgb,#1E3A8A 3%,#27272A); --sel:color-mix(in srgb,#1E3A8A 3%,#2C2C2E); --sel2:#3A3A3C;
+  --inp:color-mix(in srgb,#1E3A8A 3%,#141415);
   --bd:rgba(245,245,247,.10); --bd2:rgba(245,245,247,.16); --bd3:rgba(245,245,247,.30);
   --t1:#F5F5F7; --t2:#E8E8ED; --t3:#A1A1A6; --t4:#9A9AA0;
   --accent:#3182F6; --accent-bg:#3182F6; --accent-dim:rgba(49,130,246,.20);
   --ok:#30D158; --warn:#FF9F0A; --bad:#FF453A; --info:#7AA2FF;
   --ok-bg:rgba(48,209,88,.14); --warn-bg:rgba(255,159,10,.14); --bad-bg:rgba(255,69,58,.14); --info-bg:rgba(122,162,255,.16);
-  --chart-line:#3182F6; --chart-bar:#F5A524;
+  --chart-line:#3182F6; --chart-bar:#8A909C;
   --scrim:rgba(0,0,0,.62);
   --pop-sh:0 14px 44px rgba(0,0,0,.55), 0 0 0 1px rgba(245,245,247,.08);
   --float-sh:0 1px 2px rgba(0,0,0,.22);
@@ -50,15 +50,15 @@
 }
 [data-theme="light"]{
   color-scheme:light;
-  --shell:color-mix(in srgb,#2563EB 7%,#F5F5F7);
-  --bg:color-mix(in srgb,#2563EB 3%,#FFFFFF); --panel:color-mix(in srgb,#2563EB 6%,#F5F5F7); --panel2:color-mix(in srgb,#2563EB 6%,#F5F5F7); --card:color-mix(in srgb,#2563EB 2%,#FFFFFF); --hov:color-mix(in srgb,#2563EB 6%,#ECECF0); --sel:color-mix(in srgb,#2563EB 7%,#E2E2E7); --sel2:#D6D6DB;
-  --inp:color-mix(in srgb,#2563EB 2%,#FFFFFF);
+  --shell:color-mix(in srgb,#2563EB 4%,#F5F5F7);
+  --bg:color-mix(in srgb,#2563EB 2%,#FFFFFF); --panel:color-mix(in srgb,#2563EB 3%,#F5F5F7); --panel2:color-mix(in srgb,#2563EB 3%,#F5F5F7); --card:color-mix(in srgb,#2563EB 1%,#FFFFFF); --hov:color-mix(in srgb,#2563EB 3%,#ECECF0); --sel:color-mix(in srgb,#2563EB 4%,#E2E2E7); --sel2:#D6D6DB;
+  --inp:color-mix(in srgb,#2563EB 1%,#FFFFFF);
   --bd:rgba(29,29,31,.10); --bd2:rgba(29,29,31,.16); --bd3:rgba(29,29,31,.30);
   --t1:#1D1D1F; --t2:#424245; --t3:#57575C; --t4:#65656A;
   --accent:#3182F6; --accent-bg:#2B6FE0; --accent-dim:rgba(49,130,246,.13);
   --ok:#248A3D; --warn:#B25000; --bad:#D70015; --info:#3B82F6;
   --ok-bg:rgba(52,199,89,.13); --warn-bg:rgba(255,149,0,.13); --bad-bg:rgba(255,59,48,.10); --info-bg:rgba(59,130,246,.12);
-  --chart-line:#2B6FE0; --chart-bar:#E08A00;
+  --chart-line:#2B6FE0; --chart-bar:#9298A4;
   --scrim:rgba(29,29,31,.36);
   --pop-sh:0 14px 44px rgba(29,29,31,.16), 0 0 0 1px rgba(29,29,31,.05);
   --float-sh:0 1px 3px rgba(29,29,31,.07);
@@ -185,7 +185,7 @@ body.authed #gate{display:none}
 .note{color:var(--t4);font-size:var(--f12);line-height:1.65;display:block;margin-top:var(--s3)}
 .note b{color:var(--t3);font-weight:500}
 
-.btn{all:unset;cursor:pointer;font-size:var(--f13);font-weight:500;line-height:1;padding:8px 15px;border-radius:999px;
+.btn{all:unset;cursor:pointer;font-size:var(--f13);font-weight:500;line-height:1;padding:9px 15px 7px;border-radius:999px;
   border:1px solid var(--bd2);color:var(--t2);text-align:center;transition:background .14s,border-color .14s,color .14s;
   display:inline-flex;align-items:center;gap:6px;justify-content:center;white-space:nowrap}
 .btn svg{width:14px;height:14px}
@@ -632,13 +632,13 @@ img.av,img.art{pointer-events:none}
 [data-theme="dark"][data-skin="pastel"] .btn.pri{background:linear-gradient(135deg,#F7CAC9,#92A8D1);color:#3A2D33}
 /* 라이트 — 데이드림(핑크빛 도는 따뜻한 화이트) */
 [data-theme="light"][data-skin="pastel"]{
-  --shell:#F3E9EC;--bg:#FBF5F7;--panel:#F3E9EC;--panel2:#EFE3E8;--card:#FFFFFF;--hov:#F6EDF0;--sel:#EEDDE3;--sel2:#E3CDD6;--inp:#FFFFFF;
-  --t1:#534A57;--t2:#665C6A;--t3:#7E7484;--t4:#9A90A0;
-  --bd:rgba(83,74,87,.10);--bd2:rgba(83,74,87,.16);--bd3:rgba(83,74,87,.28);
-  --accent:#CC7E8C;--accent-bg:#CC7E8C;--accent-dim:rgba(204,126,140,.14);--info:#6E86B8;--info-bg:rgba(110,134,184,.13);
-  --ok:#5BA46B;--ok-bg:rgba(91,164,107,.13);--warn:#D69A52;--warn-bg:rgba(214,154,82,.13);--bad:#C75D74;--bad-bg:rgba(199,93,116,.10);
-  --chart-line:#CC7E8C;--chart-bar:#6E86B8}
-[data-theme="light"][data-skin="pastel"] .btn.pri{background:linear-gradient(135deg,#CC7E8C,#6E86B8);color:#fff}
+  --shell:#F3E7EB;--bg:#FBF4F6;--panel:#F1E4E9;--panel2:#ECDDE4;--card:#FFFFFF;--hov:#F5EAEE;--sel:#EBD7DF;--sel2:#DFC6D1;--inp:#FFFFFF;
+  --t1:#463D4B;--t2:#564C5A;--t3:#6E6474;--t4:#8A8090;
+  --bd:rgba(70,61,75,.12);--bd2:rgba(70,61,75,.20);--bd3:rgba(70,61,75,.34);
+  --accent:#C25D74;--accent-bg:#C25D74;--accent-dim:rgba(194,93,116,.15);--info:#4E6BB0;--info-bg:rgba(78,107,176,.14);
+  --ok:#4E9A60;--ok-bg:rgba(78,154,96,.14);--warn:#CE8C3A;--warn-bg:rgba(206,140,58,.14);--bad:#C24A66;--bad-bg:rgba(194,74,102,.11);
+  --chart-line:#C25D74;--chart-bar:#4E6BB0}
+[data-theme="light"][data-skin="pastel"] .btn.pri{background:linear-gradient(135deg,#C25D74,#4E6BB0);color:#fff}
 /* 포근포근 — 둥근 카드 + 절제된 그림자 + 창에 로즈쿼츠↔세레니티 틴트(투명) */
 [data-skin="pastel"] .card{
   border-radius:18px;
@@ -663,7 +663,7 @@ img.av,img.art{pointer-events:none}
     radial-gradient(62% 58% at 88% 90%, rgba(247,202,201,.36), transparent 64%),
     radial-gradient(58% 56% at 8% 92%,  rgba(146,168,209,.34), transparent 64%),
     radial-gradient(54% 50% at 50% 50%, rgba(214,196,224,.22), transparent 66%)}
-[data-theme="light"][data-skin="pastel"] .app::before{opacity:.82}
+[data-theme="light"][data-skin="pastel"] .app::before{opacity:.95;filter:saturate(1.3)}
 /* 창 더 투명하게 + 로즈쿼츠↔세레니티 틴트 — 그라데이션이 적극적으로 비침 */
 [data-skin="pastel"] .side{background:linear-gradient(160deg, color-mix(in srgb,var(--accent) 9%,transparent), color-mix(in srgb,var(--info) 11%,transparent)), color-mix(in srgb,var(--panel2) 80%,transparent)}
 [data-skin="pastel"] .main{background:linear-gradient(150deg, color-mix(in srgb,var(--accent) 7%,transparent), color-mix(in srgb,var(--info) 9%,transparent)), color-mix(in srgb,var(--bg) 76%,transparent)}
