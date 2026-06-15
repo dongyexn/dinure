@@ -38,7 +38,7 @@
   --inp:color-mix(in srgb,#1E3A8A 8%,#141415);
   --bd:rgba(245,245,247,.10); --bd2:rgba(245,245,247,.16); --bd3:rgba(245,245,247,.30);
   --t1:#F5F5F7; --t2:#E8E8ED; --t3:#A1A1A6; --t4:#9A9AA0;
-  --accent:#2563EB; --accent-bg:#2563EB; --accent-dim:rgba(37,99,235,.20);
+  --accent:#3182F6; --accent-bg:#3182F6; --accent-dim:rgba(49,130,246,.20);
   --ok:#30D158; --warn:#FF9F0A; --bad:#FF453A; --info:#7AA2FF;
   --ok-bg:rgba(48,209,88,.14); --warn-bg:rgba(255,159,10,.14); --bad-bg:rgba(255,69,58,.14); --info-bg:rgba(122,162,255,.16);
   --scrim:rgba(0,0,0,.62);
@@ -54,7 +54,7 @@
   --inp:color-mix(in srgb,#2563EB 2%,#FFFFFF);
   --bd:rgba(29,29,31,.10); --bd2:rgba(29,29,31,.16); --bd3:rgba(29,29,31,.30);
   --t1:#1D1D1F; --t2:#424245; --t3:#57575C; --t4:#65656A;
-  --accent:#2563EB; --accent-bg:#1D4ED8; --accent-dim:rgba(37,99,235,.13);
+  --accent:#3182F6; --accent-bg:#2B6FE0; --accent-dim:rgba(49,130,246,.13);
   --ok:#248A3D; --warn:#B25000; --bad:#D70015; --info:#3B82F6;
   --ok-bg:rgba(52,199,89,.13); --warn-bg:rgba(255,149,0,.13); --bad-bg:rgba(255,59,48,.10); --info-bg:rgba(59,130,246,.12);
   --scrim:rgba(29,29,31,.36);
@@ -593,194 +593,6 @@ img.av,img.art{pointer-events:none}
   #sheet .x{display:none}
   .tabs.full{overflow-x:auto}
 }
-/* ===================== Liquid Glass 스킨 (매트 프로스트·경량) ===================== */
-/* 설계 원칙
-   · 매트 프로스트: 광택(스펙큘러 하이라이트·대각 sheen·코너 핫스팟)을 걷어내고, 불투명한 무광 패널 +
-     아주 옅은 중성 엣지 + 부드러운 확산 그림자로 '서리 낀 유리'를 표현. 다크 모드에서 특히 무광.
-   · 경량: backdrop-filter(blur)는 '고정 크롬(사이드바·상단바)'과 '오버레이'에만. 카드/콘텐츠는 blur 없이
-     반투명 채움 + 1px 보더 + box-shadow로만 → 전부 GPU 합성, 정적. 매 프레임 블러 재계산 없음.
-   · 접근성: prefers-reduced-transparency / prefers-reduced-motion / backdrop-filter 미지원 폴백 내장. */
-
-/* 스킨 토큰 — 라이트/다크는 토큰만 덮어써서 규칙은 1벌만 유지(DRY) */
-[data-skin="glass"]{
-  --g-fill:color-mix(in srgb, var(--card) 84%, transparent);
-  --g-fill-strong:color-mix(in srgb, var(--card) 92%, transparent);
-  --g-fill-flat:color-mix(in srgb, var(--card) 72%, transparent);
-  --g-edge:rgba(255,255,255,.045);
-  --g-edge-lo:rgba(255,255,255,.008);
-  --g-edge-tint:rgba(150,205,255,.05);
-  --g-top-tint:rgba(255,255,255,.03);
-  --g-border:color-mix(in srgb,#fff 4%, transparent);
-  --g-sh-1:0 1px 2px rgba(0,0,0,.20);
-  --g-sh-2:0 6px 18px -8px rgba(0,0,0,.34);
-  --g-sh-3:0 20px 46px -26px rgba(0,0,0,.44);
-  --g-sh-hover:0 16px 38px -18px rgba(0,0,0,.46);
-  --g-sh-pop:0 34px 76px -30px rgba(0,0,0,.54);
-  --g-blur:18px;
-  --g-blur-strong:26px;
-  --g-sat:118%;
-  --g-sat-strong:124%;
-}
-
-/* 배경 — 홀로그래픽 파스텔(시안·바이올렛·핑크·민트)을 진하게 겹치고 대각 광택 띠로 '리퀴드'하게 흐르는 느낌.
-   카드 표면은 무광 유지(가독성), 배경만 홀로그래픽. 정적 그라데이션이라 합성 비용만. */
-[data-skin="glass"] .app::before{content:"";position:absolute;inset:-16%;z-index:-1;pointer-events:none;
-  background:
-    linear-gradient(106deg, transparent 20%, rgba(125,205,255,.18) 37%, transparent 53%),
-    linear-gradient(72deg,  transparent 42%, rgba(255,160,220,.16) 57%, transparent 72%),
-    linear-gradient(128deg, transparent 60%, rgba(150,240,222,.13) 73%, transparent 88%),
-    radial-gradient(48% 60% at 10% 6%,  rgba(120,205,255,.46), transparent 64%),
-    radial-gradient(54% 64% at 90% 3%,  rgba(184,150,255,.44), transparent 66%),
-    radial-gradient(60% 68% at 92% 94%, rgba(255,150,214,.38), transparent 68%),
-    radial-gradient(56% 66% at 5% 92%,  rgba(140,242,220,.34), transparent 68%),
-    radial-gradient(82% 74% at 50% 50%, rgba(155,190,255,.16), transparent 76%)}
-/* '리퀴드'한 흐름 — transform만 쓰는 합성 전용 애니메이션(메인스레드 0). 모션 선호시에만. */
-@media (prefers-reduced-motion: no-preference){
-  [data-skin="glass"] .app::before{animation:gBloom 48s ease-in-out infinite alternate;will-change:transform}
-}
-@keyframes gBloom{
-  0%{transform:translate3d(0,0,0) scale(1.06) rotate(0deg)}
-  50%{transform:translate3d(-3%,2%,0) scale(1.14) rotate(2.2deg)}
-  100%{transform:translate3d(2.6%,-1.8%,0) scale(1.08) rotate(-1.6deg)}
-}
-
-/* 공통 무광 유리 질감: 불투명한 반투명 채움 + 아주 옅은 상단 톤 + 1px 보더 + 부드러운 깊이 그림자
-   (광택 그라데이션 없음, blur 없음 — 카드에는 backdrop-filter 미적용) */
-[data-skin="glass"] .side,
-[data-skin="glass"] .topbar,
-[data-skin="glass"] .card,
-[data-skin="glass"] .linkcard,
-[data-skin="glass"] #sheet,
-[data-skin="glass"] #dlg .dbox,
-[data-skin="glass"] .gatecard{
-  position:relative;
-  background-color:var(--g-fill);
-  background-image:linear-gradient(180deg, var(--g-top-tint), transparent 40%);
-  background-repeat:no-repeat;
-  border:1px solid var(--g-border);
-  box-shadow:var(--g-sh-1), var(--g-sh-2), var(--g-sh-3);
-  transition:box-shadow .34s var(--ease), transform .34s var(--ease), background-color .34s var(--ease)}
-
-/* 무광 엣지 — 둥근 모서리를 따라 흐릿하게 도는 1px 중성 하이라이트(스펙큘러 아님) + 끝에 옅은 오로라 틴트. 마스킹된 보더 링, 경량. */
-[data-skin="glass"] .side::after,
-[data-skin="glass"] .card::after,
-[data-skin="glass"] .linkcard::after,
-[data-skin="glass"] #sheet::after,
-[data-skin="glass"] #dlg .dbox::after,
-[data-skin="glass"] .gatecard::after{
-  content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;z-index:1;
-  background:linear-gradient(162deg, var(--g-edge) 0%, var(--g-edge-lo) 36%, transparent 66%, var(--g-edge-tint) 100%);
-  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite:xor;
-          mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-          mask-composite:exclude}
-
-/* 고정 크롬 — 뒤 블룸을 머금는 가벼운 블러(채도는 무광이라 낮게) */
-[data-skin="glass"] .side,
-[data-skin="glass"] .topbar{
-  -webkit-backdrop-filter:blur(var(--g-blur)) saturate(var(--g-sat));backdrop-filter:blur(var(--g-blur)) saturate(var(--g-sat))}
-[data-skin="glass"] .main{background:color-mix(in srgb, var(--bg) 42%, transparent)}
-/* 상단바 — 가장자리 바라서 풀 링 대신 하단 헤어라인만(무광이라 상단 광택 없음) */
-[data-skin="glass"] .topbar{
-  background-color:color-mix(in srgb, var(--card) 72%, transparent);
-  background-image:none;
-  border:none;
-  box-shadow:inset 0 -1px 0 var(--bd)}
-
-/* 콘텐츠 위로 뜨는 오버레이 — 무광 채움이 거의 불투명이라 라이브 백드롭 블러는 보이지도 않으면서
-   매 프레임 재계산돼 열림 애니메이션을 뚝 끊었음. 블러를 빼 기본 스킨처럼 즉시 부드럽게 재생되게 함. */
-[data-skin="glass"] #sheet,
-[data-skin="glass"] #dlg .dbox,
-[data-skin="glass"] .gatecard{
-  background-color:color-mix(in srgb, var(--card) 96%, transparent);
-  box-shadow:0 2px 10px rgba(0,0,0,.26), var(--g-sh-pop)}
-
-/* 카드 호버 — 레이아웃 카드(테이블 컨테이너 등)는 호버에 전혀 반응하지 않음(요청: 행만 반응, 전체 X).
-   호버 반응은 KPI(확대+그림자)와 앨범아트(아트 영역만 확대), 테이블 '행'(.trow/.prow 등)에만. */
-[data-skin="glass"] .kpi:hover{
-  box-shadow:var(--g-sh-1), var(--g-sh-2), var(--g-sh-hover)}
-[data-skin="glass"] .kpi:hover::after{
-  --g-edge:rgba(255,255,255,.11)}
-
-[data-skin="glass"] .card.flat{background-color:var(--g-fill-flat)}
-
-/* 입력 요소 — 무광 유리(::after 링은 폼 요소에서 비신뢰라 제외, 내부 하이라이트 없이 평평하게) */
-[data-skin="glass"] input,
-[data-skin="glass"] select,
-[data-skin="glass"] textarea,
-[data-skin="glass"] .search{
-  background-color:color-mix(in srgb, var(--inp) 80%, transparent);
-  border-color:color-mix(in srgb,#fff 8%,transparent);
-  box-shadow:none}
-[data-skin="glass"] input:focus,
-[data-skin="glass"] select:focus,
-[data-skin="glass"] textarea:focus,
-[data-skin="glass"] .search:focus-within{border-color:color-mix(in srgb,var(--accent) 50%,transparent)}
-
-/* 다크 모드 글래스 — '트와일라잇 오로라': 베이스를 순흑에서 깊은 인디고로 올려 라이트처럼 오로라 느낌을 주고,
-   카드는 엣지·상단 광택을 더 죽여 매트하게(가독성 유지). */
-[data-theme="dark"][data-skin="glass"]{
-  --shell:#0a1020;
-  --bg:#0e1628; --panel:#131d33; --panel2:#0f1830; --card:#172139; --hov:#1f2a47; --sel:#253250; --sel2:#2f3d5e;
-  --inp:#131d33;
-  --g-fill:color-mix(in srgb, var(--card) 86%, transparent);
-  --g-fill-strong:color-mix(in srgb, var(--card) 93%, transparent);
-  --g-fill-flat:color-mix(in srgb, var(--card) 76%, transparent);
-  --g-edge:rgba(255,255,255,.03);
-  --g-edge-lo:rgba(255,255,255,.006);
-  --g-edge-tint:rgba(150,205,255,.04);
-  --g-top-tint:rgba(255,255,255,.012);
-  --g-border:color-mix(in srgb,#fff 5%, transparent)}
-
-/* 라이트 모드 글래스 — 서리 낀 흰 유리(저광택). 토큰만 덮어쓰면 위 규칙이 그대로 재사용됨. */
-[data-theme="light"][data-skin="glass"]{
-  --g-fill:color-mix(in srgb,#fff 82%, transparent);
-  --g-fill-strong:color-mix(in srgb,#fff 92%, transparent);
-  --g-fill-flat:color-mix(in srgb,#fff 70%, transparent);
-  --g-edge:rgba(255,255,255,.42);
-  --g-edge-lo:rgba(255,255,255,.15);
-  --g-edge-tint:rgba(120,180,255,.10);
-  --g-top-tint:rgba(255,255,255,.40);
-  --g-border:color-mix(in srgb, var(--bd2) 40%, transparent);
-  --g-sh-1:0 1px 2px rgba(20,28,54,.05);
-  --g-sh-2:0 6px 16px -8px rgba(20,28,54,.10);
-  --g-sh-3:0 20px 44px -24px rgba(20,28,54,.14);
-  --g-sh-hover:0 16px 36px -18px rgba(20,28,54,.16);
-  --g-sh-pop:0 34px 74px -32px rgba(20,28,54,.20);
-  --g-sat:112%;
-  --g-sat-strong:118%}
-[data-theme="light"][data-skin="glass"] .app::before{
-  background:
-    linear-gradient(106deg, transparent 20%, rgba(120,200,255,.24) 37%, transparent 53%),
-    linear-gradient(72deg,  transparent 42%, rgba(255,165,222,.22) 57%, transparent 72%),
-    linear-gradient(128deg, transparent 60%, rgba(150,240,222,.17) 73%, transparent 88%),
-    radial-gradient(48% 60% at 10% 6%,  rgba(120,200,255,.42), transparent 64%),
-    radial-gradient(54% 64% at 90% 3%,  rgba(192,165,255,.40), transparent 66%),
-    radial-gradient(60% 68% at 92% 94%, rgba(255,170,222,.34), transparent 68%),
-    radial-gradient(56% 66% at 5% 92%,  rgba(150,240,222,.32), transparent 68%)}
-[data-theme="light"][data-skin="glass"] .topbar{
-  background-color:color-mix(in srgb,#fff 72%, transparent);
-  box-shadow:inset 0 -1px 0 var(--bd)}
-
-/* 폴백 1 — backdrop-filter 미지원 브라우저: 크롬·오버레이를 더 불투명하게 */
-@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
-  [data-skin="glass"] .side,[data-skin="glass"] .topbar,
-  [data-skin="glass"] #sheet,[data-skin="glass"] #dlg .dbox,[data-skin="glass"] .gatecard{
-    background-color:color-mix(in srgb, var(--card) 94%, transparent)}
-}
-/* 폴백 2 — 투명도 감소 선호(접근성·저사양): 블러·엣지·블룸 제거, 불투명 처리 */
-@media (prefers-reduced-transparency: reduce){
-  [data-skin="glass"] .side,[data-skin="glass"] .topbar,[data-skin="glass"] .card,
-  [data-skin="glass"] .linkcard,[data-skin="glass"] #sheet,[data-skin="glass"] #dlg .dbox,[data-skin="glass"] .gatecard{
-    -webkit-backdrop-filter:none;backdrop-filter:none;background-color:var(--card);background-image:none}
-  [data-skin="glass"] .side::after,[data-skin="glass"] .card::after,[data-skin="glass"] .linkcard::after,
-  [data-skin="glass"] #sheet::after,[data-skin="glass"] #dlg .dbox::after,[data-skin="glass"] .gatecard::after{display:none}
-  [data-skin="glass"] .app::before{display:none}
-}
-/* 모바일(≤920px)에서 사이드바는 오프캔버스 고정이라 position 복원(렌즈 엣지는 그대로 동작) */
-@media (max-width:920px){
-  [data-skin="glass"] .side{position:fixed}
-}
 
 /* ===================== Spotify 톤 스킨 ===================== */
 [data-skin="spotify"]{
@@ -796,23 +608,33 @@ img.av,img.art{pointer-events:none}
 [data-skin="spotify"] .btn.pri:hover{filter:none;transform:scale(1.03)}
 [data-skin="spotify"] .pill.acc,[data-skin="spotify"] .pill.ok{color:#000}
 
-/* ===================== Instagram 톤 스킨 ===================== */
-[data-skin="instagram"]{
-  --accent:#E1306C;--accent-bg:#E1306C;--accent-dim:rgba(225,48,108,.18);--info:#C13584;--info-bg:rgba(193,53,132,.15);
-  --logo-grad:linear-gradient(45deg,#F77737,#E1306C 45%,#C13584,#833AB4 80%,#5851DB)}
-/* 라이트 — 인스타그램 기본(화이트, 중성 회색 보더) */
-[data-theme="light"][data-skin="instagram"]{
-  --shell:#FAFAFA;--bg:#FFFFFF;--panel:#FAFAFA;--panel2:#FAFAFA;--card:#FFFFFF;--hov:#F2F2F2;--sel:#EFEFEF;--sel2:#E4E4E4;--inp:#FFFFFF;
-  --t1:#262626;--t2:#3A3A3A;--t3:#737373;--t4:#A8A8A8;
-  --bd:#DBDBDB;--bd2:#C7C7C7;--bd3:#A8A8A8}
-/* 다크 — 인스타그램 다크모드(니어블랙) */
-[data-theme="dark"][data-skin="instagram"]{
-  --shell:#000000;--bg:#000000;--panel:#121212;--panel2:#0A0A0A;--card:#161616;--hov:#1F1F1F;--sel:#262626;--sel2:#363636;--inp:#1A1A1A;
-  --t1:#FFFFFF;--t2:#EDEDED;--t3:#A8A8A8;--t4:#737373;
-  --bd:rgba(255,255,255,.10);--bd2:rgba(255,255,255,.16);--bd3:rgba(255,255,255,.28)}
-[data-skin="instagram"] .card{border-radius:14px}
-[data-skin="instagram"] .btn.pri{background:linear-gradient(to right,#F58529 0%,#DD2A7B 38%,#C13584 60%,#8134AF 80%,#515BD4 100%);border-color:transparent;color:#fff;font-weight:600}
-[data-skin="instagram"] .btn.pri:hover{filter:brightness(1.06)}
+/* ===================== 기본(토스 톤) — 액센트는 :root에서 토스 블루로 이동, 여기선 형태만 보강 ===================== */
+[data-skin="default"] .card{border-radius:var(--rad-l)}
+[data-skin="default"] .btn.pri{font-weight:600;transition:background .14s,border-color .14s,color .14s,transform .12s var(--ease-soft)}
+[data-skin="default"] .btn.pri:active{transform:scale(.97)}
+
+/* ===================== Pastel 톤 스킨 (Catppuccin — Mocha/Latte) ===================== */
+[data-skin="pastel"]{
+  --logo-grad:linear-gradient(140deg,#b4befe 0%,#cba6f7 50%,#f5c2e7 100%)}
+/* 다크 — Mocha(살짝 보라빛 도는 딥 베이스 + 파스텔 액센트) */
+[data-theme="dark"][data-skin="pastel"]{
+  --shell:#181825;--bg:#1e1e2e;--panel:#181825;--panel2:#11111b;--card:#1e1e2e;--hov:#313244;--sel:#45475a;--sel2:#585b70;--inp:#181825;
+  --t1:#cdd6f4;--t2:#bac2de;--t3:#a6adc8;--t4:#7f849c;
+  --bd:rgba(205,214,244,.09);--bd2:rgba(205,214,244,.15);--bd3:rgba(205,214,244,.28);
+  --accent:#cba6f7;--accent-bg:#cba6f7;--accent-dim:rgba(203,166,247,.18);--info:#89b4fa;--info-bg:rgba(137,180,250,.16);
+  --ok:#a6e3a1;--ok-bg:rgba(166,227,161,.16);--warn:#fab387;--warn-bg:rgba(250,179,135,.16);--bad:#f38ba8;--bad-bg:rgba(243,139,168,.16)}
+[data-theme="dark"][data-skin="pastel"] .btn.pri{color:#11111b}
+/* 라이트 — Latte(밝은 라벤더 베이스 + 채도 높인 액센트) */
+[data-theme="light"][data-skin="pastel"]{
+  --shell:#e6e9ef;--bg:#eff1f5;--panel:#e6e9ef;--panel2:#dce0e8;--card:#ffffff;--hov:#e6e9ef;--sel:#ccd0da;--sel2:#bcc0cc;--inp:#ffffff;
+  --t1:#4c4f69;--t2:#5c5f77;--t3:#6c6f85;--t4:#8c8fa1;
+  --bd:rgba(76,79,105,.10);--bd2:rgba(76,79,105,.16);--bd3:rgba(76,79,105,.28);
+  --accent:#8839ef;--accent-bg:#8839ef;--accent-dim:rgba(136,57,239,.13);--info:#1e66f5;--info-bg:rgba(30,102,245,.12);
+  --ok:#40a02b;--ok-bg:rgba(64,160,43,.13);--warn:#df8e1d;--warn-bg:rgba(223,142,29,.13);--bad:#d20f39;--bad-bg:rgba(210,15,57,.10)}
+[data-theme="light"][data-skin="pastel"] .btn.pri{color:#fff}
+[data-skin="pastel"] .card{border-radius:14px}
+[data-skin="pastel"] .btn.pri{background:var(--accent);border-color:transparent;font-weight:600}
+[data-skin="pastel"] .btn.pri:hover{filter:brightness(1.05)}
 </style>
 <!-- glass-skin-end -->
 </head>
@@ -1326,9 +1148,10 @@ const saveExpenses=()=>Store.set('expenses',S.expenses,who());
 const saveNavcfg=()=>Store.set('navcfg',S.navcfg,who());
 const saveLinkcfg=()=>Store.set('linkcfg',S.linkcfg,who());
 /* 화면 모드 — 다크/라이트 + 스킨. 컬러는 네이비를 기본으로 CSS에 내장. */
-const SKINS=[{k:'default',name:'기본'},{k:'glass',name:'글래스'},{k:'spotify',name:'스포티파이'},{k:'instagram',name:'인스타그램'}];
+const SKINS=[{k:'default',name:'기본'},{k:'spotify',name:'스포티파이'},{k:'pastel',name:'파스텔'}];
 function applyTheme(){
   const dark=S.theme==='dark';
+  if(!SKINS.some(s=>s.k===S.skin)) S.skin='default';
   document.documentElement.setAttribute('data-theme',dark?'dark':'light');
   document.documentElement.setAttribute('data-skin',S.skin||'default');
   document.documentElement.style.colorScheme=dark?'dark':'light';
