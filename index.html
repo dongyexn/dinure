@@ -15,6 +15,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" media="print" onload="this.media='all'">
 <!-- Syncopate: @import는 렌더를 막으므로 비동기 link로 로드 -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&display=swap" media="print" onload="this.media='all'">
+<!-- Maple 스킨용 둥근 한글체(공식 Maplestory 폰트 미설치 시 폴백) -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Do+Hyeon&display=swap" media="print" onload="this.media='all'">
 <style>
 /* Pretendard FOUT 방지: 캐시에 없으면 교체하지 않고 fallback 유지 */
 @font-face{font-family:"Pretendard Variable";font-display:optional}
@@ -33,14 +35,15 @@
 }
 [data-theme="dark"]{
   color-scheme:dark;
-  --shell:color-mix(in srgb,#1E3A8A 12%,#000000);
-  --bg:color-mix(in srgb,#1E3A8A 8%,#0A0A0B); --panel:color-mix(in srgb,#1E3A8A 9%,#141415); --panel2:color-mix(in srgb,#1E3A8A 9%,#101011); --card:color-mix(in srgb,#1E3A8A 6%,#1D1D1F); --hov:color-mix(in srgb,#1E3A8A 8%,#27272A); --sel:color-mix(in srgb,#1E3A8A 9%,#2C2C2E); --sel2:#3A3A3C;
-  --inp:color-mix(in srgb,#1E3A8A 8%,#141415);
+  --shell:color-mix(in srgb,#1E3A8A 8%,#000000);
+  --bg:color-mix(in srgb,#1E3A8A 5%,#0A0A0B); --panel:color-mix(in srgb,#1E3A8A 6%,#141415); --panel2:color-mix(in srgb,#1E3A8A 6%,#101011); --card:color-mix(in srgb,#1E3A8A 4%,#1D1D1F); --hov:color-mix(in srgb,#1E3A8A 5%,#27272A); --sel:color-mix(in srgb,#1E3A8A 6%,#2C2C2E); --sel2:#3A3A3C;
+  --inp:color-mix(in srgb,#1E3A8A 5%,#141415);
   --bd:rgba(245,245,247,.10); --bd2:rgba(245,245,247,.16); --bd3:rgba(245,245,247,.30);
   --t1:#F5F5F7; --t2:#E8E8ED; --t3:#A1A1A6; --t4:#9A9AA0;
   --accent:#3182F6; --accent-bg:#3182F6; --accent-dim:rgba(49,130,246,.20);
   --ok:#30D158; --warn:#FF9F0A; --bad:#FF453A; --info:#7AA2FF;
   --ok-bg:rgba(48,209,88,.14); --warn-bg:rgba(255,159,10,.14); --bad-bg:rgba(255,69,58,.14); --info-bg:rgba(122,162,255,.16);
+  --chart-line:#3182F6; --chart-bar:#F5A524;
   --scrim:rgba(0,0,0,.62);
   --pop-sh:0 14px 44px rgba(0,0,0,.55), 0 0 0 1px rgba(245,245,247,.08);
   --float-sh:0 1px 2px rgba(0,0,0,.22);
@@ -57,6 +60,7 @@
   --accent:#3182F6; --accent-bg:#2B6FE0; --accent-dim:rgba(49,130,246,.13);
   --ok:#248A3D; --warn:#B25000; --bad:#D70015; --info:#3B82F6;
   --ok-bg:rgba(52,199,89,.13); --warn-bg:rgba(255,149,0,.13); --bad-bg:rgba(255,59,48,.10); --info-bg:rgba(59,130,246,.12);
+  --chart-line:#2B6FE0; --chart-bar:#E08A00;
   --scrim:rgba(29,29,31,.36);
   --pop-sh:0 14px 44px rgba(29,29,31,.16), 0 0 0 1px rgba(29,29,31,.05);
   --float-sh:0 1px 3px rgba(29,29,31,.07);
@@ -600,7 +604,8 @@ img.av,img.art{pointer-events:none}
   --shell:#000000;--bg:#121212;--panel:#181818;--panel2:#0B0B0B;--card:#181818;--hov:#242424;--sel:#2A2A2A;--sel2:#3A3A3A;--inp:#2A2A2A;
   --t1:#FFFFFF;--t2:#E6E6E6;--t3:#B3B3B3;--t4:#7E7E7E;
   --bd:rgba(255,255,255,.07);--bd2:rgba(255,255,255,.13);--bd3:rgba(255,255,255,.26);
-  --ok:#1DB954;--ok-bg:rgba(29,185,84,.16);--logo-grad:linear-gradient(140deg,#1ED760,#1DB954 60%,#12833B)}
+  --ok:#1DB954;--ok-bg:rgba(29,185,84,.16);--logo-grad:linear-gradient(140deg,#1ED760,#1DB954 60%,#12833B);
+  --chart-line:#1DB954;--chart-bar:#8A8A8E}
 [data-skin="spotify"] .card{border-radius:14px;border-color:transparent;background:#181818}
 [data-skin="spotify"] .card.flat{background:#161616}
 [data-skin="spotify"] .kpi:hover,[data-skin="spotify"] .card:not(.tblx):hover{background:#1F1F1F}
@@ -622,7 +627,8 @@ img.av,img.art{pointer-events:none}
   --t1:#cdd6f4;--t2:#bac2de;--t3:#a6adc8;--t4:#7f849c;
   --bd:rgba(205,214,244,.09);--bd2:rgba(205,214,244,.15);--bd3:rgba(205,214,244,.28);
   --accent:#cba6f7;--accent-bg:#cba6f7;--accent-dim:rgba(203,166,247,.18);--info:#89b4fa;--info-bg:rgba(137,180,250,.16);
-  --ok:#a6e3a1;--ok-bg:rgba(166,227,161,.16);--warn:#fab387;--warn-bg:rgba(250,179,135,.16);--bad:#f38ba8;--bad-bg:rgba(243,139,168,.16)}
+  --ok:#a6e3a1;--ok-bg:rgba(166,227,161,.16);--warn:#fab387;--warn-bg:rgba(250,179,135,.16);--bad:#f38ba8;--bad-bg:rgba(243,139,168,.16);
+  --chart-line:#cba6f7;--chart-bar:#89b4fa}
 [data-theme="dark"][data-skin="pastel"] .btn.pri{color:#11111b}
 /* 라이트 — Latte(밝은 라벤더 베이스 + 채도 높인 액센트) */
 [data-theme="light"][data-skin="pastel"]{
@@ -630,11 +636,92 @@ img.av,img.art{pointer-events:none}
   --t1:#4c4f69;--t2:#5c5f77;--t3:#6c6f85;--t4:#8c8fa1;
   --bd:rgba(76,79,105,.10);--bd2:rgba(76,79,105,.16);--bd3:rgba(76,79,105,.28);
   --accent:#8839ef;--accent-bg:#8839ef;--accent-dim:rgba(136,57,239,.13);--info:#1e66f5;--info-bg:rgba(30,102,245,.12);
-  --ok:#40a02b;--ok-bg:rgba(64,160,43,.13);--warn:#df8e1d;--warn-bg:rgba(223,142,29,.13);--bad:#d20f39;--bad-bg:rgba(210,15,57,.10)}
+  --ok:#40a02b;--ok-bg:rgba(64,160,43,.13);--warn:#df8e1d;--warn-bg:rgba(223,142,29,.13);--bad:#d20f39;--bad-bg:rgba(210,15,57,.10);
+  --chart-line:#8839ef;--chart-bar:#1e66f5}
 [data-theme="light"][data-skin="pastel"] .btn.pri{color:#fff}
 [data-skin="pastel"] .card{border-radius:14px}
 [data-skin="pastel"] .btn.pri{background:var(--accent);border-color:transparent;font-weight:600}
 [data-skin="pastel"] .btn.pri:hover{filter:brightness(1.05)}
+/* 크래용 질감 — 전부 정적 레이어(backdrop-filter·라이브 filter·애니메이션 0, 매 프레임 재계산 없음)
+   ① ::before 그라데이션 블롭(앱 배경)  ② 패널 살짝 반투명 → 블롭이 은은히 배어나옴  ③ 카드·본문 표면에 노이즈를 1회 블렌드한 종이 결 */
+[data-skin="pastel"] .app::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(60% 50% at 12% 8%,  rgba(180,190,254,.20), transparent 60%),
+    radial-gradient(55% 50% at 88% 6%,  rgba(203,166,247,.18), transparent 62%),
+    radial-gradient(62% 55% at 90% 92%, rgba(245,194,231,.16), transparent 62%),
+    radial-gradient(55% 55% at 6% 94%,  rgba(137,180,250,.14), transparent 62%)}
+[data-skin="pastel"] .side{background:color-mix(in srgb,var(--panel2) 90%,transparent)}
+[data-skin="pastel"] .main{
+  background-color:color-mix(in srgb,var(--bg) 90%,transparent);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3Crect width='100%25' height='100%25' fill='%237f7f7f' opacity='0.55'/%3E%3C/svg%3E");
+  background-size:170px 170px;background-blend-mode:soft-light}
+[data-skin="pastel"] .card{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3Crect width='100%25' height='100%25' fill='%237f7f7f' opacity='0.55'/%3E%3C/svg%3E");
+  background-size:170px 170px;background-blend-mode:soft-light}
+/* 접근성 — 투명도 감소 선호 시 종이 결 제거 */
+@media (prefers-reduced-transparency: reduce){
+  [data-skin="pastel"] .main,[data-skin="pastel"] .card{background-image:none}}
+
+/* ===================== MapleStory 톤 스킨 (빅뱅 이전 클래식 · 헤네시스) =====================
+   다크 = 헤네시스 밤(짙은 남색 하늘 + 달 + 별 + 어두운 능선), 라이트 = 헤네시스 낮(하늘색 + 구름 + 잔디 능선).
+   배경 풍경은 전부 정적 CSS 그라데이션(애니메이션·blur·라이브 filter 0 → 무부하). 게임 스프라이트는 사용하지 않고 색·UI 베벨·풍경 분위기만 차용. */
+[data-skin="maple"]{
+  --font:'Maplestory','메이플스토리','Jua','Apple SD Gothic Neo',Pretendard,system-ui,sans-serif}
+/* 다크 — 헤네시스 밤 */
+[data-theme="dark"][data-skin="maple"]{
+  --shell:#0E1A30;--bg:#14223A;--panel:#1A2A44;--panel2:#0F1C33;--card:#1B2B46;--hov:#243657;--sel:#2C4063;--sel2:#3A5078;--inp:#16263F;
+  --t1:#F4EEE2;--t2:#D9D2C2;--t3:#A9B0C0;--t4:#7E8AA0;
+  --bd:rgba(240,235,220,.10);--bd2:rgba(240,235,220,.17);--bd3:rgba(240,235,220,.30);
+  --accent:#F7941E;--accent-bg:#F7941E;--accent-dim:rgba(247,148,30,.20);--info:#5FA8E0;--info-bg:rgba(95,168,224,.16);
+  --ok:#7CB342;--ok-bg:rgba(124,179,66,.16);--warn:#FFB300;--warn-bg:rgba(255,179,0,.16);--bad:#E85B5B;--bad-bg:rgba(232,91,91,.16);
+  --chart-line:#F7941E;--chart-bar:#7CB342;
+  --logo-grad:linear-gradient(140deg,#FFC34D,#F7941E 55%,#E06A12)}
+[data-theme="dark"][data-skin="maple"] .app::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(8px 8px at 18% 22%, rgba(255,255,255,.7), transparent 60%),
+    radial-gradient(6px 6px at 62% 14%, rgba(255,255,255,.5), transparent 60%),
+    radial-gradient(5px 5px at 82% 28%, rgba(255,255,255,.6), transparent 60%),
+    radial-gradient(7px 7px at 35% 12%, rgba(255,255,255,.45), transparent 60%),
+    radial-gradient(120px 120px at 86% 12%, rgba(255,246,214,.30), transparent 64%),
+    radial-gradient(140% 70% at 30% 118%, #16301D 0 40%, transparent 72%),
+    radial-gradient(150% 66% at 78% 122%, #1E3A24 0 42%, transparent 74%),
+    linear-gradient(180deg, #0B1626 0%, #122440 60%, #16335A 100%)}
+/* 라이트 — 헤네시스 낮 */
+[data-theme="light"][data-skin="maple"]{
+  --shell:#BDE3F2;--bg:#EAF6FB;--panel:#DCEFF7;--panel2:#CFE8F3;--card:#FFFFFF;--hov:#E3F1F8;--sel:#D2E9F4;--sel2:#BFDEED;--inp:#FFFFFF;
+  --t1:#33271F;--t2:#4A3B30;--t3:#6B5B4E;--t4:#8A7B6E;
+  --bd:rgba(80,60,40,.14);--bd2:rgba(80,60,40,.21);--bd3:rgba(80,60,40,.34);
+  --accent:#E97C0E;--accent-bg:#E97C0E;--accent-dim:rgba(233,124,14,.14);--info:#1E78C8;--info-bg:rgba(30,120,200,.12);
+  --ok:#558B2F;--ok-bg:rgba(85,139,47,.13);--warn:#E08600;--warn-bg:rgba(224,134,0,.13);--bad:#C62828;--bad-bg:rgba(198,40,40,.10);
+  --chart-line:#E97C0E;--chart-bar:#6BA832;
+  --logo-grad:linear-gradient(140deg,#FFB94D,#E97C0E 55%,#C85E0A)}
+[data-theme="light"][data-skin="maple"] .app::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(90px 36px at 22% 20%, rgba(255,255,255,.9), transparent 70%),
+    radial-gradient(70px 28px at 30% 24%, rgba(255,255,255,.85), transparent 72%),
+    radial-gradient(110px 40px at 72% 16%, rgba(255,255,255,.88), transparent 70%),
+    radial-gradient(130px 130px at 88% 10%, rgba(255,250,210,.55), transparent 66%),
+    radial-gradient(150% 70% at 28% 120%, #8BC34A 0 42%, transparent 72%),
+    radial-gradient(160% 66% at 80% 124%, #7CB342 0 44%, transparent 74%),
+    linear-gradient(180deg, #CDEAF6 0%, #E7F6FB 58%, #EAF6FB 100%)}
+/* 공통 — 풍경이 은은히 배어나오게 패널 살짝 반투명(블러 없음) + 클래식 메이플 UI 창 베벨 */
+[data-skin="maple"] .side{background:color-mix(in srgb,var(--panel2) 88%,transparent)}
+[data-skin="maple"] .main{background:color-mix(in srgb,var(--bg) 86%,transparent)}
+[data-skin="maple"] .card{
+  border-radius:12px;border:1.5px solid var(--bd2);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14), 0 2px 7px rgba(0,0,0,.16)}
+[data-theme="light"][data-skin="maple"] .card{box-shadow:inset 0 1px 0 rgba(255,255,255,.7), 0 2px 7px rgba(80,60,40,.12)}
+/* 청키 오렌지 버튼(베벨) */
+[data-skin="maple"] .btn.pri{
+  background:linear-gradient(180deg,#FFB54D,var(--accent) 55%,#D9710F);
+  border:1.5px solid rgba(0,0,0,.18);color:#3A2410;font-weight:700;border-radius:10px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45), 0 2px 0 rgba(0,0,0,.16);
+  transition:filter .14s,transform .1s,box-shadow .1s}
+[data-skin="maple"] .btn.pri:hover{filter:brightness(1.05)}
+[data-skin="maple"] .btn.pri:active{transform:translateY(1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
 </style>
 <!-- glass-skin-end -->
 </head>
@@ -1148,7 +1235,7 @@ const saveExpenses=()=>Store.set('expenses',S.expenses,who());
 const saveNavcfg=()=>Store.set('navcfg',S.navcfg,who());
 const saveLinkcfg=()=>Store.set('linkcfg',S.linkcfg,who());
 /* 화면 모드 — 다크/라이트 + 스킨. 컬러는 네이비를 기본으로 CSS에 내장. */
-const SKINS=[{k:'default',name:'기본'},{k:'spotify',name:'스포티파이'},{k:'pastel',name:'파스텔'}];
+const SKINS=[{k:'default',name:'기본'},{k:'spotify',name:'스포티파이'},{k:'pastel',name:'파스텔'},{k:'maple',name:'메이플스토리'}];
 function applyTheme(){
   const dark=S.theme==='dark';
   if(!SKINS.some(s=>s.k===S.skin)) S.skin='default';
@@ -2020,7 +2107,7 @@ function renderDash(v){
   Object.entries(ch).sort((a,b)=>b[1].n-a[1].n).forEach(([k,d])=>{h+=`<tr class="hovr"><td><span class="pill ${k.includes('DCM')?'info':'acc'}">${esc(k)}</span></td><td class="r num mut2">${d.c.toLocaleString()}</td><td class="r num mut">${won(d.g)}</td><td class="r num">${won(d.n)}</td><td class="r num mut">${pctf(d.n/L.net*100)}</td></tr>`;});
   h+='</tbody></table>';ct.innerHTML=h;v.appendChild(ct);
 
-  v.appendChild(secH('수익 추이','전 기간 · KRW 환산 · 막대 = 월별(좌축 · 파랑) · 선 = 누계(우축 · 주황) · 그래프에 올리면 상세'));
+  v.appendChild(secH('수익 추이','전 기간 · KRW 환산 · 막대 = 월별(좌축) · 선 = 누계(우축) · 그래프에 올리면 상세'));
   const by={};ALLTX.forEach(t=>{if(!t.ym)return;by[t.ym]=(by[t.ym]||0)+txNetKRW(t);});
   const months=Object.keys(by).sort();
   const mvals=months.map(m=>by[m]);
@@ -2050,15 +2137,15 @@ function trendCard(labels,cum,monthly){
   let grid='';
   [0,.25,.5,.75,1].forEach(f=>{const yy=Yf(f);
     grid+=`<line x1="${padL}" y1="${yy.toFixed(1)}" x2="${W-padR}" y2="${yy.toFixed(1)}" stroke="var(--bd)" ${f>0&&f<1?'stroke-dasharray="2 4"':''}/>
-      <text x="${padL-7}" y="${(yy+3.2).toFixed(1)}" text-anchor="end" fill="var(--info)" font-size="8">${kfmt(mMax*f)}</text>
-      <text x="${W-padR+7}" y="${(yy+3.2).toFixed(1)}" text-anchor="start" fill="var(--warn)" font-size="8">${kfmt(cMax*f)}</text>`;});
+      <text x="${padL-7}" y="${(yy+3.2).toFixed(1)}" text-anchor="end" fill="var(--chart-bar)" font-size="8">${kfmt(mMax*f)}</text>
+      <text x="${W-padR+7}" y="${(yy+3.2).toFixed(1)}" text-anchor="start" fill="var(--chart-line)" font-size="8">${kfmt(cMax*f)}</text>`;});
   // 막대(월별) + 선(누계) + 포인트 + 연도 경계 + x 라벨
   let bars='',dots='',xlab='',dpath='';
   monthly.forEach((mv,i)=>{
     const cxC=cxOf(i),yTop=Yb(mv),bh=Math.max(0,(H-padB)-yTop);
-    bars+=`<rect class="mbar" x="${(cxC-bw/2).toFixed(1)}" y="${yTop.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="2" fill="var(--info)" opacity=".5"/>`;
+    bars+=`<rect class="mbar" x="${(cxC-bw/2).toFixed(1)}" y="${yTop.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="2" fill="var(--chart-bar)" opacity=".5"/>`;
     dpath+=(i?'L':'M')+cxC.toFixed(1)+' '+Yc(cum[i]).toFixed(1)+' ';
-    dots+=`<circle cx="${cxC.toFixed(1)}" cy="${Yc(cum[i]).toFixed(1)}" r="2" fill="var(--warn)" opacity=".85"/>`;
+    dots+=`<circle cx="${cxC.toFixed(1)}" cy="${Yc(cum[i]).toFixed(1)}" r="2" fill="var(--chart-line)" opacity=".85"/>`;
     if(i>0&&labels[i].slice(0,4)!==labels[i-1].slice(0,4))
       xlab+=`<line x1="${(padL+band*i).toFixed(1)}" y1="${padT}" x2="${(padL+band*i).toFixed(1)}" y2="${H-padB}" stroke="var(--bd)" stroke-dasharray="2 4"/>`;
     const every=n<=14?1:n<=30?3:6;
@@ -2067,14 +2154,14 @@ function trendCard(labels,cum,monthly){
   });
   let lastMk='';
   if(n){const lx=cxOf(n-1),ly=Yc(cum[n-1]);
-    lastMk=`<circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="3.5" fill="var(--card)" stroke="var(--warn)" stroke-width="2"/>`;}
+    lastMk=`<circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="3.5" fill="var(--card)" stroke="var(--chart-line)" stroke-width="2"/>`;}
   c.innerHTML=`<div class="chartwrap">
     <svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block" preserveAspectRatio="xMidYMid meet">
       ${grid}${xlab}${bars}
-      <path d="${dpath}" fill="none" stroke="var(--warn)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="${dpath}" fill="none" stroke="var(--chart-line)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
       ${dots}${lastMk}
       <line class="cx" x1="0" y1="${padT}" x2="0" y2="${H-padB}" stroke="var(--t4)" stroke-width="1" stroke-dasharray="4 3" style="display:none"/>
-      <circle class="cdot" r="4.5" fill="var(--card)" stroke="var(--warn)" stroke-width="2" style="display:none"/>
+      <circle class="cdot" r="4.5" fill="var(--card)" stroke="var(--chart-line)" stroke-width="2" style="display:none"/>
       <rect class="covl" x="${padL}" y="${padT}" width="${innerW}" height="${plotH}" fill="transparent" style="cursor:crosshair"/>
     </svg><div class="ctip" style="display:none"></div></div>`;
   const svg=c.querySelector('svg'),dot=c.querySelector('.cdot'),cx=c.querySelector('.cx'),tip=c.querySelector('.ctip'),ov=c.querySelector('.covl'),bel=[...c.querySelectorAll('.mbar')];
@@ -2085,7 +2172,7 @@ function trendCard(labels,cum,monthly){
     cx.setAttribute('x1',cxC);cx.setAttribute('x2',cxC);cx.style.display='';
     const r=svg.getBoundingClientRect();
     tip.style.left=(cxC/W*r.width)+'px';tip.style.top=(yL/H*r.height)+'px';tip.style.transform='translate(-50%,-135%)';tip.style.display='';
-    tip.innerHTML=`<div class="ctm">${labels[i]} · 누계</div><div class="ctv num">${won(cum[i])}</div><div class="ctm num" style="color:var(--info)">이번 달 ${won(monthly[i])}</div>`;};
+    tip.innerHTML=`<div class="ctm">${labels[i]} · 누계</div><div class="ctv num">${won(cum[i])}</div><div class="ctm num" style="color:var(--chart-bar)">이번 달 ${won(monthly[i])}</div>`;};
   ov.addEventListener('pointermove',ev=>{const r=svg.getBoundingClientRect();const fx=(ev.clientX-r.left)/r.width*W;
     let i=Math.floor((fx-padL)/band);i=Math.max(0,Math.min(n-1,i));showAt(i);});
   ov.addEventListener('pointerleave',()=>{dot.style.display='none';cx.style.display='none';tip.style.display='none';bel.forEach(b=>b.setAttribute('opacity','.5'));});
