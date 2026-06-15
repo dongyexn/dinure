@@ -176,7 +176,7 @@ body.authed #gate{display:none}
 /* ============ primitives ============ */
 .card{background:var(--card);border:1px solid var(--bd);border-radius:var(--rad-l);padding:var(--s4) 18px}
 .card.flat{padding:0;overflow:hidden}
-.card.flat.tblx{padding:0 5px;overflow:visible}
+.card.flat.tblx{padding:0 5px;overflow:hidden}
 .card.empty{color:var(--t4);text-align:center;padding:38px 18px;font-size:var(--f13);line-height:1.7}
 .sec-h{display:flex;align-items:center;gap:10px;margin:var(--s3) 2px 0;min-height:28px}
 .wrap>.sec-h:first-child{margin-top:0}
@@ -241,7 +241,7 @@ table{width:100%;border-collapse:collapse;font-size:var(--f13)}
 th{font-size:var(--f12);font-weight:500;color:var(--t4);text-align:left;padding:11px 14px;border-bottom:1px solid var(--bd);white-space:nowrap}
 th.r,td.r{text-align:right}
 th.c,td.c{text-align:center}
-.tblx thead th{position:sticky;top:0;z-index:2;background:var(--card)}
+.tblx thead th{position:sticky;top:0;z-index:2;background:var(--card);border-bottom:none;box-shadow:0 1px 0 var(--bd)}
 td{padding:10px 14px;border-bottom:1px solid var(--bd);vertical-align:middle}
 tbody tr:last-child td{border-bottom:none}
 tbody tr.rowlink{cursor:pointer;transition:background .12s}
@@ -654,8 +654,6 @@ img.av,img.art{pointer-events:none}
 [data-skin="pastel"] .btn.pri{border-color:transparent;font-weight:600;border-radius:999px}
 [data-skin="pastel"] .btn.pri:hover{filter:brightness(1.04)}
 [data-skin="pastel"] .pill.acc{background:linear-gradient(135deg, color-mix(in srgb,var(--accent) 38%,transparent), color-mix(in srgb,var(--info) 38%,transparent));color:var(--t1);border-color:transparent}
-/* 스티키 헤더 — 카드와 같은 로즈/세레니티 틴트를 불투명 카드 위에(스크롤 비침 방지) */
-[data-skin="pastel"] .tblx thead th{background:linear-gradient(135deg, color-mix(in srgb,var(--accent) 13%,transparent), color-mix(in srgb,var(--info) 15%,transparent)), var(--card)}
 /* 몽실몽실 — 로즈쿼츠·세레니티 구름 그라데이션 */
 [data-skin="pastel"] .app::before{
   content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
