@@ -15,8 +15,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" media="print" onload="this.media='all'">
 <!-- Syncopate: @import는 렌더를 막으므로 비동기 link로 로드 -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&display=swap" media="print" onload="this.media='all'">
-<!-- Maple 스킨용 둥근 한글체(공식 Maplestory 폰트 미설치 시 폴백) -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Do+Hyeon&display=swap" media="print" onload="this.media='all'">
+<!-- Maple 스킨용 비트맵 한글체 Neo둥근모(SIL OFL · 90년대 둥근모꼴 기반 · 예전 게임 UI 느낌) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/neodgm/neodgm-webfont@latest/neodgm/style.css" media="print" onload="this.media='all'">
 <style>
 /* Pretendard FOUT 방지: 캐시에 없으면 교체하지 않고 fallback 유지 */
 @font-face{font-family:"Pretendard Variable";font-display:optional}
@@ -661,7 +661,7 @@ img.av,img.art{pointer-events:none}
    게임 스프라이트는 사용하지 않고 색·UI 베벨·풍경 분위기만 차용. */
 [data-skin="maple"]{
   color-scheme:light;
-  --font:'Maplestory','메이플스토리','Jua','Apple SD Gothic Neo',Pretendard,system-ui,sans-serif;
+  --font:'NeoDunggeunmo','Maplestory','메이플스토리','Apple SD Gothic Neo',Pretendard,system-ui,sans-serif;
   --shell:#8FCBEC;
   --bg:#E9F4FB;--panel:#E2E7EE;--panel2:#D7DDE6;--card:#E7EAEF;--hov:#EDF0F5;--sel:#D6DEE9;--sel2:#C4CEDC;--inp:#FFFFFF;
   --t1:#2A2E35;--t2:#414650;--t3:#5C626E;--t4:#7A818E;
@@ -670,18 +670,24 @@ img.av,img.art{pointer-events:none}
   --ok:#4F9A2F;--ok-bg:rgba(79,154,47,.14);--warn:#E08600;--warn-bg:rgba(224,134,0,.14);--bad:#C62828;--bad-bg:rgba(198,40,40,.10);
   --chart-line:#E97C0E;--chart-bar:#5DA12A;
   --logo-grad:linear-gradient(140deg,#FFB94D,#E97C0E 55%,#C85E0A)}
-/* 헤네시스 주간 배경 — 구름/해(상단) + 잔디·흙 띠(하단) + 하늘 그라데이션. 전부 정적 */
+/* 헤네시스 주간 배경 — 구름·해(상단) + 덤불 줄(능선) + 잔디 플랫폼 + 흙 띠 + 하늘. 전부 정적 */
 [data-skin="maple"] .app::before{
   content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
   background:
-    radial-gradient(90px 30px at 18% 15%, rgba(255,255,255,.95), transparent 70%),
-    radial-gradient(66px 22px at 26% 18%, rgba(255,255,255,.9), transparent 72%),
-    radial-gradient(120px 36px at 68% 11%, rgba(255,255,255,.92), transparent 70%),
-    radial-gradient(58px 20px at 80% 17%, rgba(255,255,255,.88), transparent 72%),
-    radial-gradient(130px 130px at 91% 7%, rgba(255,249,200,.55), transparent 64%),
-    linear-gradient(180deg, transparent 80%, #7A4E2C 88%, #623E22 100%),
-    linear-gradient(180deg, transparent 66%, #84BE48 74%, #5E9A2E 84%, transparent 88%),
-    linear-gradient(180deg, #62BDEA 0%, #93D2EE 42%, #C2E7F6 62%, #DFF2FA 70%)}
+    radial-gradient(86px 28px at 16% 13%, rgba(255,255,255,.96), transparent 70%),
+    radial-gradient(60px 20px at 24% 16%, rgba(255,255,255,.92), transparent 72%),
+    radial-gradient(118px 34px at 60% 9%,  rgba(255,255,255,.94), transparent 70%),
+    radial-gradient(54px 18px at 72% 14%, rgba(255,255,255,.9),  transparent 72%),
+    radial-gradient(96px 30px at 90% 20%, rgba(255,255,255,.9),  transparent 70%),
+    radial-gradient(130px 130px at 92% 7%, rgba(255,249,200,.55), transparent 64%),
+    radial-gradient(64px 40px at 10% 70%, #4F8A28 0 70%, transparent 72%),
+    radial-gradient(80px 48px at 26% 71%, #57962C 0 70%, transparent 72%),
+    radial-gradient(70px 44px at 46% 70%, #4F8A28 0 70%, transparent 72%),
+    radial-gradient(90px 50px at 66% 71%, #57962C 0 70%, transparent 72%),
+    radial-gradient(74px 46px at 86% 70%, #4F8A28 0 70%, transparent 72%),
+    linear-gradient(180deg, transparent 82%, #6E4525 84%, #7A4E2C 90%, #5E3A20 100%),
+    linear-gradient(180deg, transparent 70%, #93CC52 72%, #84BE48 78%, #5E9A2E 84%, transparent 86%),
+    linear-gradient(180deg, #5FBCEC 0%, #8FD0EF 40%, #BFE6F6 60%, #DFF2FA 70%)}
 /* 클래식 메이플 회색 베벨 창(밝은 회색 바디 + 3D 베벨) */
 [data-skin="maple"] .side{background:color-mix(in srgb,var(--panel2) 90%,transparent)}
 [data-skin="maple"] .main{background:color-mix(in srgb,var(--bg) 84%,transparent)}
@@ -696,6 +702,49 @@ img.av,img.art{pointer-events:none}
   transition:filter .14s,transform .1s,box-shadow .1s}
 [data-skin="maple"] .btn.pri:hover{filter:brightness(1.05)}
 [data-skin="maple"] .btn.pri:active{transform:translateY(1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+/* ── 진짜 창 느낌: 클래식 메이플 윈도우 크롬(전부 [data-skin="maple"] 스코프) ── */
+/* 메인/사이드바 = 큰 게임 윈도우(회색 베벨) */
+[data-skin="maple"] .main{
+  background:color-mix(in srgb,#EDF0F4 90%,transparent);
+  border:1px solid #6E89A8;border-radius:10px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.75), 0 4px 12px rgba(30,50,80,.22)}
+[data-skin="maple"] .topbar{
+  background:linear-gradient(180deg,#F4F7FB,#DCE3EC);border-bottom:1px solid #9DB0C6;border-radius:10px 10px 0 0}
+[data-skin="maple"] .side{
+  background:color-mix(in srgb,#E4E8EE 92%,transparent);
+  border:1px solid #6E89A8;border-radius:10px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.75), 0 4px 12px rgba(30,50,80,.22)}
+/* 카드/시트/다이얼로그 = 서브 윈도우(베벨) */
+[data-skin="maple"] .card,[data-skin="maple"] #sheet,[data-skin="maple"] #dlg .dbox,[data-skin="maple"] .gatecard{
+  background:#E7EAEF;border:1px solid #7E96B2;border-radius:8px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95), inset 0 -2px 0 rgba(70,92,124,.14), 0 2px 6px rgba(30,50,80,.18)}
+/* 섹션 헤더 = 창 타이틀바(파란 그라데이션 바 + 흰 글씨) */
+[data-skin="maple"] .sec-h{
+  background:linear-gradient(180deg,#5FA3D6,#3D7FB8);border:1px solid #2C6296;
+  border-radius:7px;padding:5px 10px;margin:var(--s4) 2px var(--s2);min-height:26px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+[data-skin="maple"] .sec-h h2{color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.28);font-weight:700}
+[data-skin="maple"] .sec-h .end .btn{background:rgba(255,255,255,.88);border-color:rgba(255,255,255,.5);color:#23415F}
+/* 탭 = 클래식 인벤토리 탭 */
+[data-skin="maple"] .tabs{background:#D7DDE6;border:1px solid #8AA0BA;border-radius:7px}
+[data-skin="maple"] .tabs .t{color:#3A4656}
+[data-skin="maple"] .tabs .t.on{
+  background:linear-gradient(180deg,#FFFFFF,#E3EAF2);color:#1E2A3A;border:1px solid #9DB0C6;
+  box-shadow:inset 0 1px 0 #fff,0 1px 2px rgba(40,60,90,.2)}
+/* 보조 버튼 = 회색 베벨 버튼(pri·ghost·danger 제외) */
+[data-skin="maple"] .btn:not(.pri):not(.ghost):not(.danger){
+  background:linear-gradient(180deg,#F6F8FB,#DCE3EC);border:1px solid #8AA0BA;color:#2A3543;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 1px 0 rgba(40,60,90,.16)}
+[data-skin="maple"] .btn:not(.pri):not(.ghost):not(.danger):hover{background:linear-gradient(180deg,#FFFFFF,#E6ECF3);border-color:#7E96B2;color:#1E2A3A}
+/* 입력/검색 = 움푹 들어간 인셋 */
+[data-skin="maple"] input,[data-skin="maple"] select,[data-skin="maple"] textarea,[data-skin="maple"] .search{
+  background:#fff;border:1px solid #9DB0C6;box-shadow:inset 0 1px 2px rgba(40,60,90,.14)}
+/* 스크롤바 = 청키 베벨 */
+[data-skin="maple"] ::-webkit-scrollbar{width:14px;height:14px}
+[data-skin="maple"] ::-webkit-scrollbar-track{background:#D2D8E0;border-radius:0}
+[data-skin="maple"] ::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg,#EDF1F6,#C7D0DC);border:1px solid #8AA0BA;border-radius:3px;
+  box-shadow:inset 0 1px 0 #fff;background-clip:padding-box}
 </style>
 <!-- glass-skin-end -->
 </head>
