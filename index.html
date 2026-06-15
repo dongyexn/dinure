@@ -629,7 +629,7 @@ img.av,img.art{pointer-events:none}
   --accent:#F7CAC9;--accent-bg:#F7CAC9;--accent-dim:rgba(247,202,201,.18);--info:#92A8D1;--info-bg:rgba(146,168,209,.18);
   --ok:#A6D8B9;--ok-bg:rgba(166,216,185,.16);--warn:#F2C9A0;--warn-bg:rgba(242,201,160,.16);--bad:#E79AAC;--bad-bg:rgba(231,154,172,.16);
   --chart-line:#F7CAC9;--chart-bar:#92A8D1}
-[data-theme="dark"][data-skin="pastel"] .btn.pri{color:#3A2D33}
+[data-theme="dark"][data-skin="pastel"] .btn.pri{background:linear-gradient(135deg,#F7CAC9,#92A8D1);color:#3A2D33}
 /* 라이트 — 데이드림(핑크빛 도는 따뜻한 화이트) */
 [data-theme="light"][data-skin="pastel"]{
   --shell:#F3E9EC;--bg:#FBF5F7;--panel:#F3E9EC;--panel2:#EFE3E8;--card:#FFFFFF;--hov:#F6EDF0;--sel:#EEDDE3;--sel2:#E3CDD6;--inp:#FFFFFF;
@@ -638,12 +638,22 @@ img.av,img.art{pointer-events:none}
   --accent:#CC7E8C;--accent-bg:#CC7E8C;--accent-dim:rgba(204,126,140,.14);--info:#6E86B8;--info-bg:rgba(110,134,184,.13);
   --ok:#5BA46B;--ok-bg:rgba(91,164,107,.13);--warn:#D69A52;--warn-bg:rgba(214,154,82,.13);--bad:#C75D74;--bad-bg:rgba(199,93,116,.10);
   --chart-line:#CC7E8C;--chart-bar:#6E86B8}
-[data-theme="light"][data-skin="pastel"] .btn.pri{color:#fff}
-/* 포근포근 — 둥근 카드 + 부드러운 확산 그림자 */
-[data-skin="pastel"] .card{border-radius:18px;box-shadow:0 6px 22px rgba(120,110,160,.13)}
-[data-theme="light"][data-skin="pastel"] .card{box-shadow:0 6px 22px rgba(204,126,140,.12)}
-[data-skin="pastel"] .btn.pri{background:var(--accent);border-color:transparent;font-weight:600;border-radius:999px}
+[data-theme="light"][data-skin="pastel"] .btn.pri{background:linear-gradient(135deg,#CC7E8C,#6E86B8);color:#fff}
+/* 포근포근 — 둥근 카드 + 절제된 그림자 + 창에 로즈쿼츠↔세레니티 틴트(투명) */
+[data-skin="pastel"] .card{
+  border-radius:18px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb,var(--accent) 13%,transparent), color-mix(in srgb,var(--info) 15%,transparent)),
+    color-mix(in srgb,var(--card) 78%,transparent);
+  box-shadow:0 2px 9px rgba(120,110,160,.08)}
+[data-theme="light"][data-skin="pastel"] .card{box-shadow:0 2px 9px rgba(204,126,140,.09)}
+/* 모달·로그인 창 = 틴트는 주되 불투명(가독성) */
+[data-skin="pastel"] #sheet,[data-skin="pastel"] #dlg .dbox,[data-skin="pastel"] .gatecard{
+  background:linear-gradient(135deg, color-mix(in srgb,var(--accent) 11%, var(--card)), color-mix(in srgb,var(--info) 13%, var(--card)))}
+/* 배지 = 로즈쿼츠 → 세레니티 그라데이션 */
+[data-skin="pastel"] .btn.pri{border-color:transparent;font-weight:600;border-radius:999px}
 [data-skin="pastel"] .btn.pri:hover{filter:brightness(1.04)}
+[data-skin="pastel"] .pill.acc{background:linear-gradient(135deg, color-mix(in srgb,var(--accent) 38%,transparent), color-mix(in srgb,var(--info) 38%,transparent));color:var(--t1);border-color:transparent}
 /* 몽실몽실 — 로즈쿼츠·세레니티 구름 그라데이션 */
 [data-skin="pastel"] .app::before{
   content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
@@ -654,9 +664,9 @@ img.av,img.art{pointer-events:none}
     radial-gradient(58% 56% at 8% 92%,  rgba(146,168,209,.34), transparent 64%),
     radial-gradient(54% 50% at 50% 50%, rgba(214,196,224,.22), transparent 66%)}
 [data-theme="light"][data-skin="pastel"] .app::before{opacity:.82}
-/* 창 투명도 낮춤(더 불투명·포근하게) — 그라데이션은 은은히만 비침 */
-[data-skin="pastel"] .side{background:color-mix(in srgb,var(--panel2) 93%,transparent)}
-[data-skin="pastel"] .main{background:color-mix(in srgb,var(--bg) 91%,transparent)}
+/* 창 더 투명하게 + 로즈쿼츠↔세레니티 틴트 — 그라데이션이 적극적으로 비침 */
+[data-skin="pastel"] .side{background:linear-gradient(160deg, color-mix(in srgb,var(--accent) 9%,transparent), color-mix(in srgb,var(--info) 11%,transparent)), color-mix(in srgb,var(--panel2) 80%,transparent)}
+[data-skin="pastel"] .main{background:linear-gradient(150deg, color-mix(in srgb,var(--accent) 7%,transparent), color-mix(in srgb,var(--info) 9%,transparent)), color-mix(in srgb,var(--bg) 76%,transparent)}
 </style>
 <!-- glass-skin-end -->
 </head>
