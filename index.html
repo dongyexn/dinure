@@ -770,6 +770,16 @@ img.av,img.art{pointer-events:none}
   color:var(--c-t3); font-size:16px; line-height:1; transition:.15s; }
 .ls-pcard-del:hover{ color:#ff6b6b; background:color-mix(in srgb,#ff6b6b 14%,transparent); }
 .ls-fallback{ display:none; padding:1.5rem; text-align:center; color:var(--c-t3); line-height:1.6; font-size:13px; }
+.ls-mtag{ font-size:11px; font-weight:500; color:var(--c-t3); margin-left:6px; }
+/* 음원 구간 트림 핸들 */
+.ls-trimrange{ position:absolute; top:0; height:100%; border-radius:5px; background:color-mix(in srgb,var(--acc) 38%,transparent); display:none; z-index:1; }
+.ls-track.trim .ls-trimrange{ display:block; }
+.ls-th{ position:absolute; top:50%; width:9px; height:20px; border-radius:4px; background:#fff; transform:translate(-50%,-50%);
+  cursor:ew-resize; display:none; box-shadow:0 1px 5px rgba(0,0,0,.6); z-index:4; touch-action:none; }
+.ls-th::after{ content:''; position:absolute; inset:0; border-radius:4px; border:1px solid color-mix(in srgb,var(--acc) 60%,transparent); }
+.ls-track.trim .ls-th{ display:block; }
+.ls-track .ls-fill, .ls-track .ls-knob{ z-index:2; }
+.ls-track .ls-knob{ z-index:3; }
 
 </style>
 </head>
@@ -3513,9 +3523,11 @@ function createArtwork(){
         <div class="ls-fbdiv"></div>
         <div class="ls-fbsec">
           <button class="ls-act" id="ls_load">이미지<br>교체</button>
+          <button class="ls-act" id="ls_audio">음원<br>추가</button>
           <button class="ls-act ls-rec" id="ls_rec">⦿ 녹화</button>
         </div>
         <input type="file" id="ls_file" accept="image/*" hidden>
+        <input type="file" id="ls_afile" accept="audio/*" hidden>
       </div>
       <div class="ls-stageWrap">
         <div class="ls-stage" id="ls_stage">
@@ -3525,7 +3537,7 @@ function createArtwork(){
           <div class="ls-toast" id="ls_toast"></div>
           <div class="ls-timewrap">
             <button class="ls-playbtn" id="ls_play" title="재생/일시정지">${ICON_PAUSE}</button>
-            <div class="ls-track" id="ls_track"><div class="ls-fill" id="ls_fill"></div><div class="ls-knob" id="ls_knob"></div></div>
+            <div class="ls-track" id="ls_track"><div class="ls-trimrange" id="ls_trimrange"></div><div class="ls-fill" id="ls_fill"></div><div class="ls-knob" id="ls_knob"></div><div class="ls-th l" id="ls_thL"></div><div class="ls-th r" id="ls_thR"></div></div>
             <div class="ls-time" id="ls_time">0:00 / 1:00</div>
           </div>
         </div>
@@ -3537,6 +3549,7 @@ function createArtwork(){
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_warp">일렁임 Warp</label><span class="ls-val" id="ls_warpV"></span></div><input type="range" id="ls_warp" min="0" max="0.24" step="0.002" value="0.04"></div>
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_detail">흐름결 Detail</label><span class="ls-val" id="ls_detailV"></span></div><input type="range" id="ls_detail" min="1" max="9" step="0.1" value="2.3"></div>
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_scale">줌 Scale</label><span class="ls-val" id="ls_scaleV"></span></div><input type="range" id="ls_scale" min="1" max="3.2" step="0.01" value="1.05"></div>
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_drift">흐름 Drift</label><span class="ls-val" id="ls_driftV"></span></div><input type="range" id="ls_drift" min="0" max="3" step="1" value="0"></div>
           </div></div>
           <div class="ls-group"><div class="ls-gtitle">입체 · 회전</div><div class="ls-grid">
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_spin">회전 (바퀴/루프)</label><span class="ls-val" id="ls_spinV"></span></div><input type="range" id="ls_spin" min="-12" max="12" step="1" value="0"></div>
@@ -3547,12 +3560,18 @@ function createArtwork(){
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_dolly">돌리 줌</label><span class="ls-val" id="ls_dollyV"></span></div><input type="range" id="ls_dolly" min="0" max="2" step="0.02" value="0"></div>
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_parallax">패럴랙스</label><span class="ls-val" id="ls_parallaxV"></span></div><input type="range" id="ls_parallax" min="0" max="2" step="0.02" value="0"></div>
           </div></div>
-          <div class="ls-group"><div class="ls-gtitle">분위기</div><div class="ls-grid">
+          <div class="ls-group"><div class="ls-gtitle">왜곡</div><div class="ls-grid">
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_ripple">물결 Ripple</label><span class="ls-val" id="ls_rippleV"></span></div><input type="range" id="ls_ripple" min="0" max="2" step="0.02" value="0"></div>
-            <div class="ls-ctrl"><div class="ls-row"><label for="ls_drift">흐름 Drift</label><span class="ls-val" id="ls_driftV"></span></div><input type="range" id="ls_drift" min="0" max="3" step="1" value="0"></div>
-            <div class="ls-ctrl"><div class="ls-row"><label for="ls_glow">은은한 광채</label><span class="ls-val" id="ls_glowV"></span></div><input type="range" id="ls_glow" min="0" max="2" step="0.02" value="0"></div>
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_kaleido">만화경 (면)</label><span class="ls-val" id="ls_kaleidoV"></span></div><input type="range" id="ls_kaleido" min="0" max="12" step="1" value="0"></div>
+          </div></div>
+          <div class="ls-group"><div class="ls-gtitle">분위기</div><div class="ls-grid">
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_warmth">색온도</label><span class="ls-val" id="ls_warmthV"></span></div><input type="range" id="ls_warmth" min="-1" max="1" step="0.02" value="0"></div>
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_glow">은은한 광채</label><span class="ls-val" id="ls_glowV"></span></div><input type="range" id="ls_glow" min="0" max="2" step="0.02" value="0"></div>
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_grain">입자 Grain</label><span class="ls-val" id="ls_grainV"></span></div><input type="range" id="ls_grain" min="0" max="0.1" step="0.002" value="0.05"></div>
+          </div></div>
+          <div class="ls-group"><div class="ls-gtitle">음악 반응 <span class="ls-mtag" id="ls_mtag">음원 없음</span></div><div class="ls-grid">
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_bass">저음 반응 (줌·광채)</label><span class="ls-val" id="ls_bassV"></span></div><input type="range" id="ls_bass" min="0" max="2" step="0.02" value="0"></div>
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_treble">고음 반응 (입자·물결)</label><span class="ls-val" id="ls_trebleV"></span></div><input type="range" id="ls_treble" min="0" max="2" step="0.02" value="0"></div>
           </div></div>
         </div>
         <div class="ls-panel">
@@ -3578,7 +3597,7 @@ out vec4 frag;
 uniform sampler2D uTex; uniform vec2 uRes; uniform float uPhase; uniform int uHasTex; uniform float uSeed;
 uniform float uWarp,uScale,uDetail,uGrain;
 uniform float uSpin,uSway,uTilt,uSphere,uVortex,uDolly,uParallax;
-uniform float uRipple,uDrift,uGlow,uKaleido;
+uniform float uRipple,uDrift,uGlow,uKaleido,uWarmth;
 mat2 rot(float a){float s=sin(a),c=cos(a);return mat2(c,-s,s,c);}
 float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
 float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);float a=hash(i),b=hash(i+vec2(1.,0.)),c=hash(i+vec2(0.,1.)),d=hash(i+vec2(1.,1.));vec2 u=f*f*(3.-2.*f);return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);}
@@ -3612,11 +3631,12 @@ void main(){
   if(uGlow>0.001 && uHasTex==1){ vec3 g=vec3(0.0);
     for(int i=0;i<8;i++){ float a=float(i)/8.0*6.2831853; g+=texture(uTex,base+vec2(cos(a),sin(a))*0.018).rgb; }
     g/=8.0; col+=uGlow*0.55*max(g-vec3(0.32),vec3(0.0)); }
+  if(uWarmth>0.0001||uWarmth<-0.0001){ col.r*=1.0+uWarmth*0.16; col.g*=1.0+uWarmth*0.03; col.b*=1.0-uWarmth*0.16; }
   col+=(hash(gl_FragCoord.xy+uSeed)-0.5)*uGrain;
   frag=vec4(clamp(col,0.0,1.0),1.0);
 }`;
   let prog=null,uni={},glReady=false;
-  const UNAMES=['uRes','uPhase','uHasTex','uSeed','uTex','uWarp','uScale','uDetail','uGrain','uSpin','uSway','uTilt','uSphere','uVortex','uDolly','uParallax','uRipple','uDrift','uGlow','uKaleido'];
+  const UNAMES=['uRes','uPhase','uHasTex','uSeed','uTex','uWarp','uScale','uDetail','uGrain','uSpin','uSway','uTilt','uSphere','uVortex','uDolly','uParallax','uRipple','uDrift','uGlow','uKaleido','uWarmth'];
   function comp(t,s){const sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(sh));return sh;}
   try{
     prog=gl.createProgram();
@@ -3654,16 +3674,50 @@ void main(){
   }
   if(ARTWORK_DEFAULT_IMG)loadTexture(ARTWORK_DEFAULT_IMG);
 
-  const KEYS=['flow','warp','scale','detail','spin','sway','tilt','sphere','vortex','dolly','parallax','ripple','drift','glow','kaleido','grain'];
+  const KEYS=['flow','warp','scale','detail','spin','sway','tilt','sphere','vortex','dolly','parallax','ripple','drift','glow','kaleido','warmth','grain','bass','treble'];
   const st={ar:0.5625};
-  const FMT={flow:v=>v.toFixed(1)+'s',warp:v=>v.toFixed(3),scale:v=>v.toFixed(2)+'×',detail:v=>v.toFixed(1),spin:v=>v.toFixed(0)+'바퀴',drift:v=>v<1?'끄기':v.toFixed(0),kaleido:v=>v<2?'끄기':v.toFixed(0)+'면',grain:v=>v.toFixed(3)};
+  const FMT={flow:v=>v.toFixed(1)+'s',warp:v=>v.toFixed(3),scale:v=>v.toFixed(2)+'×',detail:v=>v.toFixed(1),spin:v=>v.toFixed(0)+'바퀴',drift:v=>v<1?'끄기':v.toFixed(0),kaleido:v=>v<2?'끄기':v.toFixed(0)+'면',warmth:v=>v>0.001?'따뜻 +'+v.toFixed(2):(v<-0.001?'차가움 '+v.toFixed(2):'중립'),grain:v=>v.toFixed(3)};
   function fmt(k,v){return (FMT[k]||(x=>x.toFixed(2)))(v);}
   KEYS.forEach(k=>{ const el=Q('#ls_'+k),out=Q('#ls_'+k+'V');
     const upd=()=>{st[k]=parseFloat(el.value); if(out)out.textContent=fmt(k,st[k]);}; el.addEventListener('input',upd); upd(); });
   function applyVals(o){ for(const k in o){ const el=Q('#ls_'+k); if(el){ el.value=o[k]; el.dispatchEvent(new Event('input')); } } }
   function captureVals(){ const o={}; KEYS.forEach(k=>o[k]=st[k]); return o; }
 
-  // presets (이름만, 2열)
+  // ===== audio =====
+  let audioCtx=null,analyser=null,audioDest=null,freqData=null,audio=null,srcNode=null,audioReady=false;
+  let smBass=0,smTreble=0;
+  let trimStart=0,trimEnd=0;
+  function ensureAudioNodes(){
+    if(audioCtx)return;
+    const AC=window.AudioContext||window.webkitAudioContext; if(!AC)return;
+    audioCtx=new AC(); analyser=audioCtx.createAnalyser(); analyser.fftSize=1024; analyser.smoothingTimeConstant=0.8;
+    freqData=new Uint8Array(analyser.frequencyBinCount); audioDest=audioCtx.createMediaStreamDestination();
+    analyser.connect(audioCtx.destination); analyser.connect(audioDest);
+  }
+  function setupAudio(file){
+    ensureAudioNodes(); if(!audioCtx){ showError('이 브라우저는 오디오 분석을 지원하지 않아요.'); return; }
+    if(srcNode){ try{srcNode.disconnect();}catch(e){} }
+    if(audio){ try{audio.pause();}catch(e){} }
+    audio=new Audio(); audio.src=URL.createObjectURL(file); audio.crossOrigin='anonymous'; audioReady=false;
+    try{ srcNode=audioCtx.createMediaElementSource(audio); srcNode.connect(analyser); }catch(e){ showError('오디오 연결에 실패했어요.'); return; }
+    audio._name=file.name||'음원';
+    audio.addEventListener('loadedmetadata',()=>{ audioReady=true; lastPhase=0; trimStart=0; trimEnd=audio.duration||0; updTrimUI(); if(playing){ audioCtx.resume&&audioCtx.resume(); audio.currentTime=trimStart; audio.play().catch(()=>{}); } updTimebar(0); });
+    audio.addEventListener('ended',()=>{ if(recording) finishRec(); else { setPlay(false); } });
+    Q('#ls_audio').innerHTML='♪ 음원<br>교체'; Q('#ls_mtag').textContent='불러오는 중…';
+  }
+  function audioLevels(){ // {bass,treble} 0~1, smoothed
+    if(!(audioReady&&analyser)) return {bass:0,treble:0};
+    analyser.getByteFrequencyData(freqData);
+    const n=freqData.length; let bs=0,bn=0,ts=0,tn=0;
+    const bEnd=Math.max(1,Math.floor(n*0.10)), tStart=Math.floor(n*0.55);
+    for(let i=0;i<bEnd;i++){bs+=freqData[i];bn++;}
+    for(let i=tStart;i<n;i++){ts+=freqData[i];tn++;}
+    let bass=bn?(bs/bn)/255:0, treble=tn?(ts/tn)/255:0;
+    smBass+=(bass-smBass)*0.35; smTreble+=(treble-smTreble)*0.45;
+    return {bass:smBass,treble:smTreble};
+  }
+
+  // presets
   let presets=[],memP=null;
   async function readStore(){ try{ if(window.storage){ const r=await window.storage.get('ls_artwork_presets'); return r&&r.value; } }catch(e){} try{ return localStorage.getItem('ls_artwork_presets'); }catch(e){} return memP; }
   async function writeStore(s){ memP=s; try{ if(window.storage){ await window.storage.set('ls_artwork_presets',s); return; } }catch(e){} try{ localStorage.setItem('ls_artwork_presets',s); }catch(e){} }
@@ -3696,80 +3750,120 @@ void main(){
   let playing=true, startT=performance.now(), pausedPhase=0, lastPhase=0, recElapsed=0, recording=false, rafId=null;
   function resize(){ if(recording)return; const rect=stage.getBoundingClientRect();
     canvas.width=Math.max(2,Math.round(rect.width*DPR)); canvas.height=Math.max(2,Math.round(rect.height*DPR)); }
-  function fmtT(s){ s=Math.max(0,s); const m=Math.floor(s/60),x=Math.floor(s%60); return m+':'+(x<10?'0':'')+x; }
-  function updTimebar(phase){ const f=phase/(2*Math.PI);
+  function fmtT(s){ s=Math.max(0,s||0); const m=Math.floor(s/60),x=Math.floor(s%60); return m+':'+(x<10?'0':'')+x; }
+  function updTrimUI(){ const tr=Q('#ls_track'); if(!(audioReady&&audio&&audio.duration)){ tr.classList.remove('trim'); return; }
+    tr.classList.add('trim'); const a=trimStart/audio.duration*100, b=trimEnd/audio.duration*100;
+    Q('#ls_thL').style.left=a+'%'; Q('#ls_thR').style.left=b+'%';
+    const rg=Q('#ls_trimrange'); rg.style.left=a+'%'; rg.style.width=Math.max(0,b-a)+'%';
+    Q('#ls_mtag').textContent=(audio._name||'음원')+' · 구간 '+fmtT(trimStart)+'~'+fmtT(trimEnd)+' ('+fmtT(trimEnd-trimStart)+')'; }
+  function updTimebar(phase){
+    let f,cur,tot;
+    if(audioReady&&audio&&audio.duration){ cur=audio.currentTime; tot=audio.duration; f=tot?cur/tot:0; }
+    else { f=phase/(2*Math.PI); cur=f*st.flow; tot=st.flow; }
     Q('#ls_fill').style.width=(f*100).toFixed(2)+'%'; Q('#ls_knob').style.left=(f*100).toFixed(2)+'%';
-    Q('#ls_time').textContent=fmtT(f*st.flow)+' / '+fmtT(st.flow); }
+    Q('#ls_time').textContent=fmtT(cur)+' / '+fmtT(tot);
+  }
   function frame(now){
     if(!glReady){ rafId=requestAnimationFrame(frame); return; }
     let phase;
-    if(recording) phase=2*Math.PI*(recElapsed/st.flow);
+    if(recording && !audioReady) phase=2*Math.PI*(recElapsed/st.flow);
+    else if(audioReady && audio){ if(!recording && audio.duration && (audio.currentTime>=trimEnd-0.03 || audio.currentTime<trimStart-0.01)) audio.currentTime=trimStart; phase=2*Math.PI*(((audio.currentTime)/st.flow)%1); }
     else if(playing) phase=2*Math.PI*((((now-startT)/1000)/st.flow)%1);
     else phase=pausedPhase;
     lastPhase=phase;
+    const lv=audioLevels();
+    const scaleEff=st.scale*(1.0+lv.bass*st.bass*0.45);
+    const glowEff=Math.min(2.5, st.glow+lv.bass*st.bass*0.9);
+    const grainEff=Math.min(0.3, st.grain+lv.treble*st.treble*0.16);
+    const rippleEff=Math.min(3.0, st.ripple+lv.treble*st.treble*1.1);
     gl.viewport(0,0,canvas.width,canvas.height); gl.useProgram(prog);
     gl.uniform2f(uni.uRes,canvas.width,canvas.height); gl.uniform1f(uni.uPhase,phase); gl.uniform1f(uni.uSeed,Math.random()*1000.0);
-    gl.uniform1f(uni.uWarp,st.warp);gl.uniform1f(uni.uScale,st.scale);gl.uniform1f(uni.uDetail,st.detail);gl.uniform1f(uni.uGrain,st.grain);
+    gl.uniform1f(uni.uWarp,st.warp);gl.uniform1f(uni.uScale,scaleEff);gl.uniform1f(uni.uDetail,st.detail);gl.uniform1f(uni.uGrain,grainEff);
     gl.uniform1f(uni.uSpin,st.spin);gl.uniform1f(uni.uSway,st.sway);gl.uniform1f(uni.uTilt,st.tilt);
     gl.uniform1f(uni.uSphere,st.sphere);gl.uniform1f(uni.uVortex,st.vortex);gl.uniform1f(uni.uDolly,st.dolly);gl.uniform1f(uni.uParallax,st.parallax);
-    gl.uniform1f(uni.uRipple,st.ripple);gl.uniform1f(uni.uDrift,st.drift);gl.uniform1f(uni.uGlow,st.glow);gl.uniform1f(uni.uKaleido,st.kaleido);
+    gl.uniform1f(uni.uRipple,rippleEff);gl.uniform1f(uni.uDrift,st.drift);gl.uniform1f(uni.uGlow,glowEff);gl.uniform1f(uni.uKaleido,st.kaleido);gl.uniform1f(uni.uWarmth,st.warmth);
     gl.uniform1i(uni.uTex,0);gl.uniform1i(uni.uHasTex,(tex&&hasTex)?1:0);
     gl.activeTexture(gl.TEXTURE0); if(tex)gl.bindTexture(gl.TEXTURE_2D,tex);
     gl.drawArrays(gl.TRIANGLES,0,3);
     updTimebar(phase);
     rafId=requestAnimationFrame(frame);
   }
-  function start(){ resize(); if(playing) startT=performance.now()-(lastPhase/(2*Math.PI))*st.flow*1000; if(!rafId)rafId=requestAnimationFrame(frame); }
+  function start(){ resize(); if(playing && !audioReady) startT=performance.now()-(lastPhase/(2*Math.PI))*st.flow*1000; if(!rafId)rafId=requestAnimationFrame(frame); }
   function stop(){ if(rafId){ cancelAnimationFrame(rafId); rafId=null; } }
 
   const playBtn=Q('#ls_play');
-  function setPlay(p){ playing=p; playBtn.innerHTML=p?ICON_PAUSE:ICON_PLAY; }
+  function setPlay(p){ playing=p; playBtn.innerHTML=p?ICON_PAUSE:ICON_PLAY;
+    if(audioReady&&audio){ if(p){ audioCtx&&audioCtx.resume&&audioCtx.resume(); audio.play().catch(()=>{}); } else { audio.pause(); } } }
   playBtn.addEventListener('click',()=>{ if(recording)return;
-    if(playing){ pausedPhase=2*Math.PI*((((performance.now()-startT)/1000)/st.flow)%1); setPlay(false); }
-    else { startT=performance.now()-(pausedPhase/(2*Math.PI))*st.flow*1000; setPlay(true); } });
+    if(playing){ if(!audioReady) pausedPhase=2*Math.PI*((((performance.now()-startT)/1000)/st.flow)%1); setPlay(false); }
+    else { if(!audioReady) startT=performance.now()-(pausedPhase/(2*Math.PI))*st.flow*1000; setPlay(true); } });
 
-  function seekTo(r){ r=Math.min(1,Math.max(0,r)); if(playing){ startT=performance.now()-r*st.flow*1000; } else { pausedPhase=r*2*Math.PI; } lastPhase=r*2*Math.PI; updTimebar(lastPhase); }
+  function seekTo(r){ r=Math.min(1,Math.max(0,r));
+    if(audioReady&&audio&&audio.duration){ let t=r*audio.duration; audio.currentTime=Math.min(trimEnd,Math.max(trimStart,t)); }
+    else if(playing){ startT=performance.now()-r*st.flow*1000; }
+    else { pausedPhase=r*2*Math.PI; }
+    lastPhase=r*2*Math.PI; updTimebar(lastPhase); }
   const track=Q('#ls_track');
   function seekFromEvent(e){ const rect=track.getBoundingClientRect(); const x=(e.touches?e.touches[0].clientX:e.clientX)-rect.left; seekTo(rect.width?x/rect.width:0); }
   track.addEventListener('pointerdown',e=>{ if(recording)return; e.preventDefault(); seekFromEvent(e); const mv=ev=>seekFromEvent(ev); const up=()=>{window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);}; window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up); });
+  function thDrag(which){ return e=>{ if(!(audioReady&&audio&&audio.duration)||recording)return; e.preventDefault(); e.stopPropagation();
+    const move=ev=>{ const rect=track.getBoundingClientRect(); let x=((ev.touches?ev.touches[0].clientX:ev.clientX)-rect.left)/rect.width; x=Math.min(1,Math.max(0,x)); const t=x*audio.duration;
+      if(which==='L') trimStart=Math.max(0,Math.min(t,trimEnd-0.3)); else trimEnd=Math.min(audio.duration,Math.max(t,trimStart+0.3));
+      if(audio.currentTime<trimStart||audio.currentTime>trimEnd) audio.currentTime=trimStart; updTrimUI(); updTimebar(lastPhase); };
+    const up=()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);};
+    window.addEventListener('pointermove',move); window.addEventListener('pointerup',up); }; }
+  Q('#ls_thL').addEventListener('pointerdown',thDrag('L'));
+  Q('#ls_thR').addEventListener('pointerdown',thDrag('R'));
 
+  // image / audio file inputs
   const fileInput=Q('#ls_file');
   Q('#ls_load').addEventListener('click',()=>fileInput.click());
   fileInput.addEventListener('change',e=>{const f=e.target.files[0]; if(f)loadTexture(f);});
+  const aInput=Q('#ls_afile');
+  Q('#ls_audio').addEventListener('click',()=>aInput.click());
+  aInput.addEventListener('change',e=>{const f=e.target.files[0]; if(f)setupAudio(f);});
   ['dragenter','dragover'].forEach(ev=>stage.addEventListener(ev,e=>{e.preventDefault();stage.classList.add('drag');}));
   ['dragleave','drop'].forEach(ev=>stage.addEventListener(ev,e=>{e.preventDefault();stage.classList.remove('drag');}));
   stage.addEventListener('drop',e=>{const f=e.dataTransfer.files[0]; if(f&&f.type.startsWith('image/'))loadTexture(f);});
 
+  // recording (음원 있으면 영상+음악 동시, 없으면 결정적 루프 무음)
   const recBtn=Q('#ls_rec'),recDot=Q('#ls_recDot'),recLabel=Q('#ls_recLabel');
+  let _rec=null;
   function outputSize(){ if(st.ar>=1)return [Math.round(1080*st.ar),1080]; return [1080,Math.round(1080/st.ar)]; }
-  function pickMime(){ const l=['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
+  function pickMime(audioOn){ const l=audioOn?['video/mp4;codecs=avc1,mp4a','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm']:['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
     for(const m of l){ if(window.MediaRecorder&&MediaRecorder.isTypeSupported(m))return m; } return ''; }
+  function saveBlob(chunks,mime){ const blob=new Blob(chunks,{type:mime}); const url=URL.createObjectURL(blob);
+    const ext=mime.indexOf('mp4')>=0?'mp4':'webm'; const a=document.createElement('a');
+    const stamp=new Date().toISOString().slice(0,16).replace(/[:T]/g,'');
+    const tag=({'1':'1x1','0.75':'3x4','0.5625':'9x16','1.7778':'16x9'})[String(st.ar)]||'loop';
+    a.href=url; a.download='dinure_artwork_'+tag+'_'+stamp+'.'+ext; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),4000); }
+  let prevWH=null;
+  function finishRec(){ if(_rec&&_rec.state!=='inactive'){ try{_rec.stop();}catch(e){} } }
+  function endRecState(){ recording=false; recElapsed=0; if(prevWH){canvas.width=prevWH[0];canvas.height=prevWH[1];prevWH=null;}
+    recBtn.classList.remove('on'); recBtn.disabled=false; recBtn.textContent='⦿ 녹화'; recDot.classList.remove('on'); recLabel.textContent='REC'; startT=performance.now(); resize(); }
   recBtn.addEventListener('click',()=>{
     if(!glReady||recording)return;
     if(!(tex&&hasTex)){ showError('먼저 이미지를 올려 주세요.'); return; }
-    const mime=pickMime(); if(!mime){ showError('이 브라우저는 영상 녹화를 지원하지 않아요.'); return; }
-    recording=true; if(!playing) setPlay(true);
-    recBtn.classList.add('on'); recBtn.disabled=true; recBtn.textContent='● 녹화 중'; recDot.classList.add('on');
-    const prevW=canvas.width,prevH=canvas.height; const [ow,oh]=outputSize(); canvas.width=ow; canvas.height=oh;
-    const stream=canvas.captureStream(30);
-    const rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:14000000});
-    const chunks=[]; rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
-    const dur=st.flow,t0=performance.now(); let stopped=false;
-    function tick(now){ if(stopped)return; recElapsed=(now-t0)/1000;
-      if(recElapsed>=dur){recElapsed=dur;stopped=true;rec.stop();return;}
+    const audioOn=!!(audioReady&&audio&&audioDest);
+    const mime=pickMime(audioOn); if(!mime){ showError('이 브라우저는 영상 녹화를 지원하지 않아요.'); return; }
+    recording=true; recBtn.classList.add('on'); recBtn.disabled=true; recBtn.textContent='● 녹화 중'; recDot.classList.add('on');
+    prevWH=[canvas.width,canvas.height]; const [ow,oh]=outputSize(); canvas.width=ow; canvas.height=oh;
+    const vstream=canvas.captureStream(30);
+    let stream=vstream, dur;
+    if(audioOn){ stream=new MediaStream([...vstream.getVideoTracks(),...audioDest.stream.getAudioTracks()]);
+      dur=Math.max(0.1,trimEnd-trimStart); if(!playing)setPlay(true); audioCtx&&audioCtx.resume&&audioCtx.resume(); audio.currentTime=trimStart; audio.play().catch(()=>{}); }
+    else { dur=st.flow; }
+    _rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:14000000,audioBitsPerSecond:192000});
+    const chunks=[]; _rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
+    _rec.onstop=()=>{ saveBlob(chunks,mime); if(audioOn){ try{audio.pause();audio.currentTime=0;}catch(e){} } endRecState(); };
+    const t0=performance.now(); let stopped=false;
+    function tick(now){ if(stopped||!recording)return;
+      if(audioOn){ recElapsed=audio.currentTime-trimStart; if(audio.ended||audio.currentTime>=trimEnd-0.05){ stopped=true; finishRec(); return; } }
+      else { recElapsed=(now-t0)/1000; if(recElapsed>=dur){ recElapsed=dur; stopped=true; finishRec(); return; } }
       recLabel.textContent='REC '+recElapsed.toFixed(1)+'s'; requestAnimationFrame(tick); }
-    rec.onstop=()=>{
-      const blob=new Blob(chunks,{type:mime}); const url=URL.createObjectURL(blob);
-      const ext=mime.indexOf('mp4')>=0?'mp4':'webm';
-      const a=document.createElement('a'); const stamp=new Date().toISOString().slice(0,16).replace(/[:T]/g,'');
-      const tag=({'1':'1x1','0.75':'3x4','0.5625':'9x16','1.7778':'16x9'})[String(st.ar)]||'loop';
-      a.href=url; a.download='dinure_artwork_'+tag+'_'+stamp+'.'+ext; document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(()=>URL.revokeObjectURL(url),4000);
-      recording=false; recElapsed=0; canvas.width=prevW; canvas.height=prevH;
-      recBtn.classList.remove('on'); recBtn.disabled=false; recBtn.textContent='⦿ 녹화';
-      recDot.classList.remove('on'); recLabel.textContent='REC'; startT=performance.now(); resize();
-    };
-    rec.start(); requestAnimationFrame(tick);
+    _rec.start(); requestAnimationFrame(tick);
+    if(audioOn) showError('음원 길이('+fmtT(dur)+')만큼 실시간으로 녹화됩니다.');
   });
 
   window.addEventListener('resize',()=>{ if(!recording)resize(); });
