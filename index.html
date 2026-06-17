@@ -3569,9 +3569,11 @@ function createArtwork(){
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_glow">은은한 광채</label><span class="ls-val" id="ls_glowV"></span></div><input type="range" id="ls_glow" min="0" max="2" step="0.02" value="0"></div>
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_grain">입자 Grain</label><span class="ls-val" id="ls_grainV"></span></div><input type="range" id="ls_grain" min="0" max="0.1" step="0.002" value="0.05"></div>
           </div></div>
-          <div class="ls-group"><div class="ls-gtitle">음악 반응 <span class="ls-mtag" id="ls_mtag">음원 없음</span></div><div class="ls-grid">
-            <div class="ls-ctrl"><div class="ls-row"><label for="ls_bass">저음 반응 (줌·광채)</label><span class="ls-val" id="ls_bassV"></span></div><input type="range" id="ls_bass" min="0" max="2" step="0.02" value="0"></div>
+          <div class="ls-group"><div class="ls-gtitle">음악 <span class="ls-mtag" id="ls_mtag">음원 없음</span></div><div class="ls-grid">
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_bass">킥 반응 (광채·펄스)</label><span class="ls-val" id="ls_bassV"></span></div><input type="range" id="ls_bass" min="0" max="2" step="0.02" value="0"></div>
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_treble">고음 반응 (입자·물결)</label><span class="ls-val" id="ls_trebleV"></span></div><input type="range" id="ls_treble" min="0" max="2" step="0.02" value="0"></div>
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_fadein">페이드 인</label><span class="ls-val" id="ls_fadeinV"></span></div><input type="range" id="ls_fadein" min="0" max="5" step="0.1" value="0"></div>
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_fadeout">페이드 아웃</label><span class="ls-val" id="ls_fadeoutV"></span></div><input type="range" id="ls_fadeout" min="0" max="5" step="0.1" value="0"></div>
           </div></div>
         </div>
         <div class="ls-panel">
@@ -3597,7 +3599,7 @@ out vec4 frag;
 uniform sampler2D uTex; uniform vec2 uRes; uniform float uPhase; uniform int uHasTex; uniform float uSeed;
 uniform float uWarp,uScale,uDetail,uGrain;
 uniform float uSpin,uSway,uTilt,uSphere,uVortex,uDolly,uParallax;
-uniform float uRipple,uDrift,uGlow,uKaleido,uWarmth;
+uniform float uRipple,uDrift,uGlow,uKaleido,uWarmth,uBassPulse;
 mat2 rot(float a){float s=sin(a),c=cos(a);return mat2(c,-s,s,c);}
 float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
 float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);float a=hash(i),b=hash(i+vec2(1.,0.)),c=hash(i+vec2(0.,1.)),d=hash(i+vec2(1.,1.));vec2 u=f*f*(3.-2.*f);return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);}
@@ -3632,11 +3634,12 @@ void main(){
     for(int i=0;i<8;i++){ float a=float(i)/8.0*6.2831853; g+=texture(uTex,base+vec2(cos(a),sin(a))*0.018).rgb; }
     g/=8.0; col+=uGlow*0.55*max(g-vec3(0.32),vec3(0.0)); }
   if(uWarmth>0.0001||uWarmth<-0.0001){ col.r*=1.0+uWarmth*0.16; col.g*=1.0+uWarmth*0.03; col.b*=1.0-uWarmth*0.16; }
+  col*=1.0+uBassPulse;
   col+=(hash(gl_FragCoord.xy+uSeed)-0.5)*uGrain;
   frag=vec4(clamp(col,0.0,1.0),1.0);
 }`;
   let prog=null,uni={},glReady=false;
-  const UNAMES=['uRes','uPhase','uHasTex','uSeed','uTex','uWarp','uScale','uDetail','uGrain','uSpin','uSway','uTilt','uSphere','uVortex','uDolly','uParallax','uRipple','uDrift','uGlow','uKaleido','uWarmth'];
+  const UNAMES=['uRes','uPhase','uHasTex','uSeed','uTex','uWarp','uScale','uDetail','uGrain','uSpin','uSway','uTilt','uSphere','uVortex','uDolly','uParallax','uRipple','uDrift','uGlow','uKaleido','uWarmth','uBassPulse'];
   function comp(t,s){const sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(sh));return sh;}
   try{
     prog=gl.createProgram();
@@ -3674,9 +3677,9 @@ void main(){
   }
   if(ARTWORK_DEFAULT_IMG)loadTexture(ARTWORK_DEFAULT_IMG);
 
-  const KEYS=['flow','warp','scale','detail','spin','sway','tilt','sphere','vortex','dolly','parallax','ripple','drift','glow','kaleido','warmth','grain','bass','treble'];
+  const KEYS=['flow','warp','scale','detail','spin','sway','tilt','sphere','vortex','dolly','parallax','ripple','drift','glow','kaleido','warmth','grain','bass','treble','fadein','fadeout'];
   const st={ar:0.5625};
-  const FMT={flow:v=>v.toFixed(1)+'s',warp:v=>v.toFixed(3),scale:v=>v.toFixed(2)+'×',detail:v=>v.toFixed(1),spin:v=>v.toFixed(0)+'바퀴',drift:v=>v<1?'끄기':v.toFixed(0),kaleido:v=>v<2?'끄기':v.toFixed(0)+'면',warmth:v=>v>0.001?'따뜻 +'+v.toFixed(2):(v<-0.001?'차가움 '+v.toFixed(2):'중립'),grain:v=>v.toFixed(3)};
+  const FMT={flow:v=>v.toFixed(1)+'s',warp:v=>v.toFixed(3),scale:v=>v.toFixed(2)+'×',detail:v=>v.toFixed(1),spin:v=>v.toFixed(0)+'바퀴',drift:v=>v<1?'끄기':v.toFixed(0),kaleido:v=>v<2?'끄기':v.toFixed(0)+'면',warmth:v=>v>0.001?'따뜻 +'+v.toFixed(2):(v<-0.001?'차가움 '+v.toFixed(2):'중립'),grain:v=>v.toFixed(3),fadein:v=>v.toFixed(1)+'s',fadeout:v=>v.toFixed(1)+'s'};
   function fmt(k,v){return (FMT[k]||(x=>x.toFixed(2)))(v);}
   KEYS.forEach(k=>{ const el=Q('#ls_'+k),out=Q('#ls_'+k+'V');
     const upd=()=>{st[k]=parseFloat(el.value); if(out)out.textContent=fmt(k,st[k]);}; el.addEventListener('input',upd); upd(); });
@@ -3684,36 +3687,39 @@ void main(){
   function captureVals(){ const o={}; KEYS.forEach(k=>o[k]=st[k]); return o; }
 
   // ===== audio =====
-  let audioCtx=null,analyser=null,audioDest=null,freqData=null,audio=null,srcNode=null,audioReady=false;
+  let audioCtx=null,gainNode=null,analyser=null,audioDest=null,freqData=null,audio=null,srcNode=null,audioReady=false;
   let smBass=0,smTreble=0;
   let trimStart=0,trimEnd=0;
   function ensureAudioNodes(){
     if(audioCtx)return;
     const AC=window.AudioContext||window.webkitAudioContext; if(!AC)return;
-    audioCtx=new AC(); analyser=audioCtx.createAnalyser(); analyser.fftSize=1024; analyser.smoothingTimeConstant=0.8;
+    audioCtx=new AC(); gainNode=audioCtx.createGain();
+    analyser=audioCtx.createAnalyser(); analyser.fftSize=1024; analyser.smoothingTimeConstant=0.6;
     freqData=new Uint8Array(analyser.frequencyBinCount); audioDest=audioCtx.createMediaStreamDestination();
-    analyser.connect(audioCtx.destination); analyser.connect(audioDest);
+    gainNode.connect(analyser); analyser.connect(audioCtx.destination); analyser.connect(audioDest);
   }
   function setupAudio(file){
     ensureAudioNodes(); if(!audioCtx){ showError('이 브라우저는 오디오 분석을 지원하지 않아요.'); return; }
     if(srcNode){ try{srcNode.disconnect();}catch(e){} }
     if(audio){ try{audio.pause();}catch(e){} }
     audio=new Audio(); audio.src=URL.createObjectURL(file); audio.crossOrigin='anonymous'; audioReady=false;
-    try{ srcNode=audioCtx.createMediaElementSource(audio); srcNode.connect(analyser); }catch(e){ showError('오디오 연결에 실패했어요.'); return; }
+    try{ srcNode=audioCtx.createMediaElementSource(audio); srcNode.connect(gainNode); }catch(e){ showError('오디오 연결에 실패했어요.'); return; }
     audio._name=file.name||'음원';
     audio.addEventListener('loadedmetadata',()=>{ audioReady=true; lastPhase=0; trimStart=0; trimEnd=audio.duration||0; updTrimUI(); if(playing){ audioCtx.resume&&audioCtx.resume(); audio.currentTime=trimStart; audio.play().catch(()=>{}); } updTimebar(0); });
     audio.addEventListener('ended',()=>{ if(recording) finishRec(); else { setPlay(false); } });
     Q('#ls_audio').innerHTML='♪ 음원<br>교체'; Q('#ls_mtag').textContent='불러오는 중…';
   }
-  function audioLevels(){ // {bass,treble} 0~1, smoothed
+  function audioLevels(){ // 킥(40~130Hz) + 고음, 어택 즉각/릴리즈 부드럽게
     if(!(audioReady&&analyser)) return {bass:0,treble:0};
     analyser.getByteFrequencyData(freqData);
-    const n=freqData.length; let bs=0,bn=0,ts=0,tn=0;
-    const bEnd=Math.max(1,Math.floor(n*0.10)), tStart=Math.floor(n*0.55);
-    for(let i=0;i<bEnd;i++){bs+=freqData[i];bn++;}
-    for(let i=tStart;i<n;i++){ts+=freqData[i];tn++;}
+    const n=freqData.length; const sr=(audioCtx&&audioCtx.sampleRate)||44100; const binHz=sr/analyser.fftSize;
+    let kLo=Math.max(1,Math.floor(40/binHz)), kHi=Math.max(kLo+1,Math.ceil(130/binHz)); if(kHi>=n)kHi=n-1;
+    let bs=0,bn=0; for(let i=kLo;i<=kHi;i++){bs+=freqData[i];bn++;}
+    const tStart=Math.floor(n*0.5); let ts=0,tn=0; for(let i=tStart;i<n;i++){ts+=freqData[i];tn++;}
     let bass=bn?(bs/bn)/255:0, treble=tn?(ts/tn)/255:0;
-    smBass+=(bass-smBass)*0.35; smTreble+=(treble-smTreble)*0.45;
+    bass=Math.min(1,Math.max(0,(bass-0.16)/0.84)*1.25); // 노이즈 게이트 + 강조
+    if(bass>smBass) smBass=bass; else smBass+=(bass-smBass)*0.10; // 어택 즉각 / 릴리즈 부드럽게
+    smTreble+=(treble-smTreble)*0.4;
     return {bass:smBass,treble:smTreble};
   }
 
@@ -3772,16 +3778,21 @@ void main(){
     else phase=pausedPhase;
     lastPhase=phase;
     const lv=audioLevels();
-    const scaleEff=st.scale*(1.0+lv.bass*st.bass*0.45);
-    const glowEff=Math.min(2.5, st.glow+lv.bass*st.bass*0.9);
+    const scaleEff=st.scale; // 줌은 비트 반응 안 함
+    const bassPulse=Math.min(1.0, lv.bass*st.bass*0.5);
+    const glowEff=Math.min(2.5, st.glow+lv.bass*st.bass*0.8);
     const grainEff=Math.min(0.3, st.grain+lv.treble*st.treble*0.16);
     const rippleEff=Math.min(3.0, st.ripple+lv.treble*st.treble*1.1);
+    if(gainNode&&audioReady&&audio){ let gg=1; const t=audio.currentTime;
+      if(st.fadein>0.01 && t<trimStart+st.fadein) gg=Math.max(0,(t-trimStart)/st.fadein);
+      if(st.fadeout>0.01 && t>trimEnd-st.fadeout) gg=Math.min(gg,Math.max(0,(trimEnd-t)/st.fadeout));
+      try{gainNode.gain.value=gg;}catch(e){} }
     gl.viewport(0,0,canvas.width,canvas.height); gl.useProgram(prog);
     gl.uniform2f(uni.uRes,canvas.width,canvas.height); gl.uniform1f(uni.uPhase,phase); gl.uniform1f(uni.uSeed,Math.random()*1000.0);
     gl.uniform1f(uni.uWarp,st.warp);gl.uniform1f(uni.uScale,scaleEff);gl.uniform1f(uni.uDetail,st.detail);gl.uniform1f(uni.uGrain,grainEff);
     gl.uniform1f(uni.uSpin,st.spin);gl.uniform1f(uni.uSway,st.sway);gl.uniform1f(uni.uTilt,st.tilt);
     gl.uniform1f(uni.uSphere,st.sphere);gl.uniform1f(uni.uVortex,st.vortex);gl.uniform1f(uni.uDolly,st.dolly);gl.uniform1f(uni.uParallax,st.parallax);
-    gl.uniform1f(uni.uRipple,rippleEff);gl.uniform1f(uni.uDrift,st.drift);gl.uniform1f(uni.uGlow,glowEff);gl.uniform1f(uni.uKaleido,st.kaleido);gl.uniform1f(uni.uWarmth,st.warmth);
+    gl.uniform1f(uni.uRipple,rippleEff);gl.uniform1f(uni.uDrift,st.drift);gl.uniform1f(uni.uGlow,glowEff);gl.uniform1f(uni.uKaleido,st.kaleido);gl.uniform1f(uni.uWarmth,st.warmth);gl.uniform1f(uni.uBassPulse,bassPulse);
     gl.uniform1i(uni.uTex,0);gl.uniform1i(uni.uHasTex,(tex&&hasTex)?1:0);
     gl.activeTexture(gl.TEXTURE0); if(tex)gl.bindTexture(gl.TEXTURE_2D,tex);
     gl.drawArrays(gl.TRIANGLES,0,3);
