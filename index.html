@@ -680,15 +680,32 @@ img.av,img.art{pointer-events:none}
   --c-t1:var(--t1,#fff); --c-t2:var(--t2,#E6E6E6); --c-t3:var(--t3,#B3B3B3);
   --c-bd:var(--bd,rgba(255,255,255,.10)); --c-bd2:var(--bd2,rgba(255,255,255,.16));
   display:block; color:var(--c-t1); height:calc(100dvh - 128px); min-height:540px; }
-.ls-wrap{ display:grid; grid-template-columns:minmax(0,1fr) 460px; gap:22px; height:100%; align-items:stretch; }
-@media (max-width:920px){ .ls{ height:auto; min-height:0; } .ls-wrap{ grid-template-columns:1fr; height:auto; gap:18px; } }
+.ls-wrap{ display:grid; grid-template-columns:104px minmax(0,1fr) 440px; gap:20px; height:100%; align-items:stretch; }
+@media (max-width:920px){ .ls{ height:auto; min-height:0; } .ls-wrap{ grid-template-columns:1fr; height:auto; gap:16px; } }
+
+/* 좌측 세로 플로팅 컨트롤 바 (비율 / 이미지교체 / 녹화) */
+.ls-floatbar{ align-self:center; display:flex; flex-direction:column; gap:8px;
+  background:color-mix(in srgb,var(--c-panel) 94%,transparent); border:1px solid var(--c-bd2); border-radius:18px;
+  padding:12px; box-shadow:0 22px 60px -22px rgba(0,0,0,.85); }
+@media (max-width:920px){ .ls-floatbar{ align-self:stretch; flex-direction:row; flex-wrap:wrap; box-shadow:none; } }
+.ls-fbsec{ display:flex; flex-direction:column; gap:7px; }
+.ls-fbdiv{ height:1px; background:var(--c-bd); margin:4px 2px; }
+@media (max-width:920px){ .ls-fbsec{ flex-direction:row; flex-wrap:wrap; flex:1; } .ls-fbdiv{ display:none; } }
+.ls-chip{ font-size:13px; color:var(--c-t3); background:var(--c-card); border:1px solid var(--c-bd);
+  padding:11px 0; border-radius:10px; cursor:pointer; transition:.15s; text-align:center; font-weight:500; min-width:64px; }
+.ls-chip:hover{ color:var(--c-t1); border-color:var(--c-bd2); }
+.ls-chip.on{ color:#fff; background:var(--acc); border-color:var(--acc); font-weight:600; }
+.ls-act{ font-size:12.5px; border:1px solid var(--c-bd); background:var(--c-card); color:var(--c-t1);
+  padding:11px 6px; border-radius:10px; cursor:pointer; transition:.15s; display:flex; align-items:center; justify-content:center; gap:6px; font-weight:500; text-align:center; }
+.ls-act:hover{ border-color:var(--c-bd2); background:var(--c-hov); }
+.ls-rec{ background:var(--acc); color:#fff; border-color:var(--acc); font-weight:600; }
+.ls-rec[disabled]{ opacity:.6; cursor:default; } .ls-rec.on{ background:#ff4d4d; border-color:#ff4d4d; }
 
 /* 스테이지 */
 .ls-stageWrap{ height:100%; min-height:0; display:flex; align-items:center; justify-content:center; }
 .ls-stage{ position:relative; height:100%; aspect-ratio:var(--ls-ar,0.5625); max-width:100%; width:auto;
-  border-radius:16px; overflow:hidden; background:#0b0b0c;
-  box-shadow:0 28px 80px -30px rgba(0,0,0,.9), 0 0 0 1px var(--c-bd); }
-@media (max-width:920px){ .ls-stage{ height:auto; width:100%; max-height:64dvh; } }
+  border-radius:16px; overflow:hidden; background:#0b0b0c; box-shadow:0 28px 80px -30px rgba(0,0,0,.9), 0 0 0 1px var(--c-bd); }
+@media (max-width:920px){ .ls-stage{ height:auto; width:100%; max-height:60dvh; } }
 .ls-stage canvas{ display:block; width:100%; height:100%; }
 .ls-recDot{ position:absolute; top:14px; left:14px; z-index:5; display:none; align-items:center; gap:.5rem;
   font-size:12px; letter-spacing:.04em; background:rgba(0,0,0,.55); padding:6px 11px; border-radius:100px; color:#fff; }
@@ -701,39 +718,43 @@ img.av,img.art{pointer-events:none}
   font-size:12px; line-height:1.5; color:#ffd5c2; background:rgba(40,12,8,.9); border:1px solid rgba(255,90,60,.45);
   padding:8px 13px; border-radius:9px; max-width:88%; text-align:center; }
 .ls-toast.on{ display:block; }
-/* 타임바: 재생/일시정지 + 트랙 + 시간 */
 .ls-timewrap{ position:absolute; left:0; right:0; bottom:0; z-index:6; padding:16px 16px 17px;
   background:linear-gradient(to top, rgba(0,0,0,.65), rgba(0,0,0,0)); display:flex; align-items:center; gap:13px; }
 .ls-playbtn{ flex:none; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center;
   background:rgba(255,255,255,.18); color:#fff; cursor:pointer; border:none; padding:0; transition:.15s; }
-.ls-playbtn:hover{ background:rgba(255,255,255,.30); }
-.ls-playbtn svg{ width:17px; height:17px; fill:#fff; }
+.ls-playbtn:hover{ background:rgba(255,255,255,.30); } .ls-playbtn svg{ width:17px; height:17px; fill:#fff; }
 .ls-track{ flex:1; height:5px; border-radius:5px; background:rgba(255,255,255,.26); cursor:pointer; position:relative; }
 .ls-fill{ position:absolute; top:0; left:0; height:100%; border-radius:5px; background:var(--acc); width:0%; }
 .ls-knob{ position:absolute; top:50%; width:13px; height:13px; border-radius:50%; background:#fff; transform:translate(-50%,-50%); left:0%; box-shadow:0 1px 4px rgba(0,0,0,.55); }
 .ls-time{ flex:none; font-size:13px; color:#fff; font-variant-numeric:tabular-nums; text-shadow:0 1px 2px rgba(0,0,0,.6); }
 
-/* 우측 영역: 컨트롤 / 프리셋 / 기능 3개 패널 */
+/* 우측: 기능 패널 → 프리셋 패널 순서 */
 .ls-side{ height:100%; overflow-y:auto; display:flex; flex-direction:column; gap:16px; padding-right:2px; }
 @media (max-width:920px){ .ls-side{ height:auto; overflow:visible; } }
 .ls-panel{ background:var(--c-panel); border:1px solid var(--c-bd); border-radius:18px; padding:18px; }
 .ls-phead{ font-size:13px; font-weight:600; color:var(--c-t2); margin:0 0 12px; }
+.ls-group{ border-top:1px solid var(--c-bd); padding:15px 0 5px; }
+.ls-group:first-child{ border-top:none; padding-top:2px; }
+.ls-gtitle{ font-size:13.5px; font-weight:600; color:var(--c-t2); margin-bottom:13px; }
+.ls-grid{ display:grid; grid-template-columns:1fr 1fr; gap:15px 22px; }
+@media (max-width:520px){ .ls-grid{ grid-template-columns:1fr; } }
+.ls-ctrl{ display:flex; flex-direction:column; gap:8px; }
+.ls-ctrl .ls-row{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+.ls-ctrl label{ font-size:12.5px; color:var(--c-t3); }
+.ls-ctrl .ls-val{ font-size:12.5px; color:var(--c-t1); font-variant-numeric:tabular-nums; }
+/* 슬라이더 + 손잡이 자체 호버(링 없음) */
+.ls input[type=range]{ -webkit-appearance:none; appearance:none; width:100%; height:3px; border-radius:3px;
+  background:color-mix(in srgb,var(--c-t1) 17%,transparent); outline:none; cursor:pointer; margin:7px 0; }
+.ls input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+  background:var(--acc); border:3px solid var(--c-panel); cursor:pointer; transition:transform .12s ease, background .12s ease; }
+.ls input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%; background:var(--acc); border:3px solid var(--c-panel);
+  cursor:pointer; transition:transform .12s ease, background .12s ease; }
+.ls input[type=range]:hover::-webkit-slider-thumb{ transform:scale(1.3); background:color-mix(in srgb,var(--acc) 78%,#fff); }
+.ls input[type=range]:hover::-moz-range-thumb{ transform:scale(1.3); background:color-mix(in srgb,var(--acc) 78%,#fff); }
+.ls input[type=range]:active::-webkit-slider-thumb{ transform:scale(1.45); }
+.ls input[type=range]:active::-moz-range-thumb{ transform:scale(1.45); }
 
-/* 컨트롤 패널: 비율 / 액션 (풀폭) */
-.ls-ratios{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:10px; }
-.ls-chip{ font-size:13px; color:var(--c-t3); background:var(--c-card); border:1px solid var(--c-bd);
-  padding:12px 0; border-radius:10px; cursor:pointer; transition:.15s; text-align:center; font-weight:500; }
-.ls-chip:hover{ color:var(--c-t1); border-color:var(--c-bd2); }
-.ls-chip.on{ color:#fff; background:var(--acc); border-color:var(--acc); font-weight:600; }
-.ls-actions{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.ls-act{ font-size:13.5px; border:1px solid var(--c-bd); background:var(--c-card); color:var(--c-t1);
-  padding:13px 0; border-radius:10px; cursor:pointer; transition:.15s; display:flex; align-items:center; justify-content:center; gap:8px; font-weight:500; }
-.ls-act:hover{ border-color:var(--c-bd2); background:var(--c-hov); }
-.ls-rec{ background:var(--acc); color:#fff; border-color:var(--acc); font-weight:600; }
-.ls-rec[disabled]{ opacity:.6; cursor:default; }
-.ls-rec.on{ background:#ff4d4d; border-color:#ff4d4d; }
-
-/* 프리셋 패널: 상단 저장행 + 아래 2열 이름카드 */
+/* 프리셋 (기능 패널 하단): 저장행 상단 + 2열 이름카드 */
 .ls-saverow{ display:flex; gap:8px; margin-bottom:13px; }
 .ls-saverow input{ flex:1; min-width:0; background:var(--c-inp); border:1px solid var(--c-bd); border-radius:10px;
   color:var(--c-t1); font-size:13.5px; padding:10px 13px; font-family:inherit; }
@@ -748,29 +769,6 @@ img.av,img.art{pointer-events:none}
 .ls-pcard-del{ flex:none; width:24px; height:24px; border-radius:7px; display:flex; align-items:center; justify-content:center;
   color:var(--c-t3); font-size:16px; line-height:1; transition:.15s; }
 .ls-pcard-del:hover{ color:#ff6b6b; background:color-mix(in srgb,#ff6b6b 14%,transparent); }
-
-/* 기능 패널: 슬라이더 그룹 */
-.ls-group{ border-top:1px solid var(--c-bd); padding:15px 0 5px; }
-.ls-group:first-child{ border-top:none; padding-top:2px; }
-.ls-gtitle{ font-size:13.5px; font-weight:600; color:var(--c-t2); margin-bottom:13px; }
-.ls-grid{ display:grid; grid-template-columns:1fr 1fr; gap:15px 22px; }
-@media (max-width:520px){ .ls-grid{ grid-template-columns:1fr; } }
-.ls-ctrl{ display:flex; flex-direction:column; gap:8px; }
-.ls-ctrl .ls-row{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
-.ls-ctrl label{ font-size:12.5px; color:var(--c-t3); }
-.ls-ctrl .ls-val{ font-size:12.5px; color:var(--c-t1); font-variant-numeric:tabular-nums; }
-/* 슬라이더 + 손잡이 호버 */
-.ls input[type=range]{ -webkit-appearance:none; appearance:none; width:100%; height:3px; border-radius:3px;
-  background:color-mix(in srgb,var(--c-t1) 17%,transparent); outline:none; cursor:pointer; margin:7px 0; }
-.ls input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:18px; height:18px; border-radius:50%;
-  background:var(--acc); border:3px solid var(--c-panel); box-shadow:0 0 0 1px color-mix(in srgb,var(--acc) 50%,transparent);
-  cursor:pointer; transition:box-shadow .15s var(--ease,ease), transform .12s var(--ease,ease); }
-.ls input[type=range]::-moz-range-thumb{ width:18px; height:18px; border-radius:50%; background:var(--acc); border:3px solid var(--c-panel);
-  cursor:pointer; transition:box-shadow .15s ease, transform .12s ease; }
-.ls input[type=range]:hover::-webkit-slider-thumb{ box-shadow:0 0 0 8px color-mix(in srgb,var(--acc) 16%,transparent); }
-.ls input[type=range]:hover::-moz-range-thumb{ box-shadow:0 0 0 8px color-mix(in srgb,var(--acc) 16%,transparent); }
-.ls input[type=range]:active::-webkit-slider-thumb{ transform:scale(1.18); box-shadow:0 0 0 10px color-mix(in srgb,var(--acc) 22%,transparent); }
-.ls input[type=range]:active::-moz-range-thumb{ transform:scale(1.18); }
 .ls-fallback{ display:none; padding:1.5rem; text-align:center; color:var(--c-t3); line-height:1.6; font-size:13px; }
 
 </style>
@@ -3505,6 +3503,20 @@ function createArtwork(){
   const root=document.createElement('div'); root.className='ls';
   root.innerHTML=`
     <div class="ls-wrap">
+      <div class="ls-floatbar">
+        <div class="ls-fbsec" id="ls_ratios">
+          <button class="ls-chip" data-ar="1">1:1</button>
+          <button class="ls-chip" data-ar="0.75">3:4</button>
+          <button class="ls-chip on" data-ar="0.5625">9:16</button>
+          <button class="ls-chip" data-ar="1.7778">16:9</button>
+        </div>
+        <div class="ls-fbdiv"></div>
+        <div class="ls-fbsec">
+          <button class="ls-act" id="ls_load">이미지<br>교체</button>
+          <button class="ls-act ls-rec" id="ls_rec">⦿ 녹화</button>
+        </div>
+        <input type="file" id="ls_file" accept="image/*" hidden>
+      </div>
       <div class="ls-stageWrap">
         <div class="ls-stage" id="ls_stage">
           <canvas id="ls_gl"></canvas>
@@ -3514,32 +3526,14 @@ function createArtwork(){
           <div class="ls-timewrap">
             <button class="ls-playbtn" id="ls_play" title="재생/일시정지">${ICON_PAUSE}</button>
             <div class="ls-track" id="ls_track"><div class="ls-fill" id="ls_fill"></div><div class="ls-knob" id="ls_knob"></div></div>
-            <div class="ls-time" id="ls_time">0:00 / 0:12</div>
+            <div class="ls-time" id="ls_time">0:00 / 1:00</div>
           </div>
         </div>
       </div>
       <div class="ls-side">
         <div class="ls-panel">
-          <div class="ls-ratios" id="ls_ratios">
-            <button class="ls-chip" data-ar="1">1:1</button>
-            <button class="ls-chip" data-ar="0.75">3:4</button>
-            <button class="ls-chip on" data-ar="0.5625">9:16</button>
-            <button class="ls-chip" data-ar="1.7778">16:9</button>
-          </div>
-          <div class="ls-actions">
-            <button class="ls-act" id="ls_load">이미지 교체</button>
-            <button class="ls-act ls-rec" id="ls_rec">⦿ 녹화</button>
-          </div>
-          <input type="file" id="ls_file" accept="image/*" hidden>
-        </div>
-        <div class="ls-panel">
-          <div class="ls-phead">프리셋</div>
-          <div class="ls-saverow"><input id="ls_pname" placeholder="프리셋 이름" maxlength="24"><button id="ls_save">저장</button></div>
-          <div class="ls-presets" id="ls_presets"></div>
-        </div>
-        <div class="ls-panel">
           <div class="ls-group"><div class="ls-gtitle">흐름</div><div class="ls-grid">
-            <div class="ls-ctrl"><div class="ls-row"><label for="ls_flow">루프 길이</label><span class="ls-val" id="ls_flowV"></span></div><input type="range" id="ls_flow" min="2" max="60" step="0.5" value="12"></div>
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_flow">루프 길이</label><span class="ls-val" id="ls_flowV"></span></div><input type="range" id="ls_flow" min="2" max="60" step="0.5" value="60"></div>
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_warp">일렁임 Warp</label><span class="ls-val" id="ls_warpV"></span></div><input type="range" id="ls_warp" min="0" max="0.24" step="0.002" value="0.04"></div>
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_detail">흐름결 Detail</label><span class="ls-val" id="ls_detailV"></span></div><input type="range" id="ls_detail" min="1" max="9" step="0.1" value="2.3"></div>
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_scale">줌 Scale</label><span class="ls-val" id="ls_scaleV"></span></div><input type="range" id="ls_scale" min="1" max="3.2" step="0.01" value="1.05"></div>
@@ -3554,15 +3548,17 @@ function createArtwork(){
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_parallax">패럴랙스</label><span class="ls-val" id="ls_parallaxV"></span></div><input type="range" id="ls_parallax" min="0" max="2" step="0.02" value="0"></div>
           </div></div>
           <div class="ls-group"><div class="ls-gtitle">분위기</div><div class="ls-grid">
-            <div class="ls-ctrl"><div class="ls-row"><label for="ls_hue">색조 순환 (바퀴)</label><span class="ls-val" id="ls_hueV"></span></div><input type="range" id="ls_hue" min="0" max="3" step="1" value="0"></div>
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_ripple">물결 Ripple</label><span class="ls-val" id="ls_rippleV"></span></div><input type="range" id="ls_ripple" min="0" max="2" step="0.02" value="0"></div>
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_drift">흐름 Drift</label><span class="ls-val" id="ls_driftV"></span></div><input type="range" id="ls_drift" min="0" max="3" step="1" value="0"></div>
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_glow">은은한 광채</label><span class="ls-val" id="ls_glowV"></span></div><input type="range" id="ls_glow" min="0" max="2" step="0.02" value="0"></div>
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_kaleido">만화경 (면)</label><span class="ls-val" id="ls_kaleidoV"></span></div><input type="range" id="ls_kaleido" min="0" max="12" step="1" value="0"></div>
-            <div class="ls-ctrl"><div class="ls-row"><label for="ls_pulse">맥동 Pulse</label><span class="ls-val" id="ls_pulseV"></span></div><input type="range" id="ls_pulse" min="0" max="1.5" step="0.02" value="0"></div>
-            <div class="ls-ctrl"><div class="ls-row"><label for="ls_halation">광채 Halation</label><span class="ls-val" id="ls_halationV"></span></div><input type="range" id="ls_halation" min="0" max="2" step="0.02" value="0.2"></div>
-          </div></div>
-          <div class="ls-group"><div class="ls-gtitle">질감</div><div class="ls-grid">
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_grain">입자 Grain</label><span class="ls-val" id="ls_grainV"></span></div><input type="range" id="ls_grain" min="0" max="0.1" step="0.002" value="0.05"></div>
           </div></div>
+        </div>
+        <div class="ls-panel">
+          <div class="ls-phead">프리셋</div>
+          <div class="ls-saverow"><input id="ls_pname" placeholder="프리셋 이름" maxlength="24"><button id="ls_save">저장</button></div>
+          <div class="ls-presets" id="ls_presets"></div>
         </div>
       </div>
     </div>
@@ -3582,12 +3578,11 @@ out vec4 frag;
 uniform sampler2D uTex; uniform vec2 uRes; uniform float uPhase; uniform int uHasTex; uniform float uSeed;
 uniform float uWarp,uScale,uDetail,uGrain;
 uniform float uSpin,uSway,uTilt,uSphere,uVortex,uDolly,uParallax;
-uniform float uHue,uRipple,uKaleido,uPulse,uHalation;
+uniform float uRipple,uDrift,uGlow,uKaleido;
 mat2 rot(float a){float s=sin(a),c=cos(a);return mat2(c,-s,s,c);}
 float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
 float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);float a=hash(i),b=hash(i+vec2(1.,0.)),c=hash(i+vec2(0.,1.)),d=hash(i+vec2(1.,1.));vec2 u=f*f*(3.-2.*f);return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);}
 float lfbm(vec2 p,float ph){vec2 o=vec2(cos(ph),sin(ph));float v=0.,amp=.5,fr=1.;for(int i=0;i<4;i++){v+=amp*vnoise(p*fr+o*fr*0.55);fr*=2.;amp*=.5;}return v;}
-vec3 hueShift(vec3 col,float a){const vec3 k=vec3(0.57735026919);float c=cos(a),s=sin(a);return col*c+cross(k,col)*s+k*dot(k,col)*(1.0-c);}
 vec3 sampleImg(vec2 base){
   if(uHasTex==1) return texture(uTex,base).rgb;
   float d=distance(base,vec2(0.5,0.5));
@@ -3604,23 +3599,24 @@ void main(){
   float zoom=uScale*(1.0+uDolly*0.30*sin(ph))*(1.0+(uTilt+uSphere+uVortex)*0.12); c/=zoom;
   c.x/=ar; vec2 scl=(ar>1.0)?vec2(1.0,1.0/ar):vec2(ar,1.0); c*=scl; vec2 base=c+0.5;
   if(uParallax>0.001){ float depth=(uHasTex==1)?dot(texture(uTex,base).rgb,vec3(0.299,0.587,0.114)):0.5; base+=vec2(sin(ph),cos(ph))*uParallax*0.05*(depth-0.5); }
-  if(uRipple>0.001){ float d=length(c); base+=normalize(c+vec2(1e-5))*sin(d*16.0-ph*2.0)*uRipple*0.015; }
+  if(uDrift>0.5){ base.x+=uDrift*(ph/6.2831853); }
+  if(uRipple>0.001){ float d=length(c); float ang=atan(c.y,c.x);
+    float w=sin(d*20.0-ph*2.0)+0.5*sin(d*9.0-ph*1.0+ang*2.0)+0.25*sin(d*34.0-ph*3.0);
+    w*=smoothstep(0.0,0.12,d)*exp(-d*0.5);
+    base+=normalize(c+vec2(1e-5))*w*uRipple*0.016; }
   if(uWarp>0.0001){ vec2 wp=(uv*vec2(ar,1.0))*uDetail;
     vec2 q=vec2(lfbm(wp,ph),lfbm(wp+vec2(5.2,1.3),ph));
     vec2 rr=vec2(lfbm(wp+q*1.4+vec2(1.7,9.2),ph),lfbm(wp+q*1.4+vec2(8.3,2.8),ph));
     base+=(rr-0.5)*uWarp; }
   vec3 col=sampleImg(base);
-  if(uHalation>0.001 && uHasTex==1){ vec3 g=vec3(0.0);
-    for(int i=0;i<6;i++){ float a=float(i)/6.0*6.2831853; g+=texture(uTex,base+vec2(cos(a),sin(a))*0.014).rgb; }
-    g/=6.0; float gLum=dot(g,vec3(0.299,0.587,0.114));
-    col+=uHalation*0.6*smoothstep(0.5,1.0,gLum)*vec3(1.0,0.62,0.38); }
-  if(uHue>0.001) col=hueShift(col,uHue*ph);
-  if(uPulse>0.001){ float l=dot(col,vec3(0.299,0.587,0.114)); col=mix(vec3(l),col,clamp(1.0+uPulse*0.5*sin(ph),0.0,2.5)); col*=1.0+uPulse*0.16*sin(ph); }
+  if(uGlow>0.001 && uHasTex==1){ vec3 g=vec3(0.0);
+    for(int i=0;i<8;i++){ float a=float(i)/8.0*6.2831853; g+=texture(uTex,base+vec2(cos(a),sin(a))*0.018).rgb; }
+    g/=8.0; col+=uGlow*0.55*max(g-vec3(0.32),vec3(0.0)); }
   col+=(hash(gl_FragCoord.xy+uSeed)-0.5)*uGrain;
   frag=vec4(clamp(col,0.0,1.0),1.0);
 }`;
   let prog=null,uni={},glReady=false;
-  const UNAMES=['uRes','uPhase','uHasTex','uSeed','uTex','uWarp','uScale','uDetail','uGrain','uSpin','uSway','uTilt','uSphere','uVortex','uDolly','uParallax','uHue','uRipple','uKaleido','uPulse','uHalation'];
+  const UNAMES=['uRes','uPhase','uHasTex','uSeed','uTex','uWarp','uScale','uDetail','uGrain','uSpin','uSway','uTilt','uSphere','uVortex','uDolly','uParallax','uRipple','uDrift','uGlow','uKaleido'];
   function comp(t,s){const sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(sh));return sh;}
   try{
     prog=gl.createProgram();
@@ -3658,17 +3654,16 @@ void main(){
   }
   if(ARTWORK_DEFAULT_IMG)loadTexture(ARTWORK_DEFAULT_IMG);
 
-  // state + bind
-  const KEYS=['flow','warp','scale','detail','spin','sway','tilt','sphere','vortex','dolly','parallax','hue','ripple','kaleido','pulse','halation','grain'];
+  const KEYS=['flow','warp','scale','detail','spin','sway','tilt','sphere','vortex','dolly','parallax','ripple','drift','glow','kaleido','grain'];
   const st={ar:0.5625};
-  const FMT={flow:v=>v.toFixed(1)+'s',warp:v=>v.toFixed(3),scale:v=>v.toFixed(2)+'×',detail:v=>v.toFixed(1),spin:v=>v.toFixed(0)+'바퀴',hue:v=>v.toFixed(0)+'바퀴',kaleido:v=>v<2?'끄기':v.toFixed(0)+'면',grain:v=>v.toFixed(3)};
+  const FMT={flow:v=>v.toFixed(1)+'s',warp:v=>v.toFixed(3),scale:v=>v.toFixed(2)+'×',detail:v=>v.toFixed(1),spin:v=>v.toFixed(0)+'바퀴',drift:v=>v<1?'끄기':v.toFixed(0),kaleido:v=>v<2?'끄기':v.toFixed(0)+'면',grain:v=>v.toFixed(3)};
   function fmt(k,v){return (FMT[k]||(x=>x.toFixed(2)))(v);}
   KEYS.forEach(k=>{ const el=Q('#ls_'+k),out=Q('#ls_'+k+'V');
     const upd=()=>{st[k]=parseFloat(el.value); if(out)out.textContent=fmt(k,st[k]);}; el.addEventListener('input',upd); upd(); });
   function applyVals(o){ for(const k in o){ const el=Q('#ls_'+k); if(el){ el.value=o[k]; el.dispatchEvent(new Event('input')); } } }
   function captureVals(){ const o={}; KEYS.forEach(k=>o[k]=st[k]); return o; }
 
-  // presets (이름만, 2열, 저장행 상단)
+  // presets (이름만, 2열)
   let presets=[],memP=null;
   async function readStore(){ try{ if(window.storage){ const r=await window.storage.get('ls_artwork_presets'); return r&&r.value; } }catch(e){} try{ return localStorage.getItem('ls_artwork_presets'); }catch(e){} return memP; }
   async function writeStore(s){ memP=s; try{ if(window.storage){ await window.storage.set('ls_artwork_presets',s); return; } }catch(e){} try{ localStorage.setItem('ls_artwork_presets',s); }catch(e){} }
@@ -3717,7 +3712,7 @@ void main(){
     gl.uniform1f(uni.uWarp,st.warp);gl.uniform1f(uni.uScale,st.scale);gl.uniform1f(uni.uDetail,st.detail);gl.uniform1f(uni.uGrain,st.grain);
     gl.uniform1f(uni.uSpin,st.spin);gl.uniform1f(uni.uSway,st.sway);gl.uniform1f(uni.uTilt,st.tilt);
     gl.uniform1f(uni.uSphere,st.sphere);gl.uniform1f(uni.uVortex,st.vortex);gl.uniform1f(uni.uDolly,st.dolly);gl.uniform1f(uni.uParallax,st.parallax);
-    gl.uniform1f(uni.uHue,st.hue);gl.uniform1f(uni.uRipple,st.ripple);gl.uniform1f(uni.uKaleido,st.kaleido);gl.uniform1f(uni.uPulse,st.pulse);gl.uniform1f(uni.uHalation,st.halation);
+    gl.uniform1f(uni.uRipple,st.ripple);gl.uniform1f(uni.uDrift,st.drift);gl.uniform1f(uni.uGlow,st.glow);gl.uniform1f(uni.uKaleido,st.kaleido);
     gl.uniform1i(uni.uTex,0);gl.uniform1i(uni.uHasTex,(tex&&hasTex)?1:0);
     gl.activeTexture(gl.TEXTURE0); if(tex)gl.bindTexture(gl.TEXTURE_2D,tex);
     gl.drawArrays(gl.TRIANGLES,0,3);
@@ -3727,20 +3722,17 @@ void main(){
   function start(){ resize(); if(playing) startT=performance.now()-(lastPhase/(2*Math.PI))*st.flow*1000; if(!rafId)rafId=requestAnimationFrame(frame); }
   function stop(){ if(rafId){ cancelAnimationFrame(rafId); rafId=null; } }
 
-  // play/pause (타임바)
   const playBtn=Q('#ls_play');
   function setPlay(p){ playing=p; playBtn.innerHTML=p?ICON_PAUSE:ICON_PLAY; }
   playBtn.addEventListener('click',()=>{ if(recording)return;
     if(playing){ pausedPhase=2*Math.PI*((((performance.now()-startT)/1000)/st.flow)%1); setPlay(false); }
     else { startT=performance.now()-(pausedPhase/(2*Math.PI))*st.flow*1000; setPlay(true); } });
 
-  // timebar seek
   function seekTo(r){ r=Math.min(1,Math.max(0,r)); if(playing){ startT=performance.now()-r*st.flow*1000; } else { pausedPhase=r*2*Math.PI; } lastPhase=r*2*Math.PI; updTimebar(lastPhase); }
   const track=Q('#ls_track');
   function seekFromEvent(e){ const rect=track.getBoundingClientRect(); const x=(e.touches?e.touches[0].clientX:e.clientX)-rect.left; seekTo(rect.width?x/rect.width:0); }
   track.addEventListener('pointerdown',e=>{ if(recording)return; e.preventDefault(); seekFromEvent(e); const mv=ev=>seekFromEvent(ev); const up=()=>{window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);}; window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up); });
 
-  // image replace
   const fileInput=Q('#ls_file');
   Q('#ls_load').addEventListener('click',()=>fileInput.click());
   fileInput.addEventListener('change',e=>{const f=e.target.files[0]; if(f)loadTexture(f);});
@@ -3748,7 +3740,6 @@ void main(){
   ['dragleave','drop'].forEach(ev=>stage.addEventListener(ev,e=>{e.preventDefault();stage.classList.remove('drag');}));
   stage.addEventListener('drop',e=>{const f=e.dataTransfer.files[0]; if(f&&f.type.startsWith('image/'))loadTexture(f);});
 
-  // recording (MP4 if supported, else WebM)
   const recBtn=Q('#ls_rec'),recDot=Q('#ls_recDot'),recLabel=Q('#ls_recLabel');
   function outputSize(){ if(st.ar>=1)return [Math.round(1080*st.ar),1080]; return [1080,Math.round(1080/st.ar)]; }
   function pickMime(){ const l=['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
