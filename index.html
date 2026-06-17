@@ -673,6 +673,88 @@ img.av,img.art{pointer-events:none}
 /* 창 더 투명하게 + 로즈쿼츠↔세레니티 틴트 — 그라데이션이 적극적으로 비침 */
 [data-skin="pastel"] .side{background:linear-gradient(160deg, color-mix(in srgb,var(--accent) 9%,transparent), color-mix(in srgb,var(--info) 11%,transparent)), color-mix(in srgb,var(--panel2) 80%,transparent)}
 [data-skin="pastel"] .main{background:linear-gradient(150deg, color-mix(in srgb,var(--accent) 7%,transparent), color-mix(in srgb,var(--info) 9%,transparent)), color-mix(in srgb,var(--bg) 76%,transparent)}
+/* ===================== Artwork Loop Studio (격리: .ls / ls- 접두사) ===================== */
+.ls{ --acc:var(--accent,#3182F6); --inf:var(--info,var(--accent,#64D2FF));
+  --c-bg:var(--bg,#0A0A0B); --c-panel:var(--panel,#141415); --c-card:var(--card,#1D1D1F);
+  --c-hov:var(--hov,#27272A); --c-inp:var(--inp,#141415);
+  --c-t1:var(--t1,#fff); --c-t2:var(--t2,#E6E6E6); --c-t3:var(--t3,#B3B3B3);
+  --c-bd:var(--bd,rgba(255,255,255,.10)); --c-bd2:var(--bd2,rgba(255,255,255,.16));
+  --lsr:14px; color:var(--c-t1); display:block; }
+.ls-wrap{ display:grid; gap:18px; grid-template-columns:minmax(0,1fr) minmax(330px,400px); align-items:start; }
+@media (max-width:880px){ .ls-wrap{ grid-template-columns:1fr; } }
+.ls-stageWrap{ display:flex; align-items:center; justify-content:center; min-height:0; }
+.ls-stage{ position:relative; aspect-ratio:var(--ls-ar,0.5625); max-width:100%; max-height:calc(100dvh - 230px);
+  width:auto; height:auto; display:flex; align-items:center; justify-content:center;
+  border-radius:var(--lsr); overflow:hidden; background:#000;
+  box-shadow:0 24px 70px -28px rgba(0,0,0,.9), 0 0 0 1px var(--c-bd); }
+@media (max-width:880px){ .ls-stage{ max-height:60dvh; } }
+.ls-stage canvas{ display:block; width:100%; height:100%; border-radius:var(--lsr); }
+.ls-recDot{ position:absolute; top:12px; left:12px; z-index:5; display:none; align-items:center; gap:.5rem;
+  font-size:11px; letter-spacing:.04em; background:rgba(0,0,0,.55); padding:5px 9px; border-radius:100px; color:#fff; }
+.ls-recDot.on{ display:flex; }
+.ls-recDot i{ width:9px; height:9px; border-radius:50%; background:#ff4d4d; animation:lsBlink 1s steps(2,start) infinite; }
+@keyframes lsBlink{ 50%{ opacity:.25; } }
+.ls-dz{ position:absolute; inset:0; z-index:4; display:none; align-items:center; justify-content:center;
+  background:rgba(8,8,9,.78); border:2px dashed color-mix(in srgb,var(--acc) 55%,transparent);
+  border-radius:var(--lsr); color:var(--inf); font-size:13px; text-align:center; padding:1rem; }
+.ls-stage.drag .ls-dz{ display:flex; }
+.ls-toast{ position:absolute; left:50%; top:12px; transform:translateX(-50%); z-index:7; display:none;
+  font-size:11px; line-height:1.5; color:#ffd5c2; background:rgba(40,12,8,.9);
+  border:1px solid rgba(255,90,60,.45); padding:7px 11px; border-radius:8px; max-width:88%; text-align:center; }
+.ls-toast.on{ display:block; }
+/* 타임바 */
+.ls-timewrap{ position:absolute; left:0; right:0; bottom:0; z-index:6; padding:10px 12px 11px;
+  background:linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,0)); display:flex; flex-direction:column; gap:6px; }
+.ls-track{ height:4px; border-radius:4px; background:rgba(255,255,255,.22); cursor:pointer; position:relative; }
+.ls-fill{ position:absolute; top:0; left:0; height:100%; border-radius:4px; background:var(--acc); width:0%; }
+.ls-knob{ position:absolute; top:50%; width:11px; height:11px; border-radius:50%; background:#fff;
+  transform:translate(-50%,-50%); left:0%; box-shadow:0 1px 3px rgba(0,0,0,.5); }
+.ls-time{ font-size:11px; color:#fff; font-variant-numeric:tabular-nums; letter-spacing:.02em; text-shadow:0 1px 2px rgba(0,0,0,.6); }
+/* 패널 */
+.ls-panel{ background:var(--c-panel); border:1px solid var(--c-bd); border-radius:16px; padding:16px; align-self:stretch; }
+.ls-phead{ font-size:11px; letter-spacing:.04em; color:var(--c-t3); margin:2px 0 8px; }
+.ls-presets{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:9px; min-height:26px; }
+.ls-presets .ls-empty{ font-size:11px; color:var(--c-t3); padding:5px 0; }
+.ls-preset{ display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--c-t2);
+  background:var(--c-card); border:1px solid var(--c-bd); padding:6px 9px; border-radius:9px; cursor:pointer; transition:.15s; }
+.ls-preset:hover{ border-color:var(--c-bd2); color:var(--c-t1); }
+.ls-preset .ls-del{ color:var(--c-t3); font-size:14px; line-height:1; padding:0 2px; border-radius:4px; }
+.ls-preset .ls-del:hover{ color:#ff6b6b; }
+.ls-saverow{ display:flex; gap:6px; margin-bottom:14px; }
+.ls-saverow input{ flex:1; min-width:0; background:var(--c-inp); border:1px solid var(--c-bd); border-radius:9px;
+  color:var(--c-t1); font-size:13px; padding:8px 11px; font-family:inherit; }
+.ls-saverow input:focus{ outline:none; border-color:var(--acc); }
+.ls-saverow button{ font-size:12px; color:#fff; background:var(--acc); border:1px solid var(--acc);
+  padding:8px 13px; border-radius:9px; cursor:pointer; white-space:nowrap; font-weight:600; }
+.ls-group{ border-top:1px solid var(--c-bd); padding:11px 0 4px; }
+.ls-group:first-of-type{ border-top:none; padding-top:2px; }
+.ls-gtitle{ font-size:12px; font-weight:600; color:var(--c-t2); margin-bottom:8px; }
+.ls-grid{ display:grid; grid-template-columns:1fr 1fr; gap:11px 18px; }
+@media (max-width:480px){ .ls-grid{ grid-template-columns:1fr; } }
+.ls-ctrl{ display:flex; flex-direction:column; gap:6px; }
+.ls-ctrl .ls-row{ display:flex; justify-content:space-between; align-items:baseline; }
+.ls-ctrl label{ font-size:11px; color:var(--c-t3); }
+.ls-ctrl .ls-val{ font-size:11px; color:var(--c-t1); font-variant-numeric:tabular-nums; }
+.ls input[type=range]{ -webkit-appearance:none; appearance:none; width:100%; height:2px; border-radius:2px;
+  background:color-mix(in srgb,var(--c-t1) 16%,transparent); outline:none; cursor:pointer; margin:0; }
+.ls input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:14px; height:14px; border-radius:50%;
+  background:var(--acc); border:2px solid var(--c-panel); box-shadow:0 0 0 1px color-mix(in srgb,var(--acc) 50%,transparent); }
+.ls input[type=range]::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; background:var(--acc); border:2px solid var(--c-panel); }
+.ls-bar{ display:flex; flex-wrap:wrap; align-items:center; gap:9px; margin-top:16px; padding-top:16px; border-top:1px solid var(--c-bd); }
+.ls-ratios{ display:flex; gap:6px; flex-wrap:wrap; }
+.ls-chip{ font-size:11px; color:var(--c-t3); background:transparent; border:1px solid var(--c-bd);
+  padding:7px 10px; border-radius:8px; cursor:pointer; transition:.15s; }
+.ls-chip:hover{ color:var(--c-t1); border-color:var(--c-bd2); }
+.ls-chip.on{ color:#fff; background:var(--acc); border-color:var(--acc); font-weight:600; }
+.ls-spacer{ flex:1; }
+.ls-act{ font-size:12px; border:1px solid var(--c-bd); background:var(--c-card); color:var(--c-t1);
+  padding:9px 13px; border-radius:9px; cursor:pointer; transition:.15s; display:flex; align-items:center; gap:7px; }
+.ls-act:hover{ border-color:var(--c-bd2); background:var(--c-hov); }
+.ls-rec{ background:var(--acc); color:#fff; border-color:var(--acc); font-weight:600; }
+.ls-rec[disabled]{ opacity:.6; cursor:default; }
+.ls-rec.on{ background:#ff4d4d; border-color:#ff4d4d; }
+.ls-fallback{ display:none; padding:1.5rem; text-align:center; color:var(--c-t3); line-height:1.6; font-size:13px; }
+
 </style>
 </head>
 <body>
@@ -1158,7 +1240,7 @@ function seedDefaults(){
   if(!S.links)S.links=deep(SEED.links);
   if(!S.navcfg)S.navcfg={
     groups:[{id:'g1',title:'레이블'},{id:'g2',title:'업무'},{id:'g3',title:'리소스'}],
-    assign:{home:'g1',rel:'g1',roster:'g1',settle:'g2',mail:'g2',notes:'g2',links:'g3'},
+    assign:{home:'g1',rel:'g1',roster:'g1',artwork:'g1',settle:'g2',mail:'g2',notes:'g2',links:'g3'},
     order:NAV_VIEWS.slice()
   };
   if(!S.linkcfg){
@@ -1263,20 +1345,21 @@ function ledger(){
 }
 
 /* ===================== router ===================== */
-const VIEWS={home:'홈',rel:'릴리즈',roster:'아티스트',settle:'정산',mail:'메일',notes:'회의록',links:'링크',settings:'설정'};
-const VICONS={home:'home',rel:'disc',roster:'users',settle:'coin',mail:'mail',notes:'doc',links:'link',settings:'gear'};
-const NAV_VIEWS=['home','rel','roster','settle','mail','notes','links'];
+const VIEWS={home:'홈',rel:'릴리즈',roster:'아티스트',artwork:'아트워크',settle:'정산',mail:'메일',notes:'회의록',links:'링크',settings:'설정'};
+const VICONS={home:'home',rel:'disc',roster:'users',artwork:'grid',settle:'coin',mail:'mail',notes:'doc',links:'link',settings:'gear'};
+const NAV_VIEWS=['home','rel','roster','artwork','settle','mail','notes','links'];
 function go(v){S.view=v;render();$('#viewport').scrollTop=0;
   $('#side').classList.remove('open');const ov=$('#sideov');if(ov)ov.classList.remove('on');}
 function render(){
   if(!VIEWS[S.view])S.view='home';
+  if(_artwork&&S.view!=='artwork')_artwork.stop();
   $('#vTitle').textContent=VIEWS[S.view];
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.view));
   $('#gearBtn').classList.toggle('on',S.view==='settings');
   const ta=$('#topActions');if(ta)ta.innerHTML='';
   renderUpnext();
   const v=$('#view');v.innerHTML='';
-  (({home:renderHome,rel:renderRel,roster:renderRoster,mail:renderMail,settle:renderSettleView,
+  (({home:renderHome,rel:renderRel,roster:renderRoster,artwork:renderArtwork,mail:renderMail,settle:renderSettleView,
     notes:renderNotes,links:renderLinks,settings:renderSettings}[S.view])||renderHome)(v);
 }
 function buildNav(){
@@ -1284,6 +1367,8 @@ function buildNav(){
   const cfg=S.navcfg;
   // lazily ensure order covers exactly the existing views
   let order=(cfg.order||[]).filter(v=>NAV_VIEWS.includes(v));
+  if(!cfg.assign.artwork){cfg.assign.artwork='g1';}
+  if(!order.includes('artwork')){const ri=order.indexOf('roster');if(ri>=0)order.splice(ri+1,0,'artwork');else order.push('artwork');}
   NAV_VIEWS.forEach(v=>{if(!order.includes(v))order.push(v);});
   cfg.order=order;
   const mkBtn=v=>{const b=ce('button','',`<svg><use href="#i-${VICONS[v]}"/></svg><span>${VIEWS[v]}</span>`);
@@ -3391,6 +3476,313 @@ boot();
   }
   document.querySelectorAll('.brand .logo,.gatecard .logo').forEach(wire);
 })();
+
+const ARTWORK_DEFAULT_IMG="data:image/jpeg;base64,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";
+/* ===================== Artwork Loop Studio (격리 모듈) ===================== */
+let _artwork=null;
+function renderArtwork(host){
+  if(!_artwork) _artwork=createArtwork();
+  host.appendChild(_artwork.root);
+  _artwork.start();
+}
+function createArtwork(){
+  const root=document.createElement('div'); root.className='ls';
+  root.innerHTML=`
+    <div class="ls-wrap">
+      <div class="ls-stageWrap">
+        <div class="ls-stage" id="ls_stage">
+          <canvas id="ls_gl"></canvas>
+          <div class="ls-recDot" id="ls_recDot"><i></i><span id="ls_recLabel">REC</span></div>
+          <div class="ls-dz">이미지를 놓아 교체</div>
+          <div class="ls-toast" id="ls_toast"></div>
+          <div class="ls-timewrap">
+            <div class="ls-track" id="ls_track"><div class="ls-fill" id="ls_fill"></div><div class="ls-knob" id="ls_knob"></div></div>
+            <div class="ls-time" id="ls_time">0:00 / 0:12</div>
+          </div>
+        </div>
+      </div>
+      <div class="ls-panel">
+        <div class="ls-phead">내 프리셋</div>
+        <div class="ls-presets" id="ls_presets"></div>
+        <div class="ls-saverow"><input id="ls_pname" placeholder="프리셋 이름" maxlength="24"><button id="ls_save">현재 설정 저장</button></div>
+        <div class="ls-group"><div class="ls-gtitle">흐름</div><div class="ls-grid">
+          <div class="ls-ctrl"><div class="ls-row"><label for="ls_flow">루프 길이</label><span class="ls-val" id="ls_flowV"></span></div><input type="range" id="ls_flow" min="2" max="120" step="0.5" value="12"></div>
+          <div class="ls-ctrl"><div class="ls-row"><label for="ls_warp">일렁임 Warp</label><span class="ls-val" id="ls_warpV"></span></div><input type="range" id="ls_warp" min="0" max="0.24" step="0.002" value="0.04"></div>
+          <div class="ls-ctrl"><div class="ls-row"><label for="ls_detail">흐름결 Detail</label><span class="ls-val" id="ls_detailV"></span></div><input type="range" id="ls_detail" min="1" max="9" step="0.1" value="2.3"></div>
+          <div class="ls-ctrl"><div class="ls-row"><label for="ls_scale">줌 Scale</label><span class="ls-val" id="ls_scaleV"></span></div><input type="range" id="ls_scale" min="1" max="3.2" step="0.01" value="1.05"></div>
+        </div></div>
+        <div class="ls-group"><div class="ls-gtitle">입체 · 회전</div><div class="ls-grid">
+          <div class="ls-ctrl"><div class="ls-row"><label for="ls_spin">회전 (바퀴/루프)</label><span class="ls-val" id="ls_spinV"></span></div><input type="range" id="ls_spin" min="-12" max="12" step="1" value="0"></div>
+          <div class="ls-ctrl"><div class="ls-row"><label for="ls_sway">흔들 Sway</label><span class="ls-val" id="ls_swayV"></span></div><input type="range" id="ls_sway" min="0" max="1.2" step="0.02" value="0"></div>
+          <div class="ls-ctrl"><div class="ls-row"><label for="ls_tilt">3D 틸트</label><span class="ls-val" id="ls_tiltV"></span></div><input type="range" id="ls_tilt" min="0" max="2" step="0.02" value="0"></div>
+          <div class="ls-ctrl"><div class="ls-row"><label for="ls_sphere">구체 Sphere</label><span class="ls-val" id="ls_sphereV"></span></div><input type="range" id="ls_sphere" min="0" max="2" step="0.02" value="0"></div>
+          <div class="ls-ctrl"><div class="ls-row"><label for="ls_vortex">소용돌이</label><span class="ls-val" id="ls_vortexV"></span></div><input type="range" id="ls_vortex" min="0" max="2" step="0.02" value="0"></div>
+          <div class="ls-ctrl"><div class="ls-row"><label for="ls_dolly">돌리 줌</label><span class="ls-val" id="ls_dollyV"></span></div><input type="range" id="ls_dolly" min="0" max="2" step="0.02" value="0"></div>
+          <div class="ls-ctrl"><div class="ls-row"><label for="ls_parallax">패럴랙스</label><span class="ls-val" id="ls_parallaxV"></span></div><input type="range" id="ls_parallax" min="0" max="2" step="0.02" value="0"></div>
+        </div></div>
+        <div class="ls-group"><div class="ls-gtitle">필름</div><div class="ls-grid">
+          <div class="ls-ctrl"><div class="ls-row"><label for="ls_leak">빛샘 Leak</label><span class="ls-val" id="ls_leakV"></span></div><input type="range" id="ls_leak" min="0" max="2" step="0.02" value="0.25"></div>
+          <div class="ls-ctrl"><div class="ls-row"><label for="ls_vignette">비네팅</label><span class="ls-val" id="ls_vignetteV"></span></div><input type="range" id="ls_vignette" min="0" max="2" step="0.02" value="0.35"></div>
+          <div class="ls-ctrl"><div class="ls-row"><label for="ls_fade">페이드 Fade</label><span class="ls-val" id="ls_fadeV"></span></div><input type="range" id="ls_fade" min="0" max="2" step="0.02" value="0.35"></div>
+          <div class="ls-ctrl"><div class="ls-row"><label for="ls_halation">헤일레이션</label><span class="ls-val" id="ls_halationV"></span></div><input type="range" id="ls_halation" min="0" max="2" step="0.02" value="0.3"></div>
+          <div class="ls-ctrl"><div class="ls-row"><label for="ls_chroma">색수차</label><span class="ls-val" id="ls_chromaV"></span></div><input type="range" id="ls_chroma" min="0" max="2" step="0.02" value="0.15"></div>
+        </div></div>
+        <div class="ls-group"><div class="ls-gtitle">질감</div><div class="ls-grid">
+          <div class="ls-ctrl"><div class="ls-row"><label for="ls_breathe">호흡 Breathe</label><span class="ls-val" id="ls_breatheV"></span></div><input type="range" id="ls_breathe" min="0" max="0.7" step="0.01" value="0.10"></div>
+          <div class="ls-ctrl"><div class="ls-row"><label for="ls_grain">입자 Grain</label><span class="ls-val" id="ls_grainV"></span></div><input type="range" id="ls_grain" min="0" max="0.6" step="0.005" value="0.08"></div>
+          <div class="ls-ctrl"><div class="ls-row"><label for="ls_light">광원 스윕</label><span class="ls-val" id="ls_lightV"></span></div><input type="range" id="ls_light" min="0" max="2" step="0.02" value="0"></div>
+        </div></div>
+        <div class="ls-bar">
+          <div class="ls-ratios" id="ls_ratios">
+            <button class="ls-chip" data-ar="1">1:1</button>
+            <button class="ls-chip" data-ar="1.3333">4:3</button>
+            <button class="ls-chip on" data-ar="0.5625">9:16</button>
+            <button class="ls-chip" data-ar="1.7778">16:9</button>
+          </div>
+          <span class="ls-spacer"></span>
+          <button class="ls-act" id="ls_play">⏸ 일시정지</button>
+          <button class="ls-act" id="ls_load">이미지 교체</button>
+          <button class="ls-act ls-rec" id="ls_rec">⦿ 녹화</button>
+          <input type="file" id="ls_file" accept="image/*" hidden>
+        </div>
+      </div>
+    </div>
+    <div class="ls-fallback" id="ls_fallback">이 브라우저에서는 WebGL을 사용할 수 없어요. 크롬·사파리·엣지 최신 버전에서 열어 주세요.</div>`;
+
+  const Q=s=>root.querySelector(s);
+  const canvas=Q('#ls_gl');
+  const gl=canvas.getContext('webgl2',{preserveDrawingBuffer:true,antialias:false});
+  if(!gl){ Q('.ls-wrap').style.display='none'; Q('#ls_fallback').style.display='block'; return {root,start(){},stop(){},resize(){}}; }
+
+  const VERT=`#version 300 es
+in vec2 p; void main(){ gl_Position=vec4(p,0.0,1.0); }`;
+  const FRAG=`#version 300 es
+precision highp float;
+#define PI 3.141592653589793
+out vec4 frag;
+uniform sampler2D uTex; uniform vec2 uRes; uniform float uPhase; uniform int uHasTex; uniform float uSeed;
+uniform float uWarp,uScale,uDetail,uBreathe,uGrain;
+uniform float uSpin,uSway,uTilt,uSphere,uVortex,uDolly,uParallax;
+uniform float uLight,uChroma,uLeak,uVignette,uFade,uHalation;
+mat2 rot(float a){float s=sin(a),c=cos(a);return mat2(c,-s,s,c);}
+float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);float a=hash(i),b=hash(i+vec2(1.,0.)),c=hash(i+vec2(0.,1.)),d=hash(i+vec2(1.,1.));vec2 u=f*f*(3.-2.*f);return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);}
+float lfbm(vec2 p,float ph){vec2 o=vec2(cos(ph),sin(ph));float v=0.,amp=.5,fr=1.;for(int i=0;i<4;i++){v+=amp*vnoise(p*fr+o*fr*0.55);fr*=2.;amp*=.5;}return v;}
+vec3 sampleImg(vec2 base, vec2 cdir){
+  if(uHasTex==1){
+    if(uChroma>0.001){vec2 dir=normalize(cdir+vec2(1e-5))*uChroma*0.012;
+      return vec3(texture(uTex,base+dir).r,texture(uTex,base).g,texture(uTex,base-dir).b);}
+    return texture(uTex,base).rgb;
+  }
+  float d=distance(base,vec2(0.40,0.50));
+  vec3 col=mix(vec3(1.0,0.80,0.28),vec3(0.92,0.42,0.13),smoothstep(0.0,0.42,d));
+  return mix(col,vec3(0.05,0.035,0.03),smoothstep(0.45,0.95,d));
+}
+void main(){
+  vec2 res=uRes; vec2 uv=gl_FragCoord.xy/res; float ar=res.x/res.y; float ph=uPhase;
+  vec2 c=(uv-0.5); c.x*=ar;
+  { float r2=dot(c,c); vec2 sp=c*(1.0-uSphere*0.45*r2); sp.x+=uSphere*0.12*sin(ph); sp.y+=uSphere*0.06*cos(ph); c=sp; }
+  { float tx=uTilt*0.7*sin(ph),ty=uTilt*0.7*cos(ph); float persp=1.0/max(0.3,1.0+tx*c.x+ty*c.y); c*=persp; }
+  { float ang=uSpin*ph+uSway*sin(ph)+uVortex*length(c)*sin(ph)*3.0; c=rot(ang)*c; }
+  float zoom=uScale*(1.0+uDolly*0.30*sin(ph)); c/=zoom;
+  c.x/=ar; vec2 scl=(ar>1.0)?vec2(1.0,1.0/ar):vec2(ar,1.0); c*=scl; vec2 base=c+0.5;
+  if(uParallax>0.001){ float depth=(uHasTex==1)?dot(texture(uTex,base).rgb,vec3(0.299,0.587,0.114)):0.5; base+=vec2(sin(ph),cos(ph))*uParallax*0.05*(depth-0.5); }
+  if(uWarp>0.0001){ vec2 wp=(uv*vec2(ar,1.0))*uDetail;
+    vec2 q=vec2(lfbm(wp,ph),lfbm(wp+vec2(5.2,1.3),ph));
+    vec2 rr=vec2(lfbm(wp+q*1.4+vec2(1.7,9.2),ph),lfbm(wp+q*1.4+vec2(8.3,2.8),ph));
+    base+=(rr-0.5)*uWarp; }
+  vec3 col=sampleImg(base,c);
+  if(uHalation>0.001 && uHasTex==1){ vec3 g=vec3(0.0);
+    for(int i=0;i<6;i++){ float a=float(i)/6.0*6.2831853; g+=texture(uTex,base+vec2(cos(a),sin(a))*0.014).rgb; }
+    g/=6.0; float gLum=dot(g,vec3(0.299,0.587,0.114));
+    col+=uHalation*0.6*smoothstep(0.5,1.0,gLum)*vec3(1.0,0.55,0.30); }
+  if(uLight>0.001){ vec2 lp=vec2(cos(ph),sin(ph))*0.38; float d=distance(uv-0.5,lp);
+    col+=uLight*0.45*smoothstep(0.55,0.0,d)*vec3(1.0,0.95,0.86); }
+  if(uFade>0.001){ float luma=dot(col,vec3(0.299,0.587,0.114));
+    col=mix(col,vec3(luma),uFade*0.22);
+    col=col*(1.0-uFade*0.10)+uFade*0.10*vec3(0.14,0.10,0.12);
+    col+=uFade*(0.03+0.015*sin(ph))*vec3(0.10,0.02,-0.04);
+    col+=uFade*0.02*cos(ph)*vec3(-0.03,0.0,0.05); }
+  if(uVignette>0.001){ float d=distance(uv,vec2(0.5)); col*=1.0-uVignette*0.9*smoothstep(0.35,0.95,d); }
+  if(uLeak>0.001){
+    vec2 lp=vec2(0.5+0.55*sin(ph*0.8+1.2),0.5+0.5*cos(ph*0.6+0.4));
+    float d=distance(uv,lp);
+    vec3 lc=mix(vec3(1.0,0.32,0.10),vec3(1.0,0.70,0.20),0.5+0.5*sin(ph*1.3));
+    col+=uLeak*(0.55+0.45*sin(ph*1.1))*smoothstep(0.75,0.0,d)*lc;
+    float edge=smoothstep(0.55,1.0,uv.x)*(0.5+0.5*sin(ph*0.5));
+    col+=uLeak*0.22*edge*vec3(1.0,0.5,0.15);
+  }
+  col*=1.0+uBreathe*0.5*sin(ph);
+  col+=(hash(gl_FragCoord.xy+uSeed)-0.5)*uGrain;
+  frag=vec4(clamp(col,0.0,1.0),1.0);
+}`;
+  let prog=null,uni={},glReady=false;
+  const UNAMES=['uRes','uPhase','uHasTex','uSeed','uTex','uWarp','uScale','uDetail','uBreathe','uGrain','uSpin','uSway','uTilt','uSphere','uVortex','uDolly','uParallax','uLight','uChroma','uLeak','uVignette','uFade','uHalation'];
+  function comp(t,s){const sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(sh));return sh;}
+  try{
+    prog=gl.createProgram();
+    gl.attachShader(prog,comp(gl.VERTEX_SHADER,VERT));
+    gl.attachShader(prog,comp(gl.FRAGMENT_SHADER,FRAG));
+    gl.bindAttribLocation(prog,0,'p'); gl.linkProgram(prog);
+    if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(prog));
+    gl.useProgram(prog);
+    const vao=gl.createVertexArray();gl.bindVertexArray(vao);
+    const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+    gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
+    UNAMES.forEach(n=>uni[n]=gl.getUniformLocation(prog,n));
+    glReady=true;
+  }catch(err){ Q('#ls_fallback').style.display='block'; Q('#ls_fallback').textContent='그래픽 초기화 오류: '+(err&&err.message||err); }
+
+  // texture
+  let tex=null,hasTex=false;
+  const toast=Q('#ls_toast');
+  function showError(m){toast.textContent=m;toast.classList.add('on');}
+  function hideError(){toast.classList.remove('on');}
+  function uploadTex(src){
+    if(!tex)tex=gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D,tex);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,src);
+    hasTex=true;hideError();
+  }
+  async function loadTexture(src){
+    try{ let blob=(typeof src==='string')?await (await fetch(src)).blob():src; const bmp=await createImageBitmap(blob); uploadTex(bmp); return; }catch(e){}
+    try{ const img=new Image(); img.onload=()=>uploadTex(img); img.onerror=()=>showError('이미지를 불러오지 못했어요. "이미지 교체"로 파일을 올려보세요.'); img.src=(typeof src==='string')?src:URL.createObjectURL(src); }catch(e){ showError('이미지를 디코드하지 못했어요.'); }
+  }
+  if(ARTWORK_DEFAULT_IMG)loadTexture(ARTWORK_DEFAULT_IMG);
+
+  // state + bind
+  const KEYS=['flow','warp','scale','detail','spin','sway','tilt','sphere','vortex','dolly','parallax','leak','vignette','fade','halation','chroma','breathe','grain','light'];
+  const st={ar:0.5625};
+  const FMT={flow:v=>v.toFixed(1)+'s',warp:v=>v.toFixed(3),scale:v=>v.toFixed(2)+'×',detail:v=>v.toFixed(1),spin:v=>v.toFixed(0)+'바퀴',grain:v=>v.toFixed(3),breathe:v=>v.toFixed(2)};
+  function fmt(k,v){return (FMT[k]||(x=>x.toFixed(2)))(v);}
+  KEYS.forEach(k=>{ const el=Q('#ls_'+k),out=Q('#ls_'+k+'V');
+    const upd=()=>{st[k]=parseFloat(el.value); if(out)out.textContent=fmt(k,st[k]);}; el.addEventListener('input',upd); upd(); });
+  function applyVals(o){ for(const k in o){ const el=Q('#ls_'+k); if(el){ el.value=o[k]; el.dispatchEvent(new Event('input')); } } }
+  function captureVals(){ const o={}; KEYS.forEach(k=>o[k]=st[k]); return o; }
+
+  // presets (portable: window.storage -> localStorage -> memory)
+  let presets=[],memP=null;
+  async function readStore(){ try{ if(window.storage){ const r=await window.storage.get('ls_artwork_presets'); return r&&r.value; } }catch(e){} try{ return localStorage.getItem('ls_artwork_presets'); }catch(e){} return memP; }
+  async function writeStore(s){ memP=s; try{ if(window.storage){ await window.storage.set('ls_artwork_presets',s); return; } }catch(e){} try{ localStorage.setItem('ls_artwork_presets',s); }catch(e){} }
+  async function loadPresets(){ const raw=await readStore(); try{ presets=raw?JSON.parse(raw):[]; }catch(e){ presets=[]; } renderPresets(); }
+  async function persistPresets(){ await writeStore(JSON.stringify(presets)); }
+  function renderPresets(){
+    const box=Q('#ls_presets'); if(!box)return; box.innerHTML='';
+    if(!presets.length){ const e=document.createElement('div'); e.className='ls-empty'; e.textContent='저장된 프리셋이 없어요. 아래에서 현재 설정을 저장해 보세요.'; box.appendChild(e); return; }
+    presets.forEach((p,i)=>{
+      const chip=document.createElement('span'); chip.className='ls-preset';
+      const lab=document.createElement('span'); lab.textContent=p.name; chip.appendChild(lab);
+      const del=document.createElement('span'); del.className='ls-del'; del.textContent='×'; del.title='삭제'; chip.appendChild(del);
+      chip.addEventListener('click',ev=>{ if(ev.target===del){ presets.splice(i,1); persistPresets(); renderPresets(); } else { applyVals(p.vals); } });
+      box.appendChild(chip);
+    });
+  }
+  Q('#ls_save').addEventListener('click',()=>{ const inp=Q('#ls_pname'); let name=(inp.value||'').trim(); if(!name)name='프리셋 '+(presets.length+1); presets.push({name,vals:captureVals()}); inp.value=''; persistPresets(); renderPresets(); });
+  Q('#ls_pname').addEventListener('keydown',e=>{ if(e.key==='Enter')Q('#ls_save').click(); });
+  loadPresets();
+
+  // aspect
+  const stage=Q('#ls_stage');
+  Q('#ls_ratios').addEventListener('click',e=>{ const b=e.target.closest('.ls-chip'); if(!b)return;
+    root.querySelectorAll('.ls-chip').forEach(c=>c.classList.toggle('on',c===b));
+    st.ar=parseFloat(b.dataset.ar); stage.style.setProperty('--ls-ar',st.ar); resize(); });
+  stage.style.setProperty('--ls-ar',st.ar);
+
+  // loop time
+  let DPR=Math.min(window.devicePixelRatio||1,2);
+  let playing=true, startT=performance.now(), pausedPhase=0, lastPhase=0, recElapsed=0, recording=false, rafId=null;
+  function resize(){ if(recording)return; const rect=stage.getBoundingClientRect();
+    canvas.width=Math.max(2,Math.round(rect.width*DPR)); canvas.height=Math.max(2,Math.round(rect.height*DPR)); }
+  function fmtT(s){ s=Math.max(0,s); const m=Math.floor(s/60),x=Math.floor(s%60); return m+':'+(x<10?'0':'')+x; }
+  function updTimebar(phase){
+    const f=phase/(2*Math.PI); Q('#ls_fill').style.width=(f*100).toFixed(2)+'%'; Q('#ls_knob').style.left=(f*100).toFixed(2)+'%';
+    Q('#ls_time').textContent=fmtT(f*st.flow)+' / '+fmtT(st.flow);
+  }
+  function frame(now){
+    if(!glReady){ rafId=requestAnimationFrame(frame); return; }
+    let phase;
+    if(recording) phase=2*Math.PI*(recElapsed/st.flow);
+    else if(playing) phase=2*Math.PI*((((now-startT)/1000)/st.flow)%1);
+    else phase=pausedPhase;
+    lastPhase=phase;
+    gl.viewport(0,0,canvas.width,canvas.height); gl.useProgram(prog);
+    gl.uniform2f(uni.uRes,canvas.width,canvas.height); gl.uniform1f(uni.uPhase,phase); gl.uniform1f(uni.uSeed,Math.random()*1000.0);
+    gl.uniform1f(uni.uWarp,st.warp);gl.uniform1f(uni.uScale,st.scale);gl.uniform1f(uni.uDetail,st.detail);
+    gl.uniform1f(uni.uBreathe,st.breathe);gl.uniform1f(uni.uGrain,st.grain);
+    gl.uniform1f(uni.uSpin,st.spin);gl.uniform1f(uni.uSway,st.sway);gl.uniform1f(uni.uTilt,st.tilt);
+    gl.uniform1f(uni.uSphere,st.sphere);gl.uniform1f(uni.uVortex,st.vortex);gl.uniform1f(uni.uDolly,st.dolly);gl.uniform1f(uni.uParallax,st.parallax);
+    gl.uniform1f(uni.uLight,st.light);gl.uniform1f(uni.uChroma,st.chroma);
+    gl.uniform1f(uni.uLeak,st.leak);gl.uniform1f(uni.uVignette,st.vignette);gl.uniform1f(uni.uFade,st.fade);gl.uniform1f(uni.uHalation,st.halation);
+    gl.uniform1i(uni.uTex,0);gl.uniform1i(uni.uHasTex,(tex&&hasTex)?1:0);
+    gl.activeTexture(gl.TEXTURE0); if(tex)gl.bindTexture(gl.TEXTURE_2D,tex);
+    gl.drawArrays(gl.TRIANGLES,0,3);
+    updTimebar(phase);
+    rafId=requestAnimationFrame(frame);
+  }
+  function start(){ resize(); if(playing) startT=performance.now()-(lastPhase/(2*Math.PI))*st.flow*1000; if(!rafId)rafId=requestAnimationFrame(frame); }
+  function stop(){ if(rafId){ cancelAnimationFrame(rafId); rafId=null; } }
+
+  // play/pause
+  const playBtn=Q('#ls_play');
+  playBtn.addEventListener('click',()=>{ if(recording)return;
+    if(playing){ pausedPhase=2*Math.PI*((((performance.now()-startT)/1000)/st.flow)%1); playing=false; playBtn.textContent='▶ 재생'; }
+    else { startT=performance.now()-(pausedPhase/(2*Math.PI))*st.flow*1000; playing=true; playBtn.textContent='⏸ 일시정지'; } });
+
+  // timebar seek
+  function seekTo(r){ r=Math.min(1,Math.max(0,r)); if(playing){ startT=performance.now()-r*st.flow*1000; } else { pausedPhase=r*2*Math.PI; } lastPhase=r*2*Math.PI; updTimebar(lastPhase); }
+  const track=Q('#ls_track');
+  function seekFromEvent(e){ const rect=track.getBoundingClientRect(); const x=(e.touches?e.touches[0].clientX:e.clientX)-rect.left; seekTo(rect.width?x/rect.width:0); }
+  track.addEventListener('pointerdown',e=>{ if(recording)return; e.preventDefault(); seekFromEvent(e); const mv=ev=>seekFromEvent(ev); const up=()=>{window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);}; window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up); });
+
+  // image replace
+  const fileInput=Q('#ls_file');
+  Q('#ls_load').addEventListener('click',()=>fileInput.click());
+  fileInput.addEventListener('change',e=>{const f=e.target.files[0]; if(f)loadTexture(f);});
+  ['dragenter','dragover'].forEach(ev=>stage.addEventListener(ev,e=>{e.preventDefault();stage.classList.add('drag');}));
+  ['dragleave','drop'].forEach(ev=>stage.addEventListener(ev,e=>{e.preventDefault();stage.classList.remove('drag');}));
+  stage.addEventListener('drop',e=>{const f=e.dataTransfer.files[0]; if(f&&f.type.startsWith('image/'))loadTexture(f);});
+
+  // recording (MP4 if supported, else WebM)
+  const recBtn=Q('#ls_rec'),recDot=Q('#ls_recDot'),recLabel=Q('#ls_recLabel');
+  function outputSize(){ if(st.ar>=1)return [Math.round(1080*st.ar),1080]; return [1080,Math.round(1080/st.ar)]; }
+  function pickMime(){ const l=['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
+    for(const m of l){ if(window.MediaRecorder&&MediaRecorder.isTypeSupported(m))return m; } return ''; }
+  recBtn.addEventListener('click',()=>{
+    if(!glReady||recording)return;
+    const mime=pickMime(); if(!mime){ showError('이 브라우저는 영상 녹화를 지원하지 않아요.'); return; }
+    recording=true; if(!playing){ playing=true; playBtn.textContent='⏸ 일시정지'; }
+    recBtn.classList.add('on'); recBtn.disabled=true; recBtn.textContent='● 녹화 중'; recDot.classList.add('on');
+    const prevW=canvas.width,prevH=canvas.height; const [ow,oh]=outputSize(); canvas.width=ow; canvas.height=oh;
+    const stream=canvas.captureStream(30);
+    const rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:14000000});
+    const chunks=[]; rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
+    const dur=st.flow,t0=performance.now(); let stopped=false;
+    function tick(now){ if(stopped)return; recElapsed=(now-t0)/1000;
+      if(recElapsed>=dur){recElapsed=dur;stopped=true;rec.stop();return;}
+      recLabel.textContent='REC '+recElapsed.toFixed(1)+'s'; requestAnimationFrame(tick); }
+    rec.onstop=()=>{
+      const blob=new Blob(chunks,{type:mime}); const url=URL.createObjectURL(blob);
+      const ext=mime.indexOf('mp4')>=0?'mp4':'webm';
+      const a=document.createElement('a'); const stamp=new Date().toISOString().slice(0,16).replace(/[:T]/g,'');
+      const tag=({'1':'1x1','1.3333':'4x3','0.5625':'9x16','1.7778':'16x9'})[String(st.ar)]||'loop';
+      a.href=url; a.download='dinure_artwork_'+tag+'_'+stamp+'.'+ext; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),4000);
+      recording=false; recElapsed=0; canvas.width=prevW; canvas.height=prevH;
+      recBtn.classList.remove('on'); recBtn.disabled=false; recBtn.textContent='⦿ 녹화';
+      recDot.classList.remove('on'); recLabel.textContent='REC'; startT=performance.now(); resize();
+    };
+    rec.start(); requestAnimationFrame(tick);
+  });
+
+  return { root, start, stop, resize };
+}
+
 </script>
 </body>
 </html>
