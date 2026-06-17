@@ -679,9 +679,9 @@ img.av,img.art{pointer-events:none}
   --c-hov:var(--hov,#27272A); --c-inp:var(--inp,#141415); --c-sel:var(--sel,#2C2C2E);
   --c-t1:var(--t1,#fff); --c-t2:var(--t2,#E6E6E6); --c-t3:var(--t3,#B3B3B3);
   --c-bd:var(--bd,rgba(255,255,255,.10)); --c-bd2:var(--bd2,rgba(255,255,255,.16));
-  display:block; color:var(--c-t1); height:calc(100dvh - 128px); min-height:560px;
-  -webkit-user-select:none; user-select:none; }
-.ls input, .ls textarea{ -webkit-user-select:text; user-select:text; }
+  display:block; color:var(--c-t1); height:calc(100dvh - 128px); min-height:560px; }
+.ls, .ls *{ -webkit-user-select:none !important; user-select:none !important; }
+.ls input, .ls textarea{ -webkit-user-select:text !important; user-select:text !important; }
 .ls canvas, .ls img{ -webkit-user-drag:none; user-drag:none; pointer-events:auto; }
 .ls *{ -webkit-user-drag:none; }
 body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-select:none !important; cursor:inherit; }
@@ -738,7 +738,7 @@ body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-
 .ls-time{ flex:none; font-size:13px; color:#fff; font-variant-numeric:tabular-nums; text-shadow:0 1px 2px rgba(0,0,0,.6); }
 
 /* 오디오 타임라인 (필모라식 멀티트랙) */
-.ls-timeline{ flex:none; background:var(--c-panel); border:1px solid var(--c-bd); border-radius:16px; padding:13px 15px 15px; }
+.ls-timeline{ flex:none; background:var(--c-panel); border:1px solid var(--c-bd); border-radius:16px; padding:13px 15px 15px; box-sizing:border-box; }
 .ls-tl-head{ display:flex; align-items:center; gap:12px; margin-bottom:11px; }
 .ls-tl-title{ font-size:13px; font-weight:600; color:var(--c-t2); }
 .ls-tl-spacer{ flex:1; }
@@ -746,10 +746,12 @@ body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-
 .ls-tl-add[disabled]{ opacity:.5; cursor:default; }
 .ls-tl-empty{ padding:22px 14px; text-align:center; color:var(--c-t3); font-size:12.5px; background:var(--c-card); border:1px dashed var(--c-bd); border-radius:10px; }
 .ls-tl-body{ display:flex; gap:8px; }
-.ls-tl-labels{ width:120px; flex:none; display:flex; flex-direction:column; gap:7px; padding-top:25px; box-sizing:border-box; }
-.ls-rlabel{ height:44px; box-sizing:border-box; display:flex; align-items:center; padding:0 10px; border-radius:8px;
+.ls-tl-labels{ width:184px; flex:none; display:flex; flex-direction:column; gap:7px; padding-top:25px; box-sizing:border-box; }
+.ls-rlabel{ height:44px; box-sizing:border-box; display:flex; align-items:center; padding:0 12px; border-radius:8px;
   background:var(--c-card); border:1px solid var(--c-bd); font-size:11.5px; font-weight:600; color:var(--c-t2);
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ls-rlabel.empty{ color:var(--c-t3); font-weight:500; opacity:.65; }
+.ls-lane.empty{ background:color-mix(in srgb,var(--c-card) 55%,transparent); border-style:dashed; }
 .ls-tl-lanes{ flex:1; min-width:0; position:relative; }
 .ls-ruler{ position:relative; height:18px; margin-bottom:7px; border-bottom:1px solid var(--c-bd); }
 .ls-ruler-line{ position:absolute; top:8px; bottom:-7px; width:1px; background:var(--c-bd); }
@@ -775,18 +777,19 @@ body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-
 .ls-playhead{ position:absolute; top:0; bottom:0; width:2px; background:#fff; box-shadow:0 0 5px rgba(255,255,255,.7); z-index:5; pointer-events:none; }
 
 /* 우측: 기능 패널 (독립 스크롤) + 프리셋 패널 (독립) */
-.ls-side{ height:100%; min-height:0; display:flex; flex-direction:column; gap:16px; }
+.ls-side{ height:100%; min-height:0; display:flex; flex-direction:column; gap:14px; }
 @media (max-width:920px){ .ls-side{ height:auto; } }
 .ls-panel{ background:var(--c-panel); border:1px solid var(--c-bd); border-radius:18px; padding:18px; }
 .ls-panel-fx{ flex:1; min-height:0; overflow-y:auto; }
-.ls-panel-preset{ flex:none; max-height:42%; overflow-y:auto; }
+.ls-panel-preset{ flex:none; overflow-y:auto; }
 @media (max-width:920px){ .ls-panel-fx, .ls-panel-preset{ overflow:visible; max-height:none; flex:none; } }
 .ls-phead{ font-size:13px; font-weight:600; color:var(--c-t2); margin:0 0 12px; }
-.ls-group{ border-top:1px solid var(--c-bd); padding:15px 0 5px; }
-.ls-group:first-child{ border-top:none; padding-top:2px; }
-.ls-gtitle{ font-size:13.5px; font-weight:600; color:var(--c-t2); margin-bottom:13px; }
+.ls-group{ border-top:1px solid var(--c-bd); padding:16px 0; }
+.ls-group:first-child{ border-top:none; padding-top:0; }
+.ls-group:last-child{ padding-bottom:0; }
+.ls-gtitle{ font-size:13.5px; font-weight:600; color:var(--c-t2); margin-bottom:14px; }
 .ls-mtag{ font-size:11px; font-weight:500; color:var(--c-t3); margin-left:6px; }
-.ls-grid{ display:grid; grid-template-columns:1fr 1fr; gap:15px 22px; }
+.ls-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px 22px; }
 @media (max-width:520px){ .ls-grid{ grid-template-columns:1fr; } }
 .ls-ctrl{ display:flex; flex-direction:column; gap:8px; }
 .ls-ctrl .ls-row{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
@@ -3556,6 +3559,7 @@ function createArtwork(){
         <div class="ls-fbdiv"></div>
         <div class="ls-fbsec">
           <button class="ls-act" id="ls_load">이미지<br>교체</button>
+          <button class="ls-act" id="ls_tladd">＋ 트랙<br>추가</button>
           <button class="ls-act ls-rec" id="ls_rec">⦿ 녹화</button>
         </div>
         <input type="file" id="ls_file" accept="image/*" hidden>
@@ -3579,8 +3583,6 @@ function createArtwork(){
           <div class="ls-tl-head">
             <span class="ls-tl-title">오디오 트랙</span>
             <span class="ls-mtag" id="ls_tlinfo"></span>
-            <span class="ls-tl-spacer"></span>
-            <button class="ls-tl-add" id="ls_tladd">＋ 트랙</button>
           </div>
           <div class="ls-tl-body" id="ls_tlbody"></div>
         </div>
@@ -3776,9 +3778,7 @@ void main(){
     try{
       const ab=await file.arrayBuffer();
       const buf=await audioCtx.decodeAudioData(ab.slice(0));
-      let defStart=0; tracks.forEach(tk=>{ defStart=Math.max(defStart, tk.startAt+clipLen(tk)); });
-      const nlen=Math.min(buf.duration,FLOW); const nstart=Math.max(0,Math.min(defStart,FLOW-nlen));
-      tracks.push({id:'t'+(++_tid), name:file.name||('트랙 '+(tracks.length+1)), buffer:buf, trimStart:0, trimEnd:nlen, startAt:nstart, fadeIn:0, fadeOut:0});
+      tracks.push({id:'t'+(++_tid), name:file.name||('트랙 '+(tracks.length+1)), buffer:buf, trimStart:0, trimEnd:buf.duration, startAt:0, fadeIn:0, fadeOut:0});
       renderTimeline();
       if(playing) startTimeline(tlPlaying?Math.min(timelineTime(),totalDur()):tlFromT);
     }catch(e){ showError('음원을 디코드하지 못했어요. 다른 파일로 시도해 보세요.'); info.textContent=prev; }
@@ -3831,13 +3831,10 @@ void main(){
   let DPR=Math.min(window.devicePixelRatio||1,2);
   let playing=true, startT=performance.now(), pausedPhase=0, lastPhase=0, recElapsed=0, recording=false, rafId=null;
   function resize(){ if(recording)return; const rect=stage.getBoundingClientRect();
-    canvas.width=Math.max(2,Math.round(rect.width*DPR)); canvas.height=Math.max(2,Math.round(rect.height*DPR)); }
+    canvas.width=Math.max(2,Math.round(rect.width*DPR)); canvas.height=Math.max(2,Math.round(rect.height*DPR)); if(typeof syncPresetHeight==='function')syncPresetHeight(); }
   function fmtT(s){ s=Math.max(0,s||0); const m=Math.floor(s/60),x=Math.floor(s%60); return m+':'+(x<10?'0':'')+x; }
   function renderTimeline(){
     const body=Q('#ls_tlbody'); if(!body)return; const total=FLOW;
-    if(!tracks.length){ body.innerHTML='<div class="ls-tl-empty">＋ 트랙 버튼으로 음원을 추가하세요 (최대 3개, 60초 안에서 자유 배치)</div>';
-      const mt=Q('#ls_mtag'); if(mt)mt.textContent=''; const info=Q('#ls_tlinfo'); if(info)info.textContent='';
-      const ab=Q('#ls_tladd'); if(ab)ab.disabled=false; updTimebar(lastPhase); return; }
     body.innerHTML='';
     const labels=document.createElement('div'); labels.className='ls-tl-labels';
     const lanes=document.createElement('div'); lanes.className='ls-tl-lanes';
@@ -3845,12 +3842,14 @@ void main(){
     for(let s=0;s<=total;s+=10){ const tk=document.createElement('div'); tk.className='ls-ruler-tick'; tk.style.left=(s/total*100)+'%'; tk.textContent=fmtT(s); ruler.appendChild(tk);
       const ln=document.createElement('div'); ln.className='ls-ruler-line'; ln.style.left=(s/total*100)+'%'; ruler.appendChild(ln); }
     lanes.appendChild(ruler);
-    tracks.forEach(t=>{
-      const lab=document.createElement('div'); lab.className='ls-rlabel'; lab.textContent=t.name; lab.title=t.name; labels.appendChild(lab);
-      const lane=document.createElement('div'); lane.className='ls-lane';
+    for(let i=0;i<MAXTR;i++){
+      const t=tracks[i];
+      const lab=document.createElement('div'); lab.className='ls-rlabel'+(t?'':' empty'); lab.textContent=t?t.name:('트랙 '+(i+1)); lab.title=t?t.name:''; labels.appendChild(lab);
+      const lane=document.createElement('div'); lane.className='ls-lane'+(t?'':' empty');
+      if(!t){ lanes.appendChild(lane); continue; }
       const cl=clipLen(t);
       const clip=document.createElement('div'); clip.className='ls-clip';
-      clip.style.left=(t.startAt/total*100)+'%'; clip.style.width=(cl/total*100)+'%';
+      clip.style.left=(Math.min(total,t.startAt)/total*100)+'%'; clip.style.width=(Math.min(total-t.startAt,cl)/total*100)+'%';
       const fiEl=document.createElement('div'); fiEl.className='ls-clip-fi';
       const foEl=document.createElement('div'); foEl.className='ls-clip-fo';
       const nm=document.createElement('div'); nm.className='ls-clip-name'; nm.textContent=t.name+'  ·  '+fmtT(cl);
@@ -3870,14 +3869,16 @@ void main(){
       fhOut.addEventListener('pointerdown',clipFade(t,'out',lane,updFade));
       clipDrag(t,clip,lane);
       lane.appendChild(clip); lanes.appendChild(lane);
-    });
+    }
     const ph=document.createElement('div'); ph.className='ls-playhead'; ph.id='ls_playhead'; ph.style.display='none'; lanes.appendChild(ph);
     body.appendChild(labels); body.appendChild(lanes);
-    const mt=Q('#ls_mtag'); if(mt)mt.textContent='('+tracks.length+'곡)';
-    const info=Q('#ls_tlinfo'); if(info)info.textContent='트랙 '+tracks.length+'개';
+    const mt=Q('#ls_mtag'); if(mt)mt.textContent=tracks.length?('('+tracks.length+'곡)'):'';
+    const info=Q('#ls_tlinfo'); if(info)info.textContent=tracks.length?('트랙 '+tracks.length+' / '+MAXTR):'';
     const ab=Q('#ls_tladd'); if(ab)ab.disabled=tracks.length>=MAXTR;
-    updTimebar(lastPhase);
+    syncPresetHeight(); updTimebar(lastPhase);
   }
+  function syncPresetHeight(){ try{ const tl=root.querySelector('.ls-timeline'), pp=root.querySelector('.ls-panel-preset');
+    if(tl&&pp&&window.innerWidth>920) pp.style.height=tl.offsetHeight+'px'; else if(pp) pp.style.height=''; }catch(e){} }
   function clipDrag(t,clip,lane){ clip.addEventListener('pointerdown',e=>{ if(recording)return;
     if(e.target.classList.contains('ls-clip-th')||e.target.classList.contains('ls-clip-del')||e.target.classList.contains('ls-clip-fh'))return; e.preventDefault();
     const total=FLOW; const rect=lane.getBoundingClientRect(); const cl=clipLen(t);
