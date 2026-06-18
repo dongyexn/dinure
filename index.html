@@ -759,7 +759,7 @@ body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-
 .ls-tl-add{ font-size:12px; font-weight:600; color:#fff; background:var(--acc); border:1px solid var(--acc); border-radius:9px; padding:8px 13px; cursor:pointer; }
 .ls-tl-add[disabled]{ opacity:.5; cursor:default; }
 .ls-tl-empty{ padding:22px 14px; text-align:center; color:var(--c-t3); font-size:12.5px; background:var(--c-card); border:1px dashed var(--c-bd); border-radius:10px; }
-.ls-tl-body{ display:flex; flex-direction:column; }
+.ls-tl-body{ display:flex; flex-direction:column; position:relative; }
 .ls-tl-labels{ width:184px; flex:none; display:flex; flex-direction:column; gap:7px; box-sizing:border-box; }
 .ls-rlabel{ height:44px; box-sizing:border-box; display:flex; align-items:center; padding:0 12px; border-radius:8px;
   background:var(--c-card); border:1px solid var(--c-bd); font-size:11.5px; font-weight:600; color:var(--c-t2);
@@ -888,20 +888,19 @@ body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-
 .ls-menus{ display:flex; flex-direction:column; gap:7px; }
 @media (max-width:920px){ .ls-menus{ flex-direction:row; flex-wrap:wrap; flex:1; } }
 .ls-menu{ position:relative; }
-.ls-menubtn{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px;
+.ls-menubtn{ width:100%; display:flex; align-items:center; justify-content:center; gap:8px;
   font-size:12px; color:var(--c-t2); background:var(--c-card); border:1px solid var(--c-bd);
   border-radius:10px; padding:9px 11px; cursor:pointer; transition:border-color .14s, background .14s; font-family:inherit; }
 .ls-menubtn:hover{ color:var(--c-t1); border-color:var(--c-bd2); }
 .ls-menubtn.open{ border-color:var(--acc); background:var(--c-hov); }
 .ls-mlab{ font-weight:600; letter-spacing:.01em; }
-.ls-mval{ font-size:11.5px; font-weight:600; color:var(--acc); font-variant-numeric:tabular-nums; }
 .ls-pop{ position:absolute; left:calc(100% + 10px); top:0; z-index:60; display:none;
   flex-direction:column; gap:6px; min-width:118px; padding:8px;
   background:var(--c-panel); border:1px solid var(--c-bd2); border-radius:12px; box-shadow:0 16px 44px -16px rgba(0,0,0,.8); }
 .ls-pop.on{ display:flex; }
 .ls-pop::before{ content:''; position:absolute; left:-5px; top:13px; width:9px; height:9px; rotate:45deg;
   background:var(--c-panel); border-left:1px solid var(--c-bd2); border-bottom:1px solid var(--c-bd2); }
-.ls-pop .ls-chip{ width:100%; text-align:center; }
+.ls-pop .ls-chip{ width:100%; text-align:center; padding:8px 12px; }
 @media (max-width:920px){
   .ls-pop{ left:0; top:calc(100% + 8px); }
   .ls-pop::before{ left:16px; top:-5px; rotate:135deg; border:none; border-top:1px solid var(--c-bd2); border-right:1px solid var(--c-bd2); }
@@ -910,9 +909,8 @@ body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-
 .ls-axis{ display:flex; gap:8px; }
 .ls-axis-pad{ width:184px; flex:none; }
 .ls-axis .ls-ruler{ flex:1; min-width:0; }
-.ls-scroll{ display:flex; gap:8px; align-items:flex-start; }
-.ls-scroll.cap{ max-height:212px; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; padding-right:3px; }
-.ls-scroll.cap.grabbing{ cursor:grabbing; user-select:none; }
+.ls-scroll{ display:flex; gap:8px; align-items:flex-start; height:134px; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; padding-right:3px; }
+.ls-scroll.grabbing{ cursor:grabbing; user-select:none; }
 .ls-scroll::-webkit-scrollbar{ width:8px; }
 .ls-scroll::-webkit-scrollbar-thumb{ background:var(--c-bd2); border-radius:8px; }
 .ls-scroll::-webkit-scrollbar-track{ background:transparent; }
@@ -939,9 +937,9 @@ body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-
   font-family:inherit; transition:.14s; }
 .ls-addbtn:hover{ color:var(--c-t1); border-color:var(--acc); }
 .ls-rl-plus{ font-size:14px; line-height:1; }
-.ls-addpop{ position:absolute; left:0; bottom:calc(100% + 8px); z-index:60; display:none; width:284px; max-width:84vw;
-  flex-direction:column; gap:8px; padding:12px; background:var(--c-panel); border:1px solid var(--c-bd2);
-  border-radius:13px; box-shadow:0 -14px 44px -16px rgba(0,0,0,.8); }
+.ls-addpop{ position:absolute; left:0; bottom:8px; z-index:70; display:none; width:284px; max-width:84vw;
+  max-height:230px; overflow-y:auto; flex-direction:column; gap:8px; padding:12px; background:var(--c-panel); border:1px solid var(--c-bd2);
+  border-radius:13px; box-shadow:0 -14px 44px -16px rgba(0,0,0,.85); }
 .ls-addpop.on{ display:flex; }
 .ls-addopt{ font-size:12.5px; font-weight:600; color:var(--c-t1); background:var(--c-card); border:1px solid var(--c-bd);
   border-radius:9px; padding:10px 12px; cursor:pointer; text-align:left; font-family:inherit; transition:.13s; }
@@ -3695,7 +3693,7 @@ function createArtwork(){
       <div class="ls-floatbar">
         <div class="ls-fbsec ls-menus">
           <div class="ls-menu">
-            <button class="ls-menubtn" data-pop="ar"><span class="ls-mlab">비율</span><span class="ls-mval" id="ls_arVal">9:16</span></button>
+            <button class="ls-menubtn" data-pop="ar"><span class="ls-mlab">비율</span></button>
             <div class="ls-pop" id="ls_ratios">
               <button class="ls-chip" data-ar="1">1:1</button>
               <button class="ls-chip" data-ar="0.75">3:4</button>
@@ -3704,7 +3702,7 @@ function createArtwork(){
             </div>
           </div>
           <div class="ls-menu">
-            <button class="ls-menubtn" data-pop="res"><span class="ls-mlab">해상도</span><span class="ls-mval" id="ls_resVal">1080</span></button>
+            <button class="ls-menubtn" data-pop="res"><span class="ls-mlab">해상도</span></button>
             <div class="ls-pop" id="ls_res">
               <button class="ls-chip" data-h="720">720</button>
               <button class="ls-chip on" data-h="1080">1080</button>
@@ -3713,7 +3711,7 @@ function createArtwork(){
             </div>
           </div>
           <div class="ls-menu">
-            <button class="ls-menubtn" data-pop="fps"><span class="ls-mlab">프레임</span><span class="ls-mval" id="ls_fpsVal">30fps</span></button>
+            <button class="ls-menubtn" data-pop="fps"><span class="ls-mlab">프레임</span></button>
             <div class="ls-pop" id="ls_fps">
               <button class="ls-chip on" data-fps="30">30fps</button>
               <button class="ls-chip" data-fps="60">60fps</button>
@@ -3756,7 +3754,7 @@ function createArtwork(){
           <div class="ls-group"><div class="ls-gtitle">흐름</div><div class="ls-grid">
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_warp">일렁임 Warp</label><span class="ls-val" id="ls_warpV"></span></div><input type="range" id="ls_warp" min="0" max="0.24" step="0.002" value="0.04"></div>
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_detail">흐름결 Detail</label><span class="ls-val" id="ls_detailV"></span></div><input type="range" id="ls_detail" min="1" max="9" step="0.1" value="2.3"></div>
-            <div class="ls-ctrl"><div class="ls-row"><label for="ls_resp">킥 진동 Kick</label><span class="ls-val" id="ls_respV"></span></div><input type="range" id="ls_resp" min="0" max="2" step="0.02" value="0"></div>
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_resp">킥 펄스 Kick</label><span class="ls-val" id="ls_respV"></span></div><input type="range" id="ls_resp" min="0" max="2" step="0.02" value="0"></div>
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_floaty">부유 Float</label><span class="ls-val" id="ls_floatyV"></span></div><input type="range" id="ls_floaty" min="0" max="2" step="0.02" value="0"></div>
           </div></div>
           <div class="ls-group"><div class="ls-gtitle">입체 · 흡입</div><div class="ls-grid">
@@ -3769,7 +3767,8 @@ function createArtwork(){
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_kaleido">만화경 (면)</label><span class="ls-val" id="ls_kaleidoV"></span></div><input type="range" id="ls_kaleido" min="0" max="12" step="1" value="0"></div>
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_glow">은은한 광채</label><span class="ls-val" id="ls_glowV"></span></div><input type="range" id="ls_glow" min="0" max="2" step="0.02" value="0"></div>
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_grain">입자 Grain</label><span class="ls-val" id="ls_grainV"></span></div><input type="range" id="ls_grain" min="0" max="0.1" step="0.002" value="0.05"></div>
-            <div class="ls-ctrl"><div class="ls-row"><label for="ls_hue">색조 흐름 Hue</label><span class="ls-val" id="ls_hueV"></span></div><input type="range" id="ls_hue" min="0" max="2" step="0.02" value="0"></div>
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_duo">듀오톤</label><span class="ls-val" id="ls_duoV"></span></div><input type="range" id="ls_duo" min="0" max="1" step="0.01" value="0"></div>
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_duohue">듀오톤 색</label><span class="ls-val" id="ls_duohueV"></span></div><input type="range" id="ls_duohue" min="0" max="1" step="0.01" value="0"></div>
           </div></div>
         </div>
         <div class="ls-panel ls-panel-preset">
@@ -3796,7 +3795,7 @@ out vec4 frag;
 uniform sampler2D uTex; uniform vec2 uRes; uniform float uPhase; uniform int uHasTex; uniform float uSeed;
 uniform float uWarp,uDetail,uGrain;
 uniform float uPull,uSway,uTilt,uSphere,uVortex,uParallax;
-uniform float uRipple,uDrift,uGlow,uKaleido,uHue,uFloaty,uBounce;
+uniform float uRipple,uDrift,uGlow,uKaleido,uFloaty,uBounce,uDuo,uDuoHue;
 mat2 rot(float a){float s=sin(a),c=cos(a);return mat2(c,-s,s,c);}
 float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
 float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);float a=hash(i),b=hash(i+vec2(1.,0.)),c=hash(i+vec2(0.,1.)),d=hash(i+vec2(1.,1.));vec2 u=f*f*(3.-2.*f);return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);}
@@ -3815,7 +3814,7 @@ void main(){
     float sw=0.4+0.6*sin(ph); float k=uSphere*0.5*sw; c=ctr+cc*(1.0-k*r2); }
   { float mag=uTilt*(0.4+0.6*sin(ph*0.8+1.7)); float dir=ph; float tx=mag*0.7*sin(dir),ty=mag*0.7*cos(dir); float persp=1.0/max(0.3,1.0+tx*c.x+ty*c.y); c*=persp; }
   { float ang=uSway*sin(ph)+uVortex*length(c)*sin(ph)*3.0; c=rot(ang)*c; }
-  float zoom=(1.0+(uTilt+uSphere+uVortex)*0.12)*(1.0+uBounce*0.19); c/=zoom;
+  float zoom=(1.0+uVortex*0.12)*(1.0+uBounce*0.16); c/=zoom;
   c.x/=ar; vec2 scl=(ar>1.0)?vec2(1.0,1.0/ar):vec2(ar,1.0); c*=scl; vec2 base=c+0.5;
   if(uParallax>0.001){ float depth=(uHasTex==1)?dot(texture(uTex,base).rgb,vec3(0.299,0.587,0.114)):0.5; base+=vec2(sin(ph),cos(ph))*uParallax*0.05*(depth-0.5); }
   if(uDrift>0.5){ base.x+=uDrift*(ph/6.2831853); }
@@ -3827,7 +3826,7 @@ void main(){
     vec2 q=vec2(lfbm(wp,ph),lfbm(wp+vec2(5.2,1.3),ph));
     vec2 rr=vec2(lfbm(wp+q*1.4+vec2(1.7,9.2),ph),lfbm(wp+q*1.4+vec2(8.3,2.8),ph));
     base+=(rr-0.5)*uWarp; }
-  if(uBounce>0.001){ base+=vec2(sin(ph*52.0),cos(ph*47.0))*uBounce*0.0045; }
+  if(uBounce>0.001){ base.y += uBounce*0.010; }
   if(uFloaty>0.001){ base+=vec2(sin(ph+base.y*4.2), cos(ph*0.85+base.x*3.6))*uFloaty*0.014
                           +vec2(sin(ph*0.6+base.x*2.1), cos(ph*0.7+base.y*2.4))*uFloaty*0.008; }
   vec3 col;
@@ -3839,19 +3838,22 @@ void main(){
   if(uGlow>0.001 && uHasTex==1){ vec3 g=vec3(0.0);
     for(int i=0;i<8;i++){ float a=float(i)/8.0*6.2831853; g+=texture(uTex,base+vec2(cos(a),sin(a))*0.018).rgb; }
     g/=8.0; col+=uGlow*0.55*max(g-vec3(0.32),vec3(0.0)); }
-  if(uHue>0.001){ vec2 hp=uv*vec2(ar,1.0)*1.5;
-    float field=lfbm(hp,ph*0.3)*0.7+lfbm(hp*2.1+vec2(4.0,2.0),ph*0.22)*0.3;
-    float a=(field-0.5)*6.2831853*uHue*0.55; float cs=cos(a),sn=sin(a); vec3 ic=col;
-    col=vec3(
-      ic.r*(0.299+0.701*cs+0.168*sn)+ic.g*(0.587-0.587*cs+0.330*sn)+ic.b*(0.114-0.114*cs-0.497*sn),
-      ic.r*(0.299-0.299*cs-0.328*sn)+ic.g*(0.587+0.413*cs+0.035*sn)+ic.b*(0.114-0.114*cs+0.292*sn),
-      ic.r*(0.299-0.300*cs+1.250*sn)+ic.g*(0.587-0.588*cs-1.050*sn)+ic.b*(0.114+0.886*cs-0.203*sn));
-    col=clamp(col,0.0,1.0); }
+  if(uDuo>0.001){
+    float L=dot(col,vec3(0.299,0.587,0.114));
+    vec3 sA=vec3(0.04,0.03,0.15), sB=vec3(0.83,0.16,0.42), sC=vec3(1.0,0.85,0.55);
+    vec3 duo = (L<0.5) ? mix(sA,sB,L*2.0) : mix(sB,sC,(L-0.5)*2.0);
+    if(uDuoHue>0.0001){ float a=uDuoHue*6.2831853; float cs=cos(a),sn=sin(a); vec3 ic=duo;
+      duo=vec3(
+        ic.r*(0.299+0.701*cs+0.168*sn)+ic.g*(0.587-0.587*cs+0.330*sn)+ic.b*(0.114-0.114*cs-0.497*sn),
+        ic.r*(0.299-0.299*cs-0.328*sn)+ic.g*(0.587+0.413*cs+0.035*sn)+ic.b*(0.114-0.114*cs+0.292*sn),
+        ic.r*(0.299-0.300*cs+1.250*sn)+ic.g*(0.587-0.588*cs-1.050*sn)+ic.b*(0.114+0.886*cs-0.203*sn));
+      duo=clamp(duo,0.0,1.0); }
+    col=mix(col,duo,uDuo); }
   col+=(hash(gl_FragCoord.xy+uSeed)-0.5)*uGrain;
   frag=vec4(clamp(col,0.0,1.0),1.0);
 }`;
   let prog=null,uni={},glReady=false;
-  const UNAMES=['uRes','uPhase','uHasTex','uSeed','uTex','uWarp','uDetail','uGrain','uPull','uSway','uTilt','uSphere','uVortex','uParallax','uRipple','uDrift','uGlow','uKaleido','uHue','uFloaty','uBounce'];
+  const UNAMES=['uRes','uPhase','uHasTex','uSeed','uTex','uWarp','uDetail','uGrain','uPull','uSway','uTilt','uSphere','uVortex','uParallax','uRipple','uDrift','uGlow','uKaleido','uDuo','uDuoHue','uFloaty','uBounce'];
   function comp(t,s){const sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(sh));return sh;}
   try{
     prog=gl.createProgram();
@@ -3889,12 +3891,12 @@ void main(){
   }
   if(ARTWORK_DEFAULT_IMG)loadTexture(ARTWORK_DEFAULT_IMG);
 
-  const KEYS=['warp','detail','pull','sway','vortex','parallax','glow','kaleido','grain','resp','hue','floaty'];
+  const KEYS=['warp','detail','pull','sway','vortex','parallax','glow','kaleido','grain','resp','duo','duohue','floaty'];
   const st={ar:0.5625};
   const auto={};                                   // 파라미터별 오토메이션 { key:{on,pts:[{t,v}]} }
   const ensureAuto=k=>auto[k]||(auto[k]={on:false,pts:[]});
   const isAuto=k=>!!(auto[k]&&auto[k].on&&auto[k].pts&&auto[k].pts.length);
-  const FMT={flow:v=>v.toFixed(1)+'s',warp:v=>v.toFixed(3),scale:v=>v.toFixed(2)+'×',detail:v=>v.toFixed(1),pull:v=>v.toFixed(2),drift:v=>v<1?'끄기':v.toFixed(0),kaleido:v=>v<2?'끄기':v.toFixed(0)+'면',warmth:v=>v>0.001?'따뜻 +'+v.toFixed(2):(v<-0.001?'차가움 '+v.toFixed(2):'중립'),grain:v=>v.toFixed(3),fadein:v=>v.toFixed(1)+'s',fadeout:v=>v.toFixed(1)+'s'};
+  const FMT={flow:v=>v.toFixed(1)+'s',warp:v=>v.toFixed(3),scale:v=>v.toFixed(2)+'×',detail:v=>v.toFixed(1),pull:v=>v.toFixed(2),drift:v=>v<1?'끄기':v.toFixed(0),kaleido:v=>v<2?'끄기':v.toFixed(0)+'면',duo:v=>v<0.001?'끄기':Math.round(v*100)+'%',duohue:v=>v<0.001?'기본':Math.round(v*360)+'°',warmth:v=>v>0.001?'따뜻 +'+v.toFixed(2):(v<-0.001?'차가움 '+v.toFixed(2):'중립'),grain:v=>v.toFixed(3),fadein:v=>v.toFixed(1)+'s',fadeout:v=>v.toFixed(1)+'s'};
   function fmt(k,v){return (FMT[k]||(x=>x.toFixed(2)))(v);}
   KEYS.forEach(k=>{ const el=Q('#ls_'+k),out=Q('#ls_'+k+'V');
     const upd=()=>{st[k]=parseFloat(el.value); if(out)out.textContent=fmt(k,st[k])+(isAuto(k)?' · 오토':'');}; el.addEventListener('input',upd); upd(); });
@@ -3973,21 +3975,21 @@ void main(){
     if(!(hasAudio()&&analyser)){ kickEnv=0; return 0; }
     analyser.getByteFrequencyData(freqData);
     const n=freqData.length; const sr=(audioCtx&&audioCtx.sampleRate)||44100; const binHz=sr/analyser.fftSize;
-    // 킥 본체 대역(약 35~130Hz)만 — 베이스라인/패드가 깔리는 중·저역은 제외
-    const lo=Math.max(1,Math.floor(35/binHz)), hi=Math.max(lo,Math.min(n-1,Math.floor(130/binHz)));
+    // 킥 본체(약 40~95Hz)만 — 롤링 베이스/패드가 깔리는 중·저역은 제외
+    const lo=Math.max(1,Math.floor(40/binHz)), hi=Math.max(lo,Math.min(n-1,Math.floor(95/binHz)));
     const len=hi-lo+1;
     if(!prevLow||prevLow.length!==len) prevLow=new Float32Array(len);
     // 양(+)의 스펙트럴 플럭스 = 직전 프레임 대비 급상승분 합 → 어택에서만 큼, 지속음엔 0에 가까움
     let flux=0, energy=0, k=0;
     for(let i=lo;i<=hi;i++){ const v=freqData[i]/255; energy+=v; const d=v-prevLow[k]; if(d>0)flux+=d; prevLow[k]=v; k++; }
     flux/=len; energy/=len;
-    fluxAvg += (flux-fluxAvg)*0.04;                 // 플럭스의 느린 기준선(적응형)
-    const thresh = fluxAvg*1.7 + 0.010;             // 기준선 위로 확 튈 때만 킥으로 인정
+    fluxAvg += (flux-fluxAvg)*0.03;                 // 플럭스의 느린 기준선(적응형)
+    const thresh = fluxAvg*2.4 + 0.014;             // 기준선 위로 확 튈 때(=강한 킥)만 인정
     if(kickRefr>0) kickRefr--;
-    if(flux>thresh && energy>0.05 && kickRefr===0){ // 어택 + 실제 에너지 존재 + 불응기 통과
-      kickEnv=1.0; kickRefr=5;                       // 같은 킥의 중복 트리거 방지(약 80ms)
+    if(flux>thresh && energy>0.07 && kickRefr===0){ // 강한 어택 + 충분한 에너지 + 불응기 통과
+      kickEnv=1.0; kickRefr=14;                      // 약 230ms 재트리거 차단 → 롤링 베이스(드드드) 무시
     }
-    kickEnv *= 0.80;                                 // 펀치감 있는 빠른 감쇠
+    kickEnv *= 0.86;                                 // 부드러운 감쇠(쿵 → 서서히), 버즈 없음
     return Math.min(1, kickEnv);
   }
 
@@ -4038,27 +4040,27 @@ void main(){
   root.querySelectorAll('.ls-menubtn').forEach(btn=>{ btn.addEventListener('click',e=>{ e.stopPropagation();
     const pop=btn.nextElementSibling; const willOpen=!pop.classList.contains('on'); closeMenus();
     pop.classList.toggle('on',willOpen); btn.classList.toggle('open',willOpen); }); });
-  document.addEventListener('pointerdown',e=>{ if(root.isConnected && !e.target.closest('.ls-menu') && !e.target.closest('.ls-addrow')) closeMenus(); });
+  document.addEventListener('pointerdown',e=>{ if(root.isConnected && !e.target.closest('.ls-menu') && !e.target.closest('.ls-addpop') && !e.target.closest('.ls-addlane')) closeMenus(); });
   { const fx=root.querySelector('.ls-panel-fx'); if(fx) wireScrollDrag(fx); }   // 기능 많아지면 드래그 스크롤 (Request 3)
 
   // aspect
   Q('#ls_ratios').addEventListener('click',e=>{ const b=e.target.closest('.ls-chip'); if(!b)return;
     Q('#ls_ratios').querySelectorAll('.ls-chip').forEach(c=>c.classList.toggle('on',c===b));
     st.ar=parseFloat(b.dataset.ar); stage.style.setProperty('--ls-ar',st.ar);
-    Q('#ls_arVal').textContent=b.textContent; closeMenus(); resize(); });
+    closeMenus(); resize(); });
   stage.style.setProperty('--ls-ar',st.ar);
 
   // 출력 해상도 / 프레임레이트
   st.outH=1080; st.fps=30;
   Q('#ls_res').addEventListener('click',e=>{ const b=e.target.closest('.ls-chip'); if(!b)return;
     Q('#ls_res').querySelectorAll('.ls-chip').forEach(c=>c.classList.toggle('on',c===b)); st.outH=parseInt(b.dataset.h,10)||1080;
-    Q('#ls_resVal').textContent=b.textContent; closeMenus(); });
+    closeMenus(); });
   Q('#ls_fps').addEventListener('click',e=>{ const b=e.target.closest('.ls-chip'); if(!b)return;
     Q('#ls_fps').querySelectorAll('.ls-chip').forEach(c=>c.classList.toggle('on',c===b)); st.fps=parseInt(b.dataset.fps,10)||30;
-    Q('#ls_fpsVal').textContent=b.textContent; closeMenus(); });
+    closeMenus(); });
 
   // ===== 오토메이션 (타임라인 인라인 레인) =====
-  const AUTO_LABELS={warp:'일렁임',detail:'흐름결',pull:'중심 흡입',sway:'흔들',vortex:'소용돌이',parallax:'패럴랙스',glow:'광채',kaleido:'만화경',grain:'입자',resp:'킥 진동',hue:'색조 흐름',floaty:'부유'};
+  const AUTO_LABELS={warp:'일렁임',detail:'흐름결',pull:'중심 흡입',sway:'흔들',vortex:'소용돌이',parallax:'패럴랙스',glow:'광채',kaleido:'만화경',grain:'입자',resp:'킥 펄스',duo:'듀오톤',duohue:'듀오톤 색',floaty:'부유'};
   let autoKeys=[];                                  // 화면에 표시 중인 오토메이션 레인(파라미터 키) 순서
   function paramRange(k){ const el=Q('#ls_'+k); return el?{min:parseFloat(el.min),max:parseFloat(el.max)}:{min:0,max:2}; }
   function captureAuto(){ const o={}; for(const k in auto){ const a=auto[k]; if(a&&a.pts&&a.pts.length){ o[k]={on:!!a.on,pts:a.pts.map(p=>({t:p.t,v:p.v}))}; } } return o; }
@@ -4195,26 +4197,7 @@ void main(){
       lanes.appendChild(lane);
     });
 
-    // 비어있을 때 안내
-    if(!tracks.length && !autoKeys.length){
-      labels.appendChild(mk('ls-rlabel empty','레인 없음'));
-      lanes.appendChild(mk('ls-lane empty','<span class="ls-lane-hint">아래 “레인 추가”로 음원이나 오토메이션을 더하세요</span>'));
-    }
-
-    // 재생 헤드
-    const ph=mk('ls-playhead'); ph.id='ls_playhead'; ph.style.display='none'; lanes.appendChild(ph);
-    function laneSeek(ev){ const rect=lanes.getBoundingClientRect(); let x=((ev.touches?ev.touches[0].clientX:ev.clientX)-rect.left)/rect.width; seekTo(Math.min(1,Math.max(0,x))); }
-    function startSeek(e){ if(recording)return; e.preventDefault(); e.stopPropagation(); dragLock(true); laneSeek(e); const mv=ev=>laneSeek(ev); const up=()=>{dragLock(false);window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);}; window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up); }
-    ruler.addEventListener('pointerdown',startSeek); ph.addEventListener('pointerdown',startSeek);
-
-    scroll.appendChild(labels); scroll.appendChild(lanes);
-    const laneCount=tracks.length+autoKeys.length;
-    scroll.classList.toggle('cap', laneCount>3);
-    wireScrollDrag(scroll);
-
-    // ---- 레인 추가 ----
-    const addRow=mk('ls-addrow');
-    const addBtn=mk('ls-addbtn'); addBtn.innerHTML='<span class="ls-rl-plus">＋</span> 레인 추가';
+    // ---- 레인 추가 팝오버 (스크롤 영역 밖 → 잘리지 않음) ----
     const pop=mk('ls-addpop');
     const trkDisabled=tracks.length>=MAXTR;
     let popHtml='<button class="ls-addopt'+(trkDisabled?' disabled':'')+'" data-add="track">트랙 (음원 추가)'+(trkDisabled?' · 최대 '+MAXTR+'개':'')+'</button>';
@@ -4223,14 +4206,28 @@ void main(){
     popHtml+= remain.length ? '<div class="ls-addgrid">'+remain.map(k=>'<button class="ls-addopt mini" data-add="auto" data-key="'+k+'">'+(AUTO_LABELS[k]||k)+'</button>').join('')+'</div>'
                             : '<div class="ls-addempty">모든 파라미터가 추가되어 있어요</div>';
     pop.innerHTML=popHtml;
-    addBtn.addEventListener('click',e=>{ e.stopPropagation(); const open=!pop.classList.contains('on'); closeMenus(); pop.classList.toggle('on',open); });
     pop.addEventListener('click',e=>{ const b=e.target.closest('.ls-addopt'); if(!b||b.classList.contains('disabled'))return;
       pop.classList.remove('on');
       if(b.dataset.add==='track'){ if(tracks.length<MAXTR) aInput.click(); }
       else if(b.dataset.add==='auto'){ addAutoLane(b.dataset.key); } });
-    addRow.appendChild(addBtn); addRow.appendChild(pop);
 
-    body.appendChild(axis); body.appendChild(scroll); body.appendChild(addRow);
+    // ---- 항상 존재하는 "빈 레인 = 추가 버튼" (누르면 추가 → 채워지면 다시 빈 레인 생성) ----
+    const addLab=mk('ls-rlabel empty ls-addlane'); addLab.innerHTML='<span class="ls-rl-plus">＋</span> 레인 추가';
+    const addLane=mk('ls-lane empty ls-addlane'); addLane.innerHTML='<span class="ls-lane-hint">트랙 또는 오토메이션 추가</span>';
+    const toggleAdd=e=>{ e.stopPropagation(); const open=!pop.classList.contains('on'); closeMenus(); pop.classList.toggle('on',open); };
+    addLab.addEventListener('click',toggleAdd); addLane.addEventListener('click',toggleAdd);
+    labels.appendChild(addLab); lanes.appendChild(addLane);
+
+    // 재생 헤드
+    const ph=mk('ls-playhead'); ph.id='ls_playhead'; ph.style.display='none'; lanes.appendChild(ph);
+    function laneSeek(ev){ const rect=lanes.getBoundingClientRect(); let x=((ev.touches?ev.touches[0].clientX:ev.clientX)-rect.left)/rect.width; seekTo(Math.min(1,Math.max(0,x))); }
+    function startSeek(e){ if(recording)return; e.preventDefault(); e.stopPropagation(); dragLock(true); laneSeek(e); const mv=ev=>laneSeek(ev); const up=()=>{dragLock(false);window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);}; window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up); }
+    ruler.addEventListener('pointerdown',startSeek); ph.addEventListener('pointerdown',startSeek);
+
+    scroll.appendChild(labels); scroll.appendChild(lanes);
+    wireScrollDrag(scroll);
+
+    body.appendChild(axis); body.appendChild(scroll); body.appendChild(pop);
     requestAnimationFrame(()=>redrawAllAuto());   // 폭 확정 후 자동화 곡선 그리기
     syncPresetHeight(); updTimebar(lastPhase);
   }
@@ -4335,13 +4332,13 @@ void main(){
     lastPhase=phase;
     const lv=audioLevels();
     const tSec=curTimeSec(phase); const V=k=>autoVal(k,tSec);
-    const bounceEff=Math.min(2.4, lv*V('resp')*1.4);
+    const bounceEff=Math.min(1.2, lv*V('resp')*0.7);
     gl.viewport(0,0,canvas.width,canvas.height); gl.useProgram(prog);
     gl.uniform2f(uni.uRes,canvas.width,canvas.height); gl.uniform1f(uni.uPhase,phase); gl.uniform1f(uni.uSeed,Math.random()*1000.0);
     gl.uniform1f(uni.uWarp,V('warp'));gl.uniform1f(uni.uDetail,V('detail'));gl.uniform1f(uni.uGrain,V('grain'));
     gl.uniform1f(uni.uPull,V('pull'));gl.uniform1f(uni.uSway,V('sway'));
     gl.uniform1f(uni.uVortex,V('vortex'));gl.uniform1f(uni.uParallax,V('parallax'));
-    gl.uniform1f(uni.uGlow,V('glow'));gl.uniform1f(uni.uKaleido,V('kaleido'));gl.uniform1f(uni.uHue,V('hue'));gl.uniform1f(uni.uFloaty,V('floaty'));gl.uniform1f(uni.uBounce,bounceEff);
+    gl.uniform1f(uni.uGlow,V('glow'));gl.uniform1f(uni.uKaleido,V('kaleido'));gl.uniform1f(uni.uDuo,V('duo'));gl.uniform1f(uni.uDuoHue,V('duohue'));gl.uniform1f(uni.uFloaty,V('floaty'));gl.uniform1f(uni.uBounce,bounceEff);
     gl.uniform1i(uni.uTex,0);gl.uniform1i(uni.uHasTex,(tex&&hasTex)?1:0);
     gl.activeTexture(gl.TEXTURE0); if(tex)gl.bindTexture(gl.TEXTURE_2D,tex);
     gl.drawArrays(gl.TRIANGLES,0,3);
