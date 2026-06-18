@@ -3767,8 +3767,18 @@ function createArtwork(){
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_kaleido">만화경 (면)</label><span class="ls-val" id="ls_kaleidoV"></span></div><input type="range" id="ls_kaleido" min="0" max="12" step="1" value="0"></div>
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_glow">은은한 광채</label><span class="ls-val" id="ls_glowV"></span></div><input type="range" id="ls_glow" min="0" max="2" step="0.02" value="0"></div>
             <div class="ls-ctrl"><div class="ls-row"><label for="ls_grain">입자 Grain</label><span class="ls-val" id="ls_grainV"></span></div><input type="range" id="ls_grain" min="0" max="0.1" step="0.002" value="0.05"></div>
-            <div class="ls-ctrl"><div class="ls-row"><label for="ls_duo">듀오톤</label><span class="ls-val" id="ls_duoV"></span></div><input type="range" id="ls_duo" min="0" max="1" step="0.01" value="0"></div>
-            <div class="ls-ctrl"><div class="ls-row"><label for="ls_duohue">듀오톤 색</label><span class="ls-val" id="ls_duohueV"></span></div><input type="range" id="ls_duohue" min="0" max="1" step="0.01" value="0"></div>
+          </div></div>
+          <div class="ls-group"><div class="ls-gtitle">임팩트</div><div class="ls-grid">
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_lines">집중선</label><span class="ls-val" id="ls_linesV"></span></div><input type="range" id="ls_lines" min="0" max="1" step="0.01" value="0"></div>
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_zoomb">방사형 줌</label><span class="ls-val" id="ls_zoombV"></span></div><input type="range" id="ls_zoomb" min="0" max="1" step="0.01" value="0"></div>
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_rays">광선</label><span class="ls-val" id="ls_raysV"></span></div><input type="range" id="ls_rays" min="0" max="1" step="0.01" value="0"></div>
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_bloom">블룸 폭발</label><span class="ls-val" id="ls_bloomV"></span></div><input type="range" id="ls_bloom" min="0" max="1" step="0.01" value="0"></div>
+          </div></div>
+          <div class="ls-group"><div class="ls-gtitle">글리치 · 전환</div><div class="ls-grid">
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_rgb">RGB 분리</label><span class="ls-val" id="ls_rgbV"></span></div><input type="range" id="ls_rgb" min="0" max="1" step="0.01" value="0"></div>
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_scan">스캔라인</label><span class="ls-val" id="ls_scanV"></span></div><input type="range" id="ls_scan" min="0" max="1" step="0.01" value="0"></div>
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_glitch">글리치</label><span class="ls-val" id="ls_glitchV"></span></div><input type="range" id="ls_glitch" min="0" max="1" step="0.01" value="0"></div>
+            <div class="ls-ctrl"><div class="ls-row"><label for="ls_wipe">도형 와이프</label><span class="ls-val" id="ls_wipeV"></span></div><input type="range" id="ls_wipe" min="0" max="1" step="0.01" value="0"></div>
           </div></div>
         </div>
         <div class="ls-panel ls-panel-preset">
@@ -3795,7 +3805,8 @@ out vec4 frag;
 uniform sampler2D uTex; uniform vec2 uRes; uniform float uPhase; uniform int uHasTex; uniform float uSeed;
 uniform float uWarp,uDetail,uGrain;
 uniform float uPull,uSway,uTilt,uSphere,uVortex,uParallax;
-uniform float uRipple,uDrift,uGlow,uKaleido,uFloaty,uBounce,uDuo,uDuoHue;
+uniform float uRipple,uDrift,uGlow,uKaleido,uFloaty,uBounce;
+uniform float uLines,uZoomb,uRays,uBloom,uRGB,uScan,uGlitch,uWipe;
 mat2 rot(float a){float s=sin(a),c=cos(a);return mat2(c,-s,s,c);}
 float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
 float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);float a=hash(i),b=hash(i+vec2(1.,0.)),c=hash(i+vec2(0.,1.)),d=hash(i+vec2(1.,1.));vec2 u=f*f*(3.-2.*f);return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);}
@@ -3829,31 +3840,58 @@ void main(){
   if(uBounce>0.001){ base.y += uBounce*0.010; }
   if(uFloaty>0.001){ base+=vec2(sin(ph+base.y*4.2), cos(ph*0.85+base.x*3.6))*uFloaty*0.014
                           +vec2(sin(ph*0.6+base.x*2.1), cos(ph*0.7+base.y*2.4))*uFloaty*0.008; }
+  // 글리치: 가로 블록 변위(시간 기반, 일부 밴드만)
+  if(uGlitch>0.001){ float band=floor(base.y*22.0); float gt=floor(ph/6.2831853*240.0);
+    float on=step(0.80,hash(vec2(band*1.7+1.0,gt*0.37)));
+    base.x += (hash(vec2(band,gt))-0.5)*on*uGlitch*0.10; }
+  vec2 ctr=vec2(0.5);
   vec3 col;
   if(uPull>0.001){ vec2 bc=base-0.5; float lpc=floor(uPull*3.0+0.5); if(lpc<1.0)lpc=1.0;
     float f=fract(ph/6.2831853*lpc); float kA=exp2(f), kB=exp2(f-1.0);
     vec3 cA=sampleImg(bc*kA+0.5), cB=sampleImg(bc*kB+0.5);
     col=mix(cA,cB,smoothstep(0.0,1.0,f)); }
+  else if(uZoomb>0.001){ vec3 acc=vec3(0.0); float wsum=0.0;
+    for(int i=0;i<8;i++){ float s=1.0-float(i)/8.0*uZoomb*0.22; vec2 sb=(base-ctr)*s+ctr;
+      float w=1.0-float(i)/10.0; acc+=sampleImg(sb)*w; wsum+=w; }
+    col=acc/wsum; }
   else { col=sampleImg(base); }
+  // RGB 분리(방사형 색수차)
+  if(uRGB>0.001){ vec2 d=(base-ctr)*uRGB*0.06;
+    col.r=sampleImg(base+d).r; col.b=sampleImg(base-d).b; }
   if(uGlow>0.001 && uHasTex==1){ vec3 g=vec3(0.0);
     for(int i=0;i<8;i++){ float a=float(i)/8.0*6.2831853; g+=texture(uTex,base+vec2(cos(a),sin(a))*0.018).rgb; }
     g/=8.0; col+=uGlow*0.55*max(g-vec3(0.32),vec3(0.0)); }
-  if(uDuo>0.001){
-    float L=dot(col,vec3(0.299,0.587,0.114));
-    vec3 sA=vec3(0.04,0.03,0.15), sB=vec3(0.83,0.16,0.42), sC=vec3(1.0,0.85,0.55);
-    vec3 duo = (L<0.5) ? mix(sA,sB,L*2.0) : mix(sB,sC,(L-0.5)*2.0);
-    if(uDuoHue>0.0001){ float a=uDuoHue*6.2831853; float cs=cos(a),sn=sin(a); vec3 ic=duo;
-      duo=vec3(
-        ic.r*(0.299+0.701*cs+0.168*sn)+ic.g*(0.587-0.587*cs+0.330*sn)+ic.b*(0.114-0.114*cs-0.497*sn),
-        ic.r*(0.299-0.299*cs-0.328*sn)+ic.g*(0.587+0.413*cs+0.035*sn)+ic.b*(0.114-0.114*cs+0.292*sn),
-        ic.r*(0.299-0.300*cs+1.250*sn)+ic.g*(0.587-0.588*cs-1.050*sn)+ic.b*(0.114+0.886*cs-0.203*sn));
-      duo=clamp(duo,0.0,1.0); }
-    col=mix(col,duo,uDuo); }
+  // 블룸 폭발: 밝은 부분 넓게 번짐
+  if(uBloom>0.001 && uHasTex==1){ vec3 b2=vec3(0.0);
+    for(int i=0;i<10;i++){ float a=float(i)/10.0*6.2831853; float rad=0.025+0.022*float(i-(i/2)*2);
+      b2+=texture(uTex,base+vec2(cos(a),sin(a))*rad).rgb; }
+    b2/=10.0; col+=uBloom*1.2*max(b2-vec3(0.52),vec3(0.0)); }
+  // 광선 / 라이트 스트릭: 중심 기준 방사형 god ray
+  if(uRays>0.001 && uHasTex==1){ vec2 dir=(base-ctr); vec3 ray=vec3(0.0);
+    for(int i=0;i<10;i++){ float s=1.0-float(i)/10.0*0.42; vec2 sp=ctr+dir*s;
+      vec3 sm=texture(uTex,sp).rgb; float lum=dot(sm,vec3(0.299,0.587,0.114));
+      ray+=sm*smoothstep(0.62,1.0,lum)*(1.0-float(i)/10.0); }
+    ray/=10.0; col+=ray*uRays*1.8; }
+  // 집중선 / 스피드라인: 가장자리로 갈수록 진한 방사형 줄무늬
+  if(uLines>0.001){ float a2=atan(c.y,c.x)+ph*0.12; float r2=length(c);
+    float u=fract((a2/6.2831853)*72.0);
+    float line=smoothstep(0.40,0.47,u)-smoothstep(0.53,0.60,u);
+    float seed=floor((a2/6.2831853+0.5)*72.0); float tone=hash(vec2(seed,7.0));
+    float mask=smoothstep(0.15,0.62,r2)*uLines;
+    col=mix(col,(tone>0.45?vec3(1.0):vec3(0.03)),clamp(line,0.0,1.0)*mask*0.9); }
+  // 스캔라인
+  if(uScan>0.001){ float sl=0.5+0.5*sin(gl_FragCoord.y*3.14159265); col*=(1.0-uScan*0.5*sl); }
+  // 기하 도형 마스크 / 전환 와이프(다이아몬드 경계 스윕)
+  if(uWipe>0.001){ vec2 q=(uv-0.5)*vec2(ar,1.0); float diag=(abs(q.x)+abs(q.y))*1.15;
+    float sweep=fract(ph/6.2831853*2.0); float edge=mix(-0.1,1.4,sweep);
+    float dd=(diag-edge)/0.05; float bandm=exp(-dd*dd);
+    vec3 blockc=mix(col.bgr,vec3(1.0),0.4);
+    col=mix(col,blockc,bandm*uWipe); }
   col+=(hash(gl_FragCoord.xy+uSeed)-0.5)*uGrain;
   frag=vec4(clamp(col,0.0,1.0),1.0);
 }`;
   let prog=null,uni={},glReady=false;
-  const UNAMES=['uRes','uPhase','uHasTex','uSeed','uTex','uWarp','uDetail','uGrain','uPull','uSway','uTilt','uSphere','uVortex','uParallax','uRipple','uDrift','uGlow','uKaleido','uDuo','uDuoHue','uFloaty','uBounce'];
+  const UNAMES=['uRes','uPhase','uHasTex','uSeed','uTex','uWarp','uDetail','uGrain','uPull','uSway','uTilt','uSphere','uVortex','uParallax','uRipple','uDrift','uGlow','uKaleido','uFloaty','uBounce','uLines','uZoomb','uRays','uBloom','uRGB','uScan','uGlitch','uWipe'];
   function comp(t,s){const sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(sh));return sh;}
   try{
     prog=gl.createProgram();
@@ -3891,12 +3929,12 @@ void main(){
   }
   if(ARTWORK_DEFAULT_IMG)loadTexture(ARTWORK_DEFAULT_IMG);
 
-  const KEYS=['warp','detail','pull','sway','vortex','parallax','glow','kaleido','grain','resp','duo','duohue','floaty'];
+  const KEYS=['warp','detail','pull','sway','vortex','parallax','glow','kaleido','grain','resp','floaty','lines','zoomb','rays','bloom','rgb','scan','glitch','wipe'];
   const st={ar:0.5625};
   const auto={};                                   // 파라미터별 오토메이션 { key:{on,pts:[{t,v}]} }
   const ensureAuto=k=>auto[k]||(auto[k]={on:false,pts:[]});
   const isAuto=k=>!!(auto[k]&&auto[k].on&&auto[k].pts&&auto[k].pts.length);
-  const FMT={flow:v=>v.toFixed(1)+'s',warp:v=>v.toFixed(3),scale:v=>v.toFixed(2)+'×',detail:v=>v.toFixed(1),pull:v=>v.toFixed(2),drift:v=>v<1?'끄기':v.toFixed(0),kaleido:v=>v<2?'끄기':v.toFixed(0)+'면',duo:v=>v<0.001?'끄기':Math.round(v*100)+'%',duohue:v=>v<0.001?'기본':Math.round(v*360)+'°',warmth:v=>v>0.001?'따뜻 +'+v.toFixed(2):(v<-0.001?'차가움 '+v.toFixed(2):'중립'),grain:v=>v.toFixed(3),fadein:v=>v.toFixed(1)+'s',fadeout:v=>v.toFixed(1)+'s'};
+  const FMT={flow:v=>v.toFixed(1)+'s',warp:v=>v.toFixed(3),scale:v=>v.toFixed(2)+'×',detail:v=>v.toFixed(1),pull:v=>v.toFixed(2),drift:v=>v<1?'끄기':v.toFixed(0),kaleido:v=>v<2?'끄기':v.toFixed(0)+'면',warmth:v=>v>0.001?'따뜻 +'+v.toFixed(2):(v<-0.001?'차가움 '+v.toFixed(2):'중립'),grain:v=>v.toFixed(3),fadein:v=>v.toFixed(1)+'s',fadeout:v=>v.toFixed(1)+'s',lines:v=>v<0.001?'끄기':Math.round(v*100)+'%',zoomb:v=>v<0.001?'끄기':Math.round(v*100)+'%',rays:v=>v<0.001?'끄기':Math.round(v*100)+'%',bloom:v=>v<0.001?'끄기':Math.round(v*100)+'%',rgb:v=>v<0.001?'끄기':Math.round(v*100)+'%',scan:v=>v<0.001?'끄기':Math.round(v*100)+'%',glitch:v=>v<0.001?'끄기':Math.round(v*100)+'%',wipe:v=>v<0.001?'끄기':Math.round(v*100)+'%'};
   function fmt(k,v){return (FMT[k]||(x=>x.toFixed(2)))(v);}
   KEYS.forEach(k=>{ const el=Q('#ls_'+k),out=Q('#ls_'+k+'V');
     const upd=()=>{st[k]=parseFloat(el.value); if(out)out.textContent=fmt(k,st[k])+(isAuto(k)?' · 오토':'');}; el.addEventListener('input',upd); upd(); });
@@ -3907,14 +3945,14 @@ void main(){
   const MAXTR=3; const FLOW=60;
   let audioCtx=null,masterGain=null,analyser=null,audioDest=null,freqData=null;
   let fastLv=0, slowLv=0;
-  let prevLow=null, kickEnv=0, fluxAvg=0, kickRefr=0;
+  let prevLow=null, kickEnv=0, fluxAvg=0, kickRefr=0, lowAvg=null;
   let tracks=[];
   let tlPlaying=false, tlFromT=0, tlCtxStart=0, activeSrc=[]; let _tid=0;
   function ensureAudioNodes(){
     if(audioCtx)return true;
     const AC=window.AudioContext||window.webkitAudioContext; if(!AC)return false;
     audioCtx=new AC(); masterGain=audioCtx.createGain();
-    analyser=audioCtx.createAnalyser(); analyser.fftSize=1024; analyser.smoothingTimeConstant=0.35;
+    analyser=audioCtx.createAnalyser(); analyser.fftSize=1024; analyser.smoothingTimeConstant=0.1;
     freqData=new Uint8Array(analyser.frequencyBinCount); audioDest=audioCtx.createMediaStreamDestination();
     masterGain.connect(analyser); analyser.connect(audioCtx.destination); analyser.connect(audioDest);
     return true;
@@ -3975,21 +4013,23 @@ void main(){
     if(!(hasAudio()&&analyser)){ kickEnv=0; return 0; }
     analyser.getByteFrequencyData(freqData);
     const n=freqData.length; const sr=(audioCtx&&audioCtx.sampleRate)||44100; const binHz=sr/analyser.fftSize;
-    // 킥 본체(약 40~95Hz)만 — 롤링 베이스/패드가 깔리는 중·저역은 제외
-    const lo=Math.max(1,Math.floor(40/binHz)), hi=Math.max(lo,Math.min(n-1,Math.floor(95/binHz)));
+    // 킥 펀더멘털(약 42~100Hz)만 — 롤링 베이스/리저/스네어 제외
+    const lo=Math.max(1,Math.floor(42/binHz)), hi=Math.max(lo,Math.min(n-1,Math.floor(100/binHz)));
     const len=hi-lo+1;
     if(!prevLow||prevLow.length!==len) prevLow=new Float32Array(len);
-    // 양(+)의 스펙트럴 플럭스 = 직전 프레임 대비 급상승분 합 → 어택에서만 큼, 지속음엔 0에 가까움
-    let flux=0, energy=0, k=0;
-    for(let i=lo;i<=hi;i++){ const v=freqData[i]/255; energy+=v; const d=v-prevLow[k]; if(d>0)flux+=d; prevLow[k]=v; k++; }
-    flux/=len; energy/=len;
-    fluxAvg += (flux-fluxAvg)*0.03;                 // 플럭스의 느린 기준선(적응형)
-    const thresh = fluxAvg*2.4 + 0.014;             // 기준선 위로 확 튈 때(=강한 킥)만 인정
+    // 양(+)의 스펙트럴 플럭스(어택) + 저역 에너지
+    let flux=0, low=0, k=0;
+    for(let i=lo;i<=hi;i++){ const v=freqData[i]/255; low+=v; const d=v-prevLow[k]; if(d>0)flux+=d; prevLow[k]=v; k++; }
+    flux/=len; low/=len;
+    fluxAvg += (flux-fluxAvg)*0.05;                  // 어택 기준선(느림)
+    if(lowAvg==null) lowAvg=low; lowAvg += (low-lowAvg)*0.02;   // 저역 에너지 기준선(더 느림)
+    const thresh = Math.max(0.024, fluxAvg*2.8);     // 강한 아웃라이어(=정박 킥)만 → 오프비트 베이스 무시
     if(kickRefr>0) kickRefr--;
-    if(flux>thresh && energy>0.07 && kickRefr===0){ // 강한 어택 + 충분한 에너지 + 불응기 통과
-      kickEnv=1.0; kickRefr=14;                      // 약 230ms 재트리거 차단 → 롤링 베이스(드드드) 무시
+    // 날카로운 어택 + 평소보다 확연히 큰 저역(실제 킥 타격) + 충분한 절대 에너지 + 불응기
+    if(flux>thresh && low>lowAvg*1.35 && low>0.14 && kickRefr===0){
+      kickEnv=1.0; kickRefr=10;                       // ~165ms: 16분 오프비트/롤 차단, 정박 킥은 통과
     }
-    kickEnv *= 0.86;                                 // 부드러운 감쇠(쿵 → 서서히), 버즈 없음
+    kickEnv *= 0.85;                                  // 부드러운 감쇠(쿵 → 서서히)
     return Math.min(1, kickEnv);
   }
 
@@ -4060,7 +4100,7 @@ void main(){
     closeMenus(); });
 
   // ===== 오토메이션 (타임라인 인라인 레인) =====
-  const AUTO_LABELS={warp:'일렁임',detail:'흐름결',pull:'중심 흡입',sway:'흔들',vortex:'소용돌이',parallax:'패럴랙스',glow:'광채',kaleido:'만화경',grain:'입자',resp:'킥 펄스',duo:'듀오톤',duohue:'듀오톤 색',floaty:'부유'};
+  const AUTO_LABELS={warp:'일렁임',detail:'흐름결',pull:'중심 흡입',sway:'흔들',vortex:'소용돌이',parallax:'패럴랙스',glow:'광채',kaleido:'만화경',grain:'입자',resp:'킥 펄스',floaty:'부유',lines:'집중선',zoomb:'방사형 줌',rays:'광선',bloom:'블룸',rgb:'RGB 분리',scan:'스캔라인',glitch:'글리치',wipe:'도형 와이프'};
   let autoKeys=[];                                  // 화면에 표시 중인 오토메이션 레인(파라미터 키) 순서
   function paramRange(k){ const el=Q('#ls_'+k); return el?{min:parseFloat(el.min),max:parseFloat(el.max)}:{min:0,max:2}; }
   function captureAuto(){ const o={}; for(const k in auto){ const a=auto[k]; if(a&&a.pts&&a.pts.length){ o[k]={on:!!a.on,pts:a.pts.map(p=>({t:p.t,v:p.v}))}; } } return o; }
@@ -4338,7 +4378,9 @@ void main(){
     gl.uniform1f(uni.uWarp,V('warp'));gl.uniform1f(uni.uDetail,V('detail'));gl.uniform1f(uni.uGrain,V('grain'));
     gl.uniform1f(uni.uPull,V('pull'));gl.uniform1f(uni.uSway,V('sway'));
     gl.uniform1f(uni.uVortex,V('vortex'));gl.uniform1f(uni.uParallax,V('parallax'));
-    gl.uniform1f(uni.uGlow,V('glow'));gl.uniform1f(uni.uKaleido,V('kaleido'));gl.uniform1f(uni.uDuo,V('duo'));gl.uniform1f(uni.uDuoHue,V('duohue'));gl.uniform1f(uni.uFloaty,V('floaty'));gl.uniform1f(uni.uBounce,bounceEff);
+    gl.uniform1f(uni.uGlow,V('glow'));gl.uniform1f(uni.uKaleido,V('kaleido'));gl.uniform1f(uni.uFloaty,V('floaty'));gl.uniform1f(uni.uBounce,bounceEff);
+    gl.uniform1f(uni.uLines,V('lines'));gl.uniform1f(uni.uZoomb,V('zoomb'));gl.uniform1f(uni.uRays,V('rays'));gl.uniform1f(uni.uBloom,V('bloom'));
+    gl.uniform1f(uni.uRGB,V('rgb'));gl.uniform1f(uni.uScan,V('scan'));gl.uniform1f(uni.uGlitch,V('glitch'));gl.uniform1f(uni.uWipe,V('wipe'));
     gl.uniform1i(uni.uTex,0);gl.uniform1i(uni.uHasTex,(tex&&hasTex)?1:0);
     gl.activeTexture(gl.TEXTURE0); if(tex)gl.bindTexture(gl.TEXTURE_2D,tex);
     gl.drawArrays(gl.TRIANGLES,0,3);
