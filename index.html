@@ -653,8 +653,9 @@ img.av,img.art{pointer-events:none}
   background-repeat:repeat; touch-action:none; }
 .wfcanvas{ position:absolute; top:0; left:0; width:4000px; height:2800px; transform-origin:0 0; }
 .wfedges{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; }
-.wfedges path.wire{ fill:none; stroke:var(--accent); stroke-width:2.5; opacity:.9; }
+.wfedges path.wire{ fill:none; stroke:var(--accent); stroke-width:2.5; opacity:.9; transition:stroke .1s, stroke-width .1s, opacity .1s; }
 .wfedges path.hit{ fill:none; stroke:transparent; stroke-width:16; pointer-events:stroke; cursor:pointer; }
+.wfedges .wfedge:hover .wire{ stroke:var(--bad); stroke-width:3.5; opacity:1; }
 .wfnodes{ position:absolute; inset:0; }
 .wfnode{ position:absolute; width:212px; background:var(--card); border:1px solid var(--bd2); border-radius:14px;
   box-shadow:0 7px 22px -12px rgba(0,0,0,.55); }
@@ -3269,7 +3270,7 @@ function renderManual(host){
       const x1=na.x+a.offsetWidth, y1=na.y+a.offsetHeight/2, x2=nb.x, y2=nb.y+b.offsetHeight/2;
       const dx=Math.max(40,Math.abs(x2-x1)*0.5);
       const d=`M ${x1} ${y1} C ${x1+dx} ${y1}, ${x2-dx} ${y2}, ${x2} ${y2}`;
-      s+=`<path class="wire" d="${d}" stroke="${na.color||'var(--accent)'}"/><path class="hit" data-edge="${idx}" d="${d}"/>`; });
+      s+=`<g class="wfedge"><path class="wire" d="${d}" stroke="${na.color||'var(--accent)'}"/><path class="hit" data-edge="${idx}" d="${d}"><title>클릭하면 이 연결만 삭제</title></path></g>`; });
     edgesEl.innerHTML=s;
     edgesEl.querySelectorAll('.hit').forEach(p=>p.onclick=()=>{ wf().edges.splice(+p.dataset.edge,1); save(); redrawEdges(); });
   }
