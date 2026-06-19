@@ -656,8 +656,8 @@ img.av,img.art{pointer-events:none}
 .wfedges path.wire{ fill:none; stroke:var(--accent); stroke-width:2.5; opacity:.9; transition:stroke .1s, stroke-width .1s, opacity .1s; }
 .wfedges path.hit{ fill:none; stroke:transparent; stroke-width:16; pointer-events:stroke; cursor:pointer; }
 .wfedges .wfedge:hover .wire{ stroke:var(--bad); stroke-width:3.5; opacity:1; }
-.wfnodes{ position:absolute; inset:0; }
-.wfnode{ position:absolute; width:212px; background:var(--card); border:1px solid var(--bd2); border-radius:14px;
+.wfnodes{ position:absolute; inset:0; pointer-events:none; }
+.wfnode{ position:absolute; pointer-events:auto; width:212px; background:var(--card); border:1px solid var(--bd2); border-radius:14px;
   box-shadow:0 7px 22px -12px rgba(0,0,0,.55); }
 .wfnode-bar{ display:flex; align-items:center; gap:7px; padding:8px 10px; cursor:grab; border-bottom:1px solid var(--bd); border-radius:13px 13px 0 0; }
 .wfnode-bar:active{ cursor:grabbing; }
@@ -3339,7 +3339,7 @@ function renderManual(host){
     const mx=e.clientX-cr.left, my=e.clientY-cr.top;
     const old=_wfZoom; let z=old*(e.deltaY<0?1.12:1/1.12); z=Math.max(WF_ZMIN,Math.min(WF_ZMAX,z));
     if(z===old)return; const k=z/old; _wfPanX=mx-(mx-_wfPanX)*k; _wfPanY=my-(my-_wfPanY)*k; _wfZoom=z; applyXform(); },{passive:false});
-  board.addEventListener('pointerdown',e=>{ if(e.target.closest('.wfnode,.wffab,.wfpop'))return; e.preventDefault(); closePop();
+  board.addEventListener('pointerdown',e=>{ if(e.target.closest('.wfnode,.wffab,.wfpop,.wfedge'))return; e.preventDefault(); closePop();
     const ae=document.activeElement; if(ae&&ae.closest&&ae.closest('.wfnode'))ae.blur();
     const sx=e.clientX, sy=e.clientY, px=_wfPanX, py=_wfPanY;
     const mv=ev=>{ _wfPanX=px+(ev.clientX-sx); _wfPanY=py+(ev.clientY-sy); applyXform(); };
