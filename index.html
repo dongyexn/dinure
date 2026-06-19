@@ -659,17 +659,25 @@ img.av,img.art{pointer-events:none}
 .wfnode-title{ flex:1; min-width:0; background:none; border:none; color:var(--t1); font-weight:600; font-size:var(--f13); padding:2px 5px; border-radius:6px; outline:none; }
 .wfnode-del{ cursor:pointer; color:var(--t4); display:flex; }
 .wfnode-del:hover{ color:var(--bad); }
-.wfnote{ width:100%; box-sizing:border-box; background:none; border:none; resize:none; min-height:44px;
-  color:var(--t2); font-size:var(--f12); line-height:1.5; padding:8px 10px 16px; border-radius:8px; outline:none; font-family:inherit; }
-/* 입력 강조 = 클릭(포커스) 시 액센트 포커스 링 — 다른 곳 클릭 시 해제 */
-.wfnode-title:hover,.wfnote:hover{ box-shadow:none; }
-.wfnode-title:focus,.wfnote:focus{ background:transparent; box-shadow:0 0 0 2px var(--accent-dim); }
+/* 노드 내용 = 탭(행) 구조 */
+.wfrows{ display:flex; flex-direction:column; gap:5px; padding:8px 10px 16px; }
+.wfrow{ display:flex; align-items:center; gap:6px; padding:5px 9px 5px 8px; border-radius:8px;
+  background:color-mix(in srgb,var(--t1) 5%, transparent); border:1px solid var(--bd); border-left-width:3px; }
+.wfrow input{ flex:1; min-width:0; background:none; border:none; outline:none; box-shadow:none; color:var(--t1); font-size:var(--f12); font-family:inherit; padding:0; }
+.wfrow input::placeholder{ color:var(--t4); }
+.wfrow-x{ flex:none; color:var(--t4); cursor:pointer; font-size:14px; line-height:1; opacity:0; transition:opacity .12s; }
+.wfrow:hover .wfrow-x{ opacity:1; }
+.wfrow-x:hover{ color:var(--bad); }
+.wfrows-empty{ padding:10px; font-size:var(--f12); color:var(--t4); text-align:center; }
+/* 노드 입력 포커스 강조 없음 */
+.wfnode-title:focus,.wfrow input:focus{ box-shadow:none; background:transparent; }
 .wfport{ position:absolute; right:-10px; top:50%; transform:translateY(-50%); width:18px; height:18px; border-radius:50%;
   background:var(--accent); border:2px solid var(--card); cursor:crosshair; display:flex; align-items:center; justify-content:center; touch-action:none; }
 .wfport::after{ content:''; width:5px; height:5px; border-radius:50%; background:var(--card); }
-.wfsize{ position:absolute; right:10px; bottom:10px; width:9px; height:9px; border-radius:50%;
-  background:var(--accent); opacity:.4; cursor:nwse-resize; touch-action:none; }
-.wfsize:hover{ opacity:.7; }
+.wfsize{ position:absolute; right:10px; bottom:10px; width:11px; height:11px; border-radius:50%;
+  background:var(--accent); opacity:.5; cursor:nwse-resize; touch-action:none; }
+.wfsize:hover{ opacity:.85; }
+.wfsize::after{ content:''; position:absolute; inset:-7px; }   /* 클릭/드래그 히트 영역 확대 */
 /* 노드 생성 플로팅 버튼 + 색상 팝오버 */
 .wffab{ position:absolute; right:18px; bottom:18px; z-index:8; width:50px; height:50px; border-radius:50%;
   border:none; background:var(--accent); color:#fff; font-size:26px; line-height:1; cursor:pointer;
@@ -3277,27 +3285,36 @@ function renderManual(host){
           if(!W.edges.some(ed=>ed.from===n.id&&ed.to===to)){ W.edges.push({from:n.id,to:to}); save(); } }
         redrawEdges(); };
       window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up); });
-    const sz=eln.querySelector('.wfsize'); const nt=eln.querySelector('.wfnote');
+    const sz=eln.querySelector('.wfsize');
     sz.addEventListener('pointerdown',ev=>{ ev.preventDefault(); ev.stopPropagation();
-      const sx=ev.clientX, sy=ev.clientY, w0=n.w||212, h0=n.nh||nt.offsetHeight;
-      const mv=e=>{ n.w=Math.max(150,Math.min(460,w0+(e.clientX-sx)/_wfZoom)); n.nh=Math.max(40,Math.min(360,h0+(e.clientY-sy)/_wfZoom));
-        eln.style.width=n.w+'px'; nt.style.height=n.nh+'px'; redrawEdges(); };
-      const up=()=>{ window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up); save(); };
+      const sx=ev.clientX, w0=n.w||eln.offsetWidth; let moved=false;
+      const mv=e=>{ if(!moved&&Math.abs(e.clientX-sx)>3)moved=true; if(!moved)return;
+        n.w=Math.max(150,Math.min(560,magnet(w0+(e.clientX-sx)/_wfZoom))); eln.style.width=n.w+'px'; redrawEdges(); };
+      const up=()=>{ window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up);
+        if(!moved){ addRow(n); return; }
+        n.w=Math.max(150,Math.min(560,snap(n.w))); eln.style.width=n.w+'px'; redrawEdges(); save(); };
       window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up); });
   }
+  function addRow(n){ n.rows=Array.isArray(n.rows)?n.rows:[]; n.rows.push(''); save(); renderNodes();
+    const inp=nodesEl.querySelector('.wfnode[data-id="'+n.id+'"] .wfrow:last-child input'); if(inp)inp.focus(); }
   function renderNodes(){
     const W=wf(); nodesEl.innerHTML='';
     W.nodes.forEach(n=>{
+      if(!Array.isArray(n.rows)) n.rows = n.note ? [n.note] : [];
       const eln=ce('div','wfnode'); eln.dataset.id=n.id; eln.style.left=n.x+'px'; eln.style.top=n.y+'px'; if(n.w)eln.style.width=n.w+'px';
       const col=n.color||'var(--accent)';
+      const rowsHtml = n.rows.length
+        ? `<div class="wfrows">`+n.rows.map((r,i)=>`<div class="wfrow" style="border-left-color:${col}"><input data-i="${i}" value="${esc(r)}" placeholder="내용 입력"><span class="wfrow-x" data-x="${i}" title="행 삭제">×</span></div>`).join('')+`</div>`
+        : `<div class="wfrows"><div class="wfrows-empty">우측 하단 ● 을 눌러 행을 추가하세요</div></div>`;
       eln.innerHTML=`<div class="wfnode-bar" style="background:color-mix(in srgb,${col} 26%, var(--card))">
           <input class="wfnode-title" value="${esc(n.title||'')}" placeholder="단계 이름">
           <span class="wfnode-del" title="삭제">${ic('x')}</span></div>
-        <textarea class="wfnote" placeholder="설명 · 메모"${n.nh?` style="height:${n.nh}px"`:''}>${esc(n.note||'')}</textarea>
-        <div class="wfport" data-port title="끌어서 연결"></div><div class="wfsize" title="크기 조절"></div>`;
-      const ti=eln.querySelector('.wfnode-title'), nt=eln.querySelector('.wfnote');
+        ${rowsHtml}
+        <div class="wfport" data-port title="끌어서 연결"></div><div class="wfsize" title="드래그=크기조절 · 클릭=행 추가" style="background:${col}"></div>`;
+      const ti=eln.querySelector('.wfnode-title');
       ti.oninput=()=>{ n.title=ti.value; save(); };
-      nt.oninput=()=>{ n.note=nt.value; save(); };
+      eln.querySelectorAll('.wfrow input').forEach(inp=>inp.oninput=()=>{ n.rows[+inp.dataset.i]=inp.value; save(); });
+      eln.querySelectorAll('.wfrow-x').forEach(x=>x.onclick=ev=>{ ev.stopPropagation(); n.rows.splice(+x.dataset.x,1); save(); renderNodes(); });
       eln.querySelector('.wfnode-del').onclick=()=>{ const w=wf(); w.nodes=w.nodes.filter(x=>x.id!==n.id); w.edges=w.edges.filter(e=>e.from!==n.id&&e.to!==n.id); save(); renderNodes(); };
       wireNode(eln,n); nodesEl.appendChild(eln);
     });
@@ -3306,7 +3323,7 @@ function renderManual(host){
   function addNode(color){ const W=wf(); const id='n'+Date.now().toString(36)+Math.floor(Math.random()*1000).toString(36);
     const cx=(-_wfPanX+board.clientWidth/2)/_wfZoom, cy=(-_wfPanY+board.clientHeight/2)/_wfZoom;
     const x=Math.max(0,snap(cx-106)), y=Math.max(0,snap(cy-50));
-    W.nodes.push({id,x,y,title:'새 단계',note:'',color:color||B.palette[0]}); save(); renderNodes();
+    W.nodes.push({id,x,y,title:'새 단계',rows:[''],color:color||B.palette[0]}); save(); renderNodes();
     const last=nodesEl.querySelector('.wfnode:last-child .wfnode-title'); if(last){ last.focus(); try{last.select();}catch(e){} } }
 
   board.addEventListener('wheel',e=>{ e.preventDefault(); const cr=board.getBoundingClientRect();
