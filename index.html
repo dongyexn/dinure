@@ -1416,6 +1416,7 @@ const Store=(()=>{
       };
       itemsRef.on('child_added',snap=>{
         const v=snap.val();if(!v)return;const key=col+'/'+snap.key;
+        if(col==='releases' && /^sd\d+$/i.test(snap.key)) return;   // sd#### 차단: 구버전이 되올려도 신버전은 미수용
         kset(col).add(snap.key);
         if(selfRev[key]===v.rev)return; lastRev[key]=v.rev;
         apply(arr=>arr.some(x=>x.id===snap.key)?arr.map(x=>x.id===snap.key?v.data:x):arr.concat([v.data]),v.by,v.at);
@@ -3857,6 +3858,9 @@ async function boot(){
   await Store.init();
   await loadRefData();
   await loadState();
+  // sd#### 로컬 잔재 자가 청소 — 이 기기 로컬에서만 제거(클라우드 미반영, setLocal). 패턴 sd+숫자만 대상이라 RDIN/RDINC/일반 릴리즈(uid)는 안 걸림
+  try{ const _n=S.releases.length; S.releases=S.releases.filter(r=>!/^sd\d+$/i.test(r.id));
+    if(S.releases.length!==_n) await Store.setLocal('releases',S.releases); }catch(_){}
   migrateRelOverrides();
   linkRegKeys();
   autoFillBandcampFX();
@@ -4028,6 +4032,7 @@ function createArtwork(){
             <div class="ls-accbody"><div class="ls-grid">
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_warp">일렁임 Warp</label><span class="ls-val" id="ls_warpV"></span></div><input type="range" id="ls_warp" min="0" max="0.24" step="0.002" value="0.04"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_detail">흐름결 Detail</label><span class="ls-val" id="ls_detailV"></span></div><input type="range" id="ls_detail" min="1" max="9" step="0.1" value="2.3"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_water">물결 Water</label><span class="ls-val" id="ls_waterV"></span></div><input type="range" id="ls_water" min="0" max="2" step="0.02" value="0"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_resp">킥 펄스 Kick</label><span class="ls-val" id="ls_respV"></span></div><input type="range" id="ls_resp" min="0" max="2" step="0.02" value="0"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_floaty">부유 Float</label><span class="ls-val" id="ls_floatyV"></span></div><input type="range" id="ls_floaty" min="0" max="2" step="0.02" value="0"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_pull">중심 흡입 Pull</label><span class="ls-val" id="ls_pullV"></span></div><input type="range" id="ls_pull" min="0" max="2" step="0.02" value="0"></div>
@@ -4078,7 +4083,7 @@ uniform sampler2D uTex; uniform vec2 uRes; uniform float uPhase; uniform int uHa
 uniform float uWarp,uDetail,uGrain;
 uniform float uPull,uSway,uTilt,uSphere,uVortex,uParallax;
 uniform float uRipple,uDrift,uGlow,uKaleido,uFloaty,uBounce;
-uniform float uRGB;
+uniform float uRGB,uWater;
 mat2 rot(float a){float s=sin(a),c=cos(a);return mat2(c,-s,s,c);}
 float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
 float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);float a=hash(i),b=hash(i+vec2(1.,0.)),c=hash(i+vec2(0.,1.)),d=hash(i+vec2(1.,1.));vec2 u=f*f*(3.-2.*f);return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);}
@@ -4109,6 +4114,11 @@ void main(){
     vec2 q=vec2(lfbm(wp,ph),lfbm(wp+vec2(5.2,1.3),ph));
     vec2 rr=vec2(lfbm(wp+q*1.4+vec2(1.7,9.2),ph),lfbm(wp+q*1.4+vec2(8.3,2.8),ph));
     base+=(rr-0.5)*uWarp; }
+  if(uWater>0.001){ vec2 wuv=uv*vec2(ar,1.0)*3.0;
+    vec2 q2=vec2(lfbm(wuv+vec2(0.0,1.3),ph), lfbm(wuv+vec2(4.7,9.2),ph));
+    vec2 r2=vec2(lfbm(wuv*1.7+q2*1.6+vec2(2.1,6.4),ph*1.25),
+                 lfbm(wuv*1.7+q2*1.6+vec2(8.3,0.7),ph*1.25));
+    base+=(r2-0.5)*uWater*0.055; }
   if(uBounce>0.001){ base.y += uBounce*0.010; }
   if(uFloaty>0.001){ base+=vec2(sin(ph+base.y*4.2), cos(ph*0.85+base.x*3.6))*uFloaty*0.014
                           +vec2(sin(ph*0.6+base.x*2.1), cos(ph*0.7+base.y*2.4))*uFloaty*0.008; }
@@ -4130,7 +4140,7 @@ void main(){
   frag=vec4(clamp(col,0.0,1.0),1.0);
 }`;
   let prog=null,uni={},glReady=false;
-  const UNAMES=['uRes','uPhase','uHasTex','uSeed','uTex','uWarp','uDetail','uGrain','uPull','uSway','uTilt','uSphere','uVortex','uParallax','uRipple','uDrift','uGlow','uKaleido','uFloaty','uBounce','uRGB'];
+  const UNAMES=['uRes','uPhase','uHasTex','uSeed','uTex','uWarp','uDetail','uGrain','uPull','uSway','uTilt','uSphere','uVortex','uParallax','uRipple','uDrift','uGlow','uKaleido','uFloaty','uBounce','uRGB','uWater'];
   function comp(t,s){const sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(sh));return sh;}
   try{
     prog=gl.createProgram();
@@ -4168,12 +4178,12 @@ void main(){
   }
   if(ARTWORK_DEFAULT_IMG)loadTexture(ARTWORK_DEFAULT_IMG);
 
-  const KEYS=['warp','detail','pull','sway','vortex','parallax','glow','kaleido','grain','resp','floaty','rgb'];
+  const KEYS=['warp','detail','water','pull','sway','vortex','parallax','glow','kaleido','grain','resp','floaty','rgb'];
   const st={ar:0.5625};
   const auto={};                                   // 파라미터별 오토메이션 { key:{on,pts:[{t,v}]} }
   const ensureAuto=k=>auto[k]||(auto[k]={on:false,pts:[]});
   const isAuto=k=>!!(auto[k]&&auto[k].on&&auto[k].pts&&auto[k].pts.length);
-  const FMT={flow:v=>v.toFixed(1)+'s',warp:v=>v.toFixed(3),scale:v=>v.toFixed(2)+'×',detail:v=>v.toFixed(1),pull:v=>v.toFixed(2),drift:v=>v<1?'끄기':v.toFixed(0),kaleido:v=>v<2?'끄기':v.toFixed(0)+'면',warmth:v=>v>0.001?'따뜻 +'+v.toFixed(2):(v<-0.001?'차가움 '+v.toFixed(2):'중립'),grain:v=>v.toFixed(3),fadein:v=>v.toFixed(1)+'s',fadeout:v=>v.toFixed(1)+'s',rgb:v=>v<0.001?'끄기':Math.round(v*100)+'%'};
+  const FMT={flow:v=>v.toFixed(1)+'s',warp:v=>v.toFixed(3),scale:v=>v.toFixed(2)+'×',detail:v=>v.toFixed(1),pull:v=>v.toFixed(2),drift:v=>v<1?'끄기':v.toFixed(0),kaleido:v=>v<2?'끄기':v.toFixed(0)+'면',warmth:v=>v>0.001?'따뜻 +'+v.toFixed(2):(v<-0.001?'차가움 '+v.toFixed(2):'중립'),grain:v=>v.toFixed(3),fadein:v=>v.toFixed(1)+'s',fadeout:v=>v.toFixed(1)+'s',rgb:v=>v<0.001?'끄기':Math.round(v*100)+'%',water:v=>v<0.001?'끄기':Math.round(v*50)+'%'};
   function fmt(k,v){return (FMT[k]||(x=>x.toFixed(2)))(v);}
   KEYS.forEach(k=>{ const el=Q('#ls_'+k),out=Q('#ls_'+k+'V');
     const upd=()=>{st[k]=parseFloat(el.value); if(out)out.textContent=fmt(k,st[k])+(isAuto(k)?' · 오토':'');}; el.addEventListener('input',upd); upd(); });
@@ -4534,7 +4544,7 @@ void main(){
     closeMenus(); });
 
   // ===== 오토메이션 (타임라인 인라인 레인) =====
-  const AUTO_LABELS={warp:'일렁임',detail:'흐름결',pull:'중심 흡입',sway:'흔들',vortex:'소용돌이',parallax:'패럴랙스',glow:'광채',kaleido:'만화경',grain:'입자',resp:'킥 펄스',floaty:'부유',rgb:'RGB 분리'};
+  const AUTO_LABELS={warp:'일렁임',detail:'흐름결',water:'물결',pull:'중심 흡입',sway:'흔들',vortex:'소용돌이',parallax:'패럴랙스',glow:'광채',kaleido:'만화경',grain:'입자',resp:'킥 펄스',floaty:'부유',rgb:'RGB 분리'};
   const OBJ_PROPS=[['opacity','투명도'],['x','가로'],['y','세로'],['scale','크기'],['rot','회전']];
   function isObjKey(k){ return /^obj\d+_/.test(k); }
   function objKeyParts(k){ const m=k.match(/^obj(\d+)_(\w+)$/); return m?{id:+m[1],prop:m[2]}:null; }
@@ -4822,7 +4832,7 @@ void main(){
     const bounceEff=Math.min(1.2, lv*V('resp')*0.7);
     gl.viewport(0,0,canvas.width,canvas.height); gl.useProgram(prog);
     gl.uniform2f(uni.uRes,canvas.width,canvas.height); gl.uniform1f(uni.uPhase,phase); gl.uniform1f(uni.uSeed,Math.random()*1000.0);
-    gl.uniform1f(uni.uWarp,V('warp'));gl.uniform1f(uni.uDetail,V('detail'));gl.uniform1f(uni.uGrain,V('grain'));
+    gl.uniform1f(uni.uWarp,V('warp'));gl.uniform1f(uni.uDetail,V('detail'));gl.uniform1f(uni.uGrain,V('grain'));gl.uniform1f(uni.uWater,V('water'));
     gl.uniform1f(uni.uPull,V('pull'));gl.uniform1f(uni.uSway,V('sway'));
     gl.uniform1f(uni.uVortex,V('vortex'));gl.uniform1f(uni.uParallax,V('parallax'));
     gl.uniform1f(uni.uGlow,V('glow'));gl.uniform1f(uni.uKaleido,V('kaleido'));gl.uniform1f(uni.uFloaty,V('floaty'));gl.uniform1f(uni.uBounce,bounceEff);
