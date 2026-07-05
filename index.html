@@ -1210,6 +1210,8 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-scene.hidden{ display:none; }
 .ls-scene .ls-bgload{ width:100%; justify-content:center; }
 .ls-scene .ls-grid{ gap:12px; }
+.ls-scene #ls_bgfx{ grid-template-columns:1fr 1fr; gap:11px 12px; }
+.ls-scene #ls_bgfx .ls-ctrl label{ font-size:11.5px; }
 .ls-opop-h{ display:flex; align-items:center; justify-content:space-between; font-size:13px; font-weight:600; color:var(--c-t1); }
 .ls-tabs{ display:flex; gap:4px; background:var(--c-card); border:1px solid var(--c-bd); border-radius:9px; padding:3px; }
 .ls-tabs button{ flex:1; padding:6px 0; font-size:12px; font-weight:600; color:var(--c-t3); background:none; border:none; border-radius:6px; cursor:pointer; font-family:inherit; transition:.12s; }
@@ -4277,8 +4279,8 @@ function createArtwork(){
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_grain">입자 Grain</label><span class="ls-val" id="ls_grainV"></span></div><input type="range" id="ls_grain" min="0" max="0.1" step="0.002" value="0"></div>
           </div>
           <div class="ls-osec">영상 페이드</div>
-          <div class="ls-orow"><span>페이드 인</span><div class="ls-oinline ls-xy"><input type="number" id="ls_vfi" step="0.1" min="0" max="600" value="0"> s</div></div>
-          <div class="ls-orow"><span>페이드 아웃</span><div class="ls-oinline ls-xy"><input type="number" id="ls_vfo" step="0.1" min="0" max="600" value="0"> s</div></div>
+          <div class="ls-orow"><span class="ls-scrub">페이드 인</span><div class="ls-oinline ls-xy"><input type="number" id="ls_vfi" step="0.1" min="0" max="600" value="0"> s</div></div>
+          <div class="ls-orow"><span class="ls-scrub">페이드 아웃</span><div class="ls-oinline ls-xy"><input type="number" id="ls_vfo" step="0.1" min="0" max="600" value="0"> s</div></div>
         </div>
       </div>
     </div>
@@ -4405,6 +4407,16 @@ void main(){
     }catch(e){ showError('이미지를 디코드하지 못했어요.'); }
   }
   if(ARTWORK_DEFAULT_IMG)loadTexture(ARTWORK_DEFAULT_IMG);
+  // 배경 이미지 소스(dataURL) 보관 — 프로젝트 저장/복원용
+  let bgSrc=null;
+  function setBackground(srcOrFile){
+    if(typeof srcOrFile==='string'){ bgSrc=srcOrFile; loadTexture(srcOrFile); return; }
+    const f=srcOrFile; const rd=new FileReader();
+    rd.onload=()=>{ bgSrc=rd.result; loadTexture(rd.result); };
+    rd.onerror=()=>{ showError('이미지를 불러오지 못했어요.'); };
+    rd.readAsDataURL(f);
+  }
+  function clearBackground(){ bgSrc=null; hasTex=false; }
 
   // ===== 레이어 컴포지터 (Phase 3a) =====
   // fx 배경을 FBO에 렌더한 뒤, 각 레이어를 ping-pong 블렌드 셰이더로 쌓는다.
@@ -4817,8 +4829,7 @@ void main(){
     });
     tlFromT=fromT; tlCtxStart=now;
   }
-  function timelineTime(){ if(!tlPlaying||!audioCtx)return tlFromT; return tlFromT+(audioCtx.currentTime-tlCtxStart); }
-  function startTimeline(fromT){ if(!hasAudio())return; ensureAudioNodes(); audioCtx.resume&&audioCtx.resume(); tlPlaying=true; scheduleFrom(Math.max(0,Math.min(totalDur(),fromT||0)),false); }
+  function timelineTime(){ if(!tlPlaying||!audioCtx)return tlFromT; return tlFromT+(audioCtx.currentTime-tlCtxStart); }  function startTimeline(fromT){ if(!hasAudio())return; ensureAudioNodes(); audioCtx.resume&&audioCtx.resume(); tlPlaying=true; scheduleFrom(Math.max(0,Math.min(totalDur(),fromT||0)),false); }
   function pauseTimeline(){ if(!audioCtx)return; const t=timelineTime(); stopSources(); tlPlaying=false; tlFromT=Math.max(0,Math.min(totalDur(),t)); }
   function seekTimeline(t){ t=Math.max(0,Math.min(totalDur(),t)); if(tlPlaying) scheduleFrom(t,false); else tlFromT=t; }
   async function addTrackFile(file){
@@ -4830,7 +4841,8 @@ void main(){
       const buf=await audioCtx.decodeAudioData(ab.slice(0));
       let region={start:0,end:Math.min(buf.duration,projDur())};
       if(buf.duration>projDur()+0.05){ const r=await pickRegion(buf,file.name||'음원'); if(!r){ return; } region=r; }
-      tracks.push({id:'t'+(++_tid), name:file.name||('트랙 '+(tracks.length+1)), buffer:buf, trimStart:region.start, trimEnd:region.end, startAt:0, fadeIn:0, fadeOut:0, vol:1});
+      const data=abToB64(ab);   // 원본 파일 바이트를 프로젝트에 임베딩(저장/복원용)
+      tracks.push({id:'t'+(++_tid), name:file.name||('트랙 '+(tracks.length+1)), buffer:buf, trimStart:region.start, trimEnd:region.end, startAt:0, fadeIn:0, fadeOut:0, vol:1, data:data, mime:file.type||'audio/mpeg', fname:file.name||''});
       renderTimeline();
       if(playing) startTimeline(tlPlaying?Math.min(timelineTime(),totalDur()):tlFromT);
     }catch(e){ showError('음원을 디코드하지 못했어요. 다른 파일로 시도해 보세요.'); }
@@ -4838,6 +4850,23 @@ void main(){
   function removeTrack(id){ const i=tracks.findIndex(t=>t.id===id); if(i<0)return; tracks.splice(i,1); if(selTrack===id){ selTrack=null; closePop(); } renderTimeline();
     if(!tracks.length){ stopSources(); tlPlaying=false; tlFromT=0; }
     else if(tlPlaying) scheduleFrom(Math.min(timelineTime(),totalDur()),false); }
+  function abToB64(ab){ let bin=''; const bytes=new Uint8Array(ab); const chunk=0x8000;
+    for(let i=0;i<bytes.length;i+=chunk){ bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+chunk)); } return btoa(bin); }
+  function b64ToAb(b64){ const bin=atob(b64); const len=bin.length; const bytes=new Uint8Array(len);
+    for(let i=0;i<len;i++)bytes[i]=bin.charCodeAt(i); return bytes.buffer; }
+  async function restoreTracks(trkArr){   // 저장된 음원 데이터(base64)로 트랙 완전 재구성
+    stopSources(); tracks=[]; tlPlaying=false; tlFromT=0;
+    if(Array.isArray(trkArr) && trkArr.some(m=>m&&m.data) && ensureAudioNodes()){
+      for(const m of trkArr){ try{ if(!m||!m.data)continue;
+        const buf=await audioCtx.decodeAudioData(b64ToAb(m.data).slice(0));
+        tracks.push({id:m.id||('t'+(++_tid)), name:m.name||m.fname||'트랙', buffer:buf,
+          trimStart:m.trimStart||0, trimEnd:(m.trimEnd!=null?m.trimEnd:buf.duration), startAt:m.startAt||0,
+          fadeIn:m.fadeIn||0, fadeOut:m.fadeOut||0, vol:(m.vol==null?1:m.vol), data:m.data, mime:m.mime, fname:m.fname});
+        const nid=parseInt(String(m.id||'').replace(/\D/g,''))||0; if(nid>_tid)_tid=nid;
+      }catch(e){} }
+    }
+    renderTimeline();
+  }
   function audioLevels(){ // 킥 어택(저역 트랜지언트)을 펄스로 추출
     if(!(hasAudio()&&analyser)){ kickEnv=0; return 0; }
     analyser.getByteFrequencyData(freqData);
@@ -4906,22 +4935,23 @@ void main(){
     c2.getContext('2d').drawImage(canvas,0,0,w,h2);
     return c2.toDataURL('image/jpeg',0.55); }catch(e){ return null; } }
   // ===== 헤더 설정 세터 (프로그램적으로 비율/해상도/프레임/길이 변경 + 칩 UI 동기화) =====
-  function _setChip(popSel,attr,val){ const pop=Q(popSel); if(!pop)return; pop.querySelectorAll('.ls-chip').forEach(c=>c.classList.toggle('on',c.getAttribute(attr)===String(val))); }
+  function _setChip(popSel,attr,val){ const pop=header.querySelector(popSel); if(!pop)return; pop.querySelectorAll('.ls-chip').forEach(c=>c.classList.toggle('on',c.getAttribute(attr)===String(val))); }
   function setAR(v){ v=parseFloat(v)||0.5625; st.ar=v; stage.style.setProperty('--ls-ar',v); _setChip('#ls_ratios','data-ar',v); resize(); }
   function setResH(v){ v=parseInt(v,10)||1080; st.outH=v; _setChip('#ls_res','data-h',v); }
   function setFPS(v){ v=parseInt(v,10)||30; st.fps=v; _setChip('#ls_fps','data-fps',v); }
   function setDur(v){ v=Math.max(5,Math.min(600,parseFloat(v)||60)); st.dur=v; const di=header.querySelector('#ls_durin'); if(di)di.value=v; renderTimeline(); }
 
   // ===== 프로젝트 전체 상태 저장/복원 =====
-  // 저장 대상: 비율·해상도·프레임·길이·마커·렌더구간 + 배경효과값·오토메이션·모든 오브젝트(이미지 dataURL 포함)
-  //          + 오디오 트랙 메타(이름·트림·배치·페이드). 오디오 버퍼 자체는 용량상 제외(파일 재추가 필요).
+  // 저장 대상: 비율·해상도·프레임·길이·마커·렌더구간 + 배경이미지·배경효과값·영상페이드·오토메이션
+  //          + 모든 오브젝트(이미지 포함) + 오디오 트랙(원본 데이터 임베딩). 진짜 설정 그대로 저장/복원.
   function captureProject(){
     return {
       ver:2, ar:st.ar, outH:st.outH||1080, fps:st.fps||30, dur:st.dur||60,
       vfadeIn:st.vfadeIn||0, vfadeOut:st.vfadeOut||0,
+      bg:bgSrc||null,
       markers:markers.slice(), waIn:waIn, waOut:waOut,
       vals:captureVals(), auto:captureAuto(), objs:captureObjs(),
-      trk:tracks.map(t=>({id:t.id,name:t.name,startAt:t.startAt,trimStart:t.trimStart,trimEnd:t.trimEnd,fadeIn:t.fadeIn||0,fadeOut:t.fadeOut||0,vol:(t.vol==null?1:t.vol)}))
+      trk:tracks.map(t=>({id:t.id,name:t.name,startAt:t.startAt,trimStart:t.trimStart,trimEnd:t.trimEnd,fadeIn:t.fadeIn||0,fadeOut:t.fadeOut||0,vol:(t.vol==null?1:t.vol),data:t.data||null,mime:t.mime||null,fname:t.fname||null}))
     };
   }
   function applyProject(p){ if(!p)return;
@@ -4934,10 +4964,12 @@ void main(){
       waIn=(p.waIn!=null)?p.waIn:null; waOut=(p.waOut!=null)?p.waOut:null;
       st.vfadeIn=Math.max(0,+p.vfadeIn||0); st.vfadeOut=Math.max(0,+p.vfadeOut||0);
       { const a=Q('#ls_vfi'), b=Q('#ls_vfo'); if(a)a.value=st.vfadeIn; if(b)b.value=st.vfadeOut; }
+      if('bg' in p){ if(p.bg) setBackground(p.bg); else clearBackground(); }   // 배경 이미지 복원
     }
     applyVals(p.vals||{}); applyObjs(p.objs); applyAuto(p.auto||{});
-    // 오디오: 현재 로드된 트랙에 메타 복원(같은 id). 버퍼가 없는 트랙은 파일 재추가 안내.
-    if(Array.isArray(p.trk)){ p.trk.forEach(m=>{ const t=tracks.find(x=>x.id===m.id); if(t){ t.startAt=m.startAt; t.trimStart=m.trimStart; t.trimEnd=m.trimEnd; t.fadeIn=m.fadeIn||0; t.fadeOut=m.fadeOut||0; if(m.vol!=null)t.vol=m.vol; } }); }
+    // 오디오: 저장된 원본 데이터가 있으면 트랙을 완전히 재구성. 없으면(구버전) 기존 트랙 메타만 패치.
+    if(Array.isArray(p.trk) && p.trk.some(m=>m&&m.data)){ restoreTracks(p.trk); }
+    else if(Array.isArray(p.trk)){ p.trk.forEach(m=>{ const t=tracks.find(x=>x.id===m.id); if(t){ t.startAt=m.startAt; t.trimStart=m.trimStart; t.trimEnd=m.trimEnd; t.fadeIn=m.fadeIn||0; t.fadeOut=m.fadeOut||0; if(m.vol!=null)t.vol=m.vol; } }); }
     renderTimeline(); refreshObjs();
   }
 
@@ -5090,8 +5122,8 @@ void main(){
     m.appendChild(ctxItem('삭제','⌫',()=>delObj(id),true));
     m.classList.add('on'); m.style.left='0px'; m.style.top='0px';
     const mw=m.offsetWidth||180, mh=m.offsetHeight||200;
-    // 오브젝트(레이어) 칸 우측에 띄우기 — 행이 있으면 그 오른쪽 모서리 기준, 없으면 마우스 위치
-    const row=root.querySelector('.ls-lyr-row[data-id="'+id+'"]');
+    // 레이어 목록에서 우클릭(nmEl 존재)하면 그 행 우측에 붙이고, 캔버스에서 우클릭하면 마우스 위치에 띄운다.
+    const row=nmEl?root.querySelector('.ls-lyr-row[data-id="'+id+'"]'):null;
     let L,T;
     if(row){ const r=row.getBoundingClientRect(); L=r.right+6; T=r.top;
       if(L+mw>window.innerWidth-6) L=r.left-mw-6;       // 오른쪽 공간 부족 시 왼쪽으로
@@ -5190,8 +5222,8 @@ void main(){
     h+='<div class="ls-osec">사운드</div>';
     h+='<div class="ls-orow"><span>볼륨</span><div class="ls-oinline"><input type="range" data-avol min="0" max="1" step="0.01" value="'+vol+'"><span class="ls-oval" data-avolv>'+Math.round(vol*100)+'%</span></div></div>';
     h+='<div class="ls-osec">페이드</div>';
-    h+='<div class="ls-orow"><span>페이드 인</span><div class="ls-oinline ls-xy"><input type="number" data-afade="in" step="0.1" min="0" max="'+cl.toFixed(1)+'" value="'+(t.fadeIn||0).toFixed(1)+'"> s</div></div>';
-    h+='<div class="ls-orow"><span>페이드 아웃</span><div class="ls-oinline ls-xy"><input type="number" data-afade="out" step="0.1" min="0" max="'+cl.toFixed(1)+'" value="'+(t.fadeOut||0).toFixed(1)+'"> s</div></div>';
+    h+='<div class="ls-orow"><span class="ls-scrub">페이드 인</span><div class="ls-oinline ls-xy"><input type="number" data-afade="in" step="0.1" min="0" max="'+cl.toFixed(1)+'" value="'+(t.fadeIn||0).toFixed(1)+'"> s</div></div>';
+    h+='<div class="ls-orow"><span class="ls-scrub">페이드 아웃</span><div class="ls-oinline ls-xy"><input type="number" data-afade="out" step="0.1" min="0" max="'+cl.toFixed(1)+'" value="'+(t.fadeOut||0).toFixed(1)+'"> s</div></div>';
     h+='<div class="ls-omhint">트랙 길이·위치는 타임라인 클립을 드래그해 조정할 수 있어요.</div>';
     p.innerHTML=h; p.classList.add('on'); showScene(false);
     p.querySelector('[data-x]').addEventListener('click',()=>{ closePop(); renderTimeline(); });
@@ -5202,6 +5234,7 @@ void main(){
       if(el.dataset.afade==='in'){ t.fadeIn=Math.min(v,c-(t.fadeOut||0)); el.value=t.fadeIn.toFixed(1); }
       else { t.fadeOut=Math.min(v,c-(t.fadeIn||0)); el.value=t.fadeOut.toFixed(1); }
       renderTimeline(); if(tlPlaying) scheduleFrom(Math.min(timelineTime(),totalDur()),false); scheduleUndoCommit(); }));
+    wireScrub(p);
   }
   const FONT_LABELS={sans:'산세리프',serif:'세리프',mono:'모노',round:'둥근',
     system:'System UI',arial:'Arial',helvetica:'Helvetica',times:'Times New Roman',georgia:'Georgia',
@@ -5224,6 +5257,7 @@ void main(){
   // #16 피그마식 스크럽: 라벨(.ls-scrub)을 잡고 좌우로 끌면 옆 숫자 입력값이 조절됨
   function wireScrub(box){ box.querySelectorAll('.ls-scrub').forEach(sc=>{
     let inp=sc.nextElementSibling; while(inp && inp.tagName!=='INPUT') inp=inp.nextElementSibling;
+    if(!inp||inp.type!=='number'){ const row=sc.closest('.ls-orow'); inp=row?row.querySelector('input[type=number]'):null; }
     if(!inp||inp.type!=='number')return;
     sc.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation();
       const step=parseFloat(inp.step)||1; const dec=(String(inp.step).split('.')[1]||'').length;
@@ -5298,8 +5332,8 @@ void main(){
     h+='<div class="ls-osec">움직임</div>';
     h+='<div class="ls-orow"><span>회전 속도</span><div class="ls-oinline ls-xy"><input type="number" data-spin step="15" min="-1080" max="1080" value="'+(+o.spin||0)+'"> °/s</div></div>';
     h+='<div class="ls-osec">타이밍</div>';
-    h+='<div class="ls-orow"><span>등장 시점</span><div class="ls-oinline ls-xy"><input type="number" data-tin step="0.1" min="0" max="'+projDur()+'" value="'+(o.tIn||0).toFixed(1)+'"> s</div></div>';
-    h+='<div class="ls-orow"><span>퇴장 시점</span><div class="ls-oinline ls-xy"><input type="number" data-tout step="0.1" min="0" max="'+projDur()+'" value="'+_tout.toFixed(1)+'"> s</div></div>';
+    h+='<div class="ls-orow"><span class="ls-scrub">등장 시점</span><div class="ls-oinline ls-xy"><input type="number" data-tin step="0.1" min="0" max="'+projDur()+'" value="'+(o.tIn||0).toFixed(1)+'"> s</div></div>';
+    h+='<div class="ls-orow"><span class="ls-scrub">퇴장 시점</span><div class="ls-oinline ls-xy"><input type="number" data-tout step="0.1" min="0" max="'+projDur()+'" value="'+_tout.toFixed(1)+'"> s</div></div>';
     h+='<div class="ls-osec">전환</div>';
     h+='<div class="ls-orow"><span>등장 전환</span><div class="ls-oinline ls-trrow">'+trSel('in',o.trIn)+'</div></div>';
     h+='<div class="ls-orow"><span>퇴장 전환</span><div class="ls-oinline ls-trrow">'+trSel('out',o.trOut)+'</div></div>';
@@ -5449,7 +5483,8 @@ void main(){
   { const vfi=Q('#ls_vfi'), vfo=Q('#ls_vfo');
     const clampF=v=>Math.max(0,Math.min(projDur(),parseFloat(v)||0));
     if(vfi) vfi.addEventListener('change',()=>{ st.vfadeIn=clampF(vfi.value); vfi.value=st.vfadeIn; scheduleUndoCommit(); });
-    if(vfo) vfo.addEventListener('change',()=>{ st.vfadeOut=clampF(vfo.value); vfo.value=st.vfadeOut; scheduleUndoCommit(); }); }
+    if(vfo) vfo.addEventListener('change',()=>{ st.vfadeOut=clampF(vfo.value); vfo.value=st.vfadeOut; scheduleUndoCommit(); });
+    { const sc=Q('#ls_scene'); if(sc) wireScrub(sc); } }
 
   // ===== 오토메이션 (타임라인 인라인 레인) =====
   const AUTO_LABELS={warp:'일렁임',detail:'흐름결',water:'물결',pull:'중심 흡입',sway:'흔들',vortex:'소용돌이',parallax:'패럴랙스',glow:'광채',kaleido:'만화경',grain:'입자',resp:'킥 펄스',floaty:'부유'};
@@ -5475,7 +5510,7 @@ void main(){
     if(o&&typeof o==='object'){ for(const k in o){ const a=o[k]; if(a&&Array.isArray(a.pts)&&(KEYS.indexOf(k)>=0||(isObjKey(k)&&findObj((objKeyParts(k)||{}).id)))){ auto[k]={on:!!a.on,pts:a.pts.map(sanePt).sort((x,y)=>x.t-y.t)}; autoKeys.push(k); } } }
     KEYS.forEach(k=>{ const el=Q('#ls_'+k); if(el) el.dispatchEvent(new Event('input')); });
     if(typeof renderTimeline==='function') renderTimeline(); }
-  function persistAutoLocal(){ try{ if(typeof Store!=='undefined'&&Store.setLocal) Store.setLocal('artworkAuto',captureAuto()); }catch(e){} scheduleUndoCommit(); }
+  function persistAutoLocal(){ scheduleUndoCommit(); }   // 오토메이션은 프로젝트 저장으로만 관리(로컬 자동저장 제거)
 
   function stripTV(ev,stripEl,key){ const r=stripEl.getBoundingClientRect();
     const cx=(ev.touches?ev.touches[0].clientX:ev.clientX)-r.left; const cy=(ev.touches?ev.touches[0].clientY:ev.clientY)-r.top;
@@ -6059,13 +6094,13 @@ void main(){
   // image / audio file inputs
   const fileInput=Q('#ls_file');
   Q('#ls_load').addEventListener('click',()=>fileInput.click());
-  fileInput.addEventListener('change',e=>{const f=e.target.files[0]; if(f)loadTexture(f); e.target.value='';});
+  fileInput.addEventListener('change',e=>{const f=e.target.files[0]; if(f)setBackground(f); e.target.value='';});
   const aInput=Q('#ls_afile');
   aInput.addEventListener('change',e=>{const f=e.target.files[0]; if(f)addTrackFile(f); e.target.value='';});
   renderTimeline();
   ['dragenter','dragover'].forEach(ev=>stage.addEventListener(ev,e=>{e.preventDefault();stage.classList.add('drag');}));
   ['dragleave','drop'].forEach(ev=>stage.addEventListener(ev,e=>{e.preventDefault();stage.classList.remove('drag');}));
-  stage.addEventListener('drop',e=>{const f=e.dataTransfer.files[0]; if(f&&f.type.startsWith('image/'))loadTexture(f);});
+  stage.addEventListener('drop',e=>{const f=e.dataTransfer.files[0]; if(f&&f.type.startsWith('image/'))setBackground(f);});
 
   // recording — 1순위: 오프라인 정밀 렌더(WebCodecs+mp4-muxer, 프레임 단위·결정적·드랍 없음)
   //             2순위: 실시간 MediaRecorder 폴백(WebCodecs 미지원 브라우저)
