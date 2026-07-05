@@ -713,7 +713,7 @@ img.av,img.art{pointer-events:none}
 .ls canvas, .ls img{ -webkit-user-drag:none; user-drag:none; pointer-events:auto; }
 .ls *{ -webkit-user-drag:none; }
 body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-select:none !important; cursor:inherit; }
-.ls-wrap{ display:grid; grid-template-columns:200px minmax(0,1fr) 380px; grid-template-rows:minmax(0,1fr) auto;
+.ls-wrap{ display:grid; grid-template-columns:288px minmax(0,1fr) 288px; grid-template-rows:minmax(0,1fr) auto;
   grid-template-areas:"layers stage side" "timeline timeline timeline"; gap:14px 16px; height:100%; }
 .ls-layers{ grid-area:layers; } .ls-stageWrap{ grid-area:stage; } .ls-timeline{ grid-area:timeline; } .ls-side{ grid-area:side; }
 @media (max-width:920px){ .ls{ height:auto; min-height:0; } .ls-wrap{ grid-template-columns:1fr; grid-template-rows:none; grid-template-areas:"layers" "stage" "timeline" "side"; height:auto; gap:14px; } }
@@ -731,10 +731,9 @@ body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-
 .ls-header .ls-menubtn{ width:auto; height:32px; padding:0 12px; }
 .ls-header .ls-act{ height:32px; padding:0 14px; }
 /* topbar에 마운트됐을 때: 폭을 채우고 카드 배경 없이 헤더로 녹아들게 */
-.topbar .ls-header{ flex:1; min-width:0; }
+.topbar .ls-header{ flex:0 1 auto; min-width:0; justify-content:flex-end; }
 body.ls-hdr-on .topbar{ height:auto; min-height:56px; }
-body.ls-hdr-on .topbar .spacer{ display:none; }
-body.ls-hdr-on #topActions{ flex:1; min-width:0; }
+body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 @media (max-width:920px){ body.ls-hdr-on .topbar{ flex-wrap:wrap; padding-top:7px; padding-bottom:7px; } }
 .ls-hdur{ display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--c-t2);
   background:var(--c-card); border:1px solid var(--c-bd); border-radius:10px; padding:0 11px; height:32px; }
@@ -744,15 +743,15 @@ body.ls-hdr-on #topActions{ flex:1; min-width:0; }
 
 /* 좌측 레이어 패널 */
 .ls-layers{ background:var(--c-panel); border:1px solid var(--c-bd); border-radius:16px;
-  padding:14px 12px; display:flex; flex-direction:column; gap:11px; min-height:0; }
-@media (max-width:920px){ .ls-layers{ min-height:0; } }
+  padding:14px 12px; display:flex; flex-direction:column; gap:11px; min-height:0; overflow-y:auto; overscroll-behavior:contain; }
+.ls-layers::-webkit-scrollbar{ width:8px; } .ls-layers::-webkit-scrollbar-thumb{ background:var(--c-bd2); border-radius:8px; } .ls-layers::-webkit-scrollbar-track{ background:transparent; }
+@media (max-width:920px){ .ls-layers{ min-height:0; overflow:visible; } }
 .ls-lyr-head{ font-size:13px; font-weight:700; color:var(--c-t1); padding:0 2px; letter-spacing:.01em; }
-/* 배경 소스 섹션 (레이어 위 · 평소 공백 · 추후 셰이더/그라디언트) */
-.ls-bg{ display:flex; flex-direction:column; gap:8px; }
-.ls-bg-slot{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
-  padding:14px 10px; border:1px dashed var(--c-bd2); border-radius:9px; background:var(--c-card); text-align:center; }
-.ls-bg-slot b{ font-size:11.5px; font-weight:600; color:var(--c-t2); }
-.ls-bg-slot span{ font-size:10px; color:var(--c-t3); letter-spacing:.01em; }
+/* 배경 섹션 (이미지 교체 + 배경 효과) */
+.ls-bg{ display:flex; flex-direction:column; gap:10px; }
+.ls-bgload{ width:100%; justify-content:center; }
+.ls-bg .ls-acc{ flex:none; min-height:0; overflow:visible; gap:0; }
+.ls-bg .ls-accsec{ border-radius:12px; }
 .ls-bg-div{ height:1px; background:var(--c-bd); margin:1px 0; }
 .ls-lyr-add{ display:flex; flex-direction:column; gap:6px; }
 .ls-lyr-addbtn{ width:100%; padding:9px 11px; font-size:12px; font-weight:600; color:var(--c-t2);
@@ -807,6 +806,17 @@ body.ls-hdr-on #topActions{ flex:1; min-width:0; }
   border-radius:16px; overflow:hidden; background:#0b0b0c; box-shadow:0 28px 80px -30px rgba(0,0,0,.9), 0 0 0 1px var(--c-bd); }
 @media (max-width:920px){ .ls-stage{ height:auto; width:100%; max-height:54dvh; } }
 .ls-stage canvas{ display:block; width:100%; height:100%; }
+/* 영상 위 플로팅 트랜스포트 (재생 토글 + 시간) — 타임라인 바깥 */
+.ls-xport{ position:absolute; left:50%; bottom:14px; transform:translateX(-50%); z-index:7;
+  display:flex; align-items:center; gap:10px; padding:6px 10px 6px 6px;
+  background:rgba(18,18,20,.58); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.14); border-radius:999px; box-shadow:0 12px 32px -14px rgba(0,0,0,.75); }
+.ls-xbtn{ flex:none; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  background:rgba(255,255,255,.16); border:none; color:#fff; cursor:pointer; padding:0; transition:.14s; }
+.ls-xbtn:hover{ background:rgba(255,255,255,.30); }
+.ls-xbtn.on{ background:var(--acc); }
+.ls-xbtn svg{ width:15px; height:15px; fill:#fff; }
+.ls-xtime{ font-size:12.5px; font-weight:600; color:#fff; font-variant-numeric:tabular-nums; text-shadow:0 1px 2px rgba(0,0,0,.55); }
 .ls-recDot{ position:absolute; top:14px; left:14px; z-index:5; display:none; align-items:center; gap:.5rem;
   font-size:12px; letter-spacing:.04em; background:rgba(0,0,0,.55); padding:6px 11px; border-radius:100px; color:#fff; }
 .ls-recDot.on{ display:flex; } .ls-recDot i{ width:9px; height:9px; border-radius:50%; background:#ff4d4d; animation:lsBlink 1s steps(2,start) infinite; }
@@ -830,25 +840,7 @@ body.ls-hdr-on #topActions{ flex:1; min-width:0; }
 .ls-time{ flex:none; font-size:13px; color:#fff; font-variant-numeric:tabular-nums; text-shadow:0 1px 2px rgba(0,0,0,.6); }
 
 /* 오디오 타임라인 (필모라식 멀티트랙) */
-.ls-timeline{ position:relative; flex:none; background:var(--c-panel); border:1px solid var(--c-bd); border-radius:16px; padding:46px 15px 15px; box-sizing:border-box; overflow-x:clip; }
-.ls-transport{ display:flex; gap:6px; flex:none; box-sizing:border-box; }
-.ls-tbtn{ flex:1; height:30px; display:flex; align-items:center; justify-content:center; border-radius:8px;
-  background:var(--c-card); border:1px solid var(--c-bd); color:var(--c-t2); cursor:pointer; padding:0; transition:all .12s; }
-.ls-tbtn svg{ width:15px; height:15px; fill:currentColor; }
-.ls-tbtn:hover{ color:var(--c-t1); border-color:var(--acc); }
-.ls-tbtn.on{ background:var(--acc); border-color:var(--acc); color:#fff; }
-.ls-tl-head{ position:absolute; top:9px; left:15px; right:15px; z-index:6; display:flex; align-items:center; gap:10px; margin:0; }
-.ls-tl-hgroup{ display:flex; align-items:center; gap:8px; background:color-mix(in srgb,var(--c-card) 92%,transparent);
-  border:1px solid var(--c-bd2); border-radius:11px; padding:4px 7px; box-shadow:0 6px 18px -12px rgba(0,0,0,.65); }
-.ls-tl-hgroup .ls-transport{ gap:5px; }
-.ls-tl-hgroup .ls-tbtn{ flex:0 0 30px; height:28px; }
-.ls-tl-head .ls-time{ flex:none; font-size:12.5px; color:var(--c-t1); font-variant-numeric:tabular-nums; text-shadow:none;
-  background:color-mix(in srgb,var(--c-card) 92%,transparent); border:1px solid var(--c-bd2); border-radius:9px; padding:6px 12px; }
-.ls-tl-title{ font-size:13px; font-weight:600; color:var(--c-t2); }
-.ls-tl-spacer{ flex:1; }
-.ls-tl-add{ font-size:12px; font-weight:600; color:#fff; background:var(--acc); border:1px solid var(--acc); border-radius:9px; padding:8px 13px; cursor:pointer; }
-.ls-tl-add[disabled]{ opacity:.5; cursor:default; }
-.ls-tl-empty{ padding:22px 14px; text-align:center; color:var(--c-t3); font-size:12.5px; background:var(--c-card); border:1px dashed var(--c-bd); border-radius:10px; }
+.ls-timeline{ position:relative; flex:none; background:var(--c-panel); border:1px solid var(--c-bd); border-radius:16px; padding:14px 15px 13px; box-sizing:border-box; overflow-x:clip; }
 .ls-tl-body{ display:flex; flex-direction:column; position:relative; }
 .ls-tl-labels{ width:150px; flex:none; display:flex; flex-direction:column; gap:7px; box-sizing:border-box; }
 .ls-rlabel{ height:38px; box-sizing:border-box; display:flex; align-items:center; padding:0 12px; border-radius:8px;
@@ -912,6 +904,10 @@ body.ls-hdr-on #topActions{ flex:1; min-width:0; }
 /* 우측: 기능 패널 (독립 스크롤) + 프리셋 패널 (독립) */
 .ls-side{ height:100%; min-height:0; display:flex; flex-direction:column; gap:14px; }
 @media (max-width:920px){ .ls-side{ height:auto; } }
+.ls-side-empty{ margin:auto; text-align:center; font-size:12px; line-height:1.7; color:var(--c-t3);
+  padding:24px 16px; border:1px dashed var(--c-bd); border-radius:14px; background:color-mix(in srgb,var(--c-card) 45%,transparent); }
+.ls-side:has(.ls-opop.on) .ls-side-empty{ display:none; }
+@media (max-width:920px){ .ls-side:not(:has(.ls-opop.on)) .ls-side-empty{ display:none; } }
 .ls-panel{ background:var(--c-panel); border:1px solid var(--c-bd); border-radius:18px; padding:18px; }
 .ls-acc{ flex:1; min-height:0; display:flex; flex-direction:column; gap:14px; overflow-y:auto; overscroll-behavior:contain; }
 .ls-accsec{ flex:0 0 auto; background:var(--c-panel); border:1px solid var(--c-bd); border-radius:18px; overflow:hidden; }
@@ -1015,15 +1011,9 @@ body.ls-hdr-on #topActions{ flex:1; min-width:0; }
 /* ===== Loop Studio — 통합 타임라인 (고정 축 + 스크롤 레인) ===== */
 .ls-axis{ display:flex; gap:8px; }
 .ls-axis-pad{ width:150px; flex:none; }
-.ls-tlzoom{ display:flex; align-items:center; gap:3px; }
-.ls-zbtn{ width:26px; height:26px; line-height:1; font-size:14px; font-weight:700; border-radius:7px; cursor:pointer;
-  border:1px solid var(--c-bd); background:var(--c-card); color:var(--c-t3); font-family:inherit; transition:.12s; }
-.ls-zbtn:hover{ color:var(--c-t1); background:var(--c-hov); border-color:var(--c-bd2); }
-.ls-zbtn:active{ background:var(--acc); border-color:var(--acc); color:#fff; }
-.ls-zlab{ font-size:10px; font-weight:700; color:var(--c-t3); text-align:center; font-variant-numeric:tabular-nums; min-width:32px; }
 .ls-ruwrap{ flex:1; min-width:0; overflow:hidden; }
 .ls-ruwrap .ls-ruler{ min-width:100%; }
-.ls-laneswrap{ flex:1; min-width:0; overflow-x:auto; overflow-y:hidden; }
+.ls-laneswrap{ flex:1; min-width:0; overflow-x:clip; overflow-y:hidden; }
 .ls-laneswrap .ls-tl-lanes{ min-width:100%; }
 .ls-marker{ position:absolute; top:0; width:9px; height:11px; transform:translateX(-50%); cursor:grab; z-index:5;
   background:#f6c945; clip-path:polygon(0 0,100% 0,100% 58%,50% 100%,0 58%); }
@@ -1039,7 +1029,7 @@ body.ls-hdr-on #topActions{ flex:1; min-width:0; }
 .ls-wa{ position:absolute; top:0; bottom:0; background:color-mix(in srgb,var(--acc) 16%,transparent);
   border-left:2px solid var(--acc); border-right:2px solid var(--acc); z-index:2; cursor:pointer; }
 .ls-axis .ls-ruler{ flex:1; min-width:0; }
-.ls-scroll{ display:flex; gap:8px; align-items:flex-start; height:208px; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; padding-right:3px; }
+.ls-scroll{ display:flex; gap:8px; align-items:flex-start; height:172px; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; padding-right:3px; }
 .ls-scroll.grabbing{ cursor:grabbing; user-select:none; }
 .ls-scroll::-webkit-scrollbar{ width:8px; }
 .ls-scroll::-webkit-scrollbar-thumb{ background:var(--c-bd2); border-radius:8px; }
@@ -4174,19 +4164,33 @@ function createArtwork(){
           </div>
         </div>
         <div class="ls-hdiv"></div>
-        <button class="ls-act" id="ls_load">이미지 교체</button>
-        <span class="ls-hspace"></span>
         <button class="ls-act ls-rec" id="ls_rec">⦿ 녹화</button>
-        <input type="file" id="ls_file" accept="image/*" hidden>
         <input type="file" id="ls_afile" accept="audio/*" hidden>
       </div>
       <div class="ls-layers">
         <div class="ls-bg">
           <div class="ls-lyr-head">배경</div>
-          <div class="ls-bg-slot" id="ls_bgslot">
-            <b>배경 없음</b>
-            <span>셰이더 · 그라디언트 (준비 중)</span>
-          </div>
+          <button class="ls-act ls-bgload" id="ls_load">이미지 교체</button>
+          <input type="file" id="ls_file" accept="image/*" hidden>
+        <div class="ls-acc" id="ls_acc">
+          <section class="ls-accsec open" data-acc="fx">
+            <button type="button" class="ls-acchead"><span class="ls-acctitle">배경 효과</span><span class="ls-accchev"></span></button>
+            <div class="ls-accbody"><div class="ls-grid">
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_warp">일렁임 Warp</label><span class="ls-val" id="ls_warpV"></span></div><input type="range" id="ls_warp" min="0" max="0.24" step="0.002" value="0"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_detail">흐름결 Detail</label><span class="ls-val" id="ls_detailV"></span></div><input type="range" id="ls_detail" min="1" max="9" step="0.1" value="1"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_water">물결 Water</label><span class="ls-val" id="ls_waterV"></span></div><input type="range" id="ls_water" min="0" max="2" step="0.02" value="0"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_resp">킥 펄스 Kick</label><span class="ls-val" id="ls_respV"></span></div><input type="range" id="ls_resp" min="0" max="2" step="0.02" value="0"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_floaty">부유 Float</label><span class="ls-val" id="ls_floatyV"></span></div><input type="range" id="ls_floaty" min="0" max="2" step="0.02" value="0"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_pull">중심 흡입 Pull</label><span class="ls-val" id="ls_pullV"></span></div><input type="range" id="ls_pull" min="0" max="2" step="0.02" value="0"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_sway">흔들 Sway</label><span class="ls-val" id="ls_swayV"></span></div><input type="range" id="ls_sway" min="0" max="1.2" step="0.02" value="0"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_vortex">소용돌이</label><span class="ls-val" id="ls_vortexV"></span></div><input type="range" id="ls_vortex" min="0" max="2" step="0.02" value="0"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_parallax">패럴랙스</label><span class="ls-val" id="ls_parallaxV"></span></div><input type="range" id="ls_parallax" min="0" max="2" step="0.02" value="0"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_kaleido">만화경 (면)</label><span class="ls-val" id="ls_kaleidoV"></span></div><input type="range" id="ls_kaleido" min="0" max="12" step="1" value="0"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_glow">은은한 광채</label><span class="ls-val" id="ls_glowV"></span></div><input type="range" id="ls_glow" min="0" max="2" step="0.02" value="0"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_grain">입자 Grain</label><span class="ls-val" id="ls_grainV"></span></div><input type="range" id="ls_grain" min="0" max="0.1" step="0.002" value="0"></div>
+            </div></div>
+          </section>
+        </div>
         </div>
         <div class="ls-bg-div"></div>
         <div class="ls-lyr-head">레이어</div>
@@ -4208,43 +4212,17 @@ function createArtwork(){
           <div class="ls-prog" id="ls_prog"><i></i></div>
           <div class="ls-dz">이미지를 놓아 교체</div>
           <div class="ls-toast" id="ls_toast"></div>
+          <div class="ls-xport" id="ls_xport">
+            <button class="ls-xbtn" id="ls_tlplay" title="재생 / 일시정지">${ICON_PLAY}</button>
+            <span class="ls-xtime" id="ls_time">0:00 / 1:00</span>
+          </div>
         </div>
       </div>
       <div class="ls-timeline">
-        <div class="ls-tl-head">
-          <div class="ls-tl-hgroup">
-            <div class="ls-transport">
-              <button class="ls-tbtn" id="ls_tlplay" title="재생">${ICON_PLAY}</button>
-              <button class="ls-tbtn" id="ls_tlpause" title="일시정지">${ICON_PAUSE}</button>
-              <button class="ls-tbtn" id="ls_tlstop" title="정지">${ICON_STOP}</button>
-            </div>
-            <div class="ls-tlzoom"><button class="ls-zbtn" id="ls_zoomout" title="타임라인 축소">−</button><span class="ls-zlab" id="ls_zlab"></span><button class="ls-zbtn" id="ls_zoomin" title="타임라인 확대 (Ctrl/Alt+휠)">＋</button></div>
-          </div>
-          <span class="ls-tl-spacer"></span>
-          <span class="ls-time" id="ls_time">0:00 / 1:00</span>
-        </div>
         <div class="ls-tl-body" id="ls_tlbody"></div>
       </div>
-      <div class="ls-side">
-        <div class="ls-acc" id="ls_acc">
-          <section class="ls-accsec open" data-acc="fx">
-            <button type="button" class="ls-acchead"><span class="ls-acctitle">배경 효과</span><span class="ls-accchev"></span></button>
-            <div class="ls-accbody"><div class="ls-grid">
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_warp">일렁임 Warp</label><span class="ls-val" id="ls_warpV"></span></div><input type="range" id="ls_warp" min="0" max="0.24" step="0.002" value="0"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_detail">흐름결 Detail</label><span class="ls-val" id="ls_detailV"></span></div><input type="range" id="ls_detail" min="1" max="9" step="0.1" value="1"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_water">물결 Water</label><span class="ls-val" id="ls_waterV"></span></div><input type="range" id="ls_water" min="0" max="2" step="0.02" value="0"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_resp">킥 펄스 Kick</label><span class="ls-val" id="ls_respV"></span></div><input type="range" id="ls_resp" min="0" max="2" step="0.02" value="0"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_floaty">부유 Float</label><span class="ls-val" id="ls_floatyV"></span></div><input type="range" id="ls_floaty" min="0" max="2" step="0.02" value="0"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_pull">중심 흡입 Pull</label><span class="ls-val" id="ls_pullV"></span></div><input type="range" id="ls_pull" min="0" max="2" step="0.02" value="0"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_sway">흔들 Sway</label><span class="ls-val" id="ls_swayV"></span></div><input type="range" id="ls_sway" min="0" max="1.2" step="0.02" value="0"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_vortex">소용돌이</label><span class="ls-val" id="ls_vortexV"></span></div><input type="range" id="ls_vortex" min="0" max="2" step="0.02" value="0"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_parallax">패럴랙스</label><span class="ls-val" id="ls_parallaxV"></span></div><input type="range" id="ls_parallax" min="0" max="2" step="0.02" value="0"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_kaleido">만화경 (면)</label><span class="ls-val" id="ls_kaleidoV"></span></div><input type="range" id="ls_kaleido" min="0" max="12" step="1" value="0"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_glow">은은한 광채</label><span class="ls-val" id="ls_glowV"></span></div><input type="range" id="ls_glow" min="0" max="2" step="0.02" value="0"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_grain">입자 Grain</label><span class="ls-val" id="ls_grainV"></span></div><input type="range" id="ls_grain" min="0" max="0.1" step="0.002" value="0"></div>
-            </div></div>
-          </section>
-        </div>
+      <div class="ls-side" id="ls_side">
+        <div class="ls-side-empty" id="ls_sideEmpty">오브젝트를 선택하면<br>여기에서 편집할 수 있어요</div>
       </div>
     </div>
     <div class="ls-fallback" id="ls_fallback">이 브라우저에서는 WebGL을 사용할 수 없어요. 크롬·사파리·엣지 최신 버전에서 열어 주세요.</div>`;
@@ -5594,19 +5572,9 @@ void main(){
     const lanesWrap=mk('ls-laneswrap'); lanesWrap.appendChild(lanes);
     scroll.appendChild(labels); scroll.appendChild(lanesWrap);
     const applyZoom=()=>{ ruler.style.width=(tlZoom*100)+'%'; lanes.style.width=(tlZoom*100)+'%';
-      const zl=Q('#ls_zlab'); if(zl)zl.textContent=tlZoom>1.01?Math.round(tlZoom*100)+'%':'';
       ruWrap.scrollLeft=lanesWrap.scrollLeft; };
     applyZoom();
     lanesWrap.addEventListener('scroll',()=>{ ruWrap.scrollLeft=lanesWrap.scrollLeft; });
-    lanesWrap.addEventListener('wheel',e=>{ if(!(e.ctrlKey||e.altKey))return; e.preventDefault();
-      const rect=lanesWrap.getBoundingClientRect();
-      const fx=(lanesWrap.scrollLeft+(e.clientX-rect.left))/Math.max(1,lanesWrap.clientWidth*tlZoom);
-      tlZoom=Math.max(1,Math.min(8,tlZoom*(e.deltaY<0?1.2:1/1.2))); if(tlZoom<1.02)tlZoom=1;
-      applyZoom();
-      lanesWrap.scrollLeft=fx*lanesWrap.clientWidth*tlZoom-(e.clientX-rect.left);
-      ruWrap.scrollLeft=lanesWrap.scrollLeft; },{passive:false});
-    const _zBy=dir=>{ tlZoom=dir>0?Math.min(8,tlZoom*1.5):Math.max(1,tlZoom/1.5); if(tlZoom<1.02)tlZoom=1; applyZoom(); };
-    { const zo=Q('#ls_zoomout'), zi=Q('#ls_zoomin'); if(zo)zo.onclick=()=>_zBy(-1); if(zi)zi.onclick=()=>_zBy(1); }
     wireScrollDrag(scroll);
 
     body.appendChild(axis); body.appendChild(scroll); body.appendChild(pop);
@@ -5763,15 +5731,13 @@ void main(){
   function start(){ mountHeader(); resize(); try{renderAuto();}catch(e){} if(playing && !hasAudio()) startT=performance.now()-lastT*1000; if(playing && hasAudio() && !tlPlaying) startTimeline(tlFromT); if(!rafId)rafId=requestAnimationFrame(frame); }
   function stop(){ unmountHeader(); if(rafId){ cancelAnimationFrame(rafId); rafId=null; } if(tlPlaying)pauseTimeline(); }
 
-  function updPlayBtns(){ const pb=Q('#ls_tlplay'),pa=Q('#ls_tlpause'); if(pb)pb.classList.toggle('on',playing); if(pa)pa.classList.toggle('on',!playing); }
+  function updPlayBtns(){ const pb=Q('#ls_tlplay'); if(pb){ pb.innerHTML=playing?ICON_PAUSE:ICON_PLAY; pb.classList.toggle('on',playing); pb.title=playing?'일시정지':'재생'; } }
   function setPlay(p){ playing=p; if(hasAudio()){ if(p){ startTimeline(tlFromT); } else { pauseTimeline(); } } updPlayBtns(); }
   function doPlay(){ if(recording||playing)return; if(!hasAudio()) startT=performance.now()-pausedT*1000; setPlay(true); }
   function doPause(){ if(recording||!playing)return; if(!hasAudio()) pausedT=((((performance.now()-startT)/1000)%projDur())+projDur())%projDur(); setPlay(false); }
   function doStop(){ if(recording)return; if(playing){ setPlay(false); } pausedT=0; seekTo(0); }
   function togglePlay(){ if(playing) doPause(); else doPlay(); }
-  Q('#ls_tlplay').addEventListener('click',doPlay);
-  Q('#ls_tlpause').addEventListener('click',doPause);
-  Q('#ls_tlstop').addEventListener('click',doStop);
+  Q('#ls_tlplay').addEventListener('click',togglePlay);
   function onKey(e){ if(e.code!=='Space'&&e.key!==' ')return; const ae=document.activeElement; const tag=ae&&ae.tagName;
     if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||(ae&&ae.isContentEditable))return;
     if(!root.isConnected||recording)return; e.preventDefault(); togglePlay(); }
