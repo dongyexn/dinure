@@ -809,9 +809,10 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 /* 영상 위 플로팅 트랜스포트 (재생 토글 + 시간) — 타임라인 바깥 */
 .ls-xport{ position:absolute; left:10px; right:10px; bottom:10px; z-index:7;
   display:flex; align-items:center; gap:11px; padding:8px 14px 8px 8px;
-  background:linear-gradient(to top, rgba(0,0,0,.62), rgba(0,0,0,.30));
-  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
-  border:1px solid rgba(255,255,255,.12); border-radius:12px; box-shadow:0 12px 32px -14px rgba(0,0,0,.75); }
+  opacity:0; pointer-events:none; transform:translateY(6px);
+  transition:opacity .28s ease, transform .28s ease; }
+/* 평소엔 숨기고 스테이지에 마우스가 올라올 때만 스르륵 등장 (영상 감상·녹화 방해 방지) */
+.ls-stage:hover .ls-xport, .ls-xport:hover, .ls-xport.show{ opacity:1; pointer-events:auto; transform:none; }
 .ls-xbtn{ flex:none; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center;
   background:rgba(255,255,255,.16); border:none; color:#fff; cursor:pointer; padding:0; transition:.14s; }
 .ls-xbtn:hover{ background:rgba(255,255,255,.30); }
@@ -908,8 +909,10 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-auto-ph{ position:absolute; top:0; bottom:0; width:2px; background:rgba(255,255,255,.5); z-index:2; pointer-events:none; }
 
 /* 우측: 기능 패널 (독립 스크롤) + 프리셋 패널 (독립) */
-.ls-side{ height:100%; min-height:0; display:flex; flex-direction:column; gap:14px; }
-@media (max-width:920px){ .ls-side{ height:auto; } }
+.ls-side{ height:100%; min-height:0; display:flex; flex-direction:column; gap:14px; overflow:hidden; }
+@media (max-width:920px){ .ls-side{ height:auto; overflow:visible; } }
+/* 인스펙터가 우측 셀 높이를 넘어 타임라인을 침범하지 않도록, 셀 안에서만 스크롤 */
+@media (min-width:921px){ .ls-side .ls-opop{ max-height:100%; flex:0 1 auto; min-height:0; } }
 .ls-panel{ background:var(--c-panel); border:1px solid var(--c-bd); border-radius:18px; padding:18px; }
 .ls-acc{ flex:1; min-height:0; display:flex; flex-direction:column; gap:14px; overflow-y:auto; overscroll-behavior:contain; }
 .ls-accsec{ flex:0 0 auto; background:var(--c-panel); border:1px solid var(--c-bd); border-radius:18px; overflow:hidden; }
@@ -4898,7 +4901,7 @@ void main(){
   }
   function renderObjList(){                 // 좌측 통합 레이어 패널 렌더
     const wrap=Q('#ls_layerlist'); if(!wrap)return; wrap.innerHTML='';
-    if(!objs.length){ const e=document.createElement('div'); e.className='ls-lyr-empty'; e.textContent='레이어가 없어요. 위 버튼으로 텍스트·이미지·스펙트럼을 추가하세요.'; wrap.appendChild(e); return; }
+    if(!objs.length){ return; }
     const TAG={text:'텍스트',image:'이미지',spectrum:'스펙트럼'};
     objs.slice().reverse().forEach(o=>{        // 앞(위) 레이어가 목록 상단
       const r=document.createElement('div'); r.className='ls-lyr-row'+(o.id===selId?' sel':'');
@@ -5559,10 +5562,11 @@ void main(){
       if(b.dataset.add==='track'){ if(tracks.length<MAXTR) aInput.click(); }
       else if(b.dataset.add==='auto'){ addAutoLane(b.dataset.key); } });
 
-    // ---- "레인 추가" 버튼 (기본 빈 레인 없이, 스크롤 아래 전폭 버튼으로) ----
+    // ---- "레인 추가" 버튼 (하단 전폭 → 좌측 레이블 컬럼 하단으로 이동) ----
     const addBtn=mk('ls-addlane-btn ls-addlane'); addBtn.innerHTML='<span class="ls-rl-plus">＋</span> 레인 추가';
     const toggleAdd=e=>{ e.stopPropagation(); const open=!pop.classList.contains('on'); closeMenus(); pop.classList.toggle('on',open); };
     addBtn.addEventListener('click',toggleAdd);
+    labels.appendChild(addBtn);   // 좌측 레이블 컬럼 하단에 배치
 
     // 재생 헤드
     markers.forEach((mt,mi)=>{ const ln=mk('ls-mline'); ln.dataset.mi=mi; ln.style.left=(mt/total*100)+'%'; lanes.appendChild(ln); });
@@ -5579,7 +5583,7 @@ void main(){
     lanesWrap.addEventListener('scroll',()=>{ ruWrap.scrollLeft=lanesWrap.scrollLeft; });
     wireScrollDrag(scroll);
 
-    body.appendChild(axis); body.appendChild(scroll); body.appendChild(addBtn); body.appendChild(pop);
+    body.appendChild(axis); body.appendChild(scroll); body.appendChild(pop);
     scheduleUndoCommit();
     requestAnimationFrame(()=>redrawAllAuto());   // 폭 확정 후 자동화 곡선 그리기
     syncPresetHeight(); updTimebar(lastT);
