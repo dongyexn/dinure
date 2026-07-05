@@ -713,22 +713,31 @@ img.av,img.art{pointer-events:none}
 .ls canvas, .ls img{ -webkit-user-drag:none; user-drag:none; pointer-events:auto; }
 .ls *{ -webkit-user-drag:none; }
 body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-select:none !important; cursor:inherit; }
-.ls-wrap{ display:grid; grid-template-columns:200px minmax(0,1fr) 380px; grid-template-rows:auto minmax(0,1fr) auto;
-  grid-template-areas:"header header header" "layers stage side" "layers timeline side"; gap:14px 16px; height:100%; }
-.ls-header{ grid-area:header; } .ls-layers{ grid-area:layers; } .ls-stageWrap{ grid-area:stage; } .ls-timeline{ grid-area:timeline; } .ls-side{ grid-area:side; }
-@media (max-width:920px){ .ls{ height:auto; min-height:0; } .ls-wrap{ grid-template-columns:1fr; grid-template-rows:none; grid-template-areas:"header" "layers" "stage" "timeline" "side"; height:auto; gap:14px; } }
+.ls-wrap{ display:grid; grid-template-columns:200px minmax(0,1fr) 380px; grid-template-rows:minmax(0,1fr) auto;
+  grid-template-areas:"layers stage side" "timeline timeline timeline"; gap:14px 16px; height:100%; }
+.ls-layers{ grid-area:layers; } .ls-stageWrap{ grid-area:stage; } .ls-timeline{ grid-area:timeline; } .ls-side{ grid-area:side; }
+@media (max-width:920px){ .ls{ height:auto; min-height:0; } .ls-wrap{ grid-template-columns:1fr; grid-template-rows:none; grid-template-areas:"layers" "stage" "timeline" "side"; height:auto; gap:14px; } }
 
-/* 상단 가로 컨트롤 헤더 */
-.ls-header{ display:flex; align-items:center; gap:8px; flex-wrap:wrap;
-  background:color-mix(in srgb,var(--c-panel) 94%,transparent); border:1px solid var(--c-bd2);
-  border-radius:14px; padding:8px 12px; box-shadow:0 10px 30px -18px rgba(0,0,0,.7); }
-.ls-hdiv{ width:1px; align-self:stretch; margin:3px 3px; background:var(--c-bd); }
+/* 상단 가로 컨트롤 헤더 — 앱 최상단 topbar 안으로 이동해 단독 헤더로 동작 */
+.ls-header{ display:flex; align-items:center; gap:7px; flex-wrap:wrap;
+  --acc:var(--accent,#3182F6); --inf:var(--info,var(--accent,#64D2FF));
+  --c-panel:var(--panel,#141415); --c-card:var(--card,#1D1D1F); --c-hov:var(--hov,#27272A);
+  --c-inp:var(--inp,#141415); --c-sel:var(--sel,#2C2C2E);
+  --c-t1:var(--t1,#fff); --c-t2:var(--t2,#E6E6E6); --c-t3:var(--t3,#B3B3B3);
+  --c-bd:var(--bd,rgba(255,255,255,.10)); --c-bd2:var(--bd2,rgba(255,255,255,.16)); }
+.ls-hdiv{ width:1px; align-self:center; height:20px; margin:0 2px; background:var(--c-bd); }
 .ls-hspace{ flex:1; min-width:8px; }
 .ls-header .ls-menu{ position:relative; display:flex; }
-.ls-header .ls-menubtn{ width:auto; height:34px; padding:0 13px; }
-.ls-header .ls-act{ height:34px; padding:0 15px; }
+.ls-header .ls-menubtn{ width:auto; height:32px; padding:0 12px; }
+.ls-header .ls-act{ height:32px; padding:0 14px; }
+/* topbar에 마운트됐을 때: 폭을 채우고 카드 배경 없이 헤더로 녹아들게 */
+.topbar .ls-header{ flex:1; min-width:0; }
+body.ls-hdr-on .topbar{ height:auto; min-height:56px; }
+body.ls-hdr-on .topbar .spacer{ display:none; }
+body.ls-hdr-on #topActions{ flex:1; min-width:0; }
+@media (max-width:920px){ body.ls-hdr-on .topbar{ flex-wrap:wrap; padding-top:7px; padding-bottom:7px; } }
 .ls-hdur{ display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--c-t2);
-  background:var(--c-card); border:1px solid var(--c-bd); border-radius:10px; padding:0 11px; height:34px; }
+  background:var(--c-card); border:1px solid var(--c-bd); border-radius:10px; padding:0 11px; height:32px; }
 .ls-hdur input{ width:46px; background:transparent; border:none; outline:none; color:var(--c-t1);
   font-size:12.5px; font-weight:700; font-family:inherit; text-align:center; -moz-appearance:textfield; }
 .ls-hdur input::-webkit-outer-spin-button,.ls-hdur input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
@@ -738,6 +747,13 @@ body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-
   padding:14px 12px; display:flex; flex-direction:column; gap:11px; min-height:0; }
 @media (max-width:920px){ .ls-layers{ min-height:0; } }
 .ls-lyr-head{ font-size:13px; font-weight:700; color:var(--c-t1); padding:0 2px; letter-spacing:.01em; }
+/* 배경 소스 섹션 (레이어 위 · 평소 공백 · 추후 셰이더/그라디언트) */
+.ls-bg{ display:flex; flex-direction:column; gap:8px; }
+.ls-bg-slot{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+  padding:14px 10px; border:1px dashed var(--c-bd2); border-radius:9px; background:var(--c-card); text-align:center; }
+.ls-bg-slot b{ font-size:11.5px; font-weight:600; color:var(--c-t2); }
+.ls-bg-slot span{ font-size:10px; color:var(--c-t3); letter-spacing:.01em; }
+.ls-bg-div{ height:1px; background:var(--c-bd); margin:1px 0; }
 .ls-lyr-add{ display:flex; flex-direction:column; gap:6px; }
 .ls-lyr-addbtn{ width:100%; padding:9px 11px; font-size:12px; font-weight:600; color:var(--c-t2);
   background:var(--c-card); border:1px dashed var(--c-bd2); border-radius:9px; cursor:pointer;
@@ -814,14 +830,20 @@ body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-
 .ls-time{ flex:none; font-size:13px; color:#fff; font-variant-numeric:tabular-nums; text-shadow:0 1px 2px rgba(0,0,0,.6); }
 
 /* 오디오 타임라인 (필모라식 멀티트랙) */
-.ls-timeline{ flex:none; background:var(--c-panel); border:1px solid var(--c-bd); border-radius:16px; padding:13px 15px 15px; box-sizing:border-box; }
+.ls-timeline{ position:relative; flex:none; background:var(--c-panel); border:1px solid var(--c-bd); border-radius:16px; padding:46px 15px 15px; box-sizing:border-box; overflow-x:clip; }
 .ls-transport{ display:flex; gap:6px; flex:none; box-sizing:border-box; }
 .ls-tbtn{ flex:1; height:30px; display:flex; align-items:center; justify-content:center; border-radius:8px;
   background:var(--c-card); border:1px solid var(--c-bd); color:var(--c-t2); cursor:pointer; padding:0; transition:all .12s; }
 .ls-tbtn svg{ width:15px; height:15px; fill:currentColor; }
 .ls-tbtn:hover{ color:var(--c-t1); border-color:var(--acc); }
 .ls-tbtn.on{ background:var(--acc); border-color:var(--acc); color:#fff; }
-.ls-tl-head{ display:flex; align-items:center; gap:12px; margin-bottom:11px; }
+.ls-tl-head{ position:absolute; top:9px; left:15px; right:15px; z-index:6; display:flex; align-items:center; gap:10px; margin:0; }
+.ls-tl-hgroup{ display:flex; align-items:center; gap:8px; background:color-mix(in srgb,var(--c-card) 92%,transparent);
+  border:1px solid var(--c-bd2); border-radius:11px; padding:4px 7px; box-shadow:0 6px 18px -12px rgba(0,0,0,.65); }
+.ls-tl-hgroup .ls-transport{ gap:5px; }
+.ls-tl-hgroup .ls-tbtn{ flex:0 0 30px; height:28px; }
+.ls-tl-head .ls-time{ flex:none; font-size:12.5px; color:var(--c-t1); font-variant-numeric:tabular-nums; text-shadow:none;
+  background:color-mix(in srgb,var(--c-card) 92%,transparent); border:1px solid var(--c-bd2); border-radius:9px; padding:6px 12px; }
 .ls-tl-title{ font-size:13px; font-weight:600; color:var(--c-t2); }
 .ls-tl-spacer{ flex:1; }
 .ls-tl-add{ font-size:12px; font-weight:600; color:#fff; background:var(--acc); border:1px solid var(--acc); border-radius:9px; padding:8px 13px; cursor:pointer; }
@@ -1012,10 +1034,6 @@ body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-
 .ls-prog i{ display:block; height:100%; width:0%; background:var(--acc); transition:width .18s linear; box-shadow:0 0 8px color-mix(in srgb,var(--acc) 70%,transparent); }
 .ls-kftip{ position:fixed; z-index:10000; padding:3px 7px; border-radius:6px; font-size:10px; font-weight:700; pointer-events:none;
   background:var(--c-panel); border:1px solid var(--c-bd2); color:var(--c-t1); box-shadow:0 6px 18px -6px rgba(0,0,0,.7); }
-.ls-prjrow{ display:flex; gap:6px; margin-top:8px; padding-top:8px; border-top:1px solid var(--c-bd); }
-.ls-prjrow button{ flex:1; font-size:10.5px; font-weight:700; padding:6px 4px; border-radius:7px; cursor:pointer;
-  border:1px solid var(--c-bd); background:var(--c-card); color:var(--c-t2); font-family:inherit; transition:.12s; }
-.ls-prjrow button:hover{ color:var(--c-t1); border-color:var(--c-bd2); }
 .ls-pcard-th{ height:46px; border-radius:7px; background-size:cover; background-position:center; margin-bottom:6px;
   border:1px solid var(--c-bd); }
 .ls-wa{ position:absolute; top:0; bottom:0; background:color-mix(in srgb,var(--acc) 16%,transparent);
@@ -1151,7 +1169,7 @@ body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-
 .ls-ohandle[data-h=sw]{ bottom:-6px; left:-6px; cursor:nesw-resize; border-radius:3px; }
 .ls-opop{ position:static; width:100%; box-sizing:border-box; padding:13px 14px; display:none; order:-1;
   flex:none; flex-direction:column; gap:11px; background:var(--c-panel); border:1px solid var(--c-bd2); border-radius:14px;
-  max-height:60vh; overflow-y:auto; overscroll-behavior:contain; }
+  max-height:60vh; overflow-y:auto; overflow-x:clip; overscroll-behavior:contain; }
 .ls-opop::-webkit-scrollbar{ width:8px; } .ls-opop::-webkit-scrollbar-thumb{ background:var(--c-bd2); border-radius:4px; }
 .ls-opop.on{ display:flex; }
 .ls-opop-h{ display:flex; align-items:center; justify-content:space-between; font-size:13px; font-weight:600; color:var(--c-t1); }
@@ -4121,7 +4139,6 @@ function createArtwork(){
           <div class="ls-pop ls-prepop ls-pop-down" id="ls_prepop">
             <div class="ls-saverow"><input id="ls_pname" placeholder="프로젝트 이름" maxlength="24"><button id="ls_save">저장</button></div>
             <div class="ls-presets" id="ls_presets"></div>
-            <div class="ls-prjrow"><button id="ls_prjsave">파일로 내보내기</button><button id="ls_prjload">파일 열기</button></div>
           </div>
         </div>
         <div class="ls-hdiv"></div>
@@ -4162,9 +4179,16 @@ function createArtwork(){
         <button class="ls-act ls-rec" id="ls_rec">⦿ 녹화</button>
         <input type="file" id="ls_file" accept="image/*" hidden>
         <input type="file" id="ls_afile" accept="audio/*" hidden>
-        <input type="file" id="ls_prjfile" accept="application/json,.json" hidden>
       </div>
       <div class="ls-layers">
+        <div class="ls-bg">
+          <div class="ls-lyr-head">배경</div>
+          <div class="ls-bg-slot" id="ls_bgslot">
+            <b>배경 없음</b>
+            <span>셰이더 · 그라디언트 (준비 중)</span>
+          </div>
+        </div>
+        <div class="ls-bg-div"></div>
         <div class="ls-lyr-head">레이어</div>
         <div class="ls-lyr-add">
           <button class="ls-lyr-addbtn" data-add="text">＋ 텍스트</button>
@@ -4188,12 +4212,14 @@ function createArtwork(){
       </div>
       <div class="ls-timeline">
         <div class="ls-tl-head">
-          <div class="ls-transport">
-            <button class="ls-tbtn" id="ls_tlplay" title="재생">${ICON_PLAY}</button>
-            <button class="ls-tbtn" id="ls_tlpause" title="일시정지">${ICON_PAUSE}</button>
-            <button class="ls-tbtn" id="ls_tlstop" title="정지">${ICON_STOP}</button>
+          <div class="ls-tl-hgroup">
+            <div class="ls-transport">
+              <button class="ls-tbtn" id="ls_tlplay" title="재생">${ICON_PLAY}</button>
+              <button class="ls-tbtn" id="ls_tlpause" title="일시정지">${ICON_PAUSE}</button>
+              <button class="ls-tbtn" id="ls_tlstop" title="정지">${ICON_STOP}</button>
+            </div>
+            <div class="ls-tlzoom"><button class="ls-zbtn" id="ls_zoomout" title="타임라인 축소">−</button><span class="ls-zlab" id="ls_zlab"></span><button class="ls-zbtn" id="ls_zoomin" title="타임라인 확대 (Ctrl/Alt+휠)">＋</button></div>
           </div>
-          <div class="ls-tlzoom"><button class="ls-zbtn" id="ls_zoomout" title="타임라인 축소">−</button><span class="ls-zlab" id="ls_zlab"></span><button class="ls-zbtn" id="ls_zoomin" title="타임라인 확대 (Ctrl/Alt+휠)">＋</button></div>
           <span class="ls-tl-spacer"></span>
           <span class="ls-time" id="ls_time">0:00 / 1:00</span>
         </div>
@@ -4225,6 +4251,10 @@ function createArtwork(){
 
   const Q=s=>root.querySelector(s);
   function dragLock(on){ try{ document.body.classList.toggle("ls-dragging",!!on); }catch(e){} }
+  // 상단 컨트롤 헤더를 앱 최상단 topbar(#topActions)로 옮겨 단일 헤더로 사용 (영상 영역 최대화)
+  const header=Q('.ls-header');
+  function mountHeader(){ const h=document.getElementById('topActions'); if(h&&header&&header.parentNode!==h) h.appendChild(header); if(header) document.body.classList.add('ls-hdr-on'); }
+  function unmountHeader(){ if(header&&header.parentNode) header.parentNode.removeChild(header); document.body.classList.remove('ls-hdr-on'); }
   const canvas=Q('#ls_gl');
   const gl=canvas.getContext('webgl2',{preserveDrawingBuffer:true,antialias:false});
   if(!gl){ Q('.ls-wrap').style.display='none'; Q('#ls_fallback').style.display='block'; return {root,start(){},stop(){},resize(){}}; }
@@ -4660,7 +4690,7 @@ void main(){
   function scheduleUndoCommit(){ if(_undoApplying)return; clearTimeout(_undoTimer); _undoTimer=setTimeout(undoCommit,400); }
   function _undoApply(snap){ _undoApplying=true;
     try{ const s2=JSON.parse(snap);
-      st.dur=s2.dur; const durEl=Q('#ls_durin'); if(durEl)durEl.value=Math.round(s2.dur);
+      st.dur=s2.dur; const durEl=header.querySelector('#ls_durin'); if(durEl)durEl.value=Math.round(s2.dur);
       markers=(s2.markers||[]).slice(); waIn=s2.waIn; waOut=s2.waOut;
       applyVals(s2.vals||{});
       applyObjs(_restObjs(s2.objs));
@@ -4681,33 +4711,6 @@ void main(){
   // ===== 프로젝트 파일 저장/열기 (.json) =====
   // 비주얼 전체(레이어·키프레임·이펙트·전환·길이·마커·구간·파라미터) 포함.
   // 오디오 파형 데이터는 용량 문제로 제외 — 배치 메타만 기록, 열 때 파일 재추가 안내.
-  function exportProject(){
-    const o={ app:'dinure-artwork', ver:1, saved:new Date().toISOString(),
-      dur:st.dur||60, ar:st.ar, outH:st.outH, fps:st.fps,
-      markers:markers.slice(), waIn:waIn, waOut:waOut,
-      vals:captureVals(), auto:captureAuto(), objs:captureObjs(),
-      trk:tracks.map(t=>({name:t.name,startAt:t.startAt,trimStart:t.trimStart,trimEnd:t.trimEnd,fadeIn:t.fadeIn||0,fadeOut:t.fadeOut||0})) };
-    const blob=new Blob([JSON.stringify(o)],{type:'application/json'});
-    const url=URL.createObjectURL(blob); const a=document.createElement('a');
-    const stamp=new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
-    a.href=url; a.download='dinure_artwork_project_'+stamp+'.json'; document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(()=>{ try{URL.revokeObjectURL(url);}catch(e){} },4000);
-    showError('프로젝트를 저장했어요. (오디오 파일은 별도 보관하세요)');
-  }
-  function importProject(file){
-    const rd=new FileReader();
-    rd.onload=()=>{ try{ const o=JSON.parse(rd.result);
-        if(!o||o.app!=='dinure-artwork'){ showError('이 앱의 프로젝트 파일이 아니에요.'); return; }
-        st.dur=Math.max(5,Math.min(600,+o.dur||60)); const durEl=Q('#ls_durin'); if(durEl)durEl.value=Math.round(st.dur);
-        markers=Array.isArray(o.markers)?o.markers.filter(n=>isFinite(+n)).map(Number):[];
-        waIn=(o.waIn==null?null:+o.waIn); waOut=(o.waOut==null?null:+o.waOut);
-        if(o.vals)applyVals(o.vals);
-        applyObjs(o.objs); applyAuto(o.auto||{});
-        renderTimeline(); undoCommit();
-        showError('프로젝트를 불러왔어요.'+(o.trk&&o.trk.length?' 오디오 트랙('+o.trk.length+'개)은 파일을 다시 추가해 주세요.':''));
-      }catch(e){ showError('프로젝트 파일을 읽지 못했어요.'); } };
-    rd.readAsText(file);
-  }
   let audioCtx=null,masterGain=null,analyser=null,audioDest=null,freqData=null;
   let fastLv=0, slowLv=0;
   let prevLow=null, kickEnv=0, fluxAvg=0, kickRefr=0;
@@ -4824,7 +4827,7 @@ void main(){
     renderPresets(); attachPresetSync();
   }
   function renderPresets(){
-    const box=Q('#ls_presets'); if(!box)return; box.innerHTML='';
+    const box=header.querySelector('#ls_presets'); if(!box)return; box.innerHTML='';
     if(!presets.length){ const e=document.createElement('div'); e.className='ls-emptybox'; e.textContent='저장된 프로젝트가 없어요. 위에 이름을 적고 저장하면 여기에 쌓입니다.'; box.appendChild(e); return; }
     presets.forEach((p,i)=>{
       const card=document.createElement('div'); card.className='ls-pcard';
@@ -4836,22 +4839,21 @@ void main(){
       box.appendChild(card);
     });
   }
-  Q('#ls_prjsave').addEventListener('click',exportProject);
-  Q('#ls_prjload').addEventListener('click',()=>Q('#ls_prjfile').click());
-  Q('#ls_prjfile').addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; if(f)importProject(f); e.target.value=''; });
   function presetThumb(){ try{ if(!canvas.width)return null;
     const w=96, h2=Math.max(2,Math.round(96*(canvas.height/Math.max(1,canvas.width))));
     const c2=document.createElement('canvas'); c2.width=w; c2.height=h2;
     c2.getContext('2d').drawImage(canvas,0,0,w,h2);
     return c2.toDataURL('image/jpeg',0.55); }catch(e){ return null; } }
-  Q('#ls_save').addEventListener('click',()=>{ const inp=Q('#ls_pname'); let name=(inp.value||'').trim(); if(!name)name='프로젝트 '+(presets.length+1); presets.unshift({name,vals:captureVals(),auto:captureAuto(),objs:captureObjs(),thumb:presetThumb()}); inp.value=''; persistPresets(); renderPresets(); });
-  Q('#ls_pname').addEventListener('keydown',e=>{ if(e.key==='Enter')Q('#ls_save').click(); });
+  const saveBtn=Q('#ls_save'), pnameInp=Q('#ls_pname');
+  saveBtn.addEventListener('click',()=>{ let name=(pnameInp.value||'').trim(); if(!name)name='프로젝트 '+(presets.length+1); presets.unshift({name,vals:captureVals(),auto:captureAuto(),objs:captureObjs(),thumb:presetThumb()}); pnameInp.value=''; persistPresets(); renderPresets(); });
+  pnameInp.addEventListener('keydown',e=>{ if(e.key==='Enter')saveBtn.click(); });
   loadPresets();
 
   // ===== 비율 / 해상도 / 프레임 — 팝오버 메뉴 =====
-  function closeMenus(){ root.querySelectorAll('.ls-pop, .ls-addpop').forEach(p=>p.classList.remove('on'));
-    root.querySelectorAll('.ls-menubtn').forEach(b=>b.classList.remove('open')); }
-  root.querySelectorAll('.ls-menubtn').forEach(btn=>{ btn.addEventListener('click',e=>{ e.stopPropagation();
+  function closeMenus(){ header.querySelectorAll('.ls-pop').forEach(p=>p.classList.remove('on'));
+    root.querySelectorAll('.ls-addpop').forEach(p=>p.classList.remove('on'));
+    header.querySelectorAll('.ls-menubtn').forEach(b=>b.classList.remove('open')); }
+  header.querySelectorAll('.ls-menubtn').forEach(btn=>{ btn.addEventListener('click',e=>{ e.stopPropagation();
     const pop=btn.nextElementSibling; const willOpen=!pop.classList.contains('on'); closeMenus();
     pop.classList.toggle('on',willOpen); btn.classList.toggle('open',willOpen); }); });
   document.addEventListener('pointerdown',e=>{ if(root.isConnected && !e.target.closest('.ls-menu') && !e.target.closest('.ls-addpop') && !e.target.closest('.ls-addlane')) closeMenus(); });
@@ -5168,7 +5170,7 @@ void main(){
 
   // aspect
   Q('#ls_ratios').addEventListener('click',e=>{ const b=e.target.closest('.ls-chip'); if(!b)return;
-    Q('#ls_ratios').querySelectorAll('.ls-chip').forEach(c=>c.classList.toggle('on',c===b));
+    e.currentTarget.querySelectorAll('.ls-chip').forEach(c=>c.classList.toggle('on',c===b));
     st.ar=parseFloat(b.dataset.ar); stage.style.setProperty('--ls-ar',st.ar);
     closeMenus(); resize(); });
   stage.style.setProperty('--ls-ar',st.ar);
@@ -5181,12 +5183,12 @@ void main(){
       if(tlPlaying){ stopSources(); tlPlaying=false; tlFromT=0; updPlayBtns(); }
       renderTimeline(); seekTo(Math.min(1,lastT/projDur())); showError('프로젝트 길이: '+fmtT(st.dur)); }); }
   Q('#ls_res').addEventListener('click',e=>{ const b=e.target.closest('.ls-chip'); if(!b)return;
-    if(b.dataset.pv){ Q('#ls_res').querySelectorAll('[data-pv]').forEach(c=>c.classList.toggle('on',c===b));
+    if(b.dataset.pv){ e.currentTarget.querySelectorAll('[data-pv]').forEach(c=>c.classList.toggle('on',c===b));
       st.pv=parseFloat(b.dataset.pv)||1; resize(); return; }
-    Q('#ls_res').querySelectorAll('[data-h]').forEach(c=>c.classList.toggle('on',c===b)); st.outH=parseInt(b.dataset.h,10)||1080;
+    e.currentTarget.querySelectorAll('[data-h]').forEach(c=>c.classList.toggle('on',c===b)); st.outH=parseInt(b.dataset.h,10)||1080;
     closeMenus(); });
   Q('#ls_fps').addEventListener('click',e=>{ const b=e.target.closest('.ls-chip'); if(!b)return;
-    Q('#ls_fps').querySelectorAll('.ls-chip').forEach(c=>c.classList.toggle('on',c===b)); st.fps=parseInt(b.dataset.fps,10)||30;
+    e.currentTarget.querySelectorAll('.ls-chip').forEach(c=>c.classList.toggle('on',c===b)); st.fps=parseInt(b.dataset.fps,10)||30;
     closeMenus(); });
 
   // ===== 오토메이션 (타임라인 인라인 레인) =====
@@ -5758,8 +5760,8 @@ void main(){
     updTimebar(tSec);
     rafId=requestAnimationFrame(frame);
   }
-  function start(){ resize(); try{renderAuto();}catch(e){} if(playing && !hasAudio()) startT=performance.now()-lastT*1000; if(playing && hasAudio() && !tlPlaying) startTimeline(tlFromT); if(!rafId)rafId=requestAnimationFrame(frame); }
-  function stop(){ if(rafId){ cancelAnimationFrame(rafId); rafId=null; } if(tlPlaying)pauseTimeline(); }
+  function start(){ mountHeader(); resize(); try{renderAuto();}catch(e){} if(playing && !hasAudio()) startT=performance.now()-lastT*1000; if(playing && hasAudio() && !tlPlaying) startTimeline(tlFromT); if(!rafId)rafId=requestAnimationFrame(frame); }
+  function stop(){ unmountHeader(); if(rafId){ cancelAnimationFrame(rafId); rafId=null; } if(tlPlaying)pauseTimeline(); }
 
   function updPlayBtns(){ const pb=Q('#ls_tlplay'),pa=Q('#ls_tlpause'); if(pb)pb.classList.toggle('on',playing); if(pa)pa.classList.toggle('on',!playing); }
   function setPlay(p){ playing=p; if(hasAudio()){ if(p){ startTimeline(tlFromT); } else { pauseTimeline(); } } updPlayBtns(); }
