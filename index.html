@@ -748,15 +748,23 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 @media (max-width:920px){ .ls-layers{ min-height:0; overflow:visible; } }
 .ls-lyr-head{ font-size:13px; font-weight:700; color:var(--c-t1); padding:0 2px; letter-spacing:.01em; }
 /* 배경 섹션 (이미지 교체 + 배경 효과) */
-.ls-bg{ display:flex; flex-direction:column; gap:10px; }
+.ls-bg{ display:flex; flex-direction:column; gap:10px; position:relative; }
+.ls-bgrow{ display:flex; gap:6px; }
+.ls-bgrow .ls-act{ flex:1 1 0; min-width:0; justify-content:center; }
+.ls-bgfxbtn.on{ border-color:var(--acc); color:var(--acc); }
+.ls-bgfxpop{ position:absolute; left:0; right:0; top:calc(100% - 1px); z-index:80; display:none;
+  background:var(--c-panel); border:1px solid var(--c-bd2); border-radius:14px; padding:12px;
+  box-shadow:0 20px 48px -16px rgba(0,0,0,.82); max-height:56vh; overflow-y:auto; overscroll-behavior:contain; }
+.ls-bgfxpop.on{ display:block; }
+.ls-bgfxpop::-webkit-scrollbar{ width:8px; } .ls-bgfxpop::-webkit-scrollbar-thumb{ background:var(--c-bd2); border-radius:8px; }
 .ls-bgload{ width:100%; justify-content:center; }
 .ls-bg .ls-acc{ flex:none; min-height:0; overflow:visible; gap:0; }
 .ls-bg .ls-accsec{ border-radius:12px; }
 .ls-bg-div{ height:1px; background:var(--c-bd); margin:1px 0; }
-.ls-lyr-add{ display:flex; flex-direction:column; gap:6px; }
-.ls-lyr-addbtn{ width:100%; padding:9px 11px; font-size:12px; font-weight:600; color:var(--c-t2);
+.ls-lyr-add{ display:flex; flex-direction:row; gap:6px; }
+.ls-lyr-addbtn{ flex:1 1 0; min-width:0; padding:8px 4px; font-size:11px; font-weight:600; color:var(--c-t2);
   background:var(--c-card); border:1px dashed var(--c-bd2); border-radius:9px; cursor:pointer;
-  font-family:inherit; transition:.13s; text-align:left; }
+  font-family:inherit; transition:.13s; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .ls-lyr-addbtn:hover{ border-color:var(--acc); color:var(--acc); }
 .ls-lyr-list{ flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; display:flex; flex-direction:column; gap:6px; padding-right:2px; }
 .ls-lyr-list::-webkit-scrollbar{ width:8px; } .ls-lyr-list::-webkit-scrollbar-thumb{ background:var(--c-bd2); border-radius:8px; }
@@ -772,6 +780,19 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-lyr-nm{ flex:1; min-width:0; font-size:12px; font-weight:600; color:var(--c-t1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .ls-lyr-x{ flex:none; width:20px; height:20px; display:flex; align-items:center; justify-content:center; border-radius:6px; color:var(--c-t3); font-size:14px; line-height:1; cursor:pointer; }
 .ls-lyr-x:hover{ color:#fff; background:color-mix(in srgb,#ff6b6b 80%,transparent); }
+.ls-lyr-nmedit{ flex:1; min-width:0; font-size:12px; font-weight:600; color:var(--c-t1); background:var(--c-bg);
+  border:1px solid var(--acc); border-radius:6px; padding:2px 6px; outline:none; font-family:inherit; }
+/* 우클릭 컨텍스트 메뉴 (피그마식) */
+.ls-ctxmenu{ position:fixed; z-index:10001; min-width:172px; display:none; flex-direction:column; padding:5px;
+  background:var(--c-panel); border:1px solid var(--c-bd2); border-radius:11px; box-shadow:0 16px 44px -12px rgba(0,0,0,.82); }
+.ls-ctxmenu.on{ display:flex; }
+.ls-ctxitem{ display:flex; align-items:center; justify-content:space-between; gap:14px; font-size:12.5px; font-weight:500;
+  color:var(--c-t1); padding:8px 11px; border-radius:7px; cursor:pointer; border:none; background:transparent; font-family:inherit; text-align:left; white-space:nowrap; }
+.ls-ctxitem:hover{ background:var(--c-hov); }
+.ls-ctxitem.danger:hover{ background:color-mix(in srgb,#ff5a3c 82%,transparent); color:#fff; }
+.ls-ctxitem .ls-ctxkey{ font-size:10.5px; color:var(--c-t3); font-weight:600; }
+.ls-ctxitem:hover .ls-ctxkey{ color:inherit; opacity:.75; }
+.ls-ctxsep{ height:1px; background:var(--c-bd); margin:4px 6px; }
 
 /* 좌측 세로 플로팅 컨트롤 바 */
 .ls-floatbar{ align-self:center; display:flex; flex-direction:column; gap:8px;
@@ -1148,6 +1169,13 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-guide{ position:absolute; display:none; z-index:6; pointer-events:none; background:var(--acc); box-shadow:0 0 6px color-mix(in srgb,var(--acc) 60%,transparent); }
 .ls-guide.v{ top:0; bottom:0; width:1px; }
 .ls-guide.h{ left:0; right:0; height:1px; }
+.ls-grid3{ position:absolute; inset:0; z-index:4; pointer-events:none; display:none;
+  background-image:
+    linear-gradient(to right, transparent calc(33.333% - 0.5px), rgba(255,255,255,.34) calc(33.333% - 0.5px), rgba(255,255,255,.34) calc(33.333% + 0.5px), transparent calc(33.333% + 0.5px)),
+    linear-gradient(to right, transparent calc(66.666% - 0.5px), rgba(255,255,255,.34) calc(66.666% - 0.5px), rgba(255,255,255,.34) calc(66.666% + 0.5px), transparent calc(66.666% + 0.5px)),
+    linear-gradient(to bottom, transparent calc(33.333% - 0.5px), rgba(255,255,255,.34) calc(33.333% - 0.5px), rgba(255,255,255,.34) calc(33.333% + 0.5px), transparent calc(33.333% + 0.5px)),
+    linear-gradient(to bottom, transparent calc(66.666% - 0.5px), rgba(255,255,255,.34) calc(66.666% - 0.5px), rgba(255,255,255,.34) calc(66.666% + 0.5px), transparent calc(66.666% + 0.5px)); }
+.ls-grid3.on{ display:block; }
 .ls-objlayer{ position:absolute; inset:0; pointer-events:none; z-index:3; }
 .ls-obj{ position:absolute; pointer-events:auto; cursor:move; box-sizing:border-box; touch-action:none; }
 .ls-obj::before{ content:''; position:absolute; inset:0; border:1px solid transparent; border-radius:2px; }
@@ -4166,18 +4194,21 @@ function createArtwork(){
           </div>
         </div>
         <div class="ls-hdiv"></div>
+        <button class="ls-act" id="ls_grid" title="삼분할 격자 보기 (구도 참고용 · 녹화·저장 결과엔 안 나옴)">▦ 격자</button>
+        <button class="ls-act" id="ls_still" title="현재 화면을 이미지(PNG)로 저장 — 앨범 자켓 추출">⤓ 이미지</button>
         <button class="ls-act ls-rec" id="ls_rec">⦿ 녹화</button>
         <input type="file" id="ls_afile" accept="audio/*" hidden>
       </div>
       <div class="ls-layers">
         <div class="ls-bg">
           <div class="ls-lyr-head">배경</div>
-          <button class="ls-act ls-bgload" id="ls_load">이미지 교체</button>
+          <div class="ls-bgrow">
+            <button class="ls-act ls-bgload" id="ls_load">이미지 교체</button>
+            <button class="ls-act ls-bgfxbtn" id="ls_bgfxbtn">배경 효과 ▾</button>
+          </div>
           <input type="file" id="ls_file" accept="image/*" hidden>
-        <div class="ls-acc" id="ls_acc">
-          <section class="ls-accsec open" data-acc="fx">
-            <button type="button" class="ls-acchead"><span class="ls-acctitle">배경 효과</span><span class="ls-accchev"></span></button>
-            <div class="ls-accbody"><div class="ls-grid">
+        <div class="ls-bgfxpop" id="ls_bgfxpop">
+          <div class="ls-grid">
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_warp">일렁임 Warp</label><span class="ls-val" id="ls_warpV"></span></div><input type="range" id="ls_warp" min="0" max="0.24" step="0.002" value="0"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_detail">흐름결 Detail</label><span class="ls-val" id="ls_detailV"></span></div><input type="range" id="ls_detail" min="1" max="9" step="0.1" value="1"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_water">물결 Water</label><span class="ls-val" id="ls_waterV"></span></div><input type="range" id="ls_water" min="0" max="2" step="0.02" value="0"></div>
@@ -4190,16 +4221,15 @@ function createArtwork(){
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_kaleido">만화경 (면)</label><span class="ls-val" id="ls_kaleidoV"></span></div><input type="range" id="ls_kaleido" min="0" max="12" step="1" value="0"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_glow">은은한 광채</label><span class="ls-val" id="ls_glowV"></span></div><input type="range" id="ls_glow" min="0" max="2" step="0.02" value="0"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_grain">입자 Grain</label><span class="ls-val" id="ls_grainV"></span></div><input type="range" id="ls_grain" min="0" max="0.1" step="0.002" value="0"></div>
-            </div></div>
-          </section>
+            </div>
         </div>
         </div>
         <div class="ls-bg-div"></div>
         <div class="ls-lyr-head">레이어</div>
         <div class="ls-lyr-add">
-          <button class="ls-lyr-addbtn" data-add="text">＋ 텍스트</button>
-          <button class="ls-lyr-addbtn" data-add="image">＋ 이미지</button>
-          <button class="ls-lyr-addbtn" data-add="spectrum">＋ 스펙트럼</button>
+          <button class="ls-lyr-addbtn" data-add="text">＋텍스트</button>
+          <button class="ls-lyr-addbtn" data-add="image">＋이미지</button>
+          <button class="ls-lyr-addbtn" data-add="spectrum">＋스펙트럼</button>
         </div>
         <div class="ls-lyr-list" id="ls_layerlist"></div>
       </div>
@@ -4208,6 +4238,7 @@ function createArtwork(){
           <canvas id="ls_gl"></canvas>
           <canvas id="ls_obj" class="ls-objcanvas"></canvas>
           <div class="ls-objlayer" id="ls_objlayer"></div>
+          <div class="ls-grid3" id="ls_grid3"></div>
           <div class="ls-guide v" id="ls_gv"></div>
           <div class="ls-guide h" id="ls_gh"></div>
           <div class="ls-recDot" id="ls_recDot"><i></i><span id="ls_recLabel">REC</span></div>
@@ -4363,7 +4394,7 @@ out vec4 frag;
 uniform sampler2D uDst, uSrc;
 uniform vec2 uRes, uCenter, uHalf;   // px, GL 좌표(y-up)
 uniform vec2 uRotCS;                 // cos,sin (화면 시계방향 = 2D ctx.rotate와 동일 의미)
-uniform float uOpacity; uniform int uBlend;
+uniform float uOpacity, uBlendAmt; uniform int uBlend;
 uniform vec3 uTrIn;    // (type: 0없음/1페이드/2와이프/3글리치, progress 0→1, seed) — 등장
 uniform vec3 uTrOut;   // 동일 — 퇴장 (progress는 1→0으로 감소)
 float h31(float n){ return fract(sin(n)*43758.5453); }
@@ -4397,7 +4428,9 @@ void main(){
   float a=clamp(src.a*uOpacity,0.0,1.0);
   a*=trMask(uTrIn,suv.x,sl);
   a*=trMask(uTrOut,suv.x,sl);
-  frag=vec4(mix(dst, blendPx(dst,clamp(src.rgb,0.0,1.0),uBlend), a),1.0);
+  vec3 sc=clamp(src.rgb,0.0,1.0);
+  vec3 outc=mix(sc, blendPx(dst,sc,uBlend), clamp(uBlendAmt,0.0,1.0));   // 블렌드 강도
+  frag=vec4(mix(dst, outc, a),1.0);
 }`;
   const COPY_FS=`#version 300 es
 precision highp float; out vec4 frag; uniform sampler2D uT; uniform vec2 uRes2;
@@ -4408,7 +4441,7 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
     if(!gl.getProgramParameter(p2,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p2)); return p2; }
   try{
     compProg=mkProg(COMP_FS);
-    ['uDst','uSrc','uRes','uCenter','uHalf','uRotCS','uOpacity','uBlend','uTrIn','uTrOut'].forEach(n=>cuni[n]=gl.getUniformLocation(compProg,n));
+    ['uDst','uSrc','uRes','uCenter','uHalf','uRotCS','uOpacity','uBlendAmt','uBlend','uTrIn','uTrOut'].forEach(n=>cuni[n]=gl.getUniformLocation(compProg,n));
     copyProg=mkProg(COPY_FS); copyUni.t=gl.getUniformLocation(copyProg,'uT'); copyUni.r=gl.getUniformLocation(copyProg,'uRes2');
   }catch(e){ compProg=null; copyProg=null; }   // 컴포지터 실패 시 fx 단독 렌더로 동작(레이어 미표시)
 
@@ -4471,12 +4504,18 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
       vv[i]=v; }
     ctx.fillStyle=o.color; ctx.strokeStyle=o.color;
     const styl=o.sstyle||'bars';
+    const round=Math.max(0,Math.min(1,o.barRound!=null?o.barRound:0));
+    const canRound=(typeof ctx.roundRect==='function');
+    const fillBar=(x,y,w,h)=>{ if(w<=0||h<=0)return;
+      const r=Math.min(w/2,h/2)*round;
+      if(r<=0.5||!canRound){ ctx.fillRect(x,y,w,h); return; }
+      ctx.beginPath(); ctx.roundRect(x,y,w,h,r); ctx.fill(); };
     if(styl==='line'){ ctx.lineWidth=Math.max(1.5,phh*0.03); ctx.lineJoin='round'; ctx.lineCap='round'; ctx.beginPath();
       vv.forEach((v,i)=>{ const x=(i+0.5)*bw, y=phh-Math.max(2,v*phh*0.94)-phh*0.03; if(i)ctx.lineTo(x,y); else ctx.moveTo(x,y); }); ctx.stroke(); }
     else if(styl==='dots'){ const r2=Math.max(1.5,Math.min(bw*0.3,phh*0.05));
       vv.forEach((v,i)=>{ ctx.beginPath(); ctx.arc((i+0.5)*bw, phh-Math.max(r2+1,v*phh*0.92), r2,0,6.2832); ctx.fill(); }); }
-    else if(styl==='mirror'){ vv.forEach((v,i)=>{ const bh=Math.max(1,v*phh*0.48); ctx.fillRect(i*bw+bw*0.15, phh/2-bh, bw*0.7, bh*2); }); }
-    else { vv.forEach((v,i)=>{ const bh=Math.max(2,v*phh); ctx.fillRect(i*bw+bw*0.15,phh-bh,bw*0.7,bh); }); }
+    else if(styl==='mirror'){ vv.forEach((v,i)=>{ const bh=Math.max(1,v*phh*0.48); fillBar(i*bw+bw*0.15, phh/2-bh, bw*0.7, bh*2); }); }
+    else { vv.forEach((v,i)=>{ const bh=Math.max(2,v*phh); fillBar(i*bw+bw*0.15,phh-bh,bw*0.7,bh); }); }
   }
   function getLayerTexture(o,W,H){
     let e=layerTexCache.get(o.id); if(!e){ e={tex:mkLayerTex(),key:null,w:2,h:2}; layerTexCache.set(o.id,e); }
@@ -4623,6 +4662,7 @@ void main(){
       const rad=(orot||0)*Math.PI/180; gl.uniform2f(cuni.uRotCS,Math.cos(rad),Math.sin(rad));
       gl.uniform1f(cuni.uOpacity,opacity);
       gl.uniform1i(cuni.uBlend,BLEND_ID[o.blend]||0);
+      gl.uniform1f(cuni.uBlendAmt, o.blendAmt==null?1:Math.max(0,Math.min(1,o.blendAmt)));
       { const ti=o.tIn||0, to2=(o.tOut===undefined||o.tOut===null)?projDur():o.tOut;
         let ta=[0,1,0], tb=[0,1,0];
         if(o.trIn&&TR_ID[o.trIn.type]>0&&+o.trIn.dur>0) ta=[TR_ID[o.trIn.type],Math.max(0,Math.min(1,(tSec-ti)/+o.trIn.dur)),detSeed(tSec)];
@@ -4692,7 +4732,7 @@ void main(){
   function doRedo(){ if(_hi>=_hist.length-1){ showError('다시 실행할 작업이 없어요.'); return; }
     _hi++; _undoApply(_hist[_hi]); showError('다시 실행 ('+(_hi+1)+'/'+_hist.length+')'); }
   setTimeout(()=>{ try{undoCommit();}catch(e){} },300);   // 초기 상태 스냅샷
-  setTimeout(()=>{ const acc=root.querySelector('#ls_acc'); if(acc)acc.addEventListener('input',scheduleUndoCommit);
+  setTimeout(()=>{ const acc=root.querySelector('#ls_bgfxpop'); if(acc)acc.addEventListener('input',scheduleUndoCommit);
     document.addEventListener('input',e=>{ if(e.target&&e.target.closest&&e.target.closest('.ls-opop'))scheduleUndoCommit(); }); },0);
 
   // ===== 프로젝트 파일 저장/열기 (.json) =====
@@ -4859,13 +4899,17 @@ void main(){
     pop.style.left=L+'px'; pop.style.top=Math.max(8,T)+'px';
     setTimeout(()=>document.addEventListener('pointerdown',_blendOutside,true),0);
   }
-  { const acc=root.querySelector('#ls_acc');
-    if(acc){ wireScrollDrag(acc);   // 길어지면 드래그 스크롤
-      acc.querySelectorAll('.ls-acchead').forEach(h=>{ h.addEventListener('click',()=>{
-        const sec=h.parentElement, wasOpen=sec.classList.contains('open');
-        acc.querySelectorAll('.ls-accsec').forEach(s=>s.classList.remove('open'));
-        if(!wasOpen) sec.classList.add('open');   // 펼치면 나머지는 접힘
-      }); }); } }
+  { const bgBtn=root.querySelector('#ls_bgfxbtn'), bgPop=root.querySelector('#ls_bgfxpop');
+    if(bgBtn&&bgPop){
+      const closeBg=()=>{ bgPop.classList.remove('on'); bgBtn.classList.remove('on'); document.removeEventListener('pointerdown',_bgOutside,true); };
+      function _bgOutside(ev){ if(!bgPop.contains(ev.target)&&ev.target!==bgBtn&&!bgBtn.contains(ev.target)) closeBg(); }
+      bgBtn.addEventListener('click',ev=>{ ev.stopPropagation();
+        const open=!bgPop.classList.contains('on');
+        bgPop.classList.toggle('on',open); bgBtn.classList.toggle('on',open);
+        if(open) setTimeout(()=>document.addEventListener('pointerdown',_bgOutside,true),0);
+        else document.removeEventListener('pointerdown',_bgOutside,true);
+      });
+    } }
 
   /* ===== 오브젝트 시스템 (텍스트 · 이미지 · 사운드 스펙트럼) ===== */
   let objs=[], selId=null, objSeq=1;
@@ -4876,7 +4920,7 @@ void main(){
   const clamp01=v=>Math.max(0,Math.min(1,v));
   const escapeHtml=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   function findObj(id){ return objs.find(o=>o.id===id); }
-  function objName(o){ return o.type==='text'?('텍스트: '+(o.text||'').replace(/\n/g,' ').slice(0,12)):(o.type==='image'?'이미지':'스펙트럼'); }
+  function objName(o){ if(o&&o.name&&o.name.trim()) return o.name.trim(); return o.type==='text'?('텍스트: '+(o.text||'').replace(/\n/g,' ').slice(0,12)):(o.type==='image'?'이미지':'스펙트럼'); }
 
   function measureText(o){
     const W=canvas.width||1080, H=canvas.height||1920, px=o.size*(H/1080);
@@ -4904,16 +4948,54 @@ void main(){
     if(!objs.length){ return; }
     const TAG={text:'텍스트',image:'이미지',spectrum:'스펙트럼'};
     objs.slice().reverse().forEach(o=>{        // 앞(위) 레이어가 목록 상단
-      const r=document.createElement('div'); r.className='ls-lyr-row'+(o.id===selId?' sel':'');
+      const r=document.createElement('div'); r.className='ls-lyr-row'+(o.id===selId?' sel':''); r.dataset.id=o.id;
       const tag=document.createElement('span'); tag.className='ls-lyr-tag'; tag.textContent=TAG[o.type]||'?';
       const nm=document.createElement('div'); nm.className='ls-lyr-nm'; nm.textContent=objName(o);
       const x=document.createElement('div'); x.className='ls-lyr-x'; x.textContent='×';
       r.appendChild(tag); r.appendChild(nm); r.appendChild(x);
       r.addEventListener('click',ev=>{ if(ev.target===x)return; selectObj(o.id); openPop(o.id); });
       x.addEventListener('click',ev=>{ ev.stopPropagation(); delObj(o.id); });
+      nm.addEventListener('dblclick',ev=>{ ev.stopPropagation(); beginRename(o.id,nm); });
+      r.addEventListener('contextmenu',ev=>{ ev.preventDefault(); ev.stopPropagation(); selectObj(o.id); openObjCtx(ev.clientX,ev.clientY,o.id,nm); });
       wrap.appendChild(r);
     });
   }
+  // ===== 레이어 우클릭 컨텍스트 메뉴 (피그마식) =====
+  let _ctx=null;
+  function ensureCtx(){ if(_ctx)return _ctx; _ctx=document.createElement('div'); _ctx.className='ls-ctxmenu'; root.appendChild(_ctx);
+    document.addEventListener('pointerdown',e=>{ if(_ctx&&!_ctx.contains(e.target)) closeCtx(); },true);
+    window.addEventListener('blur',closeCtx); document.addEventListener('scroll',closeCtx,true); return _ctx; }
+  function closeCtx(){ if(_ctx) _ctx.classList.remove('on'); }
+  function ctxItem(label,key,fn,danger){ const b=document.createElement('button'); b.className='ls-ctxitem'+(danger?' danger':'');
+    b.innerHTML='<span>'+label+'</span>'+(key?'<span class="ls-ctxkey">'+key+'</span>':'');
+    b.addEventListener('click',()=>{ closeCtx(); fn(); }); return b; }
+  function openObjCtx(x,y,id,nmEl){ const o=findObj(id); if(!o)return; const m=ensureCtx(); m.innerHTML='';
+    const idx=objs.findIndex(v=>v.id===id), top=idx===objs.length-1, bot=idx===0;
+    m.appendChild(ctxItem('이름 변경','',()=>{ const el=root.querySelector('.ls-lyr-row[data-id="'+id+'"] .ls-lyr-nm'); if(el) beginRename(id,el); else beginRenameFloat(id); }));
+    m.appendChild(ctxItem('복제','⌘D',()=>dupObj(id)));
+    const sep1=document.createElement('div'); sep1.className='ls-ctxsep'; m.appendChild(sep1);
+    if(!top) m.appendChild(ctxItem('맨 앞으로','',()=>{ const a=objs.splice(idx,1)[0]; objs.push(a); refreshObjs(); syncLayerTracks(); }));
+    if(!top) m.appendChild(ctxItem('앞으로','',()=>{ if(idx<objs.length-1){ const t=objs[idx]; objs[idx]=objs[idx+1]; objs[idx+1]=t; refreshObjs(); syncLayerTracks(); } }));
+    if(!bot) m.appendChild(ctxItem('뒤로','',()=>{ if(idx>0){ const t=objs[idx]; objs[idx]=objs[idx-1]; objs[idx-1]=t; refreshObjs(); syncLayerTracks(); } }));
+    if(!bot) m.appendChild(ctxItem('맨 뒤로','',()=>{ const a=objs.splice(idx,1)[0]; objs.unshift(a); refreshObjs(); syncLayerTracks(); }));
+    const sep2=document.createElement('div'); sep2.className='ls-ctxsep'; m.appendChild(sep2);
+    m.appendChild(ctxItem('삭제','⌫',()=>delObj(id),true));
+    m.classList.add('on'); m.style.left='0px'; m.style.top='0px';
+    const mw=m.offsetWidth||180, mh=m.offsetHeight||200;
+    m.style.left=Math.max(6,Math.min(x,window.innerWidth-mw-6))+'px';
+    m.style.top=Math.max(6,Math.min(y,window.innerHeight-mh-6))+'px';
+  }
+  // 인라인 이름 편집 (레이어 목록 행)
+  function beginRename(id,nmEl){ const o=findObj(id); if(!o||!nmEl)return;
+    const inp=document.createElement('input'); inp.className='ls-lyr-nmedit'; inp.value=(o.name&&o.name.trim())?o.name.trim():objName(o);
+    inp.addEventListener('pointerdown',e=>e.stopPropagation()); inp.addEventListener('click',e=>e.stopPropagation());
+    const commit=save=>{ if(save){ const v=inp.value.trim(); o.name=v||''; } scheduleUndoCommit(); refreshObjs(); if(objPop&&objPop.classList.contains('on')&&o.id===selId) openPop(o.id); };
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); commit(true); } else if(e.key==='Escape'){ e.preventDefault(); commit(false); } });
+    inp.addEventListener('blur',()=>commit(true));
+    nmEl.replaceWith(inp); inp.focus(); inp.select();
+  }
+  // 캔버스 우클릭 시 목록 행이 없을 때 대비한 플로팅 이름 편집 (간단히 목록 렌더 후 재시도)
+  function beginRenameFloat(id){ refreshObjs(); const el=root.querySelector('.ls-lyr-row[data-id="'+id+'"] .ls-lyr-nm'); if(el) beginRename(id,el); }
   function refreshObjs(){ renderObjLayer(); renderObjList(); scheduleUndoCommit(); }
   function selectObj(id){ selId=id; refreshObjs(); }
   function syncLayerTracks(){ try{ if(typeof renderTimeline==='function') renderTimeline(); }catch(e){} scheduleUndoCommit(); }
@@ -4926,7 +5008,7 @@ void main(){
 
   function addText(){ const o={id:objSeq++,type:'text',x:.5,y:.5,rot:0,opacity:1,text:'텍스트',size:72,font:'sans',align:'center',color:'#ffffff',bold:true,w:.3,h:.1};
     measureText(o); objs.push(o); selectObj(o.id); openPop(o.id); syncLayerTracks(); }
-  function addSpectrum(){ const o={id:objSeq++,type:'spectrum',x:.5,y:.82,rot:0,opacity:.9,w:.84,h:.16,color:'#ffffff',freqLo:40,freqHi:8000,bars:44};
+  function addSpectrum(){ const o={id:objSeq++,type:'spectrum',x:.5,y:.82,rot:0,opacity:.9,w:.84,h:.16,color:'#ffffff',freqLo:40,freqHi:8000,bars:44,barRound:0};
     objs.push(o); selectObj(o.id); openPop(o.id); syncLayerTracks(); }
   let curObjT=0;
   function addImage(){ const inp=document.createElement('input'); inp.type='file'; inp.accept='image/*';
@@ -4941,7 +5023,9 @@ void main(){
     inp.click(); }
 
   function captureObjs(){ return objs.map(o=>{ const c={id:o.id,type:o.type,x:o.x,y:o.y,w:o.w,h:o.h,rot:o.rot||0,opacity:o.opacity};
+    if(o.name&&o.name.trim()) c.name=o.name.trim();
     if(o.blend&&o.blend!=='normal'&&BLEND_ID[o.blend]!==undefined) c.blend=o.blend;
+    if(o.blendAmt!=null&&o.blendAmt!==1) c.blendAmt=Math.max(0,Math.min(1,o.blendAmt));
     if(o.tIn>0) c.tIn=o.tIn;
     if(o.tOut!==undefined&&o.tOut!==null&&o.tOut<projDur()) c.tOut=o.tOut;
     if(o.spin) c.spin=+o.spin;
@@ -4950,12 +5034,13 @@ void main(){
     if(o.trOut&&TR_ID[o.trOut.type]>0) c.trOut={type:o.trOut.type,dur:Math.max(0.1,Math.min(10,+o.trOut.dur||0.6))};
     if(o.type==='text') Object.assign(c,{text:o.text,size:o.size,font:o.font,align:o.align,color:o.color,bold:o.bold,lsp:o.lsp||0});
     else if(o.type==='image') c.src=o.src;
-    else if(o.type==='spectrum') Object.assign(c,{color:o.color,freqLo:o.freqLo,freqHi:o.freqHi,bars:o.bars,sstyle:o.sstyle||'bars'});
+    else if(o.type==='spectrum') Object.assign(c,{color:o.color,freqLo:o.freqLo,freqHi:o.freqHi,bars:o.bars,sstyle:o.sstyle||'bars',barRound:o.barRound||0});
     return c; }); }
   function applyObjs(arr){ if(!Array.isArray(arr)) return;   // 오브젝트 정보 없는 구버전 프리셋은 현재 오브젝트 유지
     objs=[]; selId=null; closePop(); layerTexCache.clear();
     arr.forEach(c=>{ const o=Object.assign({},c); o.rot=o.rot||0;
       o.blend=(o.blend&&BLEND_ID[o.blend]!==undefined)?o.blend:'normal';
+      o.blendAmt=(o.blendAmt==null||!isFinite(+o.blendAmt))?1:Math.max(0,Math.min(1,+o.blendAmt));
       o.tIn=Math.max(0,Math.min(projDur(),+o.tIn||0));
       o.tOut=(o.tOut===undefined||o.tOut===null||!isFinite(+o.tOut))?projDur():Math.max(o.tIn+0.1,Math.min(projDur(),+o.tOut));
       o.fx=Array.isArray(o.fx)?o.fx.filter(f=>f&&FX_ID[f.type]!==undefined).map(f=>({type:f.type,amount:Math.max(0,Math.min(1,+f.amount||0))})).slice(0,6):[];
@@ -5023,6 +5108,7 @@ void main(){
       h+='<div class="ls-orow"><span>스타일</span><div class="ls-oseg" data-seg="sstyle">'+
         segBtn('bars','바',o.sstyle||'bars')+segBtn('mirror','미러',o.sstyle||'bars')+segBtn('line','라인',o.sstyle||'bars')+segBtn('dots','도트',o.sstyle||'bars')+'</div></div>';
       h+=rowRange('bars','바 개수',8,72,1,(o.bars||44),(o.bars||44));
+      h+=rowRange('barRound','막대 둥글기',0,1,0.05,(o.barRound||0),Math.round((o.barRound||0)*100)+'%');
       h+=rowRange('freqLo','주파수 하한',20,2000,10,o.freqLo,o.freqLo+'Hz');
       h+=rowRange('freqHi','주파수 상한',500,18000,100,o.freqHi,o.freqHi+'Hz');
     }
@@ -5034,16 +5120,13 @@ void main(){
       '<input type="number" data-trd="'+tag+'" min="0.1" max="10" step="0.1" value="'+(Math.max(0.1,Math.min(10,+tr.dur||0.6)))+'" title="길이(초)"><em>s</em>';
     h+='<div class="ls-orow"><span>등장 전환</span><div class="ls-oinline ls-trrow">'+trSel('in',o.trIn)+'</div></div>';
     h+='<div class="ls-orow"><span>퇴장 전환</span><div class="ls-oinline ls-trrow">'+trSel('out',o.trOut)+'</div></div>';
-    // 이펙트 스택 (모든 레이어 타입 공통)
-    o.fx=Array.isArray(o.fx)?o.fx:[];
-    h+='<div class="ls-osec">이펙트</div>';
-    h+='<div class="ls-orow"><span>스택</span><div class="ls-fxwrap" data-fxlist>';
-    o.fx.forEach((f,i)=>{ h+='<div class="ls-fxrow" data-fxi="'+i+'">'+
-      '<select data-fxsel>'+Object.keys(FX_LABELS).map(k=>'<option value="'+k+'"'+(f.type===k?' selected':'')+'>'+FX_LABELS[k]+'</option>').join('')+'</select>'+
-      '<input type="range" min="0" max="1" step="0.01" value="'+(Math.max(0,Math.min(1,+f.amount||0)))+'" data-fxamt>'+
-      '<span class="ls-fxx" data-fxdel title="이펙트 제거">×</span></div>'; });
-    h+='<button class="ls-fxadd" data-fxadd>＋ 이펙트 추가</button>'+
-       (o.fx.length?'<div class="ls-fxhint">amount는 타임라인 "레인 추가 → FX"로 키프레임할 수 있어요</div>':'')+'</div></div>';
+    // 블렌드 (모드 + 강도) — 레이어를 배경/하위 레이어에 어떻게 섞을지
+    o.blend=(o.blend&&BLEND_ID[o.blend]!==undefined)?o.blend:'normal';
+    if(o.blendAmt==null) o.blendAmt=1;
+    h+='<div class="ls-osec">블렌드</div>';
+    h+='<div class="ls-orow"><span>모드</span><select data-blendsel style="flex:1;min-width:0">'+
+       BLENDS.map(b=>'<option value="'+b[0]+'"'+(o.blend===b[0]?' selected':'')+'>'+b[1]+'</option>').join('')+'</select></div>';
+    h+=rowRange('blendAmt','강도',0,1,0.01,o.blendAmt,Math.round(o.blendAmt*100)+'%');
     p.innerHTML=h; p.classList.add('on'); positionPop(o);
     p.querySelector('[data-x]').addEventListener('click',closePop);
     const syncXY=()=>{ p.querySelectorAll('[data-xy]').forEach(el=>{ el.value=(o[el.dataset.xy]*100).toFixed(1); }); };
@@ -5067,7 +5150,7 @@ void main(){
     p.querySelectorAll('[data-f]').forEach(el=>{ const f=el.dataset.f;
       el.addEventListener('input',()=>{ let val=el.value; if(el.type==='range') val=parseFloat(val);
         o[f]=val; const vs=p.querySelector('[data-v="'+f+'"]');
-        if(vs) vs.textContent=(f==='opacity')?Math.round(o.opacity*100)+'%':(f==='rot'?o.rot+'°':(f==='freqLo'||f==='freqHi'?val+'Hz':(f==='lsp'?Math.round(val*100)+'%':val)));
+        if(vs) vs.textContent=(f==='opacity'||f==='barRound'||f==='blendAmt')?Math.round(val*100)+'%':(f==='rot'?o.rot+'°':(f==='freqLo'||f==='freqHi'?val+'Hz':(f==='lsp'?Math.round(val*100)+'%':val)));
         if(o.type==='text'&&(f==='size'||f==='text'||f==='font'||f==='lsp')) measureText(o);
         refreshObjs(); if(o.type==='text') positionPop(o); }); });
     const seg=p.querySelector('[data-seg="align"]'); if(seg) seg.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ o.align=b.dataset.val; seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); refreshObjs(); }));
@@ -5081,16 +5164,8 @@ void main(){
       const tr=(el.dataset.tr==='in')?o.trIn:o.trOut; tr.type=ev.target.value; }));
     p.querySelectorAll('[data-trd]').forEach(el=>el.addEventListener('input',ev=>{
       const tr=(el.dataset.trd==='in')?o.trIn:o.trOut; tr.dur=Math.max(0.1,Math.min(10,parseFloat(ev.target.value)||0.6)); }));
-    const fxWrap=p.querySelector('[data-fxlist]');
-    if(fxWrap){
-      fxWrap.querySelectorAll('.ls-fxrow').forEach(row=>{ const i=+row.dataset.fxi;
-        row.querySelector('[data-fxsel]').addEventListener('change',ev=>{ if(o.fx[i]){ o.fx[i].type=ev.target.value; syncLayerTracks(); } });
-        row.querySelector('[data-fxamt]').addEventListener('input',ev=>{ if(o.fx[i]) o.fx[i].amount=parseFloat(ev.target.value); });
-        row.querySelector('[data-fxdel]').addEventListener('click',()=>{ if(!o.fx[i])return; o.fx.splice(i,1); fxShiftAutoKeys(o.id,i); openPop(o.id); syncLayerTracks(); });
-      });
-      fxWrap.querySelector('[data-fxadd]').addEventListener('click',()=>{ if(o.fx.length>=6){ showError('이펙트는 레이어당 최대 6개예요.'); return; }
-        o.fx.push({type:'blur',amount:0.3}); openPop(o.id); syncLayerTracks(); });
-    }
+    const blendSel=p.querySelector('[data-blendsel]');
+    if(blendSel) blendSel.addEventListener('change',ev=>{ o.blend=ev.target.value; renderTimeline(); refreshObjs(); });
   }
   // fx[i] 삭제 후 obj{id}_fx{i+1..} 자동화 키를 한 칸 앞으로 당김 (키프레임 보존)
   function fxShiftAutoKeys(objId,removedIdx){
@@ -5104,21 +5179,23 @@ void main(){
     persistAutoLocal();
   }
 
-  function resizeObj(o,o0,hh,dx,dy){
+  function resizeObj(o,o0,hh,dx,dy,free){
+    const G=0.02, snap=v=>free?v:Math.round(v/G)*G;
     if(o.type==='text'){ let sc=1;
       if(hh==='e'||hh==='se'||hh==='ne') sc=1+dx/Math.max(.01,o0.w);
       else if(hh==='w'||hh==='sw'||hh==='nw') sc=1-dx/Math.max(.01,o0.w);
       else if(hh==='s') sc=1+dy/Math.max(.01,o0.h);
       else if(hh==='n') sc=1-dy/Math.max(.01,o0.h);
-      o.size=Math.max(8,Math.min(320,o0.size*Math.max(.05,sc))); measureText(o); o.x=o0.x; o.y=o0.y; return; }
-    if(hh.length===1){   // 변 = 자유 비율(한 축)
-      if(hh==='e'){ o.w=Math.max(.02,o0.w+dx); o.x=o0.x+dx/2; }
-      else if(hh==='w'){ o.w=Math.max(.02,o0.w-dx); o.x=o0.x+dx/2; }
-      else if(hh==='s'){ o.h=Math.max(.02,o0.h+dy); o.y=o0.y+dy/2; }
-      else if(hh==='n'){ o.h=Math.max(.02,o0.h-dy); o.y=o0.y+dy/2; }
-    } else {             // 모서리 = 고정 비율
+      let ns=o0.size*Math.max(.05,sc); if(!free) ns=Math.round(ns);
+      o.size=Math.max(8,Math.min(320,ns)); measureText(o); o.x=o0.x; o.y=o0.y; return; }
+    if(hh.length===1){   // 변 = 한 축, 반대 변 고정
+      if(hh==='e'){ o.w=Math.max(.02,snap(o0.w+dx)); o.x=(o0.x-o0.w/2)+o.w/2; }
+      else if(hh==='w'){ o.w=Math.max(.02,snap(o0.w-dx)); o.x=(o0.x+o0.w/2)-o.w/2; }
+      else if(hh==='s'){ o.h=Math.max(.02,snap(o0.h+dy)); o.y=(o0.y-o0.h/2)+o.h/2; }
+      else if(hh==='n'){ o.h=Math.max(.02,snap(o0.h-dy)); o.y=(o0.y+o0.h/2)-o.h/2; }
+    } else {             // 모서리 = 고정 비율, 반대 모서리 고정
       let sc=(hh==='se'||hh==='ne')?(1+dx/Math.max(.01,o0.w)):(1-dx/Math.max(.01,o0.w));
-      sc=Math.max(.05,sc); const nw=o0.w*sc, nh=o0.h*sc;
+      sc=Math.max(.05,sc); let nw=o0.w*sc; if(!free) nw=Math.max(.02,Math.round(nw/G)*G); const nh=o0.h*(nw/Math.max(.001,o0.w));
       if(hh==='se'){ o.x=(o0.x-o0.w/2)+nw/2; o.y=(o0.y-o0.h/2)+nh/2; }
       else if(hh==='ne'){ o.x=(o0.x-o0.w/2)+nw/2; o.y=(o0.y+o0.h/2)-nh/2; }
       else if(hh==='nw'){ o.x=(o0.x+o0.w/2)-nw/2; o.y=(o0.y+o0.h/2)-nh/2; }
@@ -5135,16 +5212,20 @@ void main(){
     const o0={x:o.x,y:o.y,w:o.w,h:o.h,size:o.size||0}; const hh=handle?handle.dataset.h:null; dragLock(true);
     const gv=Q('#ls_gv'), gh=Q('#ls_gh'); const TH=0.008;   // 스냅 임계(스테이지 비율)
     const tg=hh?null:buildSnapTargets(o,objs);               // 드래그 시작 시점의 스냅 타깃
-    const mv=ev=>{ const dx=(ev.clientX-sx)/r.width, dy=(ev.clientY-sy)/r.height;
-      if(!hh){ let nx=o0.x+dx, ny=o0.y+dy; let gx=null, gy=null;   // 격자 없음 — 자유 이동
-        if(tg && !(ev.ctrlKey||ev.metaKey||ev.altKey)){            // Ctrl/⌘/Alt 유지 시 스냅 해제(피그마 관례)
-          let bx=TH; tg.xt.forEach(t=>{ const d=Math.abs(nx-t[0]); if(d<bx){ bx=d; nx=t[0]; gx=t[1]; } });
-          let by=TH; tg.yt.forEach(t=>{ const d=Math.abs(ny-t[0]); if(d<by){ by=d; ny=t[0]; gy=t[1]; } });
+    const mv=ev=>{ const dx=(ev.clientX-sx)/r.width, dy=(ev.clientY-sy)/r.height; const free=ev.altKey;   // Alt = 자유(스냅 해제)
+      if(!hh){ let nx=o0.x+dx, ny=o0.y+dy; let gx=null, gy=null; const G=0.02;
+        if(!free){
+          if(tg){                                                 // ① 다른 오브젝트·캔버스 정렬 가이드 스냅 (더 정밀)
+            let bx=TH; tg.xt.forEach(t=>{ const d=Math.abs(nx-t[0]); if(d<bx){ bx=d; nx=t[0]; gx=t[1]; } });
+            let by=TH; tg.yt.forEach(t=>{ const d=Math.abs(ny-t[0]); if(d<by){ by=d; ny=t[0]; gy=t[1]; } });
+          }
+          if(gx==null) nx=Math.round(nx/G)*G;                     // ② 가이드에 안 걸린 축은 2% 격자로 스냅
+          if(gy==null) ny=Math.round(ny/G)*G;
         }
         if(gv){ gv.style.display=gx==null?'none':'block'; if(gx!=null)gv.style.left=(Math.max(0,Math.min(1,gx))*100)+'%'; }
         if(gh){ gh.style.display=gy==null?'none':'block'; if(gy!=null)gh.style.top=(Math.max(0,Math.min(1,gy))*100)+'%'; }
         o.x=clamp01(nx); o.y=clamp01(ny);
-      } else { resizeObj(o,o0,hh,dx,dy); }
+      } else { resizeObj(o,o0,hh,dx,dy,free); }
       refreshObjs();
       if(objPop&&objPop.classList.contains('on')&&o.id===selId){ positionPop(o);
         objPop.querySelectorAll('[data-xy]').forEach(el=>{ el.value=(o[el.dataset.xy]*100).toFixed(1); }); } };
@@ -5152,6 +5233,9 @@ void main(){
       window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up); };
     window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up);
   });
+  objLayer.addEventListener('contextmenu',e=>{ const box=e.target.closest('.ls-obj'); if(!box)return;
+    e.preventDefault(); e.stopPropagation(); const id=parseInt(box.dataset.id,10); if(!findObj(id))return;
+    selectObj(id); openObjCtx(e.clientX,e.clientY,id,null); });
   stage.addEventListener('pointerdown',e=>{ if(!e.target.closest('.ls-obj')&&!e.target.closest('.ls-opop')){ if(selId){ selId=null; closePop(); refreshObjs(); } } });
   root.querySelectorAll('.ls-lyr-addbtn').forEach(b=>b.addEventListener('click',()=>{ const t=b.dataset.add; if(t==='text')addText(); else if(t==='image')addImage(); else if(t==='spectrum')addSpectrum(); }));
 
@@ -5789,10 +5873,32 @@ void main(){
     const tag=({'1':'1x1','0.75':'3x4','0.5625':'9x16','1.7778':'16x9'})[String(st.ar)]||'loop';
     a.href=url; a.download='dinure_artwork_'+tag+'_'+stamp+'.'+ext; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(url),4000); }
+  // ===== 격자(삼분할) 오버레이 + 정지화면 이미지(PNG) 저장 =====
+  const grid3=Q('#ls_grid3'), gridBtn=Q('#ls_grid'), stillBtn=Q('#ls_still');
+  let gridOn=false;
+  function applyGrid(){ if(grid3) grid3.classList.toggle('on', gridOn && !recording); if(gridBtn) gridBtn.classList.toggle('on', gridOn); }
+  if(gridBtn) gridBtn.addEventListener('click',()=>{ gridOn=!gridOn; applyGrid(); });
+  async function saveStill(){ if(recording){ showError('녹화 중에는 이미지를 저장할 수 없어요.'); return; }
+    const [w,h]=outputSize(); const pv0=[canvas.width,canvas.height]; const gWas=gridOn;
+    if(grid3) grid3.classList.remove('on');       // 격자는 결과물에 포함하지 않음
+    offlineRendering=true;
+    try{ canvas.width=w; canvas.height=h;
+      const t=lastT, phase=2*Math.PI*((t/FLOW)%1); const lv=(typeof audioLevels==='function')?audioLevels():0;
+      drawScene(t,phase,lv,false);                // 출력 해상도로 현재 프레임 1장 렌더
+      await new Promise(res=>{ canvas.toBlob(blob=>{ if(blob){ const url=URL.createObjectURL(blob);
+        const stamp=new Date().toISOString().slice(0,16).replace(/[:T]/g,'');
+        const tag=({'1':'1x1','0.75':'3x4','0.5625':'9x16','1.7778':'16x9'})[String(st.ar)]||'art';
+        const a=document.createElement('a'); a.href=url; a.download='dinure_artwork_'+tag+'_'+stamp+'.png';
+        document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),4000);
+        showError('이미지를 저장했어요.'); } else showError('이미지 저장에 실패했어요.'); res(); },'image/png'); });
+    }catch(e){ showError('이미지 저장에 실패했어요.'); }
+    finally{ canvas.width=pv0[0]; canvas.height=pv0[1]; offlineRendering=false; resize(); gridOn=gWas; applyGrid(); }
+  }
+  if(stillBtn) stillBtn.addEventListener('click',saveStill);
   let prevWH=null;
   function finishRec(){ if(_rec&&_rec.state!=='inactive'){ try{_rec.stop();}catch(e){} } }
   function endRecState(){ recording=false; recElapsed=0; if(prevWH){canvas.width=prevWH[0];canvas.height=prevWH[1];prevWH=null;}
-    recBtn.classList.remove('on'); recBtn.disabled=false; recBtn.textContent='⦿ 녹화'; recDot.classList.remove('on'); recLabel.textContent='REC'; startT=performance.now(); resize(); }
+    recBtn.classList.remove('on'); recBtn.disabled=false; recBtn.textContent='⦿ 녹화'; recDot.classList.remove('on'); recLabel.textContent='REC'; startT=performance.now(); resize(); applyGrid(); }
   function targetBitrate(){ const _H=st.outH||1080; return Math.min(60000000, Math.round(12000000*Math.pow(_H/1080,2)*((st.fps||30)>=60?1.7:1))); }
 
   // ===== 오프라인 정밀 렌더 엔진 (WebCodecs + mp4-muxer) =====
@@ -5923,7 +6029,7 @@ void main(){
       vCodec=await pickAvcCodec(ow,oh,fps); if(!vCodec) throw new Error('no avc');
     }catch(e){ showError('이 브라우저는 정밀 렌더를 지원하지 않아 실시간 녹화로 진행합니다.'); legacyRecord(); return; }
 
-    recCancelled=false; recording=true; offlineRendering=true; _off={cancel:false};
+    recCancelled=false; recording=true; offlineRendering=true; _off={cancel:false}; applyGrid();
     recBtn.classList.add('on'); recBtn.textContent='■ 취소'; recDot.classList.add('on'); recLabel.textContent='렌더 준비 중…';
     const progEl=Q('#ls_prog'), progBar=progEl?progEl.querySelector('i'):null;
     if(progEl){ progEl.classList.add('on'); if(progBar)progBar.style.width='0%'; }
@@ -5978,7 +6084,7 @@ void main(){
   function legacyRecord(){
     const audioOn=!!(hasAudio()&&audioDest);
     const mime=pickMime(audioOn); if(!mime){ showError('이 브라우저는 영상 녹화를 지원하지 않아요.'); return; }
-    recCancelled=false; recording=true; recBtn.classList.add('on'); recBtn.textContent='■ 취소'; recDot.classList.add('on');
+    recCancelled=false; recording=true; recBtn.classList.add('on'); recBtn.textContent='■ 취소'; recDot.classList.add('on'); applyGrid();
     prevWH=[canvas.width,canvas.height]; const [ow,oh]=outputSize(); canvas.width=ow; canvas.height=oh;
     const vstream=canvas.captureStream(st.fps||30);
     let stream=vstream, dur;
