@@ -784,15 +784,17 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
   border:1px solid var(--acc); border-radius:6px; padding:2px 6px; outline:none; font-family:inherit; }
 /* 우클릭 컨텍스트 메뉴 (피그마식) */
 .ls-ctxmenu{ position:fixed; z-index:10001; min-width:172px; display:none; flex-direction:column; padding:5px;
-  background:var(--c-panel); border:1px solid var(--c-bd2); border-radius:11px; box-shadow:0 16px 44px -12px rgba(0,0,0,.82); }
+  background:color-mix(in srgb, var(--panel,#181818) 85%, transparent);
+  backdrop-filter:blur(16px) saturate(1.5); -webkit-backdrop-filter:blur(16px) saturate(1.5);
+  border:1px solid var(--bd2,rgba(255,255,255,.16)); border-radius:11px; box-shadow:0 16px 44px -12px rgba(0,0,0,.82); }
 .ls-ctxmenu.on{ display:flex; }
 .ls-ctxitem{ display:flex; align-items:center; justify-content:space-between; gap:14px; font-size:12.5px; font-weight:500;
-  color:var(--c-t1); padding:8px 11px; border-radius:7px; cursor:pointer; border:none; background:transparent; font-family:inherit; text-align:left; white-space:nowrap; }
-.ls-ctxitem:hover{ background:var(--c-hov); }
+  color:var(--t1,#fff); padding:8px 11px; border-radius:7px; cursor:pointer; border:none; background:transparent; font-family:inherit; text-align:left; white-space:nowrap; }
+.ls-ctxitem:hover{ background:var(--hov,#242424); }
 .ls-ctxitem.danger:hover{ background:color-mix(in srgb,#ff5a3c 82%,transparent); color:#fff; }
-.ls-ctxitem .ls-ctxkey{ font-size:10.5px; color:var(--c-t3); font-weight:600; }
+.ls-ctxitem .ls-ctxkey{ font-size:10.5px; color:var(--t3,#B3B3B3); font-weight:600; }
 .ls-ctxitem:hover .ls-ctxkey{ color:inherit; opacity:.75; }
-.ls-ctxsep{ height:1px; background:var(--c-bd); margin:4px 6px; }
+.ls-ctxsep{ height:1px; background:var(--bd,rgba(255,255,255,.1)); margin:4px 6px; }
 
 /* 좌측 세로 플로팅 컨트롤 바 */
 .ls-floatbar{ align-self:center; display:flex; flex-direction:column; gap:8px;
