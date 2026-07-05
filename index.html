@@ -881,6 +881,11 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-lane.empty:hover{ background:color-mix(in srgb,var(--acc) 9%,transparent); }
 .ls-lane-hint{ font-size:11px; color:var(--c-t3); pointer-events:none; }
 .ls-rlabel .ls-rl-name{ flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ls-rlabel.audio .ls-rl-name{ cursor:pointer; }
+.ls-rlabel.audio .ls-rl-name:hover{ color:var(--acc); }
+.ls-rlabel.sel{ border-color:var(--acc); color:var(--c-t1); background:color-mix(in srgb,var(--acc) 12%,var(--c-card)); }
+.ls-lyr-row.ls-row-drag,.ls-rlabel.ls-row-drag,.ls-lane.ls-row-drag{ position:relative; z-index:6; box-shadow:0 10px 24px -8px rgba(0,0,0,.6); opacity:.97; }
+.ls-reordering{ cursor:grabbing; }
 .ls-rl-x{ flex:none; margin-left:6px; width:18px; height:18px; line-height:16px; text-align:center; border-radius:5px;
   color:var(--c-t3); cursor:pointer; font-size:14px; }
 .ls-rl-x:hover{ background:color-mix(in srgb,var(--acc) 80%,transparent); color:#fff; }
@@ -975,15 +980,17 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-saverow input{ flex:1; min-width:0; background:var(--c-inp); border:1px solid var(--c-bd); border-radius:10px; color:var(--c-t1); font-size:13.5px; padding:10px 13px; font-family:inherit; }
 .ls-saverow input:focus{ outline:none; border-color:var(--acc); }
 .ls-saverow button{ font-size:13px; color:#fff; background:var(--acc); border:1px solid var(--acc); padding:10px 16px; border-radius:10px; cursor:pointer; white-space:nowrap; font-weight:600; }
-.ls-presets{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.ls-presets{ display:flex; flex-direction:column; gap:6px; }
 .ls-prepop{ flex-direction:column; align-items:stretch; width:344px; }
 .ls-prepop .ls-saverow{ margin-bottom:8px; }
 .ls-prepop .ls-presets{ max-height:264px; overflow-y:auto; overscroll-behavior:contain; padding-right:2px; }
 .ls-emptybox{ grid-column:1 / -1; padding:16px 14px; text-align:center; border:1px dashed var(--c-bd); border-radius:12px; font-size:12.5px; color:var(--c-t3); line-height:1.6; }
-.ls-pcard{ display:flex; align-items:center; gap:8px; padding:11px 12px; border-radius:11px; background:var(--c-card); border:1px solid var(--c-bd); cursor:pointer; transition:.15s; min-width:0; }
+.ls-pcard{ display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:9px; background:var(--c-card); border:1px solid var(--c-bd); cursor:pointer; transition:.15s; min-width:0; }
 .ls-pcard:hover{ border-color:var(--acc); background:var(--c-hov); }
+.ls-pcard-num{ flex:none; min-width:18px; text-align:right; font-size:12px; font-weight:600; color:var(--c-t3); font-variant-numeric:tabular-nums; }
 .ls-pcard-name{ flex:1; min-width:0; font-size:13px; font-weight:600; color:var(--c-t1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.ls-pcard-del{ flex:none; width:24px; height:24px; border-radius:7px; display:flex; align-items:center; justify-content:center; color:var(--c-t3); font-size:16px; line-height:1; transition:.15s; }
+.ls-pcard-by{ flex:none; max-width:38%; font-size:11.5px; color:var(--c-t3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ls-pcard-del{ flex:none; width:22px; height:22px; border-radius:6px; display:flex; align-items:center; justify-content:center; color:var(--c-t3); font-size:15px; line-height:1; transition:.15s; }
 .ls-pcard-del:hover{ color:#ff6b6b; background:color-mix(in srgb,#ff6b6b 14%,transparent); }
 .ls-modal{ position:absolute; inset:0; z-index:40; display:flex; align-items:center; justify-content:center;
   background:rgba(0,0,0,.5); backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px); }
@@ -1196,7 +1203,21 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
   max-height:60vh; overflow-y:auto; overflow-x:clip; overscroll-behavior:contain; }
 .ls-opop::-webkit-scrollbar{ width:8px; } .ls-opop::-webkit-scrollbar-thumb{ background:var(--c-bd2); border-radius:4px; }
 .ls-opop.on{ display:flex; }
+.ls-scene{ width:100%; box-sizing:border-box; padding:13px 14px; display:flex; flex-direction:column; gap:11px;
+  background:var(--c-panel); border:1px solid var(--c-bd2); border-radius:14px;
+  max-height:100%; overflow-y:auto; overflow-x:clip; overscroll-behavior:contain; }
+.ls-scene::-webkit-scrollbar{ width:8px; } .ls-scene::-webkit-scrollbar-thumb{ background:var(--c-bd2); border-radius:4px; }
+.ls-scene.hidden{ display:none; }
+.ls-scene .ls-bgload{ width:100%; justify-content:center; }
+.ls-scene .ls-grid{ gap:12px; }
 .ls-opop-h{ display:flex; align-items:center; justify-content:space-between; font-size:13px; font-weight:600; color:var(--c-t1); }
+.ls-tabs{ display:flex; gap:4px; background:var(--c-card); border:1px solid var(--c-bd); border-radius:9px; padding:3px; }
+.ls-tabs button{ flex:1; padding:6px 0; font-size:12px; font-weight:600; color:var(--c-t3); background:none; border:none; border-radius:6px; cursor:pointer; font-family:inherit; transition:.12s; }
+.ls-tabs button:hover{ color:var(--c-t1); }
+.ls-tabs button.on{ background:var(--acc); color:#fff; }
+.ls-tabpane{ display:flex; flex-direction:column; gap:11px; }
+.ls-tabpane[hidden]{ display:none; }
+.ls-omhint{ font-size:11px; color:var(--c-t3); line-height:1.5; padding-top:2px; }
 .ls-opop-x{ cursor:pointer; color:var(--c-t3); font-size:17px; line-height:1; }
 .ls-opop-x:hover{ color:var(--c-t1); }
 .ls-orow{ display:flex; flex-direction:column; gap:6px; }
@@ -1213,9 +1234,13 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-opop-h + .ls-osec{ border-top:none; padding-top:0; margin-top:2px; }
 .ls-align button{ font-size:13px; padding:4px 0; line-height:1; }
 .ls-xy{ align-items:center; gap:5px; font-size:10px; color:var(--c-t3); font-weight:700; }
+.ls-scrub{ cursor:ew-resize; user-select:none; -webkit-user-select:none; touch-action:none; color:var(--c-t3); font-weight:800; padding:0 1px; }
+.ls-scrub:hover{ color:var(--acc); }
+body.ls-scrubbing, body.ls-scrubbing *{ cursor:ew-resize !important; }
 .ls-arlock{ flex:none; width:26px; height:24px; border-radius:7px; border:1px solid var(--c-bd); background:var(--c-card);
-  cursor:pointer; font-size:12px; line-height:1; opacity:.45; transition:.12s; }
-.ls-arlock.on{ opacity:1; border-color:var(--acc); background:color-mix(in srgb,var(--acc) 16%,transparent); }
+  cursor:pointer; line-height:1; opacity:.5; transition:.12s; display:inline-flex; align-items:center; justify-content:center; color:var(--c-t2); padding:0; }
+.ls-arlock svg{ width:13px; height:13px; display:block; }
+.ls-arlock.on{ opacity:1; border-color:var(--acc); background:color-mix(in srgb,var(--acc) 16%,transparent); color:var(--acc); }
 .ls-spinhint{ font-style:normal; font-size:9px; color:var(--c-t3); font-weight:500; }
 .ls-fontadd{ flex:none; width:28px; height:30px; border-radius:8px; border:1px dashed var(--c-bd2); background:var(--c-card);
   color:var(--c-t3); font-size:14px; line-height:1; cursor:pointer; transition:.12s; }
@@ -4146,7 +4171,7 @@ boot();
   document.querySelectorAll('.brand .logo,.gatecard .logo').forEach(wire);
 })();
 
-const ARTWORK_DEFAULT_IMG="data:image/jpeg;base64,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";
+const ARTWORK_DEFAULT_IMG="";  /* 기본 배경 사진 제거 — 빈 스테이지에서 시작 */
 /* ===================== Artwork Loop Studio (격리 모듈) ===================== */
 let _artwork=null;
 function renderArtwork(host){ if(!_artwork) _artwork=createArtwork(); host.appendChild(_artwork.root); _artwork.start(); }
@@ -4200,31 +4225,6 @@ function createArtwork(){
         <input type="file" id="ls_afile" accept="audio/*" hidden>
       </div>
       <div class="ls-layers">
-        <div class="ls-bg">
-          <div class="ls-lyr-head">배경</div>
-          <div class="ls-bgrow">
-            <button class="ls-act ls-bgload" id="ls_load">이미지 교체</button>
-            <button class="ls-act ls-bgfxbtn" id="ls_bgfxbtn">배경 효과 ▾</button>
-          </div>
-          <input type="file" id="ls_file" accept="image/*" hidden>
-        <div class="ls-bgfxpop" id="ls_bgfxpop">
-          <div class="ls-grid">
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_warp">일렁임 Warp</label><span class="ls-val" id="ls_warpV"></span></div><input type="range" id="ls_warp" min="0" max="0.24" step="0.002" value="0"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_detail">흐름결 Detail</label><span class="ls-val" id="ls_detailV"></span></div><input type="range" id="ls_detail" min="1" max="9" step="0.1" value="1"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_water">물결 Water</label><span class="ls-val" id="ls_waterV"></span></div><input type="range" id="ls_water" min="0" max="2" step="0.02" value="0"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_resp">킥 펄스 Kick</label><span class="ls-val" id="ls_respV"></span></div><input type="range" id="ls_resp" min="0" max="2" step="0.02" value="0"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_floaty">부유 Float</label><span class="ls-val" id="ls_floatyV"></span></div><input type="range" id="ls_floaty" min="0" max="2" step="0.02" value="0"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_pull">중심 흡입 Pull</label><span class="ls-val" id="ls_pullV"></span></div><input type="range" id="ls_pull" min="0" max="2" step="0.02" value="0"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_sway">흔들 Sway</label><span class="ls-val" id="ls_swayV"></span></div><input type="range" id="ls_sway" min="0" max="1.2" step="0.02" value="0"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_vortex">소용돌이</label><span class="ls-val" id="ls_vortexV"></span></div><input type="range" id="ls_vortex" min="0" max="2" step="0.02" value="0"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_parallax">패럴랙스</label><span class="ls-val" id="ls_parallaxV"></span></div><input type="range" id="ls_parallax" min="0" max="2" step="0.02" value="0"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_kaleido">만화경 (면)</label><span class="ls-val" id="ls_kaleidoV"></span></div><input type="range" id="ls_kaleido" min="0" max="12" step="1" value="0"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_glow">은은한 광채</label><span class="ls-val" id="ls_glowV"></span></div><input type="range" id="ls_glow" min="0" max="2" step="0.02" value="0"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_grain">입자 Grain</label><span class="ls-val" id="ls_grainV"></span></div><input type="range" id="ls_grain" min="0" max="0.1" step="0.002" value="0"></div>
-            </div>
-        </div>
-        </div>
-        <div class="ls-bg-div"></div>
         <div class="ls-lyr-head">레이어</div>
         <div class="ls-lyr-add">
           <button class="ls-lyr-addbtn" data-add="text">＋텍스트</button>
@@ -4256,6 +4256,30 @@ function createArtwork(){
         <div class="ls-tl-body" id="ls_tlbody"></div>
       </div>
       <div class="ls-side" id="ls_side">
+        <div class="ls-scene" id="ls_scene">
+          <div class="ls-opop-h"><span>배경 · 장면</span></div>
+          <div class="ls-osec">배경 이미지</div>
+          <button class="ls-act ls-bgload" id="ls_load">이미지 교체</button>
+          <input type="file" id="ls_file" accept="image/*" hidden>
+          <div class="ls-osec">배경 효과</div>
+          <div class="ls-grid" id="ls_bgfx">
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_warp">일렁임 Warp</label><span class="ls-val" id="ls_warpV"></span></div><input type="range" id="ls_warp" min="0" max="0.24" step="0.002" value="0"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_detail">흐름결 Detail</label><span class="ls-val" id="ls_detailV"></span></div><input type="range" id="ls_detail" min="1" max="9" step="0.1" value="1"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_water">물결 Water</label><span class="ls-val" id="ls_waterV"></span></div><input type="range" id="ls_water" min="0" max="2" step="0.02" value="0"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_resp">킥 펄스 Kick</label><span class="ls-val" id="ls_respV"></span></div><input type="range" id="ls_resp" min="0" max="2" step="0.02" value="0"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_floaty">부유 Float</label><span class="ls-val" id="ls_floatyV"></span></div><input type="range" id="ls_floaty" min="0" max="2" step="0.02" value="0"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_pull">중심 흡입 Pull</label><span class="ls-val" id="ls_pullV"></span></div><input type="range" id="ls_pull" min="0" max="2" step="0.02" value="0"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_sway">흔들 Sway</label><span class="ls-val" id="ls_swayV"></span></div><input type="range" id="ls_sway" min="0" max="1.2" step="0.02" value="0"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_vortex">소용돌이</label><span class="ls-val" id="ls_vortexV"></span></div><input type="range" id="ls_vortex" min="0" max="2" step="0.02" value="0"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_parallax">패럴랙스</label><span class="ls-val" id="ls_parallaxV"></span></div><input type="range" id="ls_parallax" min="0" max="2" step="0.02" value="0"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_kaleido">만화경 (면)</label><span class="ls-val" id="ls_kaleidoV"></span></div><input type="range" id="ls_kaleido" min="0" max="12" step="1" value="0"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_glow">은은한 광채</label><span class="ls-val" id="ls_glowV"></span></div><input type="range" id="ls_glow" min="0" max="2" step="0.02" value="0"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_grain">입자 Grain</label><span class="ls-val" id="ls_grainV"></span></div><input type="range" id="ls_grain" min="0" max="0.1" step="0.002" value="0"></div>
+          </div>
+          <div class="ls-osec">영상 페이드</div>
+          <div class="ls-orow"><span>페이드 인</span><div class="ls-oinline ls-xy"><input type="number" id="ls_vfi" step="0.1" min="0" max="600" value="0"> s</div></div>
+          <div class="ls-orow"><span>페이드 아웃</span><div class="ls-oinline ls-xy"><input type="number" id="ls_vfo" step="0.1" min="0" max="600" value="0"> s</div></div>
+        </div>
       </div>
     </div>
     <div class="ls-fallback" id="ls_fallback">이 브라우저에서는 WebGL을 사용할 수 없어요. 크롬·사파리·엣지 최신 버전에서 열어 주세요.</div>`;
@@ -4435,7 +4459,11 @@ void main(){
   const COPY_FS=`#version 300 es
 precision highp float; out vec4 frag; uniform sampler2D uT; uniform vec2 uRes2;
 void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
-  let compProg=null,cuni={},copyProg=null,copyUni={};
+  // #8 영상 자체 페이드(검정) — 최종 프레임버퍼에 알파 블렌드로 덧입힘
+  const FADE_FS=`#version 300 es
+precision highp float; out vec4 frag; uniform float uA;
+void main(){ frag=vec4(0.0,0.0,0.0,clamp(uA,0.0,1.0)); }`;
+  let compProg=null,cuni={},copyProg=null,copyUni={},fadeProg=null,fadeUni={};
   function mkProg(fs){ const p2=gl.createProgram(); p2 && gl.attachShader(p2,comp(gl.VERTEX_SHADER,VERT));
     gl.attachShader(p2,comp(gl.FRAGMENT_SHADER,fs)); gl.bindAttribLocation(p2,0,'p'); gl.linkProgram(p2);
     if(!gl.getProgramParameter(p2,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p2)); return p2; }
@@ -4443,6 +4471,7 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
     compProg=mkProg(COMP_FS);
     ['uDst','uSrc','uRes','uCenter','uHalf','uRotCS','uOpacity','uBlendAmt','uBlend','uTrIn','uTrOut'].forEach(n=>cuni[n]=gl.getUniformLocation(compProg,n));
     copyProg=mkProg(COPY_FS); copyUni.t=gl.getUniformLocation(copyProg,'uT'); copyUni.r=gl.getUniformLocation(copyProg,'uRes2');
+    try{ fadeProg=mkProg(FADE_FS); fadeUni.a=gl.getUniformLocation(fadeProg,'uA'); }catch(_){ fadeProg=null; }
   }catch(e){ compProg=null; copyProg=null; }   // 컴포지터 실패 시 fx 단독 렌더로 동작(레이어 미표시)
 
   const fbos=[null,null], fboTex=[null,null]; let fboW=0,fboH=0;
@@ -4710,7 +4739,8 @@ void main(){
   function _snapshot(){ return JSON.stringify({
     vals:captureVals(), auto:captureAuto(), objs:_snapObjs(),
     dur:st.dur||60, markers:markers.slice(), waIn:waIn, waOut:waOut,
-    trk:tracks.map(t=>({id:t.id,startAt:t.startAt,trimStart:t.trimStart,trimEnd:t.trimEnd,fadeIn:t.fadeIn||0,fadeOut:t.fadeOut||0})) }); }
+    vfadeIn:st.vfadeIn||0, vfadeOut:st.vfadeOut||0,
+    trk:tracks.map(t=>({id:t.id,startAt:t.startAt,trimStart:t.trimStart,trimEnd:t.trimEnd,fadeIn:t.fadeIn||0,fadeOut:t.fadeOut||0,vol:(t.vol==null?1:t.vol)})) }); }
   function undoCommit(){ if(_undoApplying)return;
     try{ const snap=_snapshot(); if(_hi>=0&&_hist[_hi]===snap)return;
       _hist.splice(_hi+1); _hist.push(snap); if(_hist.length>UNDO_MAX)_hist.shift(); _hi=_hist.length-1; }catch(e){} }
@@ -4719,10 +4749,12 @@ void main(){
     try{ const s2=JSON.parse(snap);
       st.dur=s2.dur; const durEl=header.querySelector('#ls_durin'); if(durEl)durEl.value=Math.round(s2.dur);
       markers=(s2.markers||[]).slice(); waIn=s2.waIn; waOut=s2.waOut;
+      st.vfadeIn=Math.max(0,+s2.vfadeIn||0); st.vfadeOut=Math.max(0,+s2.vfadeOut||0);
+      { const a=Q('#ls_vfi'), b=Q('#ls_vfo'); if(a)a.value=st.vfadeIn; if(b)b.value=st.vfadeOut; }
       applyVals(s2.vals||{});
       applyObjs(_restObjs(s2.objs));
       applyAuto(s2.auto||{});
-      (s2.trk||[]).forEach(m=>{ const t=tracks.find(x=>x.id===m.id); if(t){ t.startAt=m.startAt; t.trimStart=m.trimStart; t.trimEnd=m.trimEnd; t.fadeIn=m.fadeIn; t.fadeOut=m.fadeOut; } });
+      (s2.trk||[]).forEach(m=>{ const t=tracks.find(x=>x.id===m.id); if(t){ t.startAt=m.startAt; t.trimStart=m.trimStart; t.trimEnd=m.trimEnd; t.fadeIn=m.fadeIn; t.fadeOut=m.fadeOut; if(m.vol!=null)t.vol=m.vol; } });
       renderTimeline(); refreshObjs();
     }catch(e){}
     _undoApplying=false; }
@@ -4732,7 +4764,7 @@ void main(){
   function doRedo(){ if(_hi>=_hist.length-1){ showError('다시 실행할 작업이 없어요.'); return; }
     _hi++; _undoApply(_hist[_hi]); showError('다시 실행 ('+(_hi+1)+'/'+_hist.length+')'); }
   setTimeout(()=>{ try{undoCommit();}catch(e){} },300);   // 초기 상태 스냅샷
-  setTimeout(()=>{ const acc=root.querySelector('#ls_bgfxpop'); if(acc)acc.addEventListener('input',scheduleUndoCommit);
+  setTimeout(()=>{ const acc=root.querySelector('#ls_bgfx'); if(acc)acc.addEventListener('input',scheduleUndoCommit);
     document.addEventListener('input',e=>{ if(e.target&&e.target.closest&&e.target.closest('.ls-opop'))scheduleUndoCommit(); }); },0);
 
   // ===== 프로젝트 파일 저장/열기 (.json) =====
@@ -4769,14 +4801,15 @@ void main(){
       const playTlStart=Math.max(tlStart,fromT); const srcOffset=t.trimStart+(playTlStart-tlStart);
       const playDur=Math.max(0.02,(tlEnd-playTlStart));
       const fin=Math.max(0,Math.min(t.fadeIn||0,cl)); const fout=Math.max(0,Math.min(t.fadeOut||0,cl-fin));
+      const vol=(t.vol==null?1:Math.max(0,Math.min(1,t.vol)));
       function gAt(tl){ let gi=1;
         if(fin>0.01){ if(tl<=tlStart)gi=0; else if(tl<tlStart+fin)gi=(tl-tlStart)/fin; }
         if(fout>0.01){ if(tl>=tlEnd)gi=0; else if(tl>tlEnd-fout)gi=Math.min(gi,(tlEnd-tl)/fout); }
-        return Math.max(0,Math.min(1,gi)); }
+        return Math.max(0,Math.min(1,gi))*vol; }
       const startCtx=Math.max(now,tlToCtx(playTlStart)); const gp=g.gain;
       try{ gp.setValueAtTime(gAt(playTlStart),startCtx);
-        if(fin>0.01 && playTlStart<tlStart+fin) gp.linearRampToValueAtTime(1,tlToCtx(tlStart+fin));
-        const foS=tlEnd-fout; if(foS>playTlStart) gp.setValueAtTime(1,Math.max(startCtx,tlToCtx(foS)));
+        if(fin>0.01 && playTlStart<tlStart+fin) gp.linearRampToValueAtTime(vol,tlToCtx(tlStart+fin));
+        const foS=tlEnd-fout; if(foS>playTlStart) gp.setValueAtTime(vol,Math.max(startCtx,tlToCtx(foS)));
         if(fout>0.01) gp.linearRampToValueAtTime(0,tlToCtx(tlEnd));
       }catch(e){}
       try{ src.start(startCtx,srcOffset,playDur+0.05); }catch(e){}
@@ -4797,12 +4830,12 @@ void main(){
       const buf=await audioCtx.decodeAudioData(ab.slice(0));
       let region={start:0,end:Math.min(buf.duration,projDur())};
       if(buf.duration>projDur()+0.05){ const r=await pickRegion(buf,file.name||'음원'); if(!r){ return; } region=r; }
-      tracks.push({id:'t'+(++_tid), name:file.name||('트랙 '+(tracks.length+1)), buffer:buf, trimStart:region.start, trimEnd:region.end, startAt:0, fadeIn:0, fadeOut:0});
+      tracks.push({id:'t'+(++_tid), name:file.name||('트랙 '+(tracks.length+1)), buffer:buf, trimStart:region.start, trimEnd:region.end, startAt:0, fadeIn:0, fadeOut:0, vol:1});
       renderTimeline();
       if(playing) startTimeline(tlPlaying?Math.min(timelineTime(),totalDur()):tlFromT);
     }catch(e){ showError('음원을 디코드하지 못했어요. 다른 파일로 시도해 보세요.'); }
   }
-  function removeTrack(id){ const i=tracks.findIndex(t=>t.id===id); if(i<0)return; tracks.splice(i,1); renderTimeline();
+  function removeTrack(id){ const i=tracks.findIndex(t=>t.id===id); if(i<0)return; tracks.splice(i,1); if(selTrack===id){ selTrack=null; closePop(); } renderTimeline();
     if(!tracks.length){ stopSources(); tlPlaying=false; tlFromT=0; }
     else if(tlPlaying) scheduleFrom(Math.min(timelineTime(),totalDur()),false); }
   function audioLevels(){ // 킥 어택(저역 트랜지언트)을 펄스로 추출
@@ -4855,14 +4888,15 @@ void main(){
   }
   function renderPresets(){
     const box=header.querySelector('#ls_presets'); if(!box)return; box.innerHTML='';
-    if(!presets.length){ const e=document.createElement('div'); e.className='ls-emptybox'; e.textContent='저장된 프로젝트가 없어요. 위에 이름을 적고 저장하면 여기에 쌓입니다.'; box.appendChild(e); return; }
+    if(!presets.length){ const e=document.createElement('div'); e.className='ls-emptybox'; e.textContent='저장된 프로젝트가 없어요.'; box.appendChild(e); return; }
     presets.forEach((p,i)=>{
       const card=document.createElement('div'); card.className='ls-pcard';
-      if(p.thumb){ const th=document.createElement('div'); th.className='ls-pcard-th'; th.style.backgroundImage='url("'+p.thumb+'")'; card.appendChild(th); }
+      const num=document.createElement('div'); num.className='ls-pcard-num'; num.textContent=(i+1);
       const nm=document.createElement('div'); nm.className='ls-pcard-name'; nm.textContent=p.name; nm.title=p.name;
+      const by=document.createElement('div'); by.className='ls-pcard-by'; by.textContent=(p.who||''); by.title=(p.who||'');
       const del=document.createElement('div'); del.className='ls-pcard-del'; del.textContent='×'; del.title='삭제';
-      card.appendChild(nm); card.appendChild(del);
-      card.addEventListener('click',ev=>{ if(ev.target===del){ presets.splice(i,1); persistPresets(); renderPresets(); } else { applyVals(p.vals); applyObjs(p.objs); applyAuto(p.auto); } });
+      card.appendChild(num); card.appendChild(nm); card.appendChild(by); card.appendChild(del);
+      card.addEventListener('click',ev=>{ if(ev.target===del){ presets.splice(i,1); persistPresets(); renderPresets(); } else { applyProject(p); } });
       box.appendChild(card);
     });
   }
@@ -4871,8 +4905,46 @@ void main(){
     const c2=document.createElement('canvas'); c2.width=w; c2.height=h2;
     c2.getContext('2d').drawImage(canvas,0,0,w,h2);
     return c2.toDataURL('image/jpeg',0.55); }catch(e){ return null; } }
+  // ===== 헤더 설정 세터 (프로그램적으로 비율/해상도/프레임/길이 변경 + 칩 UI 동기화) =====
+  function _setChip(popSel,attr,val){ const pop=Q(popSel); if(!pop)return; pop.querySelectorAll('.ls-chip').forEach(c=>c.classList.toggle('on',c.getAttribute(attr)===String(val))); }
+  function setAR(v){ v=parseFloat(v)||0.5625; st.ar=v; stage.style.setProperty('--ls-ar',v); _setChip('#ls_ratios','data-ar',v); resize(); }
+  function setResH(v){ v=parseInt(v,10)||1080; st.outH=v; _setChip('#ls_res','data-h',v); }
+  function setFPS(v){ v=parseInt(v,10)||30; st.fps=v; _setChip('#ls_fps','data-fps',v); }
+  function setDur(v){ v=Math.max(5,Math.min(600,parseFloat(v)||60)); st.dur=v; const di=header.querySelector('#ls_durin'); if(di)di.value=v; renderTimeline(); }
+
+  // ===== 프로젝트 전체 상태 저장/복원 =====
+  // 저장 대상: 비율·해상도·프레임·길이·마커·렌더구간 + 배경효과값·오토메이션·모든 오브젝트(이미지 dataURL 포함)
+  //          + 오디오 트랙 메타(이름·트림·배치·페이드). 오디오 버퍼 자체는 용량상 제외(파일 재추가 필요).
+  function captureProject(){
+    return {
+      ver:2, ar:st.ar, outH:st.outH||1080, fps:st.fps||30, dur:st.dur||60,
+      vfadeIn:st.vfadeIn||0, vfadeOut:st.vfadeOut||0,
+      markers:markers.slice(), waIn:waIn, waOut:waOut,
+      vals:captureVals(), auto:captureAuto(), objs:captureObjs(),
+      trk:tracks.map(t=>({id:t.id,name:t.name,startAt:t.startAt,trimStart:t.trimStart,trimEnd:t.trimEnd,fadeIn:t.fadeIn||0,fadeOut:t.fadeOut||0,vol:(t.vol==null?1:t.vol)}))
+    };
+  }
+  function applyProject(p){ if(!p)return;
+    if(p.ver>=2){
+      if(p.dur!=null)setDur(p.dur);
+      if(p.ar!=null)setAR(p.ar);
+      if(p.outH!=null)setResH(p.outH);
+      if(p.fps!=null)setFPS(p.fps);
+      markers=Array.isArray(p.markers)?p.markers.slice():[];
+      waIn=(p.waIn!=null)?p.waIn:null; waOut=(p.waOut!=null)?p.waOut:null;
+      st.vfadeIn=Math.max(0,+p.vfadeIn||0); st.vfadeOut=Math.max(0,+p.vfadeOut||0);
+      { const a=Q('#ls_vfi'), b=Q('#ls_vfo'); if(a)a.value=st.vfadeIn; if(b)b.value=st.vfadeOut; }
+    }
+    applyVals(p.vals||{}); applyObjs(p.objs); applyAuto(p.auto||{});
+    // 오디오: 현재 로드된 트랙에 메타 복원(같은 id). 버퍼가 없는 트랙은 파일 재추가 안내.
+    if(Array.isArray(p.trk)){ p.trk.forEach(m=>{ const t=tracks.find(x=>x.id===m.id); if(t){ t.startAt=m.startAt; t.trimStart=m.trimStart; t.trimEnd=m.trimEnd; t.fadeIn=m.fadeIn||0; t.fadeOut=m.fadeOut||0; if(m.vol!=null)t.vol=m.vol; } }); }
+    renderTimeline(); refreshObjs();
+  }
+
   const saveBtn=Q('#ls_save'), pnameInp=Q('#ls_pname');
-  saveBtn.addEventListener('click',()=>{ let name=(pnameInp.value||'').trim(); if(!name)name='프로젝트 '+(presets.length+1); presets.unshift({name,vals:captureVals(),auto:captureAuto(),objs:captureObjs(),thumb:presetThumb()}); pnameInp.value=''; persistPresets(); renderPresets(); });
+  saveBtn.addEventListener('click',()=>{ let name=(pnameInp.value||'').trim(); if(!name)name='프로젝트 '+(presets.length+1);
+    const proj=captureProject(); proj.name=name; proj.who=whoTag(); proj.thumb=presetThumb();
+    presets.unshift(proj); pnameInp.value=''; persistPresets(); renderPresets(); });
   pnameInp.addEventListener('keydown',e=>{ if(e.key==='Enter')saveBtn.click(); });
   loadPresets();
 
@@ -4899,24 +4971,30 @@ void main(){
     pop.style.left=L+'px'; pop.style.top=Math.max(8,T)+'px';
     setTimeout(()=>document.addEventListener('pointerdown',_blendOutside,true),0);
   }
-  { const bgBtn=root.querySelector('#ls_bgfxbtn'), bgPop=root.querySelector('#ls_bgfxpop');
-    if(bgBtn&&bgPop){
-      const closeBg=()=>{ bgPop.classList.remove('on'); bgBtn.classList.remove('on'); document.removeEventListener('pointerdown',_bgOutside,true); };
-      function _bgOutside(ev){ if(!bgPop.contains(ev.target)&&ev.target!==bgBtn&&!bgBtn.contains(ev.target)) closeBg(); }
-      bgBtn.addEventListener('click',ev=>{ ev.stopPropagation();
-        const open=!bgPop.classList.contains('on');
-        bgPop.classList.toggle('on',open); bgBtn.classList.toggle('on',open);
-        if(open) setTimeout(()=>document.addEventListener('pointerdown',_bgOutside,true),0);
-        else document.removeEventListener('pointerdown',_bgOutside,true);
-      });
-    } }
+  // (배경효과는 인스펙터 장면 패널에 상시 인라인 표시 — 팝오버 토글 제거됨)
 
   /* ===== 오브젝트 시스템 (텍스트 · 이미지 · 사운드 스펙트럼) ===== */
   let objs=[], selId=null, objSeq=1;
+  let selTrack=null;      // 선택된 오디오 트랙 id (오디오 인스펙터)
+  let _objTab='props';    // 오브젝트 인스펙터 활성 탭 (props/motion) 기억
   let objPop=null;   // (compCanvas 2D 합성은 Phase 3a에서 GL 컴포지터로 대체·제거됨)
   const objCanvas=Q('#ls_obj'), objCtx=objCanvas.getContext('2d');
   const objLayer=Q('#ls_objlayer');
-  const OFONTS={sans:"'Pretendard','Apple SD Gothic Neo',system-ui,sans-serif",serif:"'Noto Serif KR',Georgia,serif",mono:"'SF Mono',Menlo,monospace",round:"'Quicksand','Pretendard',sans-serif"};
+  const OFONTS={sans:"'Pretendard','Apple SD Gothic Neo',system-ui,sans-serif",serif:"'Noto Serif KR',Georgia,serif",mono:"'SF Mono',Menlo,monospace",round:"'Quicksand','Pretendard',sans-serif",
+    system:"system-ui,-apple-system,'Segoe UI',sans-serif",
+    arial:"Arial,Helvetica,sans-serif",
+    helvetica:"'Helvetica Neue',Helvetica,Arial,sans-serif",
+    times:"'Times New Roman',Times,serif",
+    georgia:"Georgia,'Times New Roman',serif",
+    verdana:"Verdana,Geneva,sans-serif",
+    trebuchet:"'Trebuchet MS',Tahoma,sans-serif",
+    tahoma:"Tahoma,Geneva,sans-serif",
+    courier:"'Courier New',Courier,monospace",
+    impact:"Impact,'Arial Black',sans-serif",
+    palatino:"'Palatino Linotype','Book Antiqua',Palatino,serif",
+    malgun:"'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif",
+    nanumgothic:"'NanumGothic','나눔고딕','Apple SD Gothic Neo',sans-serif",
+    nanummyeongjo:"'NanumMyeongjo','나눔명조','Noto Serif KR',serif"};
   const clamp01=v=>Math.max(0,Math.min(1,v));
   const escapeHtml=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   function findObj(id){ return objs.find(o=>o.id===id); }
@@ -4932,6 +5010,39 @@ void main(){
   }
 
   const HANDLES=['n','s','e','w','ne','nw','se','sw'];
+  // ===== #11 포인터 드래그 순서 이동 (밀리는 모션) =====
+  // rowSel 매칭 행들만 대상. opts.pair(row) → 함께 밀 짝 요소(예: 타임라인 레인). commit(ids) 은 새 순서(위→아래 data-id).
+  function lsDragReorder(listEl,rowSel,commit,opts){ opts=opts||{};
+    listEl.addEventListener('pointerdown',e=>{
+      const row=e.target.closest(rowSel); if(!row||!listEl.contains(row))return;
+      if(e.target.closest('input,textarea,button,.ls-lyr-x,.ls-rl-x'))return;
+      if(e.pointerType==='mouse'&&e.button!==0)return;
+      const rows=[...listEl.querySelectorAll(rowSel)]; const startIdx=rows.indexOf(row); if(startIdx<0)return;
+      const rect=row.getBoundingClientRect(); const gap=(opts.gap!=null?opts.gap:6); const rowH=rect.height+gap;
+      const pairs=rows.map(r=>opts.pair?opts.pair(r):null);
+      let started=false, curIdx=startIdx; const y0=e.clientY;
+      const setT=(el,v)=>{ if(el) el.style.transform=v?('translateY('+v+'px)'):''; };
+      const move=ev=>{ const dy=ev.clientY-y0;
+        if(!started){ if(Math.abs(dy)<4)return; started=true; dragLock(true); row.classList.add('ls-row-drag');
+          const pr0=pairs[startIdx]; if(pr0)pr0.classList.add('ls-row-drag');
+          rows.forEach((r,i)=>{ if(r!==row)r.style.transition='transform .16s ease'; const pr=pairs[i]; if(pr&&pr!==pairs[startIdx])pr.style.transition='transform .16s ease'; }); }
+        setT(row,dy); setT(pairs[startIdx],dy);
+        let ni=startIdx+Math.round(dy/rowH); ni=Math.max(0,Math.min(rows.length-1,ni));
+        if(ni!==curIdx){ curIdx=ni;
+          rows.forEach((r,i)=>{ if(i===startIdx)return; let sh=0;
+            if(i>startIdx&&i<=curIdx)sh=-rowH; else if(i<startIdx&&i>=curIdx)sh=rowH;
+            setT(r,sh); setT(pairs[i],sh); }); }
+      };
+      const up=()=>{ window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); dragLock(false);
+        if(!started)return;
+        const ids=rows.map(r=>r.dataset.id); const moved=ids.splice(startIdx,1)[0]; ids.splice(curIdx,0,moved);
+        commit(ids); };   // 재렌더가 트랜스폼/클래스 정리
+      window.addEventListener('pointermove',move); window.addEventListener('pointerup',up);
+    });
+  }
+  function commitLayerOrderFromVisual(ids,topIsFront){ const byId={}; objs.forEach(o=>byId[o.id]=o);
+    let seq=ids.map(id=>byId[+id]).filter(Boolean); if(topIsFront) seq=seq.reverse();   // 목록 패널: 위=앞=objs 뒤
+    if(seq.length===objs.length){ objs=seq; refreshObjs(); syncLayerTracks(); } }
   function renderObjLayer(){
     objLayer.innerHTML='';
     for(const o of objs){
@@ -4944,7 +5055,9 @@ void main(){
     }
   }
   function renderObjList(){                 // 좌측 통합 레이어 패널 렌더
-    const wrap=Q('#ls_layerlist'); if(!wrap)return; wrap.innerHTML='';
+    const wrap=Q('#ls_layerlist'); if(!wrap)return;
+    if(!wrap._reorderWired){ lsDragReorder(wrap,'.ls-lyr-row',ids=>commitLayerOrderFromVisual(ids,true)); wrap._reorderWired=true; }
+    wrap.innerHTML='';
     if(!objs.length){ return; }
     const TAG={text:'텍스트',image:'이미지',spectrum:'스펙트럼'};
     objs.slice().reverse().forEach(o=>{        // 앞(위) 레이어가 목록 상단
@@ -4970,20 +5083,22 @@ void main(){
     b.innerHTML='<span>'+label+'</span>'+(key?'<span class="ls-ctxkey">'+key+'</span>':'');
     b.addEventListener('click',()=>{ closeCtx(); fn(); }); return b; }
   function openObjCtx(x,y,id,nmEl){ const o=findObj(id); if(!o)return; const m=ensureCtx(); m.innerHTML='';
-    const idx=objs.findIndex(v=>v.id===id), top=idx===objs.length-1, bot=idx===0;
     m.appendChild(ctxItem('이름 변경','',()=>{ const el=root.querySelector('.ls-lyr-row[data-id="'+id+'"] .ls-lyr-nm'); if(el) beginRename(id,el); else beginRenameFloat(id); }));
+    if(o.type==='image') m.appendChild(ctxItem('이미지 교체','',()=>replaceImage(id)));
     m.appendChild(ctxItem('복제','⌘D',()=>dupObj(id)));
-    const sep1=document.createElement('div'); sep1.className='ls-ctxsep'; m.appendChild(sep1);
-    if(!top) m.appendChild(ctxItem('맨 앞으로','',()=>{ const a=objs.splice(idx,1)[0]; objs.push(a); refreshObjs(); syncLayerTracks(); }));
-    if(!top) m.appendChild(ctxItem('앞으로','',()=>{ if(idx<objs.length-1){ const t=objs[idx]; objs[idx]=objs[idx+1]; objs[idx+1]=t; refreshObjs(); syncLayerTracks(); } }));
-    if(!bot) m.appendChild(ctxItem('뒤로','',()=>{ if(idx>0){ const t=objs[idx]; objs[idx]=objs[idx-1]; objs[idx-1]=t; refreshObjs(); syncLayerTracks(); } }));
-    if(!bot) m.appendChild(ctxItem('맨 뒤로','',()=>{ const a=objs.splice(idx,1)[0]; objs.unshift(a); refreshObjs(); syncLayerTracks(); }));
     const sep2=document.createElement('div'); sep2.className='ls-ctxsep'; m.appendChild(sep2);
     m.appendChild(ctxItem('삭제','⌫',()=>delObj(id),true));
     m.classList.add('on'); m.style.left='0px'; m.style.top='0px';
     const mw=m.offsetWidth||180, mh=m.offsetHeight||200;
-    m.style.left=Math.max(6,Math.min(x,window.innerWidth-mw-6))+'px';
-    m.style.top=Math.max(6,Math.min(y,window.innerHeight-mh-6))+'px';
+    // 오브젝트(레이어) 칸 우측에 띄우기 — 행이 있으면 그 오른쪽 모서리 기준, 없으면 마우스 위치
+    const row=root.querySelector('.ls-lyr-row[data-id="'+id+'"]');
+    let L,T;
+    if(row){ const r=row.getBoundingClientRect(); L=r.right+6; T=r.top;
+      if(L+mw>window.innerWidth-6) L=r.left-mw-6;       // 오른쪽 공간 부족 시 왼쪽으로
+      if(L<6) L=Math.min(x,window.innerWidth-mw-6);
+    } else { L=x; T=y; }
+    m.style.left=Math.max(6,Math.min(L,window.innerWidth-mw-6))+'px';
+    m.style.top=Math.max(6,Math.min(T,window.innerHeight-mh-6))+'px';
   }
   // 인라인 이름 편집 (레이어 목록 행)
   function beginRename(id,nmEl){ const o=findObj(id); if(!o||!nmEl)return;
@@ -4997,7 +5112,7 @@ void main(){
   // 캔버스 우클릭 시 목록 행이 없을 때 대비한 플로팅 이름 편집 (간단히 목록 렌더 후 재시도)
   function beginRenameFloat(id){ refreshObjs(); const el=root.querySelector('.ls-lyr-row[data-id="'+id+'"] .ls-lyr-nm'); if(el) beginRename(id,el); }
   function refreshObjs(){ renderObjLayer(); renderObjList(); scheduleUndoCommit(); }
-  function selectObj(id){ selId=id; refreshObjs(); }
+  function selectObj(id){ selId=id; selTrack=null; refreshObjs(); }
   function syncLayerTracks(){ try{ if(typeof renderTimeline==='function') renderTimeline(); }catch(e){} scheduleUndoCommit(); }
   function dupObj(id){ const o=findObj(id); if(!o)return;
     const c=JSON.parse(JSON.stringify(Object.assign({},o,{img:undefined})));
@@ -5018,6 +5133,16 @@ void main(){
           let w=.4,h=w*(W/H)/ar; if(h>.8){ h=.8; w=h*ar*(H/W); }
           const o={id:objSeq++,type:'image',x:.5,y:.5,rot:0,opacity:1,w:w,h:h,img:img,src:src,ar:ar};
           objs.push(o); selectObj(o.id); openPop(o.id); syncLayerTracks(); };
+        img.src=src; };
+      rd.readAsDataURL(f); };
+    inp.click(); }
+  function replaceImage(id){ const o=findObj(id); if(!o||o.type!=='image')return;
+    const inp=document.createElement('input'); inp.type='file'; inp.accept='image/*';
+    inp.onchange=()=>{ const f=inp.files&&inp.files[0]; if(!f)return; const rd=new FileReader();
+      rd.onload=()=>{ const src=rd.result; const img=new Image();
+        img.onload=()=>{ o.ar=img.naturalWidth/img.naturalHeight||1; o.img=img; o.src=src;
+          const e=layerTexCache.get(id); if(e){ try{gl.deleteTexture(e.tex);}catch(err){} layerTexCache.delete(id); }
+          refreshObjs(); syncLayerTracks(); showError('이미지를 교체했어요.'); };
         img.src=src; };
       rd.readAsDataURL(f); };
     inp.click(); }
@@ -5053,9 +5178,35 @@ void main(){
   function ensurePop(){ if(!objPop){ objPop=document.createElement('div'); objPop.className='ls-opop';
     const side=root.querySelector('.ls-side'); if(side) side.prepend(objPop); else document.body.appendChild(objPop); }
     return objPop; }
-  function closePop(){ if(objPop) objPop.classList.remove('on'); }
+  function sceneEl(){ return root.querySelector('#ls_scene'); }
+  function showScene(on){ const s=sceneEl(); if(s) s.classList.toggle('hidden',!on); }
+  function closePop(){ if(objPop) objPop.classList.remove('on'); selTrack=null; showScene(true); }
   function positionPop(o){}  // 도킹 인스펙터(우측 고정) — 플로팅 좌표 계산 불필요
-  const FONT_LABELS={sans:'산세리프',serif:'세리프',mono:'모노',round:'둥근'};
+  // ===== 오디오 트랙 인스펙터 (#4: 볼륨 · 페이드) =====
+  function selectTrack(id){ if(!tracks.find(t=>t.id===id))return; selId=null; selTrack=id; refreshObjs(); openTrackPop(id); renderTimeline(); }
+  function openTrackPop(id){ const t=tracks.find(x=>x.id===id); if(!t){ closePop(); return; } const p=ensurePop();
+    const vol=(t.vol==null?1:Math.max(0,Math.min(1,t.vol))); const cl=clipLen(t);
+    let h='<div class="ls-opop-h"><span>'+escapeHtml(t.name)+' · 음원</span><span class="ls-opop-x" data-x>×</span></div>';
+    h+='<div class="ls-osec">사운드</div>';
+    h+='<div class="ls-orow"><span>볼륨</span><div class="ls-oinline"><input type="range" data-avol min="0" max="1" step="0.01" value="'+vol+'"><span class="ls-oval" data-avolv>'+Math.round(vol*100)+'%</span></div></div>';
+    h+='<div class="ls-osec">페이드</div>';
+    h+='<div class="ls-orow"><span>페이드 인</span><div class="ls-oinline ls-xy"><input type="number" data-afade="in" step="0.1" min="0" max="'+cl.toFixed(1)+'" value="'+(t.fadeIn||0).toFixed(1)+'"> s</div></div>';
+    h+='<div class="ls-orow"><span>페이드 아웃</span><div class="ls-oinline ls-xy"><input type="number" data-afade="out" step="0.1" min="0" max="'+cl.toFixed(1)+'" value="'+(t.fadeOut||0).toFixed(1)+'"> s</div></div>';
+    h+='<div class="ls-omhint">트랙 길이·위치는 타임라인 클립을 드래그해 조정할 수 있어요.</div>';
+    p.innerHTML=h; p.classList.add('on'); showScene(false);
+    p.querySelector('[data-x]').addEventListener('click',()=>{ closePop(); renderTimeline(); });
+    const av=p.querySelector('[data-avol]'); if(av){
+      av.addEventListener('input',()=>{ t.vol=parseFloat(av.value); const l=p.querySelector('[data-avolv]'); if(l)l.textContent=Math.round(t.vol*100)+'%'; });
+      av.addEventListener('change',()=>{ if(tlPlaying) scheduleFrom(Math.min(timelineTime(),totalDur()),false); scheduleUndoCommit(); }); }
+    p.querySelectorAll('[data-afade]').forEach(el=>el.addEventListener('change',()=>{ const c=clipLen(t); let v=Math.max(0,Math.min(c,parseFloat(el.value)||0));
+      if(el.dataset.afade==='in'){ t.fadeIn=Math.min(v,c-(t.fadeOut||0)); el.value=t.fadeIn.toFixed(1); }
+      else { t.fadeOut=Math.min(v,c-(t.fadeIn||0)); el.value=t.fadeOut.toFixed(1); }
+      renderTimeline(); if(tlPlaying) scheduleFrom(Math.min(timelineTime(),totalDur()),false); scheduleUndoCommit(); }));
+  }
+  const FONT_LABELS={sans:'산세리프',serif:'세리프',mono:'모노',round:'둥근',
+    system:'System UI',arial:'Arial',helvetica:'Helvetica',times:'Times New Roman',georgia:'Georgia',
+    verdana:'Verdana',trebuchet:'Trebuchet MS',tahoma:'Tahoma',courier:'Courier New',impact:'Impact',palatino:'Palatino',
+    malgun:'맑은 고딕',nanumgothic:'나눔고딕',nanummyeongjo:'나눔명조'};
   function fontOpts(cur){ return Object.keys(FONT_LABELS).map(k=>'<option value="'+k+'"'+(k===cur?' selected':'')+'>'+FONT_LABELS[k]+'</option>').join(''); }
   function addUserFont(){ const inp=document.createElement('input'); inp.type='file'; inp.accept='.ttf,.otf,.woff,.woff2';
     inp.onchange=async()=>{ const f=inp.files&&inp.files[0]; if(!f)return;
@@ -5070,25 +5221,50 @@ void main(){
     inp.click(); }
   function segBtn(val,label,cur){ return '<button data-val="'+val+'" class="'+(val===cur?'on':'')+'">'+label+'</button>'; }
   function rowRange(f,label,min,max,step,val,disp){ return '<div class="ls-orow"><span>'+label+'</span><div class="ls-oinline"><input type="range" data-f="'+f+'" min="'+min+'" max="'+max+'" step="'+step+'" value="'+val+'"><span class="ls-oval" data-v="'+f+'">'+disp+'</span></div></div>'; }
+  // #16 피그마식 스크럽: 라벨(.ls-scrub)을 잡고 좌우로 끌면 옆 숫자 입력값이 조절됨
+  function wireScrub(box){ box.querySelectorAll('.ls-scrub').forEach(sc=>{
+    let inp=sc.nextElementSibling; while(inp && inp.tagName!=='INPUT') inp=inp.nextElementSibling;
+    if(!inp||inp.type!=='number')return;
+    sc.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation();
+      const step=parseFloat(inp.step)||1; const dec=(String(inp.step).split('.')[1]||'').length;
+      const min=inp.min!==''?parseFloat(inp.min):-Infinity, max=inp.max!==''?parseFloat(inp.max):Infinity;
+      const x0=e.clientX, v0=parseFloat(inp.value)||0; dragLock(true); document.body.classList.add('ls-scrubbing');
+      const mv=ev=>{ const dx=ev.clientX-x0; const rate=ev.shiftKey?step*0.2:(ev.altKey?step*4:step);
+        let nv=v0+dx*rate; nv=Math.max(min,Math.min(max,nv)); nv=parseFloat(nv.toFixed(Math.min(3,Math.max(dec,1))));
+        inp.value=nv; inp.dispatchEvent(new Event('input',{bubbles:true})); inp.dispatchEvent(new Event('change',{bubbles:true})); };
+      const up=()=>{ dragLock(false); document.body.classList.remove('ls-scrubbing'); window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up); };
+      window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up); });
+  }); }
 
   function openPop(id){ const o=findObj(id); if(!o)return; const p=ensurePop(); let h='';
     h+='<div class="ls-opop-h"><span>'+objName(o)+' 설정</span><span class="ls-opop-x" data-x>×</span></div>';
-    // ── 배치 (피그마 인스펙터 문법: 정렬 6종 + 좌표 숫자 입력) ──
+    // 기본값 정규화 (탭 구성 전에 확정)
+    o.trIn=o.trIn&&TR_ID[o.trIn.type]>0?o.trIn:{type:'none',dur:0.6};
+    o.trOut=o.trOut&&TR_ID[o.trOut.type]>0?o.trOut:{type:'none',dur:0.6};
+    o.blend=(o.blend&&BLEND_ID[o.blend]!==undefined)?o.blend:'normal';
+    if(o.blendAmt==null) o.blendAmt=1;
+    const trSel=(tag,tr)=>'<select data-tr="'+tag+'">'+Object.keys(TR_LABELS).map(k=>'<option value="'+k+'"'+(tr.type===k?' selected':'')+'>'+TR_LABELS[k]+'</option>').join('')+'</select>'+
+      '<input type="number" data-trd="'+tag+'" min="0.1" max="10" step="0.1" value="'+(Math.max(0.1,Math.min(10,+tr.dur||0.6)))+'" title="길이(초)"><em>s</em>';
+    const _tout=(o.tOut===undefined||o.tOut===null)?projDur():o.tOut;
+
+    // 탭 바 (속성 / 모션)
+    h+='<div class="ls-tabs"><button data-tab="props" class="'+(_objTab==='props'?'on':'')+'">속성</button><button data-tab="motion" class="'+(_objTab==='motion'?'on':'')+'">모션</button></div>';
+
+    // ===== 속성 pane =====
+    h+='<div class="ls-tabpane" data-pane="props"'+(_objTab==='props'?'':' hidden')+'>';
     h+='<div class="ls-osec">배치</div>';
     h+='<div class="ls-orow"><span>정렬</span><div class="ls-oseg ls-align" style="flex:1">'+
        [['l','⇤','왼쪽 정렬'],['ch','↔','가로 중앙'],['r','⇥','오른쪽 정렬'],['t','⤒','위 정렬'],['cv','↕','세로 중앙'],['b','⤓','아래 정렬']]
        .map(a=>'<button data-al="'+a[0]+'" title="'+a[2]+'">'+a[1]+'</button>').join('')+'</div></div>';
     h+='<div class="ls-orow"><span>위치</span><div class="ls-oinline ls-xy">'+
-       'X <input type="number" data-xy="x" step="0.1" value="'+(o.x*100).toFixed(1)+'"> % '+
-       'Y <input type="number" data-xy="y" step="0.1" value="'+(o.y*100).toFixed(1)+'"> %</div></div>';
+       '<span class="ls-scrub" data-for="x">X</span> <input type="number" data-xy="x" step="0.1" value="'+(o.x*100).toFixed(1)+'"> % '+
+       '<span class="ls-scrub" data-for="y">Y</span> <input type="number" data-xy="y" step="0.1" value="'+(o.y*100).toFixed(1)+'"> %</div></div>';
     if(o.type!=='text'){
       h+='<div class="ls-orow"><span>크기</span><div class="ls-oinline ls-xy">'+
-         'W <input type="number" data-wh="w" step="0.5" min="1" value="'+(o.w*100).toFixed(1)+'"> % '+
-         'H <input type="number" data-wh="h" step="0.5" min="1" value="'+(o.h*100).toFixed(1)+'"> %'+
-         (o.type==='image'?' <button class="ls-arlock on" data-arlock title="종횡비 고정">🔗</button>':'')+'</div></div>';
+         '<span class="ls-scrub" data-for="w">W</span> <input type="number" data-wh="w" step="0.5" min="1" value="'+(o.w*100).toFixed(1)+'"> % '+
+         '<span class="ls-scrub" data-for="h">H</span> <input type="number" data-wh="h" step="0.5" min="1" value="'+(o.h*100).toFixed(1)+'"> %'+
+         (o.type==='image'?' <button class="ls-arlock on" data-arlock title="종횡비 고정"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07l-1.4 1.41"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.4-1.41"/></svg></button>':'')+'</div></div>';
     }
-    h+='<div class="ls-orow"><span>회전 속도</span><div class="ls-oinline ls-xy"><input type="number" data-spin step="15" min="-1080" max="1080" value="'+(+o.spin||0)+'"> °/s <em class="ls-spinhint">연속 회전 (오토메이션과 합산)</em></div></div>';
-    h+='<div class="ls-orow"><span>순서</span><div class="ls-oseg" style="flex:1"><button data-ord="up">▲ 앞으로</button><button data-ord="down">▼ 뒤로</button></div></div>';
     h+='<div class="ls-osec">스타일</div>';
     if(o.type==='text'){
       h+='<div class="ls-orow"><span>내용</span><textarea data-f="text">'+escapeHtml(o.text)+'</textarea></div>';
@@ -5101,7 +5277,6 @@ void main(){
     } else if(o.type==='image'){
       h+=rowRange('opacity','투명도',0,1,0.01,o.opacity,Math.round(o.opacity*100)+'%');
       h+=rowRange('rot','회전',-180,180,1,o.rot,o.rot+'°');
-      h+='<div class="ls-orow"><span style="color:var(--c-t3);line-height:1.5">모션 애니메이션은 추후 타임라인 레인에서 조정할 수 있어요.</span></div>';
     } else {
       h+='<div class="ls-orow"><span>색</span><input type="color" data-f="color" value="'+o.color+'"></div>';
       h+=rowRange('opacity','투명도',0,1,0.01,o.opacity,Math.round(o.opacity*100)+'%');
@@ -5112,22 +5287,36 @@ void main(){
       h+=rowRange('freqLo','주파수 하한',20,2000,10,o.freqLo,o.freqLo+'Hz');
       h+=rowRange('freqHi','주파수 상한',500,18000,100,o.freqHi,o.freqHi+'Hz');
     }
-    // 트랜지션 (등장/퇴장) — 레이어 in/out 지점에서 적용
-    h+='<div class="ls-osec">전환</div>';
-    o.trIn=o.trIn&&TR_ID[o.trIn.type]>0?o.trIn:{type:'none',dur:0.6};
-    o.trOut=o.trOut&&TR_ID[o.trOut.type]>0?o.trOut:{type:'none',dur:0.6};
-    const trSel=(tag,tr)=>'<select data-tr="'+tag+'">'+Object.keys(TR_LABELS).map(k=>'<option value="'+k+'"'+(tr.type===k?' selected':'')+'>'+TR_LABELS[k]+'</option>').join('')+'</select>'+
-      '<input type="number" data-trd="'+tag+'" min="0.1" max="10" step="0.1" value="'+(Math.max(0.1,Math.min(10,+tr.dur||0.6)))+'" title="길이(초)"><em>s</em>';
-    h+='<div class="ls-orow"><span>등장 전환</span><div class="ls-oinline ls-trrow">'+trSel('in',o.trIn)+'</div></div>';
-    h+='<div class="ls-orow"><span>퇴장 전환</span><div class="ls-oinline ls-trrow">'+trSel('out',o.trOut)+'</div></div>';
-    // 블렌드 (모드 + 강도) — 레이어를 배경/하위 레이어에 어떻게 섞을지
-    o.blend=(o.blend&&BLEND_ID[o.blend]!==undefined)?o.blend:'normal';
-    if(o.blendAmt==null) o.blendAmt=1;
     h+='<div class="ls-osec">블렌드</div>';
     h+='<div class="ls-orow"><span>모드</span><select data-blendsel style="flex:1;min-width:0">'+
        BLENDS.map(b=>'<option value="'+b[0]+'"'+(o.blend===b[0]?' selected':'')+'>'+b[1]+'</option>').join('')+'</select></div>';
     h+=rowRange('blendAmt','강도',0,1,0.01,o.blendAmt,Math.round(o.blendAmt*100)+'%');
-    p.innerHTML=h; p.classList.add('on'); positionPop(o);
+    h+='</div>'; // end props pane
+
+    // ===== 모션 pane =====
+    h+='<div class="ls-tabpane" data-pane="motion"'+(_objTab==='motion'?'':' hidden')+'>';
+    h+='<div class="ls-osec">움직임</div>';
+    h+='<div class="ls-orow"><span>회전 속도</span><div class="ls-oinline ls-xy"><input type="number" data-spin step="15" min="-1080" max="1080" value="'+(+o.spin||0)+'"> °/s</div></div>';
+    h+='<div class="ls-osec">타이밍</div>';
+    h+='<div class="ls-orow"><span>등장 시점</span><div class="ls-oinline ls-xy"><input type="number" data-tin step="0.1" min="0" max="'+projDur()+'" value="'+(o.tIn||0).toFixed(1)+'"> s</div></div>';
+    h+='<div class="ls-orow"><span>퇴장 시점</span><div class="ls-oinline ls-xy"><input type="number" data-tout step="0.1" min="0" max="'+projDur()+'" value="'+_tout.toFixed(1)+'"> s</div></div>';
+    h+='<div class="ls-osec">전환</div>';
+    h+='<div class="ls-orow"><span>등장 전환</span><div class="ls-oinline ls-trrow">'+trSel('in',o.trIn)+'</div></div>';
+    h+='<div class="ls-orow"><span>퇴장 전환</span><div class="ls-oinline ls-trrow">'+trSel('out',o.trOut)+'</div></div>';
+    h+='<div class="ls-omhint">세밀한 키프레임 애니메이션은 하단 타임라인에서 “레인 추가”로 편집할 수 있어요.</div>';
+    h+='</div>'; // end motion pane
+    p.innerHTML=h; p.classList.add('on'); selTrack=null; showScene(false); positionPop(o);
+    const tabsEl=p.querySelector('.ls-tabs'); if(tabsEl) tabsEl.querySelectorAll('button').forEach(tb=>tb.addEventListener('click',()=>{
+      const tk=tb.dataset.tab; _objTab=tk; tabsEl.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===tb));
+      p.querySelectorAll('.ls-tabpane').forEach(pane=>pane.hidden=(pane.dataset.pane!==tk)); }));
+    const tinEl=p.querySelector('[data-tin]'); if(tinEl) tinEl.addEventListener('change',()=>{
+      o.tIn=Math.max(0,Math.min(projDur(),parseFloat(tinEl.value)||0));
+      const cur=(o.tOut===undefined||o.tOut===null)?projDur():o.tOut; if(cur<o.tIn+0.1)o.tOut=Math.min(projDur(),o.tIn+0.1);
+      const toE=p.querySelector('[data-tout]'); if(toE)toE.value=((o.tOut===undefined||o.tOut===null)?projDur():o.tOut).toFixed(1);
+      tinEl.value=o.tIn.toFixed(1); renderTimeline(); scheduleUndoCommit(); });
+    const toutEl=p.querySelector('[data-tout]'); if(toutEl) toutEl.addEventListener('change',()=>{
+      let v=parseFloat(toutEl.value); if(!isFinite(v))v=projDur();
+      o.tOut=Math.max((o.tIn||0)+0.1,Math.min(projDur(),v)); toutEl.value=o.tOut.toFixed(1); renderTimeline(); scheduleUndoCommit(); });
     p.querySelector('[data-x]').addEventListener('click',closePop);
     const syncXY=()=>{ p.querySelectorAll('[data-xy]').forEach(el=>{ el.value=(o[el.dataset.xy]*100).toFixed(1); }); };
     p.querySelectorAll('[data-wh]').forEach(el=>el.addEventListener('change',()=>{
@@ -5156,16 +5345,13 @@ void main(){
     const seg=p.querySelector('[data-seg="align"]'); if(seg) seg.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ o.align=b.dataset.val; seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); refreshObjs(); }));
     const seg3=p.querySelector('[data-seg="sstyle"]'); if(seg3) seg3.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ o.sstyle=b.dataset.val; seg3.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); scheduleUndoCommit(); }));
     const bb=p.querySelector('[data-bold]'); if(bb) bb.addEventListener('click',()=>{ o.bold=!o.bold; bb.classList.toggle('on',o.bold); measureText(o); refreshObjs(); positionPop(o); });
-    p.querySelectorAll('[data-ord]').forEach(b=>b.addEventListener('click',()=>{
-      const i=objs.findIndex(x=>x.id===o.id); if(i<0)return;
-      const j=b.dataset.ord==='up'?i+1:i-1; if(j<0||j>=objs.length)return;
-      const t2=objs[i]; objs[i]=objs[j]; objs[j]=t2; refreshObjs(); syncLayerTracks(); }));
     p.querySelectorAll('[data-tr]').forEach(el=>el.addEventListener('change',ev=>{
       const tr=(el.dataset.tr==='in')?o.trIn:o.trOut; tr.type=ev.target.value; }));
     p.querySelectorAll('[data-trd]').forEach(el=>el.addEventListener('input',ev=>{
       const tr=(el.dataset.trd==='in')?o.trIn:o.trOut; tr.dur=Math.max(0.1,Math.min(10,parseFloat(ev.target.value)||0.6)); }));
     const blendSel=p.querySelector('[data-blendsel]');
     if(blendSel) blendSel.addEventListener('change',ev=>{ o.blend=ev.target.value; renderTimeline(); refreshObjs(); });
+    wireScrub(p);
   }
   // fx[i] 삭제 후 obj{id}_fx{i+1..} 자동화 키를 한 칸 앞으로 당김 (키프레임 보존)
   function fxShiftAutoKeys(objId,removedIdx){
@@ -5247,7 +5433,7 @@ void main(){
   stage.style.setProperty('--ls-ar',st.ar);
 
   // 출력 해상도 / 프레임레이트
-  st.outH=1080; st.fps=30; st.pv=1;
+  st.outH=1080; st.fps=30; st.pv=1; st.vfadeIn=0; st.vfadeOut=0;
   const durIn=Q('#ls_durin');
   if(durIn){ ['pointerdown','click'].forEach(ev=>durIn.addEventListener(ev,e=>e.stopPropagation()));
     durIn.addEventListener('change',()=>{ st.dur=Math.max(5,Math.min(600,parseFloat(durIn.value)||60)); durIn.value=st.dur;
@@ -5259,6 +5445,11 @@ void main(){
   Q('#ls_fps').addEventListener('click',e=>{ const b=e.target.closest('.ls-chip'); if(!b)return;
     e.currentTarget.querySelectorAll('.ls-chip').forEach(c=>c.classList.toggle('on',c===b)); st.fps=parseInt(b.dataset.fps,10)||30;
     closeMenus(); });
+  // #8 영상 페이드 인/아웃
+  { const vfi=Q('#ls_vfi'), vfo=Q('#ls_vfo');
+    const clampF=v=>Math.max(0,Math.min(projDur(),parseFloat(v)||0));
+    if(vfi) vfi.addEventListener('change',()=>{ st.vfadeIn=clampF(vfi.value); vfi.value=st.vfadeIn; scheduleUndoCommit(); });
+    if(vfo) vfo.addEventListener('change',()=>{ st.vfadeOut=clampF(vfo.value); vfo.value=st.vfadeOut; scheduleUndoCommit(); }); }
 
   // ===== 오토메이션 (타임라인 인라인 레인) =====
   const AUTO_LABELS={warp:'일렁임',detail:'흐름결',water:'물결',pull:'중심 흡입',sway:'흔들',vortex:'소용돌이',parallax:'패럴랙스',glow:'광채',kaleido:'만화경',grain:'입자',resp:'킥 펄스',floaty:'부유'};
@@ -5489,7 +5680,9 @@ void main(){
   document.addEventListener('keydown',onKfKey);
   function redrawAllAuto(){ root.querySelectorAll('.ls-autolane').forEach(s=>{ const k=s.dataset.key; if(k) drawAutoStrip(k,s); }); }
   function renderAuto(){ if(typeof renderTimeline==='function') renderTimeline(); }   // 하위 호환 shim
-  (async()=>{ try{ if(typeof Store!=='undefined'&&Store.getLocal){ const saved=await Store.getLocal('artworkAuto'); if(saved) applyAuto(saved); } }catch(e){} if(typeof renderTimeline==='function') renderTimeline(); })();
+  // 시작 시에는 오토메이션 레인 없이 빈 상태로 연다(프로젝트 저장/복원으로 관리).
+  // 예전 세션에서 남은 artworkAuto 로컬 잔재는 1회 정리한다.
+  (async()=>{ try{ if(typeof Store!=='undefined'&&Store.setLocal) await Store.setLocal('artworkAuto',null); }catch(e){} if(typeof renderTimeline==='function') renderTimeline(); })();
   window.addEventListener('resize',()=>{ if(!recording) redrawAllAuto(); });
 
   // loop time
@@ -5552,9 +5745,10 @@ void main(){
 
     // 오디오 트랙 레인
     tracks.forEach(t=>{
-      const lab=mk('ls-rlabel audio');
+      const lab=mk('ls-rlabel audio'+(selTrack===t.id?' sel':''));
       lab.innerHTML='<span class="ls-rl-name">'+t.name.replace(/[<>&]/g,'')+'</span><span class="ls-rl-x" title="트랙 삭제">×</span>';
       lab.title=t.name; labels.appendChild(lab);
+      lab.querySelector('.ls-rl-name').addEventListener('click',()=>{ selectTrack(t.id); });
       lab.querySelector('.ls-rl-x').addEventListener('click',ev=>{ ev.stopPropagation(); removeTrack(t.id); });
       const lane=mk('ls-lane audio'); const cl=clipLen(t);
       const clip=mk('ls-clip');
@@ -5581,19 +5775,14 @@ void main(){
 
     // 레이어 트랙 (Phase 3b): in/out 구간 드래그 + 블렌드 모드
     objs.forEach(o=>{
-      const lab=mk('ls-rlabel layer');
-      const bActive=(o.blend&&o.blend!=='normal');
-      const bLabel=(BLENDS.find(b=>b[0]===(o.blend||'normal'))||BLENDS[0])[1];
+      const lab=mk('ls-rlabel layer'); lab.dataset.id=o.id;
       lab.innerHTML='<span class="ls-rl-name">'+escapeHtml(objName(o))+'</span>'+
-        '<button class="ls-blendbtn'+(bActive?' act':'')+'" title="블렌드: '+bLabel+'">◧</button><span class="ls-rl-x" title="레이어 삭제">×</span>';
-      lab.title=objName(o)+' · 트랙바 드래그=이동, 양끝=구간(in/out)';
+        '<span class="ls-rl-x" title="레이어 삭제">×</span>';
+      lab.title=objName(o)+' · 이름 드래그=순서, 트랙바 드래그=이동, 양끝=구간(in/out)';
       lab.querySelector('.ls-rl-name').addEventListener('click',()=>{ selectObj(o.id); openPop(o.id); });
-      const bb=lab.querySelector('.ls-blendbtn');
-      bb.addEventListener('pointerdown',ev=>ev.stopPropagation());
-      bb.addEventListener('click',ev=>{ ev.stopPropagation(); openBlendPop(o,bb); });
       lab.querySelector('.ls-rl-x').addEventListener('click',ev=>{ ev.stopPropagation(); delObj(o.id); });
       labels.appendChild(lab);
-      const lane=mk('ls-lane layer');
+      const lane=mk('ls-lane layer'); lane.dataset.id=o.id;
       const clip=mk('ls-clip layerclip');
       const tIn=()=>o.tIn||0, tOut=()=>((o.tOut===undefined||o.tOut===null)?projDur():o.tOut);
       const place=()=>{ clip.style.left=(tIn()/projDur()*100)+'%'; clip.style.width=(Math.max(0.3,tOut()-tIn())/projDur()*100)+'%'; };
@@ -5661,6 +5850,9 @@ void main(){
 
     const lanesWrap=mk('ls-laneswrap'); lanesWrap.appendChild(lanes);
     scroll.appendChild(labels); scroll.appendChild(lanesWrap);
+    // #11 타임라인 레이어 순서 이동 (라벨 드래그 → objs 재정렬, 레인도 함께 밀림)
+    lsDragReorder(labels,'.ls-rlabel.layer',ids=>commitLayerOrderFromVisual(ids,false),
+      {gap:7,pair:r=>lanes.querySelector('.ls-lane.layer[data-id="'+r.dataset.id+'"]')});
     const applyZoom=()=>{ ruler.style.width=(tlZoom*100)+'%'; lanes.style.width=(tlZoom*100)+'%';
       ruWrap.scrollLeft=lanesWrap.scrollLeft; };
     applyZoom();
@@ -5679,10 +5871,10 @@ void main(){
     ov.innerHTML='<div class="ls-modal-box">'+
       '<div class="ls-modal-h">구간 선택</div>'+
       '<div class="ls-modal-name"></div>'+
-      '<div class="ls-modal-sub">'+fmtT(dur)+' 음원에서 사용할 '+fmtT(win)+' 구간을 드래그로 고르세요. 추가한 뒤 타임라인에서 더 세밀하게 다듬을 수 있어요.</div>'+
+      '<div class="ls-modal-sub">'+fmtT(dur)+' 음원에서 사용할 '+fmtT(win)+' 구간을 드래그로 고르세요. 전체를 넣고 싶으면 “전체 사용”을 누르면 프로젝트 길이가 음원에 맞춰집니다(최대 '+fmtT(Math.min(600,dur))+').</div>'+
       '<div class="ls-wavewrap"><canvas class="ls-wave"></canvas><div class="ls-wave-win"><span class="ls-ww-grip l"></span><span class="ls-ww-grip r"></span></div></div>'+
       '<div class="ls-modal-info"><span class="ls-mi-start">0:00</span><span class="ls-mi-mid">선택 '+fmtT(win)+'</span><span class="ls-mi-end">1:00</span></div>'+
-      '<div class="ls-modal-btns"><button class="ls-mbtn preview">▶ 선택 구간 듣기</button><span class="ls-mbtn-sp"></span><button class="ls-mbtn cancel">취소</button><button class="ls-mbtn ok">이 구간 추가</button></div>'+
+      '<div class="ls-modal-btns"><button class="ls-mbtn preview">▶ 선택 구간 듣기</button><span class="ls-mbtn-sp"></span><button class="ls-mbtn full">전체 사용</button><button class="ls-mbtn cancel">취소</button><button class="ls-mbtn ok">이 구간 추가</button></div>'+
     '</div>';
     root.appendChild(ov);
     ov.querySelector('.ls-modal-name').textContent=name;
@@ -5715,6 +5907,8 @@ void main(){
     prevBtn.addEventListener('click',()=>{ if(prevOn) stopPrev(); else startPrev(); });
     function close(val){ stopPrev(); ov.remove(); resolve(val); }
     ov.querySelector('.cancel').addEventListener('click',()=>close(null));
+    ov.querySelector('.full').addEventListener('click',()=>{ const newLen=Math.min(600,Math.max(5,dur));
+      setDur(newLen); close({start:0,end:Math.min(dur,newLen)}); });
     ov.querySelector('.ok').addEventListener('click',()=>{ const s=Math.max(0,Math.min(dur-win,winStart)); close({start:s,end:Math.min(dur,s+win)}); });
     requestAnimationFrame(()=>{ draw(); place(); });
   }); }
@@ -5803,7 +5997,20 @@ void main(){
     gl.activeTexture(gl.TEXTURE0); if(tex)gl.bindTexture(gl.TEXTURE_2D,tex);
     gl.drawArrays(gl.TRIANGLES,0,3);
     if(useFbo) compositeLayers(tSec);
+    // #8 영상 페이드 — 영상 녹화(recording) 또는 프리뷰 재생 시 적용. 스틸 이미지 추출/편집 정지 상태엔 미적용.
+    if(recording || ((playing||tlPlaying) && !offlineRendering)) drawVideoFade(tSec);
   }
+  function videoFadeAlpha(tSec){ const dur=projDur();
+    const fi=Math.max(0,+st.vfadeIn||0), fo=Math.max(0,+st.vfadeOut||0); let a=0;
+    if(fi>0 && tSec<fi) a=Math.max(a, 1-(tSec/fi));            // 시작: 검정 → 영상
+    if(fo>0 && tSec>dur-fo) a=Math.max(a, 1-((dur-tSec)/fo));  // 끝: 영상 → 검정
+    return Math.max(0,Math.min(1,a)); }
+  function drawVideoFade(tSec){ if(!fadeProg)return; const a=videoFadeAlpha(tSec); if(a<=0.001)return;
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null); gl.viewport(0,0,canvas.width,canvas.height);
+    gl.useProgram(fadeProg); gl.uniform1f(fadeUni.a,a);
+    gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+    gl.drawArrays(gl.TRIANGLES,0,3);
+    gl.disable(gl.BLEND); }
   function frame(now){
     if(!glReady||offlineRendering){ rafId=requestAnimationFrame(frame); return; }
     const dur=projDur(); let tSec;
