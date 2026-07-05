@@ -714,7 +714,7 @@ img.av,img.art{pointer-events:none}
 .ls *{ -webkit-user-drag:none; }
 body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-select:none !important; cursor:inherit; }
 .ls-wrap{ display:grid; grid-template-columns:104px minmax(0,1fr) 420px; grid-template-rows:minmax(0,1fr) auto;
-  grid-template-areas:"bar stage side" "timeline timeline side"; gap:16px 18px; height:100%; }
+  grid-template-areas:"bar stage side" "timeline timeline timeline"; gap:16px 18px; height:100%; }
 .ls-floatbar{ grid-area:bar; } .ls-stageWrap{ grid-area:stage; } .ls-timeline{ grid-area:timeline; } .ls-side{ grid-area:side; }
 @media (max-width:920px){ .ls{ height:auto; min-height:0; } .ls-wrap{ grid-template-columns:1fr; grid-template-rows:none; grid-template-areas:"bar" "stage" "timeline" "side"; height:auto; gap:14px; } }
 
@@ -893,6 +893,9 @@ body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-
 .ls-saverow input:focus{ outline:none; border-color:var(--acc); }
 .ls-saverow button{ font-size:13px; color:#fff; background:var(--acc); border:1px solid var(--acc); padding:10px 16px; border-radius:10px; cursor:pointer; white-space:nowrap; font-weight:600; }
 .ls-presets{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.ls-prepop{ flex-direction:column; align-items:stretch; width:344px; }
+.ls-prepop .ls-saverow{ margin-bottom:8px; }
+.ls-prepop .ls-presets{ max-height:264px; overflow-y:auto; overscroll-behavior:contain; padding-right:2px; }
 .ls-emptybox{ grid-column:1 / -1; padding:16px 14px; text-align:center; border:1px dashed var(--c-bd); border-radius:12px; font-size:12.5px; color:var(--c-t3); line-height:1.6; }
 .ls-pcard{ display:flex; align-items:center; gap:8px; padding:11px 12px; border-radius:11px; background:var(--c-card); border:1px solid var(--c-bd); cursor:pointer; transition:.15s; min-width:0; }
 .ls-pcard:hover{ border-color:var(--acc); background:var(--c-hov); }
@@ -947,9 +950,34 @@ body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-
 }
 /* ===== Loop Studio — 통합 타임라인 (고정 축 + 스크롤 레인) ===== */
 .ls-axis{ display:flex; gap:8px; }
-.ls-axis-pad{ width:184px; flex:none; }
+.ls-axis-pad{ width:184px; flex:none; display:flex; align-items:center; gap:4px; }
+.ls-zbtn{ width:20px; height:18px; line-height:1; font-size:12px; font-weight:700; border-radius:5px; cursor:pointer;
+  border:1px solid var(--c-bd); background:var(--c-card); color:var(--c-t3); font-family:inherit; }
+.ls-zbtn:hover{ color:var(--c-t1); border-color:var(--c-bd2); }
+.ls-zlab{ font-size:9px; font-weight:700; color:var(--c-t3); }
+.ls-ruwrap{ flex:1; min-width:0; overflow:hidden; }
+.ls-ruwrap .ls-ruler{ min-width:100%; }
+.ls-laneswrap{ flex:1; min-width:0; overflow-x:auto; overflow-y:hidden; }
+.ls-laneswrap .ls-tl-lanes{ min-width:100%; }
+.ls-marker{ position:absolute; top:0; width:9px; height:11px; transform:translateX(-50%); cursor:grab; z-index:5;
+  background:#f6c945; clip-path:polygon(0 0,100% 0,100% 58%,50% 100%,0 58%); }
+.ls-marker:active{ cursor:grabbing; }
+.ls-mline{ position:absolute; top:0; bottom:0; width:1px; background:color-mix(in srgb,#f6c945 40%,transparent); pointer-events:none; z-index:1; }
+.ls-prog{ position:absolute; left:0; right:0; bottom:0; height:3px; display:none; z-index:8; background:color-mix(in srgb,var(--c-t1) 10%,transparent); }
+.ls-prog.on{ display:block; }
+.ls-prog i{ display:block; height:100%; width:0%; background:var(--acc); transition:width .18s linear; box-shadow:0 0 8px color-mix(in srgb,var(--acc) 70%,transparent); }
+.ls-kftip{ position:fixed; z-index:10000; padding:3px 7px; border-radius:6px; font-size:10px; font-weight:700; pointer-events:none;
+  background:var(--c-panel); border:1px solid var(--c-bd2); color:var(--c-t1); box-shadow:0 6px 18px -6px rgba(0,0,0,.7); }
+.ls-prjrow{ display:flex; gap:6px; margin-top:8px; padding-top:8px; border-top:1px solid var(--c-bd); }
+.ls-prjrow button{ flex:1; font-size:10.5px; font-weight:700; padding:6px 4px; border-radius:7px; cursor:pointer;
+  border:1px solid var(--c-bd); background:var(--c-card); color:var(--c-t2); font-family:inherit; transition:.12s; }
+.ls-prjrow button:hover{ color:var(--c-t1); border-color:var(--c-bd2); }
+.ls-pcard-th{ height:46px; border-radius:7px; background-size:cover; background-position:center; margin-bottom:6px;
+  border:1px solid var(--c-bd); }
+.ls-wa{ position:absolute; top:0; bottom:0; background:color-mix(in srgb,var(--acc) 16%,transparent);
+  border-left:2px solid var(--acc); border-right:2px solid var(--acc); z-index:2; cursor:pointer; }
 .ls-axis .ls-ruler{ flex:1; min-width:0; }
-.ls-scroll{ display:flex; gap:8px; align-items:flex-start; height:120px; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; padding-right:3px; }
+.ls-scroll{ display:flex; gap:8px; align-items:flex-start; height:208px; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; padding-right:3px; }
 .ls-scroll.grabbing{ cursor:grabbing; user-select:none; }
 .ls-scroll::-webkit-scrollbar{ width:8px; }
 .ls-scroll::-webkit-scrollbar-thumb{ background:var(--c-bd2); border-radius:8px; }
@@ -1002,6 +1030,28 @@ body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-
 .ls-kfpop button.warn:hover{ border-color:#e5484d; color:#e5484d; }
 .ls-kfpop .hint{ font-size:9.5px; color:var(--c-t3); line-height:1.5; }
 .ls-kfpop .sec{ font-size:9.5px; font-weight:700; color:var(--c-t3); }
+/* 레이어 이펙트 스택 */
+.ls-fxwrap{ display:flex; flex-direction:column; gap:6px; flex:1; min-width:0; }
+.ls-fxrow{ display:flex; align-items:center; gap:6px; }
+.ls-fxrow select{ flex:none; width:86px; font-size:10.5px; font-weight:600; padding:3px 4px; border-radius:6px;
+  background:var(--c-card); border:1px solid var(--c-bd); color:var(--c-t1); font-family:inherit; }
+.ls-fxrow input[type=range]{ flex:1; min-width:0; }
+.ls-fxx{ flex:none; width:17px; height:17px; display:flex; align-items:center; justify-content:center; border-radius:5px;
+  font-size:12px; color:var(--c-t3); cursor:pointer; border:1px solid var(--c-bd); background:var(--c-card); }
+.ls-fxx:hover{ color:#fff; background:#ff5a3c; border-color:#ff5a3c; }
+.ls-fxadd{ font-size:10.5px; font-weight:700; color:var(--c-t3); background:var(--c-card); border:1px dashed var(--c-bd2);
+  border-radius:7px; padding:6px 8px; cursor:pointer; font-family:inherit; transition:.13s; }
+.ls-fxadd:hover{ color:var(--c-t1); border-color:var(--acc); }
+.ls-fxhint{ font-size:9px; color:var(--c-t3); line-height:1.4; }
+.ls-trrow{ align-items:center; gap:6px; }
+.ls-trrow select{ flex:1; font-size:10.5px; font-weight:600; padding:3px 4px; border-radius:6px;
+  background:var(--c-card); border:1px solid var(--c-bd); color:var(--c-t1); font-family:inherit; }
+.ls-trrow input[type=number]{ flex:none; width:50px; font-size:10.5px; padding:3px 4px; border-radius:6px;
+  background:var(--c-card); border:1px solid var(--c-bd); color:var(--c-t1); font-family:inherit; }
+.ls-trrow em{ font-style:normal; font-size:10px; color:var(--c-t3); }
+.ls-pvlab{ flex:none; font-size:9px; font-weight:700; color:var(--c-t3); align-self:center; margin-left:6px; }
+.ls-durin{ flex:none; width:54px; font-size:10.5px; font-weight:600; padding:3px 4px; border-radius:6px; align-self:center;
+  background:var(--c-card); border:1px solid var(--c-bd); color:var(--c-t1); font-family:inherit; }
 /* 레인 추가 줄 */
 .ls-addrow{ position:relative; margin-top:9px; }
 .ls-addbtn{ display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--c-t3);
@@ -1030,6 +1080,9 @@ body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-
 .ls-acc::-webkit-scrollbar-track{ background:transparent; }
 /* ===== 오브젝트(텍스트 · 이미지 · 스펙트럼) ===== */
 .ls-objcanvas{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:2; }
+.ls-guide{ position:absolute; display:none; z-index:6; pointer-events:none; background:var(--acc); box-shadow:0 0 6px color-mix(in srgb,var(--acc) 60%,transparent); }
+.ls-guide.v{ top:0; bottom:0; width:1px; }
+.ls-guide.h{ left:0; right:0; height:1px; }
 .ls-objlayer{ position:absolute; inset:0; pointer-events:none; z-index:3; }
 .ls-obj{ position:absolute; pointer-events:auto; cursor:move; box-sizing:border-box; touch-action:none; }
 .ls-obj::before{ content:''; position:absolute; inset:0; border:1px solid transparent; border-radius:2px; }
@@ -1061,6 +1114,13 @@ body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-
 .ls-oinline input[type=range]{ flex:1; }
 .ls-oval{ font-size:11.5px; color:var(--c-t2); min-width:34px; text-align:right; font-variant-numeric:tabular-nums; }
 .ls-oseg{ display:flex; gap:4px; }
+.ls-osec{ font-size:9.5px; font-weight:800; letter-spacing:.07em; color:var(--c-t3);
+  margin:6px 0 2px; padding-top:9px; border-top:1px solid var(--c-bd); }
+.ls-opop-h + .ls-osec{ border-top:none; padding-top:0; margin-top:2px; }
+.ls-align button{ font-size:13px; padding:4px 0; line-height:1; }
+.ls-xy{ align-items:center; gap:5px; font-size:10px; color:var(--c-t3); font-weight:700; }
+.ls-xy input{ width:54px; font-size:10.5px; font-weight:600; padding:3px 4px; border-radius:6px;
+  background:var(--c-card); border:1px solid var(--c-bd); color:var(--c-t1); font-family:inherit; }
 .ls-oseg button{ flex:1; padding:6px 0; font-size:12px; border-radius:7px; border:1px solid var(--c-bd);
   background:var(--c-card); color:var(--c-t2); cursor:pointer; font-family:inherit; transition:.12s; }
 .ls-oseg button.on{ background:var(--acc); border-color:var(--acc); color:#fff; }
@@ -4014,6 +4074,12 @@ function createArtwork(){
               <button class="ls-chip on" data-h="1080">1080</button>
               <button class="ls-chip" data-h="1440">1440</button>
               <button class="ls-chip" data-h="2160">2160</button>
+              <span class="ls-pvlab">길이</span>
+              <input type="number" class="ls-durin" id="ls_durin" min="5" max="600" step="5" value="60">
+              <span class="ls-pvlab">초 · 프리뷰</span>
+              <button class="ls-chip on" data-pv="1">100%</button>
+              <button class="ls-chip" data-pv="0.75">75%</button>
+              <button class="ls-chip" data-pv="0.5">50%</button>
             </div>
           </div>
           <div class="ls-menu">
@@ -4021,6 +4087,14 @@ function createArtwork(){
             <div class="ls-pop" id="ls_fps">
               <button class="ls-chip on" data-fps="30">30fps</button>
               <button class="ls-chip" data-fps="60">60fps</button>
+            </div>
+          </div>
+          <div class="ls-menu">
+            <button class="ls-menubtn" data-pop="preset"><span class="ls-mlab">프리셋</span></button>
+            <div class="ls-pop ls-prepop" id="ls_prepop">
+              <div class="ls-saverow"><input id="ls_pname" placeholder="프리셋 이름" maxlength="24"><button id="ls_save">저장</button></div>
+              <div class="ls-presets" id="ls_presets"></div>
+              <div class="ls-prjrow"><button id="ls_prjsave">프로젝트 저장</button><button id="ls_prjload">프로젝트 열기</button></div>
             </div>
           </div>
         </div>
@@ -4034,13 +4108,17 @@ function createArtwork(){
         </div>
         <input type="file" id="ls_file" accept="image/*" hidden>
         <input type="file" id="ls_afile" accept="audio/*" hidden>
+        <input type="file" id="ls_prjfile" accept="application/json,.json" hidden>
       </div>
       <div class="ls-stageWrap">
         <div class="ls-stage" id="ls_stage">
           <canvas id="ls_gl"></canvas>
           <canvas id="ls_obj" class="ls-objcanvas"></canvas>
           <div class="ls-objlayer" id="ls_objlayer"></div>
+          <div class="ls-guide v" id="ls_gv"></div>
+          <div class="ls-guide h" id="ls_gh"></div>
           <div class="ls-recDot" id="ls_recDot"><i></i><span id="ls_recLabel">REC</span></div>
+          <div class="ls-prog" id="ls_prog"><i></i></div>
           <div class="ls-dz">이미지를 놓아 교체</div>
           <div class="ls-toast" id="ls_toast"></div>
         </div>
@@ -4089,11 +4167,6 @@ function createArtwork(){
             <button type="button" class="ls-acchead"><span class="ls-acctitle">사운드 스펙트럼</span><span class="ls-accchev"></span></button>
             <div class="ls-accbody"><div class="ls-objadd"><button type="button" class="ls-objaddbtn" data-add="spectrum">＋ 스펙트럼 추가</button><div class="ls-objlist" id="ls_list_spectrum"></div></div></div>
           </section>
-        </div>
-        <div class="ls-panel ls-panel-preset">
-          <div class="ls-phead">프리셋</div>
-          <div class="ls-saverow"><input id="ls_pname" placeholder="프리셋 이름" maxlength="24"><button id="ls_save">저장</button></div>
-          <div class="ls-presets" id="ls_presets"></div>
         </div>
       </div>
     </div>
@@ -4214,6 +4287,8 @@ void main(){
   // fx 배경을 FBO에 렌더한 뒤, 각 레이어를 ping-pong 블렌드 셰이더로 쌓는다.
   // 블렌드 5종은 전부 셰이더 수식으로 통일 — Phase 4 이펙트 체인이 같은 인프라를 재사용.
   const BLEND_ID={normal:0,add:1,multiply:2,screen:3,overlay:4};
+  const TR_ID={none:0,fade:1,wipe:2,glitch:3};
+  const TR_LABELS={none:'없음',fade:'페이드',wipe:'와이프',glitch:'글리치'};
   const COMP_FS=`#version 300 es
 precision highp float;
 out vec4 frag;
@@ -4221,6 +4296,9 @@ uniform sampler2D uDst, uSrc;
 uniform vec2 uRes, uCenter, uHalf;   // px, GL 좌표(y-up)
 uniform vec2 uRotCS;                 // cos,sin (화면 시계방향 = 2D ctx.rotate와 동일 의미)
 uniform float uOpacity; uniform int uBlend;
+uniform vec3 uTrIn;    // (type: 0없음/1페이드/2와이프/3글리치, progress 0→1, seed) — 등장
+uniform vec3 uTrOut;   // 동일 — 퇴장 (progress는 1→0으로 감소)
+float h31(float n){ return fract(sin(n)*43758.5453); }
 vec3 blendPx(vec3 d, vec3 s, int m){
   if(m==1) return min(d+s,1.0);                            // add
   if(m==2) return d*s;                                     // multiply
@@ -4229,15 +4307,28 @@ vec3 blendPx(vec3 d, vec3 s, int m){
     return vec3(d.r<0.5?lo.r:hi.r, d.g<0.5?lo.g:hi.g, d.b<0.5?lo.b:hi.b); }
   return s;                                                // normal
 }
+float trMask(vec3 tr, float sx, float sl){                 // 페이드/와이프/글리치 플리커의 알파 계수
+  if(tr.y>=1.0||tr.x<0.5) return 1.0;
+  if(tr.x<1.5) return tr.y;                                                  // fade
+  if(tr.x<2.5) return 1.0-smoothstep(tr.y-0.04,tr.y+0.04,sx);               // wipe (좌→우)
+  return mix(step(h31(sl*11.3+tr.z)*0.999,tr.y+0.5),1.0,tr.y);              // glitch 슬라이스 플리커
+}
 void main(){
   vec2 p=gl_FragCoord.xy;
   vec3 dst=texture(uDst,p/uRes).rgb;
   vec2 q=p-uCenter;
   q=vec2(q.x*uRotCS.x-q.y*uRotCS.y, q.x*uRotCS.y+q.y*uRotCS.x);
   vec2 suv=q/(2.0*uHalf)+0.5;
+  float sl=floor(suv.y*22.0);
+  if(uTrIn.x>2.5&&uTrIn.y<1.0){ float g=1.0-uTrIn.y;       // glitch 수평 슬라이스 변위 (샘플 전)
+    suv.x+=(h31(sl*7.31+uTrIn.z)-0.5)*0.5*g*step(0.35,h31(sl*3.77+uTrIn.z+9.0)); }
+  if(uTrOut.x>2.5&&uTrOut.y<1.0){ float g=1.0-uTrOut.y;
+    suv.x+=(h31(sl*5.17+uTrOut.z+3.0)-0.5)*0.5*g*step(0.35,h31(sl*2.93+uTrOut.z+17.0)); }
   vec4 src=vec4(0.0);
   if(suv.x>=0.0&&suv.x<=1.0&&suv.y>=0.0&&suv.y<=1.0) src=texture(uSrc,vec2(suv.x,1.0-suv.y));
   float a=clamp(src.a*uOpacity,0.0,1.0);
+  a*=trMask(uTrIn,suv.x,sl);
+  a*=trMask(uTrOut,suv.x,sl);
   frag=vec4(mix(dst, blendPx(dst,clamp(src.rgb,0.0,1.0),uBlend), a),1.0);
 }`;
   const COPY_FS=`#version 300 es
@@ -4249,7 +4340,7 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
     if(!gl.getProgramParameter(p2,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p2)); return p2; }
   try{
     compProg=mkProg(COMP_FS);
-    ['uDst','uSrc','uRes','uCenter','uHalf','uRotCS','uOpacity','uBlend'].forEach(n=>cuni[n]=gl.getUniformLocation(compProg,n));
+    ['uDst','uSrc','uRes','uCenter','uHalf','uRotCS','uOpacity','uBlend','uTrIn','uTrOut'].forEach(n=>cuni[n]=gl.getUniformLocation(compProg,n));
     copyProg=mkProg(COPY_FS); copyUni.t=gl.getUniformLocation(copyProg,'uT'); copyUni.r=gl.getUniformLocation(copyProg,'uRes2');
   }catch(e){ compProg=null; copyProg=null; }   // 컴포지터 실패 시 fx 단독 렌더로 동작(레이어 미표시)
 
@@ -4280,7 +4371,7 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
     gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR); return t2; }
   function layerContentKey(o,W,H){
-    if(o.type==='text') return 't|'+o.text+'|'+o.font+'|'+(o.bold?1:0)+'|'+o.color+'|'+o.align+'|'+o.size+'|'+W+'x'+H+'|'+(o.w||0).toFixed(4)+'|'+(o.h||0).toFixed(4);
+    if(o.type==='text') return 't|'+o.text+'|'+o.font+'|'+(o.bold?1:0)+'|'+o.color+'|'+o.align+'|'+o.size+'|'+(o.lsp||0)+'|'+W+'x'+H+'|'+(o.w||0).toFixed(4)+'|'+(o.h||0).toFixed(4);
     if(o.type==='image') return 'i|'+(o.src?(o.src.length+'|'+o.src.slice(0,64)):'live');
     return 's';
   }
@@ -4290,6 +4381,7 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
     cv.width=pw; cv.height=phh; ctx.clearRect(0,0,pw,phh);
     const px=o.size*(H/1080)*SS;
     ctx.font=(o.bold?'700 ':'400 ')+px+'px '+(OFONTS[o.font]||OFONTS.sans);
+    try{ ctx.letterSpacing=((o.lsp||0)*px)+'px'; }catch(e){}
     ctx.fillStyle=o.color; ctx.textBaseline='middle'; ctx.textAlign=o.align;
     const lines=(o.text||'').split('\n'), lh=px*1.25;
     const x0=(o.align==='left')?px*0.35:(o.align==='right'?pw-px*0.35:pw/2);
@@ -4304,31 +4396,124 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
     const sr=ovrFreq?48000:((audioCtx&&audioCtx.sampleRate)||44100), binHz=sr/(ovrFreq?1024:((analyser&&analyser.fftSize)||1024));
     const bars=Math.max(8,Math.min(72,o.bars||44));
     const loB=Math.max(1,Math.floor(o.freqLo/binHz)), hiB=Math.max(loB+1,Math.floor(o.freqHi/binHz));
-    ctx.fillStyle=o.color; const bw=pw/bars;
+    const bw=pw/bars; const vv=new Array(bars);
     for(let i=0;i<bars;i++){ let v=0;
       if(haveA){ const a2=loB+Math.floor((hiB-loB)*i/bars), b2=loB+Math.floor((hiB-loB)*(i+1)/bars); let s=0,c2=0;
         for(let k=a2;k<=b2&&k<FD.length;k++){ s+=FD[k]; c2++; } v=c2?(s/c2)/255:0; }
-      const bh=Math.max(2,v*phh); ctx.fillRect(i*bw+bw*0.15,phh-bh,bw*0.7,bh); }
+      vv[i]=v; }
+    ctx.fillStyle=o.color; ctx.strokeStyle=o.color;
+    const styl=o.sstyle||'bars';
+    if(styl==='line'){ ctx.lineWidth=Math.max(1.5,phh*0.03); ctx.lineJoin='round'; ctx.lineCap='round'; ctx.beginPath();
+      vv.forEach((v,i)=>{ const x=(i+0.5)*bw, y=phh-Math.max(2,v*phh*0.94)-phh*0.03; if(i)ctx.lineTo(x,y); else ctx.moveTo(x,y); }); ctx.stroke(); }
+    else if(styl==='dots'){ const r2=Math.max(1.5,Math.min(bw*0.3,phh*0.05));
+      vv.forEach((v,i)=>{ ctx.beginPath(); ctx.arc((i+0.5)*bw, phh-Math.max(r2+1,v*phh*0.92), r2,0,6.2832); ctx.fill(); }); }
+    else if(styl==='mirror'){ vv.forEach((v,i)=>{ const bh=Math.max(1,v*phh*0.48); ctx.fillRect(i*bw+bw*0.15, phh/2-bh, bw*0.7, bh*2); }); }
+    else { vv.forEach((v,i)=>{ const bh=Math.max(2,v*phh); ctx.fillRect(i*bw+bw*0.15,phh-bh,bw*0.7,bh); }); }
   }
   function getLayerTexture(o,W,H){
-    let e=layerTexCache.get(o.id); if(!e){ e={tex:mkLayerTex(),key:null}; layerTexCache.set(o.id,e); }
+    let e=layerTexCache.get(o.id); if(!e){ e={tex:mkLayerTex(),key:null,w:2,h:2}; layerTexCache.set(o.id,e); }
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);
     if(o.type==='image'){
       if(!(o.img&&o.img.complete&&o.img.naturalWidth)) return null;
       const key=layerContentKey(o,W,H);
-      if(e.key!==key){ gl.bindTexture(gl.TEXTURE_2D,e.tex); gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,o.img); e.key=key; }
-      return e.tex;
+      if(e.key!==key){ gl.bindTexture(gl.TEXTURE_2D,e.tex); gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,o.img); e.key=key; e.w=o.img.naturalWidth; e.h=o.img.naturalHeight; }
+      return e;
     }
     if(!scratch){ scratch=document.createElement('canvas'); scratchCtx=scratch.getContext('2d'); }
     if(o.type==='spectrum'){ rasterSpectrum(o,W,H,scratch,scratchCtx);
-      gl.bindTexture(gl.TEXTURE_2D,e.tex); gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,scratch); e.key='s'; return e.tex; }
+      gl.bindTexture(gl.TEXTURE_2D,e.tex); gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,scratch); e.key='s'; e.w=scratch.width; e.h=scratch.height; return e; }
     const key=layerContentKey(o,W,H);
     if(e.key!==key){ rasterText(o,W,H,scratch,scratchCtx);
-      gl.bindTexture(gl.TEXTURE_2D,e.tex); gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,scratch); e.key=key; }
-    return e.tex;
+      gl.bindTexture(gl.TEXTURE_2D,e.tex); gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,scratch); e.key=key; e.w=scratch.width; e.h=scratch.height; }
+    return e;
   }
-  function layerVisible(o,t){ const ti=o.tIn||0, to=(o.tOut===undefined||o.tOut===null)?FLOW:o.tOut; return t>=ti && t<to; }
+  function layerVisible(o,t){ const ti=o.tIn||0, to=(o.tOut===undefined||o.tOut===null)?projDur():o.tOut; return t>=ti && t<to; }
+
+  // ===== 레이어 이펙트 스택 (Phase 4a) =====
+  // 레이어 텍스처 → 이펙트 체인(ping-pong) → 합성. 각 이펙트 amount는 obj{id}_fx{i} 키로 키프레임 가능.
+  const FX_ID={blur:0,glow:1,pixelate:2,chroma:3,mono:4};
+  const FX_LABELS={blur:'블러',glow:'글로우',pixelate:'픽셀레이트',chroma:'색수차',mono:'모노'};
+  const FX_FS=`#version 300 es
+precision highp float;
+out vec4 frag;
+uniform sampler2D uSrc; uniform vec2 uSize; uniform float uAmt; uniform int uFxType;
+void main(){
+  vec2 uv=gl_FragCoord.xy/uSize;
+  vec4 c=texture(uSrc,uv);
+  if(uFxType==0||uFxType==1){                       // blur / glow (17탭 2링)
+    float r=uAmt*0.05;
+    vec4 acc=c*2.0; float tw=2.0;
+    for(int i=0;i<8;i++){ float a=float(i)*0.7853982;
+      acc+=texture(uSrc,uv+vec2(cos(a),sin(a))*(r*0.55)); tw+=1.0; }
+    for(int i=0;i<8;i++){ float a=(float(i)+0.5)*0.7853982;
+      acc+=texture(uSrc,uv+vec2(cos(a),sin(a))*r); tw+=1.0; }
+    acc/=tw;
+    if(uFxType==0){ frag=acc; return; }
+    frag=vec4(c.rgb+max(acc.rgb-vec3(0.45),vec3(0.0))*(uAmt*1.6), clamp(max(c.a,acc.a*uAmt),0.0,1.0)); return;
+  }
+  if(uFxType==2){                                    // pixelate
+    float n=mix(160.0,6.0,clamp(uAmt,0.0,1.0));
+    vec2 g=vec2(n, max(2.0, n*uSize.y/uSize.x));
+    frag=texture(uSrc,(floor(uv*g)+0.5)/g); return;
+  }
+  if(uFxType==3){                                    // chroma (방사형 색수차)
+    vec2 d=(uv-0.5)*uAmt*0.08;
+    frag=vec4(texture(uSrc,uv+d).r, c.g, texture(uSrc,uv-d).b, c.a); return;
+  }
+  float g=dot(c.rgb,vec3(0.299,0.587,0.114));        // mono
+  frag=vec4(mix(c.rgb,vec3(g),clamp(uAmt,0.0,1.0)),c.a);
+}`;
+  let fxProg=null,funi={};
+  try{ fxProg=mkProg(FX_FS); ['uSrc','uSize','uAmt','uFxType'].forEach(n=>funi[n]=gl.getUniformLocation(fxProg,n)); }
+  catch(e){ fxProg=null; }                            // 실패 시 이펙트 미적용(레이어는 원본 그대로 합성)
+  const fxFbos=[null,null], fxTex=[null,null]; let fxW=0,fxH=0;
+  function ensureFxFbos(w,h){
+    if(fxW===w&&fxH===h&&fxFbos[0])return;
+    for(let i=0;i<2;i++){
+      if(!fxTex[i])fxTex[i]=gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D,fxTex[i]);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);
+      gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,w,h,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
+      if(!fxFbos[i])fxFbos[i]=gl.createFramebuffer();
+      gl.bindFramebuffer(gl.FRAMEBUFFER,fxFbos[i]);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,fxTex[i],0);
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null); fxW=w; fxH=h;
+  }
+  function fxAmount(o,i,tSec){ const key='obj'+o.id+'_fx'+i; const a2=auto[key];
+    const v=(a2&&a2.on&&a2.pts&&a2.pts.length)?autoVal(key,tSec):(+o.fx[i].amount||0);
+    return Math.max(0,Math.min(1,v)); }
+  function applyLayerFx(o,srcTex,w,h,tSec){
+    if(!fxProg||!o.fx||!o.fx.length) return srcTex;
+    ensureFxFbos(w,h);
+    let cur=srcTex, idx=0;
+    for(let i=0;i<o.fx.length;i++){ const f=o.fx[i]; if(!f||FX_ID[f.type]===undefined) continue;
+      const amt=fxAmount(o,i,tSec); if(amt<=0.001) continue;
+      gl.bindFramebuffer(gl.FRAMEBUFFER,fxFbos[idx]); gl.viewport(0,0,w,h);
+      gl.useProgram(fxProg);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,cur); gl.uniform1i(funi.uSrc,0);
+      gl.uniform2f(funi.uSize,w,h); gl.uniform1f(funi.uAmt,amt); gl.uniform1i(funi.uFxType,FX_ID[f.type]);
+      gl.drawArrays(gl.TRIANGLES,0,3);
+      cur=fxTex[idx]; idx=1-idx;
+    }
+    return cur;
+  }
   // 레이어 클립 드래그 수학 (순수 함수 — 단위 테스트 대상): mode='move'|'in'|'out'
+  // 스마트 스냅 타깃 (순수 함수 — 단위 테스트 대상): [붙는 중심좌표, 가이드 표시 위치] 쌍.
+  // 스테이지 중앙/가장자리 + 다른 레이어의 중심·좌우(상하)변 정렬을 피그마식으로 계산.
+  function buildSnapTargets(o,list){
+    const xt=[[0.5,0.5],[o.w/2,0],[1-o.w/2,1]];
+    const yt=[[0.5,0.5],[o.h/2,0],[1-o.h/2,1]];
+    (list||[]).forEach(q=>{ if(!q||q.id===o.id)return;
+      xt.push([q.x,q.x],[q.x-q.w/2+o.w/2,q.x-q.w/2],[q.x+q.w/2-o.w/2,q.x+q.w/2]);
+      yt.push([q.y,q.y],[q.y-q.h/2+o.h/2,q.y-q.h/2],[q.y+q.h/2-o.h/2,q.y+q.h/2]);
+    });
+    return {xt,yt};
+  }
   function layerClipMath(mode,in0,out0,dt,total){
     const MINL=0.2; let a=in0,b=out0;
     if(mode==='move'){ const len=out0-in0; a=Math.max(0,Math.min(total-len,in0+dt)); b=a+len; }
@@ -4340,11 +4525,11 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
     const start=mode=>ev=>{ ev.preventDefault(); ev.stopPropagation(); dragLock(true);
       const rect=lane.getBoundingClientRect();
       const x0=(ev.touches?ev.touches[0].clientX:ev.clientX);
-      const in0=o.tIn||0, out0=(o.tOut===undefined||o.tOut===null)?FLOW:o.tOut;
+      const in0=o.tIn||0, out0=(o.tOut===undefined||o.tOut===null)?projDur():o.tOut;
       const move=e=>{ const x=(e.touches?e.touches[0].clientX:e.clientX);
-        const dt=(x-x0)/Math.max(1,rect.width)*FLOW;
-        const r=layerClipMath(mode,in0,out0,dt,FLOW); o.tIn=r[0]; o.tOut=r[1]; place(); };
-      const up=()=>{ dragLock(false); window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); };
+        const dt=(x-x0)/Math.max(1,rect.width)*projDur();
+        const r=layerClipMath(mode,in0,out0,dt,projDur()); o.tIn=r[0]; o.tOut=r[1]; place(); };
+      const up=()=>{ dragLock(false); window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); scheduleUndoCommit(); };
       window.addEventListener('pointermove',move); window.addEventListener('pointerup',up); };
     clip.addEventListener('pointerdown',start('move'));
     clip.querySelector('.ls-clip-th.l').addEventListener('pointerdown',start('in'));
@@ -4354,7 +4539,8 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
     const W=canvas.width,Hh=canvas.height; let cur=0;
     for(const o of objs){
       if(!layerVisible(o,tSec)) continue;
-      const stx=getLayerTexture(o,W,Hh); if(!stx) continue;
+      const ent=getLayerTexture(o,W,Hh); if(!ent) continue;
+      const stx=applyLayerFx(o,ent.tex,ent.w,ent.h,tSec);
       const ka='obj'+o.id+'_'; const an=(pk,d)=>{ const a2=auto[ka+pk]; return (a2&&a2.on&&a2.pts&&a2.pts.length)?autoVal(ka+pk,tSec):d; };
       const opacity=Math.max(0,Math.min(1,an('opacity',o.opacity)));
       const ox=an('x',o.x), oy=an('y',o.y), orot=an('rot',o.rot||0), oscale=an('scale',1);
@@ -4369,6 +4555,12 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
       const rad=(orot||0)*Math.PI/180; gl.uniform2f(cuni.uRotCS,Math.cos(rad),Math.sin(rad));
       gl.uniform1f(cuni.uOpacity,opacity);
       gl.uniform1i(cuni.uBlend,BLEND_ID[o.blend]||0);
+      { const ti=o.tIn||0, to2=(o.tOut===undefined||o.tOut===null)?projDur():o.tOut;
+        let ta=[0,1,0], tb=[0,1,0];
+        if(o.trIn&&TR_ID[o.trIn.type]>0&&+o.trIn.dur>0) ta=[TR_ID[o.trIn.type],Math.max(0,Math.min(1,(tSec-ti)/+o.trIn.dur)),detSeed(tSec)];
+        if(o.trOut&&TR_ID[o.trOut.type]>0&&+o.trOut.dur>0) tb=[TR_ID[o.trOut.type],Math.max(0,Math.min(1,(to2-tSec)/+o.trOut.dur)),detSeed(tSec)+31.7];
+        gl.uniform3f(cuni.uTrIn,ta[0],ta[1],ta[2]);
+        gl.uniform3f(cuni.uTrOut,tb[0],tb[1],tb[2]); }
       gl.drawArrays(gl.TRIANGLES,0,3);
       cur=nxt;
     }
@@ -4393,7 +4585,78 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
   function captureVals(){ const o={}; KEYS.forEach(k=>o[k]=st[k]); return o; }
 
   // ===== 멀티트랙 오디오 엔진 (AudioBuffer 정밀 스케줄 + 크로스페이드) =====
-  const MAXTR=3; const FLOW=60;
+  const MAXTR=3; const FLOW=60;   // FLOW = fx 배경 루프 주기(고정 60s). 프로젝트 길이는 st.dur(projDur)로 분리.
+  function projDur(){ return Math.max(5,Math.min(600,(st&&st.dur)||60)); }
+  let tlZoom=1;  // 타임라인 가로 줌 (1~8×)
+  let markers=[];              // 타임라인 마커(초). 룰러 더블클릭/M키 추가, 드래그 이동, 더블클릭 삭제
+  let waIn=null, waOut=null;   // 렌더 구간(work area). I/O 키로 지정 — 지정 시 해당 구간만 내보냄
+
+  // ===== 실행취소 (Ctrl+Z / Ctrl+Shift+Z·Ctrl+Y) =====
+  // 스냅샷 스택. 이미지 dataURL은 사이드테이블로 분리해 스택 메모리 폭증 방지.
+  // 오디오 트랙은 배치 메타(startAt/트림/페이드)만 — 버퍼 추가·삭제 자체는 되돌리지 않음.
+  const UNDO_MAX=50;
+  let _hist=[], _hi=-1, _undoApplying=false, _undoTimer=null;
+  const _imgSrcs={};
+  function _snapObjs(){ return captureObjs().map(c=>{ if(c.type==='image'&&c.src){ _imgSrcs[c.id]=c.src; const d=Object.assign({},c); d.src='@img:'+c.id; return d; } return c; }); }
+  function _restObjs(arr){ return (arr||[]).map(c=>{ if(c.type==='image'&&typeof c.src==='string'&&c.src.indexOf('@img:')===0){ const d=Object.assign({},c); d.src=_imgSrcs[+c.src.slice(5)]||''; return d; } return c; }); }
+  function _snapshot(){ return JSON.stringify({
+    vals:captureVals(), auto:captureAuto(), objs:_snapObjs(),
+    dur:st.dur||60, markers:markers.slice(), waIn:waIn, waOut:waOut,
+    trk:tracks.map(t=>({id:t.id,startAt:t.startAt,trimStart:t.trimStart,trimEnd:t.trimEnd,fadeIn:t.fadeIn||0,fadeOut:t.fadeOut||0})) }); }
+  function undoCommit(){ if(_undoApplying)return;
+    try{ const snap=_snapshot(); if(_hi>=0&&_hist[_hi]===snap)return;
+      _hist.splice(_hi+1); _hist.push(snap); if(_hist.length>UNDO_MAX)_hist.shift(); _hi=_hist.length-1; }catch(e){} }
+  function scheduleUndoCommit(){ if(_undoApplying)return; clearTimeout(_undoTimer); _undoTimer=setTimeout(undoCommit,400); }
+  function _undoApply(snap){ _undoApplying=true;
+    try{ const s2=JSON.parse(snap);
+      st.dur=s2.dur; const durEl=Q('#ls_durin'); if(durEl)durEl.value=Math.round(s2.dur);
+      markers=(s2.markers||[]).slice(); waIn=s2.waIn; waOut=s2.waOut;
+      applyVals(s2.vals||{});
+      applyObjs(_restObjs(s2.objs));
+      applyAuto(s2.auto||{});
+      (s2.trk||[]).forEach(m=>{ const t=tracks.find(x=>x.id===m.id); if(t){ t.startAt=m.startAt; t.trimStart=m.trimStart; t.trimEnd=m.trimEnd; t.fadeIn=m.fadeIn; t.fadeOut=m.fadeOut; } });
+      renderTimeline(); refreshObjs();
+    }catch(e){}
+    _undoApplying=false; }
+  function doUndo(){ clearTimeout(_undoTimer); undoCommit();
+    if(_hi<=0){ showError('되돌릴 작업이 없어요.'); return; }
+    _hi--; _undoApply(_hist[_hi]); showError('실행취소 ('+(_hi+1)+'/'+_hist.length+')'); }
+  function doRedo(){ if(_hi>=_hist.length-1){ showError('다시 실행할 작업이 없어요.'); return; }
+    _hi++; _undoApply(_hist[_hi]); showError('다시 실행 ('+(_hi+1)+'/'+_hist.length+')'); }
+  setTimeout(()=>{ try{undoCommit();}catch(e){} },300);   // 초기 상태 스냅샷
+  setTimeout(()=>{ const acc=root.querySelector('#ls_acc'); if(acc)acc.addEventListener('input',scheduleUndoCommit);
+    document.addEventListener('input',e=>{ if(e.target&&e.target.closest&&e.target.closest('.ls-opop'))scheduleUndoCommit(); }); },0);
+
+  // ===== 프로젝트 파일 저장/열기 (.json) =====
+  // 비주얼 전체(레이어·키프레임·이펙트·전환·길이·마커·구간·파라미터) 포함.
+  // 오디오 파형 데이터는 용량 문제로 제외 — 배치 메타만 기록, 열 때 파일 재추가 안내.
+  function exportProject(){
+    const o={ app:'dinure-artwork', ver:1, saved:new Date().toISOString(),
+      dur:st.dur||60, ar:st.ar, outH:st.outH, fps:st.fps,
+      markers:markers.slice(), waIn:waIn, waOut:waOut,
+      vals:captureVals(), auto:captureAuto(), objs:captureObjs(),
+      trk:tracks.map(t=>({name:t.name,startAt:t.startAt,trimStart:t.trimStart,trimEnd:t.trimEnd,fadeIn:t.fadeIn||0,fadeOut:t.fadeOut||0})) };
+    const blob=new Blob([JSON.stringify(o)],{type:'application/json'});
+    const url=URL.createObjectURL(blob); const a=document.createElement('a');
+    const stamp=new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+    a.href=url; a.download='dinure_artwork_project_'+stamp+'.json'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>{ try{URL.revokeObjectURL(url);}catch(e){} },4000);
+    showError('프로젝트를 저장했어요. (오디오 파일은 별도 보관하세요)');
+  }
+  function importProject(file){
+    const rd=new FileReader();
+    rd.onload=()=>{ try{ const o=JSON.parse(rd.result);
+        if(!o||o.app!=='dinure-artwork'){ showError('이 앱의 프로젝트 파일이 아니에요.'); return; }
+        st.dur=Math.max(5,Math.min(600,+o.dur||60)); const durEl=Q('#ls_durin'); if(durEl)durEl.value=Math.round(st.dur);
+        markers=Array.isArray(o.markers)?o.markers.filter(n=>isFinite(+n)).map(Number):[];
+        waIn=(o.waIn==null?null:+o.waIn); waOut=(o.waOut==null?null:+o.waOut);
+        if(o.vals)applyVals(o.vals);
+        applyObjs(o.objs); applyAuto(o.auto||{});
+        renderTimeline(); undoCommit();
+        showError('프로젝트를 불러왔어요.'+(o.trk&&o.trk.length?' 오디오 트랙('+o.trk.length+'개)은 파일을 다시 추가해 주세요.':''));
+      }catch(e){ showError('프로젝트 파일을 읽지 못했어요.'); } };
+    rd.readAsText(file);
+  }
   let audioCtx=null,masterGain=null,analyser=null,audioDest=null,freqData=null;
   let fastLv=0, slowLv=0;
   let prevLow=null, kickEnv=0, fluxAvg=0, kickRefr=0;
@@ -4411,11 +4674,11 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
   }
   function hasAudio(){ return tracks.length>0; }
   function clipLen(t){ return Math.max(0.05,(t.trimEnd-t.trimStart)); }
-  function totalDur(){ return FLOW; }
+  function totalDur(){ return projDur(); }
   function stopSources(){ activeSrc.forEach(o=>{ try{o.src.onended=null;o.src.stop();}catch(e){} try{o.src.disconnect();o.g.disconnect();}catch(e){} }); activeSrc=[]; }
   function scheduleFrom(fromT,forRecord){
     if(!audioCtx||!tracks.length)return; stopSources();
-    const now=audioCtx.currentTime+0.06; const total=FLOW; const tlToCtx=tl=> now+(tl-fromT);
+    const now=audioCtx.currentTime+0.06; const total=projDur(); const tlToCtx=tl=> now+(tl-fromT);
     try{ masterGain.gain.cancelScheduledValues(now); masterGain.gain.setValueAtTime(1,now); }catch(e){}
     // 각 클립: 자기 위치(startAt)에서 재생 + 트랙별 페이드, 동시 구간은 믹스
     tracks.forEach(t=>{ const cl=clipLen(t); const tlStart=t.startAt, tlEnd=Math.min(total,tlStart+cl);
@@ -4451,8 +4714,8 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
     try{
       const ab=await file.arrayBuffer();
       const buf=await audioCtx.decodeAudioData(ab.slice(0));
-      let region={start:0,end:Math.min(buf.duration,FLOW)};
-      if(buf.duration>FLOW+0.05){ const r=await pickRegion(buf,file.name||'음원'); if(!r){ return; } region=r; }
+      let region={start:0,end:Math.min(buf.duration,projDur())};
+      if(buf.duration>projDur()+0.05){ const r=await pickRegion(buf,file.name||'음원'); if(!r){ return; } region=r; }
       tracks.push({id:'t'+(++_tid), name:file.name||('트랙 '+(tracks.length+1)), buffer:buf, trimStart:region.start, trimEnd:region.end, startAt:0, fadeIn:0, fadeOut:0});
       renderTimeline();
       if(playing) startTimeline(tlPlaying?Math.min(timelineTime(),totalDur()):tlFromT);
@@ -4514,6 +4777,7 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
     if(!presets.length){ const e=document.createElement('div'); e.className='ls-emptybox'; e.textContent='저장된 프리셋이 없어요. 위에 이름을 적고 저장하면 여기에 쌓입니다.'; box.appendChild(e); return; }
     presets.forEach((p,i)=>{
       const card=document.createElement('div'); card.className='ls-pcard';
+      if(p.thumb){ const th=document.createElement('div'); th.className='ls-pcard-th'; th.style.backgroundImage='url("'+p.thumb+'")'; card.appendChild(th); }
       const nm=document.createElement('div'); nm.className='ls-pcard-name'; nm.textContent=p.name; nm.title=p.name;
       const del=document.createElement('div'); del.className='ls-pcard-del'; del.textContent='×'; del.title='삭제';
       card.appendChild(nm); card.appendChild(del);
@@ -4521,7 +4785,15 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
       box.appendChild(card);
     });
   }
-  Q('#ls_save').addEventListener('click',()=>{ const inp=Q('#ls_pname'); let name=(inp.value||'').trim(); if(!name)name='프리셋 '+(presets.length+1); presets.unshift({name,vals:captureVals(),auto:captureAuto(),objs:captureObjs()}); inp.value=''; persistPresets(); renderPresets(); });
+  Q('#ls_prjsave').addEventListener('click',exportProject);
+  Q('#ls_prjload').addEventListener('click',()=>Q('#ls_prjfile').click());
+  Q('#ls_prjfile').addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; if(f)importProject(f); e.target.value=''; });
+  function presetThumb(){ try{ if(!canvas.width)return null;
+    const w=96, h2=Math.max(2,Math.round(96*(canvas.height/Math.max(1,canvas.width))));
+    const c2=document.createElement('canvas'); c2.width=w; c2.height=h2;
+    c2.getContext('2d').drawImage(canvas,0,0,w,h2);
+    return c2.toDataURL('image/jpeg',0.55); }catch(e){ return null; } }
+  Q('#ls_save').addEventListener('click',()=>{ const inp=Q('#ls_pname'); let name=(inp.value||'').trim(); if(!name)name='프리셋 '+(presets.length+1); presets.unshift({name,vals:captureVals(),auto:captureAuto(),objs:captureObjs(),thumb:presetThumb()}); inp.value=''; persistPresets(); renderPresets(); });
   Q('#ls_pname').addEventListener('keydown',e=>{ if(e.key==='Enter')Q('#ls_save').click(); });
   loadPresets();
 
@@ -4554,6 +4826,7 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
   function measureText(o){
     const W=canvas.width||1080, H=canvas.height||1920, px=o.size*(H/1080);
     objCtx.save(); objCtx.font=(o.bold?'700 ':'400 ')+px+'px '+(OFONTS[o.font]||OFONTS.sans);
+    try{ objCtx.letterSpacing=((o.lsp||0)*px)+'px'; }catch(e){}
     const lines=(o.text||' ').split('\n'); let mw=0; lines.forEach(t=>{ mw=Math.max(mw,objCtx.measureText(t||' ').width); });
     objCtx.restore(); const pad=px*0.35;
     o.w=Math.min(1,(mw+pad*2)/W); o.h=Math.min(1,(lines.length*px*1.25+pad)/H);
@@ -4582,9 +4855,14 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
         x.addEventListener('click',ev=>{ ev.stopPropagation(); delObj(o.id); });
       }); });
   }
-  function refreshObjs(){ renderObjLayer(); renderObjList(); }
+  function refreshObjs(){ renderObjLayer(); renderObjList(); scheduleUndoCommit(); }
   function selectObj(id){ selId=id; refreshObjs(); }
-  function syncLayerTracks(){ try{ if(typeof renderTimeline==='function') renderTimeline(); }catch(e){} }
+  function syncLayerTracks(){ try{ if(typeof renderTimeline==='function') renderTimeline(); }catch(e){} scheduleUndoCommit(); }
+  function dupObj(id){ const o=findObj(id); if(!o)return;
+    const c=JSON.parse(JSON.stringify(Object.assign({},o,{img:undefined})));
+    c.id=objSeq++; c.x=clamp01((o.x||0.5)+0.03); c.y=clamp01((o.y||0.5)+0.03);
+    if(o.type==='image'){ c.src=o.src; c.img=o.img; }   // 동일 이미지 참조 재사용(텍스처는 id별 캐시)
+    objs.push(c); selectObj(c.id); syncLayerTracks(); showError('레이어를 복제했어요 (Ctrl+D).'); }
   function delObj(id){ objs=objs.filter(o=>o.id!==id); const e=layerTexCache.get(id); if(e){ try{gl.deleteTexture(e.tex);}catch(err){} layerTexCache.delete(id); } if(selId===id){ selId=null; closePop(); } refreshObjs(); syncLayerTracks(); }
 
   function addText(){ const o={id:objSeq++,type:'text',x:.5,y:.5,rot:0,opacity:1,text:'텍스트',size:72,font:'sans',align:'center',color:'#ffffff',bold:true,w:.3,h:.1};
@@ -4606,17 +4884,23 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
   function captureObjs(){ return objs.map(o=>{ const c={id:o.id,type:o.type,x:o.x,y:o.y,w:o.w,h:o.h,rot:o.rot||0,opacity:o.opacity};
     if(o.blend&&o.blend!=='normal'&&BLEND_ID[o.blend]!==undefined) c.blend=o.blend;
     if(o.tIn>0) c.tIn=o.tIn;
-    if(o.tOut!==undefined&&o.tOut!==null&&o.tOut<FLOW) c.tOut=o.tOut;
-    if(o.type==='text') Object.assign(c,{text:o.text,size:o.size,font:o.font,align:o.align,color:o.color,bold:o.bold});
+    if(o.tOut!==undefined&&o.tOut!==null&&o.tOut<projDur()) c.tOut=o.tOut;
+    if(Array.isArray(o.fx)&&o.fx.length) c.fx=o.fx.filter(f=>f&&FX_ID[f.type]!==undefined).map(f=>({type:f.type,amount:Math.max(0,Math.min(1,+f.amount||0))}));
+    if(o.trIn&&TR_ID[o.trIn.type]>0) c.trIn={type:o.trIn.type,dur:Math.max(0.1,Math.min(10,+o.trIn.dur||0.6))};
+    if(o.trOut&&TR_ID[o.trOut.type]>0) c.trOut={type:o.trOut.type,dur:Math.max(0.1,Math.min(10,+o.trOut.dur||0.6))};
+    if(o.type==='text') Object.assign(c,{text:o.text,size:o.size,font:o.font,align:o.align,color:o.color,bold:o.bold,lsp:o.lsp||0});
     else if(o.type==='image') c.src=o.src;
-    else if(o.type==='spectrum') Object.assign(c,{color:o.color,freqLo:o.freqLo,freqHi:o.freqHi,bars:o.bars});
+    else if(o.type==='spectrum') Object.assign(c,{color:o.color,freqLo:o.freqLo,freqHi:o.freqHi,bars:o.bars,sstyle:o.sstyle||'bars'});
     return c; }); }
   function applyObjs(arr){ if(!Array.isArray(arr)) return;   // 오브젝트 정보 없는 구버전 프리셋은 현재 오브젝트 유지
     objs=[]; selId=null; closePop(); layerTexCache.clear();
     arr.forEach(c=>{ const o=Object.assign({},c); o.rot=o.rot||0;
       o.blend=(o.blend&&BLEND_ID[o.blend]!==undefined)?o.blend:'normal';
-      o.tIn=Math.max(0,Math.min(FLOW,+o.tIn||0));
-      o.tOut=(o.tOut===undefined||o.tOut===null||!isFinite(+o.tOut))?FLOW:Math.max(o.tIn+0.1,Math.min(FLOW,+o.tOut));
+      o.tIn=Math.max(0,Math.min(projDur(),+o.tIn||0));
+      o.tOut=(o.tOut===undefined||o.tOut===null||!isFinite(+o.tOut))?projDur():Math.max(o.tIn+0.1,Math.min(projDur(),+o.tOut));
+      o.fx=Array.isArray(o.fx)?o.fx.filter(f=>f&&FX_ID[f.type]!==undefined).map(f=>({type:f.type,amount:Math.max(0,Math.min(1,+f.amount||0))})).slice(0,6):[];
+      o.trIn=(o.trIn&&TR_ID[o.trIn.type]>0)?{type:o.trIn.type,dur:Math.max(0.1,Math.min(10,+o.trIn.dur||0.6))}:null;
+      o.trOut=(o.trOut&&TR_ID[o.trOut.type]>0)?{type:o.trOut.type,dur:Math.max(0.1,Math.min(10,+o.trOut.dur||0.6))}:null;
       if(o.type==='image'&&o.src){ o.img=new Image(); o.img.onload=()=>refreshObjs(); o.img.src=o.src; }
       objs.push(o); objSeq=Math.max(objSeq,(o.id||0)+1); });
     refreshObjs(); syncLayerTracks(); }
@@ -4636,12 +4920,23 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
 
   function openPop(id){ const o=findObj(id); if(!o)return; const p=ensurePop(); let h='';
     h+='<div class="ls-opop-h"><span>'+objName(o)+' 설정</span><span class="ls-opop-x" data-x>×</span></div>';
+    // ── 배치 (피그마 인스펙터 문법: 정렬 6종 + 좌표 숫자 입력) ──
+    h+='<div class="ls-osec">배치</div>';
+    h+='<div class="ls-orow"><span>정렬</span><div class="ls-oseg ls-align" style="flex:1">'+
+       [['l','⇤','왼쪽 정렬'],['ch','↔','가로 중앙'],['r','⇥','오른쪽 정렬'],['t','⤒','위 정렬'],['cv','↕','세로 중앙'],['b','⤓','아래 정렬']]
+       .map(a=>'<button data-al="'+a[0]+'" title="'+a[2]+'">'+a[1]+'</button>').join('')+'</div></div>';
+    h+='<div class="ls-orow"><span>위치</span><div class="ls-oinline ls-xy">'+
+       'X <input type="number" data-xy="x" step="0.1" value="'+(o.x*100).toFixed(1)+'"> % '+
+       'Y <input type="number" data-xy="y" step="0.1" value="'+(o.y*100).toFixed(1)+'"> %</div></div>';
+    h+='<div class="ls-orow"><span>순서</span><div class="ls-oseg" style="flex:1"><button data-ord="up">▲ 앞으로</button><button data-ord="down">▼ 뒤로</button></div></div>';
+    h+='<div class="ls-osec">스타일</div>';
     if(o.type==='text'){
       h+='<div class="ls-orow"><span>내용</span><textarea data-f="text">'+escapeHtml(o.text)+'</textarea></div>';
       h+='<div class="ls-orow"><span>폰트</span><select data-f="font">'+fontOpts(o.font)+'</select></div>';
       h+=rowRange('size','크기',16,220,1,o.size,o.size);
       h+='<div class="ls-orow"><span>정렬</span><div class="ls-oseg" data-seg="align">'+segBtn('left','왼쪽',o.align)+segBtn('center','가운데',o.align)+segBtn('right','오른쪽',o.align)+'</div></div>';
       h+='<div class="ls-orow"><span>색 · 볼드</span><div class="ls-oinline"><input type="color" data-f="color" value="'+o.color+'"><div class="ls-oseg" style="flex:1"><button data-bold class="'+(o.bold?'on':'')+'">볼드</button></div></div></div>';
+      h+=rowRange('lsp','자간',-0.05,0.35,0.005,(o.lsp||0),Math.round((o.lsp||0)*100)+'%');
       h+=rowRange('opacity','투명도',0,1,0.01,o.opacity,Math.round(o.opacity*100)+'%');
     } else if(o.type==='image'){
       h+=rowRange('opacity','투명도',0,1,0.01,o.opacity,Math.round(o.opacity*100)+'%');
@@ -4650,19 +4945,77 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
     } else {
       h+='<div class="ls-orow"><span>색</span><input type="color" data-f="color" value="'+o.color+'"></div>';
       h+=rowRange('opacity','투명도',0,1,0.01,o.opacity,Math.round(o.opacity*100)+'%');
+      h+='<div class="ls-orow"><span>스타일</span><div class="ls-oseg" data-seg="sstyle">'+
+        segBtn('bars','바',o.sstyle||'bars')+segBtn('mirror','미러',o.sstyle||'bars')+segBtn('line','라인',o.sstyle||'bars')+segBtn('dots','도트',o.sstyle||'bars')+'</div></div>';
+      h+=rowRange('bars','바 개수',8,72,1,(o.bars||44),(o.bars||44));
       h+=rowRange('freqLo','주파수 하한',20,2000,10,o.freqLo,o.freqLo+'Hz');
       h+=rowRange('freqHi','주파수 상한',500,18000,100,o.freqHi,o.freqHi+'Hz');
     }
+    // 트랜지션 (등장/퇴장) — 레이어 in/out 지점에서 적용
+    h+='<div class="ls-osec">전환</div>';
+    o.trIn=o.trIn&&TR_ID[o.trIn.type]>0?o.trIn:{type:'none',dur:0.6};
+    o.trOut=o.trOut&&TR_ID[o.trOut.type]>0?o.trOut:{type:'none',dur:0.6};
+    const trSel=(tag,tr)=>'<select data-tr="'+tag+'">'+Object.keys(TR_LABELS).map(k=>'<option value="'+k+'"'+(tr.type===k?' selected':'')+'>'+TR_LABELS[k]+'</option>').join('')+'</select>'+
+      '<input type="number" data-trd="'+tag+'" min="0.1" max="10" step="0.1" value="'+(Math.max(0.1,Math.min(10,+tr.dur||0.6)))+'" title="길이(초)"><em>s</em>';
+    h+='<div class="ls-orow"><span>등장 전환</span><div class="ls-oinline ls-trrow">'+trSel('in',o.trIn)+'</div></div>';
+    h+='<div class="ls-orow"><span>퇴장 전환</span><div class="ls-oinline ls-trrow">'+trSel('out',o.trOut)+'</div></div>';
+    // 이펙트 스택 (모든 레이어 타입 공통)
+    o.fx=Array.isArray(o.fx)?o.fx:[];
+    h+='<div class="ls-osec">이펙트</div>';
+    h+='<div class="ls-orow"><span>스택</span><div class="ls-fxwrap" data-fxlist>';
+    o.fx.forEach((f,i)=>{ h+='<div class="ls-fxrow" data-fxi="'+i+'">'+
+      '<select data-fxsel>'+Object.keys(FX_LABELS).map(k=>'<option value="'+k+'"'+(f.type===k?' selected':'')+'>'+FX_LABELS[k]+'</option>').join('')+'</select>'+
+      '<input type="range" min="0" max="1" step="0.01" value="'+(Math.max(0,Math.min(1,+f.amount||0)))+'" data-fxamt>'+
+      '<span class="ls-fxx" data-fxdel title="이펙트 제거">×</span></div>'; });
+    h+='<button class="ls-fxadd" data-fxadd>＋ 이펙트 추가</button>'+
+       (o.fx.length?'<div class="ls-fxhint">amount는 타임라인 "레인 추가 → FX"로 키프레임할 수 있어요</div>':'')+'</div></div>';
     p.innerHTML=h; p.classList.add('on'); positionPop(o);
     p.querySelector('[data-x]').addEventListener('click',closePop);
+    const syncXY=()=>{ p.querySelectorAll('[data-xy]').forEach(el=>{ el.value=(o[el.dataset.xy]*100).toFixed(1); }); };
+    p.querySelectorAll('[data-al]').forEach(b=>b.addEventListener('click',()=>{ const a=b.dataset.al;
+      if(a==='l')o.x=Math.min(1,o.w/2); else if(a==='ch')o.x=0.5; else if(a==='r')o.x=Math.max(0,1-o.w/2);
+      else if(a==='t')o.y=Math.min(1,o.h/2); else if(a==='cv')o.y=0.5; else if(a==='b')o.y=Math.max(0,1-o.h/2);
+      refreshObjs(); syncXY(); }));
+    p.querySelectorAll('[data-xy]').forEach(el=>el.addEventListener('change',()=>{
+      const v=parseFloat(el.value); if(isFinite(v)) o[el.dataset.xy]=clamp01(v/100); refreshObjs(); syncXY(); }));
     p.querySelectorAll('[data-f]').forEach(el=>{ const f=el.dataset.f;
       el.addEventListener('input',()=>{ let val=el.value; if(el.type==='range') val=parseFloat(val);
         o[f]=val; const vs=p.querySelector('[data-v="'+f+'"]');
-        if(vs) vs.textContent=(f==='opacity')?Math.round(o.opacity*100)+'%':(f==='rot'?o.rot+'°':(f==='freqLo'||f==='freqHi'?val+'Hz':val));
-        if(o.type==='text'&&(f==='size'||f==='text'||f==='font')) measureText(o);
+        if(vs) vs.textContent=(f==='opacity')?Math.round(o.opacity*100)+'%':(f==='rot'?o.rot+'°':(f==='freqLo'||f==='freqHi'?val+'Hz':(f==='lsp'?Math.round(val*100)+'%':val)));
+        if(o.type==='text'&&(f==='size'||f==='text'||f==='font'||f==='lsp')) measureText(o);
         refreshObjs(); if(o.type==='text') positionPop(o); }); });
     const seg=p.querySelector('[data-seg="align"]'); if(seg) seg.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ o.align=b.dataset.val; seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); refreshObjs(); }));
+    const seg3=p.querySelector('[data-seg="sstyle"]'); if(seg3) seg3.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ o.sstyle=b.dataset.val; seg3.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); scheduleUndoCommit(); }));
     const bb=p.querySelector('[data-bold]'); if(bb) bb.addEventListener('click',()=>{ o.bold=!o.bold; bb.classList.toggle('on',o.bold); measureText(o); refreshObjs(); positionPop(o); });
+    p.querySelectorAll('[data-ord]').forEach(b=>b.addEventListener('click',()=>{
+      const i=objs.findIndex(x=>x.id===o.id); if(i<0)return;
+      const j=b.dataset.ord==='up'?i+1:i-1; if(j<0||j>=objs.length)return;
+      const t2=objs[i]; objs[i]=objs[j]; objs[j]=t2; refreshObjs(); syncLayerTracks(); }));
+    p.querySelectorAll('[data-tr]').forEach(el=>el.addEventListener('change',ev=>{
+      const tr=(el.dataset.tr==='in')?o.trIn:o.trOut; tr.type=ev.target.value; }));
+    p.querySelectorAll('[data-trd]').forEach(el=>el.addEventListener('input',ev=>{
+      const tr=(el.dataset.trd==='in')?o.trIn:o.trOut; tr.dur=Math.max(0.1,Math.min(10,parseFloat(ev.target.value)||0.6)); }));
+    const fxWrap=p.querySelector('[data-fxlist]');
+    if(fxWrap){
+      fxWrap.querySelectorAll('.ls-fxrow').forEach(row=>{ const i=+row.dataset.fxi;
+        row.querySelector('[data-fxsel]').addEventListener('change',ev=>{ if(o.fx[i]){ o.fx[i].type=ev.target.value; syncLayerTracks(); } });
+        row.querySelector('[data-fxamt]').addEventListener('input',ev=>{ if(o.fx[i]) o.fx[i].amount=parseFloat(ev.target.value); });
+        row.querySelector('[data-fxdel]').addEventListener('click',()=>{ if(!o.fx[i])return; o.fx.splice(i,1); fxShiftAutoKeys(o.id,i); openPop(o.id); syncLayerTracks(); });
+      });
+      fxWrap.querySelector('[data-fxadd]').addEventListener('click',()=>{ if(o.fx.length>=6){ showError('이펙트는 레이어당 최대 6개예요.'); return; }
+        o.fx.push({type:'blur',amount:0.3}); openPop(o.id); syncLayerTracks(); });
+    }
+  }
+  // fx[i] 삭제 후 obj{id}_fx{i+1..} 자동화 키를 한 칸 앞으로 당김 (키프레임 보존)
+  function fxShiftAutoKeys(objId,removedIdx){
+    const K=i=>'obj'+objId+'_fx'+i;
+    const del=K(removedIdx);
+    if(auto[del]) delete auto[del];
+    const ai=autoKeys.indexOf(del); if(ai>=0) autoKeys.splice(ai,1);
+    for(let i=removedIdx+1;i<12;i++){ const from=K(i), to=K(i-1);
+      if(auto[from]){ auto[to]=auto[from]; delete auto[from];
+        const j=autoKeys.indexOf(from); if(j>=0) autoKeys[j]=to; } }
+    persistAutoLocal();
   }
 
   function resizeObj(o,o0,hh,dx,dy){
@@ -4694,11 +5047,23 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
     e.preventDefault(); e.stopPropagation(); selectObj(id);
     const r=stage.getBoundingClientRect(), sx=e.clientX, sy=e.clientY;
     const o0={x:o.x,y:o.y,w:o.w,h:o.h,size:o.size||0}; const hh=handle?handle.dataset.h:null; dragLock(true);
-    const GRID=0.01, snap=v=>Math.round(v/GRID)*GRID;   // 보이지 않는 1% 비율 눈금자 (해상도·비율 무관)
+    const gv=Q('#ls_gv'), gh=Q('#ls_gh'); const TH=0.008;   // 스냅 임계(스테이지 비율)
+    const tg=hh?null:buildSnapTargets(o,objs);               // 드래그 시작 시점의 스냅 타깃
     const mv=ev=>{ const dx=(ev.clientX-sx)/r.width, dy=(ev.clientY-sy)/r.height;
-      if(!hh){ o.x=clamp01(snap(o0.x+dx)); o.y=clamp01(snap(o0.y+dy)); } else { resizeObj(o,o0,hh,dx,dy); }
-      refreshObjs(); if(objPop&&objPop.classList.contains('on')&&o.id===selId) positionPop(o); };
-    const up=()=>{ dragLock(false); window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up); };
+      if(!hh){ let nx=o0.x+dx, ny=o0.y+dy; let gx=null, gy=null;   // 격자 없음 — 자유 이동
+        if(tg && !(ev.ctrlKey||ev.metaKey||ev.altKey)){            // Ctrl/⌘/Alt 유지 시 스냅 해제(피그마 관례)
+          let bx=TH; tg.xt.forEach(t=>{ const d=Math.abs(nx-t[0]); if(d<bx){ bx=d; nx=t[0]; gx=t[1]; } });
+          let by=TH; tg.yt.forEach(t=>{ const d=Math.abs(ny-t[0]); if(d<by){ by=d; ny=t[0]; gy=t[1]; } });
+        }
+        if(gv){ gv.style.display=gx==null?'none':'block'; if(gx!=null)gv.style.left=(Math.max(0,Math.min(1,gx))*100)+'%'; }
+        if(gh){ gh.style.display=gy==null?'none':'block'; if(gy!=null)gh.style.top=(Math.max(0,Math.min(1,gy))*100)+'%'; }
+        o.x=clamp01(nx); o.y=clamp01(ny);
+      } else { resizeObj(o,o0,hh,dx,dy); }
+      refreshObjs();
+      if(objPop&&objPop.classList.contains('on')&&o.id===selId){ positionPop(o);
+        objPop.querySelectorAll('[data-xy]').forEach(el=>{ el.value=(o[el.dataset.xy]*100).toFixed(1); }); } };
+    const up=()=>{ dragLock(false); if(gv)gv.style.display='none'; if(gh)gh.style.display='none';
+      window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up); };
     window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up);
   });
   stage.addEventListener('pointerdown',e=>{ if(!e.target.closest('.ls-obj')&&!e.target.closest('.ls-opop')){ if(selId){ selId=null; closePop(); refreshObjs(); } } });
@@ -4712,9 +5077,16 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
   stage.style.setProperty('--ls-ar',st.ar);
 
   // 출력 해상도 / 프레임레이트
-  st.outH=1080; st.fps=30;
+  st.outH=1080; st.fps=30; st.pv=1;
+  const durIn=Q('#ls_durin');
+  if(durIn){ ['pointerdown','click'].forEach(ev=>durIn.addEventListener(ev,e=>e.stopPropagation()));
+    durIn.addEventListener('change',()=>{ st.dur=Math.max(5,Math.min(600,parseFloat(durIn.value)||60)); durIn.value=st.dur;
+      if(tlPlaying){ stopSources(); tlPlaying=false; tlFromT=0; updPlayBtns(); }
+      renderTimeline(); seekTo(Math.min(1,lastT/projDur())); showError('프로젝트 길이: '+fmtT(st.dur)); }); }
   Q('#ls_res').addEventListener('click',e=>{ const b=e.target.closest('.ls-chip'); if(!b)return;
-    Q('#ls_res').querySelectorAll('.ls-chip').forEach(c=>c.classList.toggle('on',c===b)); st.outH=parseInt(b.dataset.h,10)||1080;
+    if(b.dataset.pv){ Q('#ls_res').querySelectorAll('[data-pv]').forEach(c=>c.classList.toggle('on',c===b));
+      st.pv=parseFloat(b.dataset.pv)||1; resize(); return; }
+    Q('#ls_res').querySelectorAll('[data-h]').forEach(c=>c.classList.toggle('on',c===b)); st.outH=parseInt(b.dataset.h,10)||1080;
     closeMenus(); });
   Q('#ls_fps').addEventListener('click',e=>{ const b=e.target.closest('.ls-chip'); if(!b)return;
     Q('#ls_fps').querySelectorAll('.ls-chip').forEach(c=>c.classList.toggle('on',c===b)); st.fps=parseInt(b.dataset.fps,10)||30;
@@ -4725,10 +5097,14 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
   const OBJ_PROPS=[['opacity','투명도'],['x','가로'],['y','세로'],['scale','크기'],['rot','회전']];
   function isObjKey(k){ return /^obj\d+_/.test(k); }
   function objKeyParts(k){ const m=k.match(/^obj(\d+)_(\w+)$/); return m?{id:+m[1],prop:m[2]}:null; }
-  function objPropRange(p){ return p==='opacity'?{min:0,max:1}:(p==='x'||p==='y')?{min:0,max:1}:p==='scale'?{min:0.2,max:3}:{min:-180,max:180}; }
-  function objPropStatic(o,p){ return p==='scale'?1:(o&&o[p]!==undefined?o[p]:0); }
+  function objPropRange(p){ if(/^fx\d+$/.test(p)) return {min:0,max:1}; return p==='opacity'?{min:0,max:1}:(p==='x'||p==='y')?{min:0,max:1}:p==='scale'?{min:0.2,max:3}:{min:-180,max:180}; }
+  function objPropStatic(o,p){ const fm=p.match(/^fx(\d+)$/); if(fm){ const f=o&&o.fx&&o.fx[+fm[1]]; return f?Math.max(0,Math.min(1,+f.amount||0)):0; } return p==='scale'?1:(o&&o[p]!==undefined?o[p]:0); }
   function autoStatic(k){ if(isObjKey(k)){ const pp=objKeyParts(k); return pp?objPropStatic(findObj(pp.id),pp.prop):0; } return st[k]; }
-  function laneLabel(k){ if(isObjKey(k)){ const pp=objKeyParts(k); const o=pp&&findObj(pp.id); const pl=((OBJ_PROPS.find(x=>x[0]===(pp&&pp.prop))||[])[1])||(pp&&pp.prop)||''; return (o?objName(o):'오브젝트')+' · '+pl; } return AUTO_LABELS[k]||k; }
+  function laneLabel(k){ if(isObjKey(k)){ const pp=objKeyParts(k); const o=pp&&findObj(pp.id);
+    const fm=pp&&pp.prop&&pp.prop.match(/^fx(\d+)$/);
+    let pl; if(fm){ const f=o&&o.fx&&o.fx[+fm[1]]; pl='FX'+(+fm[1]+1)+(f?'·'+(FX_LABELS[f.type]||f.type):''); }
+    else pl=((OBJ_PROPS.find(x=>x[0]===(pp&&pp.prop))||[])[1])||(pp&&pp.prop)||'';
+    return (o?objName(o):'오브젝트')+' · '+pl; } return AUTO_LABELS[k]||k; }
   let autoKeys=[];                                  // 화면에 표시 중인 오토메이션 레인(파라미터 키) 순서
   function paramRange(k){ if(isObjKey(k)){ const pp=objKeyParts(k); return objPropRange(pp?pp.prop:''); } const el=Q('#ls_'+k); return el?{min:parseFloat(el.min),max:parseFloat(el.max)}:{min:0,max:2}; }
   function captureAuto(){ const o={}; for(const k in auto){ const a=auto[k]; if(a&&a.pts&&a.pts.length){ o[k]={on:!!a.on,pts:a.pts.map(p=>{ const q={t:p.t,v:p.v}; if(p.m&&p.m!=='smooth')q.m=p.m; if(p.m==='bezier'&&p.h&&p.h.length===4)q.h=p.h.slice(); return q; })}; } } return o; }
@@ -4740,11 +5116,11 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
     if(o&&typeof o==='object'){ for(const k in o){ const a=o[k]; if(a&&Array.isArray(a.pts)&&(KEYS.indexOf(k)>=0||(isObjKey(k)&&findObj((objKeyParts(k)||{}).id)))){ auto[k]={on:!!a.on,pts:a.pts.map(sanePt).sort((x,y)=>x.t-y.t)}; autoKeys.push(k); } } }
     KEYS.forEach(k=>{ const el=Q('#ls_'+k); if(el) el.dispatchEvent(new Event('input')); });
     if(typeof renderTimeline==='function') renderTimeline(); }
-  function persistAutoLocal(){ try{ if(typeof Store!=='undefined'&&Store.setLocal) Store.setLocal('artworkAuto',captureAuto()); }catch(e){} }
+  function persistAutoLocal(){ try{ if(typeof Store!=='undefined'&&Store.setLocal) Store.setLocal('artworkAuto',captureAuto()); }catch(e){} scheduleUndoCommit(); }
 
   function stripTV(ev,stripEl,key){ const r=stripEl.getBoundingClientRect();
     const cx=(ev.touches?ev.touches[0].clientX:ev.clientX)-r.left; const cy=(ev.touches?ev.touches[0].clientY:ev.clientY)-r.top;
-    const t=Math.max(0,Math.min(FLOW, cx/r.width*FLOW)); const rng=paramRange(key);
+    const t=Math.max(0,Math.min(projDur(), cx/r.width*projDur())); const rng=paramRange(key);
     const f=1-Math.max(0,Math.min(1, cy/r.height)); const v=rng.min+(rng.max-rng.min)*f; return {t,v}; }
   // ===== 그래프 에디터 상태 =====
   const expandedLanes=new Set();                       // 그래프 확장(베지어 핸들 편집) 중인 레인
@@ -4772,7 +5148,7 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
     const a=ensureAuto(key); const rng=paramRange(key);
     const exp=expandedLanes.has(key); stripEl.classList.toggle('expanded',exp);
     const W=stripEl.clientWidth||600, H=stripEl.clientHeight||(exp?140:50);
-    const x=t=>t/FLOW*W, y=v=>{ const f=(v-rng.min)/Math.max(1e-6,rng.max-rng.min); return (1-Math.max(0,Math.min(1,f)))*H; };
+    const x=t=>t/projDur()*W, y=v=>{ const f=(v-rng.min)/Math.max(1e-6,rng.max-rng.min); return (1-Math.max(0,Math.min(1,f)))*H; };
     stripEl.classList.toggle('off',!a.on);
     let svg='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">';
     svg+='<line x1="0" y1="'+(0.5*H)+'" x2="'+W+'" y2="'+(0.5*H)+'" stroke="var(--c-bd)" stroke-width="1" opacity="0.5"/>';
@@ -4797,7 +5173,7 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
   }
   function liveRedraw(key,stripEl){
     const a=ensureAuto(key); const rng=paramRange(key); const W=stripEl.clientWidth||600,H=stripEl.clientHeight||56;
-    const x=t=>t/FLOW*W, y=v=>{ const f=(v-rng.min)/Math.max(1e-6,rng.max-rng.min); return (1-Math.max(0,Math.min(1,f)))*H; };
+    const x=t=>t/projDur()*W, y=v=>{ const f=(v-rng.min)/Math.max(1e-6,rng.max-rng.min); return (1-Math.max(0,Math.min(1,f)))*H; };
     const svg=stripEl.querySelector('svg');
     if(svg){ const path=svg.querySelector('path'); const pts=a.pts.slice().sort((m,n)=>m.t-n.t);
       if(path&&pts.length) path.setAttribute('d',autoPathD(pts,x,y,W));
@@ -4821,8 +5197,12 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
         dragLock(true); closeKfPop();
         const a=ensureAuto(key); const sx=ev.clientX,sy=ev.clientY; let moved=false;
         const move=e=>{ if(Math.abs(e.clientX-sx)+Math.abs(e.clientY-sy)>4)moved=true; if(!moved)return;
-          const {t,v}=stripTV(e,stripEl,key); a.pts[i].t=t; a.pts[i].v=v; liveRedraw(key,stripEl); };
-        const up=()=>{ dragLock(false); window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up);
+          let tv=stripTV(e,stripEl,key); let t=tv.t;
+          if(!(e.altKey||e.ctrlKey||e.metaKey)&&markers.length){          // 마커 스냅 (6px 상당, Ctrl/⌘/Alt로 해제)
+            const thr=6/Math.max(1,stripEl.clientWidth)*projDur();
+            markers.forEach(mt=>{ if(Math.abs(t-mt)<thr)t=mt; }); }
+          a.pts[i].t=t; a.pts[i].v=tv.v; liveRedraw(key,stripEl); showKfTip(e.clientX,e.clientY,t,tv.v); };
+        const up=()=>{ dragLock(false); hideKfTip(); window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up);
           if(moved){ clearSel(); a.pts.sort((x,y)=>x.t-y.t); drawAutoStrip(key,stripEl); persistAutoLocal(); }
           else openKfPop(key,i,stripEl); };
         window.addEventListener('pointermove',move); window.addEventListener('pointerup',up); });
@@ -4849,8 +5229,12 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
   function clearAutoLane(key){ const a=ensureAuto(key); a.pts=[]; renderTimeline(); persistAutoLocal(); }
 
   // ===== 키프레임 팝업 · 클립보드 · 단축키 =====
-  let kfPop=null, kfClip=null;
+  let kfPop=null, kfClip=null, kfTip=null;
   function closeKfPop(){ if(kfPop){ kfPop.remove(); kfPop=null; } }
+  function showKfTip(x,y,t,v){ if(!kfTip){ kfTip=document.createElement('div'); kfTip.className='ls-kftip'; document.body.appendChild(kfTip); }
+    kfTip.textContent=t.toFixed(2)+'s · '+(Math.abs(v)<10?v.toFixed(2):Math.round(v));
+    kfTip.style.left=(x+14)+'px'; kfTip.style.top=(y-28)+'px'; kfTip.style.display='block'; }
+  function hideKfTip(){ if(kfTip)kfTip.style.display='none'; }
   function laneEl(key){ return root.querySelector('.ls-autolane[data-key="'+key+'"]'); }
   function openKfPop(key,i,stripEl){
     closeKfPop();
@@ -4891,8 +5275,8 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
     kfClip={key:kfSel.key,pts:idx.map(i=>{ const p=a.pts[i]; const q={dt:p.t-base,v:p.v}; if(p.m)q.m=p.m; if(p.h)q.h=p.h.slice(); return q; })};
     showError(idx.length+'개 키프레임을 복사했어요. Ctrl+V = 재생헤드 위치에 붙여넣기.'); }
   function pasteKfClip(){ if(!kfClip)return; const key=kfClip.key; const a=ensureAuto(key);
-    const t0=curTimeSec(lastPhase);
-    kfClip.pts.forEach(q=>{ const np={t:Math.max(0,Math.min(FLOW,t0+q.dt)),v:q.v}; if(q.m)np.m=q.m; if(q.h)np.h=q.h.slice(); a.pts.push(np); });
+    const t0=lastT;
+    kfClip.pts.forEach(q=>{ const np={t:Math.max(0,Math.min(projDur(),t0+q.dt)),v:q.v}; if(q.m)np.m=q.m; if(q.h)np.h=q.h.slice(); a.pts.push(np); });
     a.pts.sort((x,y)=>x.t-y.t); a.on=true; clearSel();
     if(autoKeys.indexOf(key)<0){ autoKeys.push(key); renderTimeline(); }
     else { const lane=laneEl(key); if(lane)drawAutoStrip(key,lane); else renderTimeline(); }
@@ -4903,16 +5287,37 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
   function scaleKfSel(f){ if(!kfSel.key||kfSel.idx.size<2)return; const key=kfSel.key; const a=auto[key]; if(!a)return;
     const idx=[...kfSel.idx].filter(i=>a.pts[i]).sort((x,y)=>x-y); if(idx.length<2)return;
     const base=a.pts[idx[0]].t;
-    idx.forEach(i=>{ a.pts[i].t=Math.max(0,Math.min(FLOW,base+(a.pts[i].t-base)*f)); });
+    idx.forEach(i=>{ a.pts[i].t=Math.max(0,Math.min(projDur(),base+(a.pts[i].t-base)*f)); });
     a.pts.sort((x,y)=>x.t-y.t); clearSel();
     const lane=laneEl(key); if(lane)drawAutoStrip(key,lane); persistAutoLocal(); }
   function onKfKey(e){ const ae=document.activeElement; const tag=ae&&ae.tagName;
     if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||(ae&&ae.isContentEditable))return;
     if(!root.isConnected||recording)return;
     const mod=e.ctrlKey||e.metaKey;
-    if(mod&&(e.key==='c'||e.key==='C')){ if(kfSel.key&&kfSel.idx.size){ e.preventDefault(); copyKfSel(); } }
+    if(mod&&(e.key==='z'||e.key==='Z')){ e.preventDefault(); if(e.shiftKey)doRedo(); else doUndo(); }
+    else if(mod&&(e.key==='y'||e.key==='Y')){ e.preventDefault(); doRedo(); }
+    else if(mod&&(e.key==='c'||e.key==='C')){ if(kfSel.key&&kfSel.idx.size){ e.preventDefault(); copyKfSel(); } }
     else if(mod&&(e.key==='v'||e.key==='V')){ if(kfClip){ e.preventDefault(); pasteKfClip(); } }
-    else if((e.key==='Delete'||e.key==='Backspace')&&kfSel.key&&kfSel.idx.size){ e.preventDefault(); deleteKfSel(); } }
+    else if((e.key==='Delete'||e.key==='Backspace')&&kfSel.key&&kfSel.idx.size){ e.preventDefault(); deleteKfSel(); }
+    else if((e.key==='Delete'||e.key==='Backspace')&&selId&&findObj(selId)){ e.preventDefault(); delObj(selId); }
+    else if(selId&&findObj(selId)&&!mod&&(e.key==='ArrowLeft'||e.key==='ArrowRight'||e.key==='ArrowUp'||e.key==='ArrowDown')){ e.preventDefault();
+      const oo=findObj(selId); const stp2=e.shiftKey?0.01:0.001;   // 피그마식 1px/10px 감각
+      if(e.key==='ArrowLeft')oo.x=clamp01(oo.x-stp2); else if(e.key==='ArrowRight')oo.x=clamp01(oo.x+stp2);
+      else if(e.key==='ArrowUp')oo.y=clamp01(oo.y-stp2); else oo.y=clamp01(oo.y+stp2);
+      refreshObjs(); }
+    else if(mod&&(e.key==='d'||e.key==='D')&&selId&&findObj(selId)){ e.preventDefault(); dupObj(selId); }
+    else if(e.key==='Escape'&&selId){ selId=null; closePop(); refreshObjs(); }
+    else if((e.key==='ArrowLeft'||e.key==='ArrowRight')&&!kfPop&&!mod){ e.preventDefault();
+      const dur=projDur(), stp=(1/(st.fps||30))*(e.shiftKey?10:1);
+      if(playing) doPause();
+      const nt=Math.max(0,Math.min(dur,lastT+(e.key==='ArrowRight'?stp:-stp)));
+      seekTo(dur>0?nt/dur:0); }
+    else if(e.key==='Home'&&!kfPop){ e.preventDefault(); if(playing)doPause(); seekTo(0); }
+    else if((e.key==='i'||e.key==='I')&&!mod){ e.preventDefault(); waIn=lastT;
+      if(waOut!=null&&waOut<=waIn+0.05)waOut=null; renderTimeline(); showError('렌더 구간 시작(I): '+fmtT(waIn)); }
+    else if((e.key==='o'||e.key==='O')&&!mod){ e.preventDefault(); waOut=lastT;
+      if(waIn!=null&&waIn>=waOut-0.05)waIn=null; renderTimeline(); showError('렌더 구간 끝(O): '+fmtT(waOut)); }
+    else if((e.key==='m'||e.key==='M')&&!mod){ e.preventDefault(); markers.push(lastT); markers.sort((x,y)=>x-y); renderTimeline(); showError('마커 추가(M): '+fmtT(lastT)); } }
   document.addEventListener('keydown',onKfKey);
   function redrawAllAuto(){ root.querySelectorAll('.ls-autolane').forEach(s=>{ const k=s.dataset.key; if(k) drawAutoStrip(k,s); }); }
   function renderAuto(){ if(typeof renderTimeline==='function') renderTimeline(); }   // 하위 호환 shim
@@ -4921,9 +5326,9 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
 
   // loop time
   let DPR=Math.min(window.devicePixelRatio||1,2);
-  let playing=false, startT=performance.now(), pausedPhase=0, lastPhase=0, recElapsed=0, recording=false, rafId=null;
-  function resize(){ if(recording)return; const rect=stage.getBoundingClientRect();
-    canvas.width=Math.max(2,Math.round(rect.width*DPR)); canvas.height=Math.max(2,Math.round(rect.height*DPR)); if(typeof syncPresetHeight==='function')syncPresetHeight(); }
+  let playing=false, startT=performance.now(), pausedT=0, lastPhase=0, lastT=0, recElapsed=0, recording=false, rafId=null;
+  function resize(){ if(recording)return; const rect=stage.getBoundingClientRect(); const pv=st.pv||1;
+    canvas.width=Math.max(2,Math.round(rect.width*DPR*pv)); canvas.height=Math.max(2,Math.round(rect.height*DPR*pv)); if(typeof syncPresetHeight==='function')syncPresetHeight(); }
   function fmtT(s){ s=Math.max(0,s||0); const m=Math.floor(s/60),x=Math.floor(s%60); return m+':'+(x<10?'0':'')+x; }
   function wireScrollDrag(scroll){
     scroll.addEventListener('pointerdown',e=>{
@@ -4936,15 +5341,43 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
     });
   }
   function renderTimeline(){
-    const body=Q('#ls_tlbody'); if(!body)return; const total=FLOW;
+    const body=Q('#ls_tlbody'); if(!body)return; const total=projDur();
     body.innerHTML='';
     const mk=(cls,html)=>{ const d=document.createElement('div'); d.className=cls; if(html!=null)d.innerHTML=html; return d; };
 
     // ---- 시간 축 (고정) ----
     const axis=mk('ls-axis'); const axPad=mk('ls-axis-pad'); const ruler=mk('ls-ruler');
-    for(let s=0;s<=total;s+=10){ const tk=mk('ls-ruler-tick'+(s>=total?' last':'')); tk.style.left=(s/total*100)+'%'; tk.textContent=fmtT(s); ruler.appendChild(tk);
+    const tickStep=total<=90?10:(total<=240?30:60);
+    for(let s=0;s<=total;s+=tickStep){ const tk=mk('ls-ruler-tick'+(s+tickStep>total?' last':'')); tk.style.left=(s/total*100)+'%'; tk.textContent=fmtT(s); ruler.appendChild(tk);
       const ln=mk('ls-ruler-line'); ln.style.left=(s/total*100)+'%'; ruler.appendChild(ln); }
-    axis.appendChild(axPad); axis.appendChild(ruler);
+    if(waIn!=null&&waOut!=null&&waOut>waIn+0.05){                       // 렌더 구간 밴드
+      const wa=mk('ls-wa'); wa.style.left=(Math.max(0,waIn)/total*100)+'%';
+      wa.style.width=((Math.min(total,waOut)-Math.max(0,waIn))/total*100)+'%';
+      wa.title='렌더 구간 '+fmtT(waIn)+'–'+fmtT(waOut)+' · 더블클릭=해제';
+      wa.addEventListener('pointerdown',e=>e.stopPropagation());
+      wa.addEventListener('dblclick',e=>{ e.stopPropagation(); waIn=null; waOut=null; renderTimeline(); showError('렌더 구간을 해제했어요.'); });
+      ruler.appendChild(wa);
+    }
+    markers.forEach((mt,mi)=>{                                            // 마커 깃발
+      const mkr=mk('ls-marker'); mkr.style.left=(mt/total*100)+'%'; mkr.title=fmtT(mt)+' · 클릭=이동, 드래그=옮기기, 더블클릭=삭제';
+      mkr.addEventListener('dblclick',e=>{ e.stopPropagation(); markers.splice(mi,1); renderTimeline(); });
+      mkr.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); dragLock(true);
+        const rect=ruler.getBoundingClientRect(); let moved=false;
+        const mv2=ev=>{ moved=true; const t2=Math.max(0,Math.min(total,(ev.clientX-rect.left)/rect.width*total));
+          markers[mi]=t2; mkr.style.left=(t2/total*100)+'%';
+          const ln=lanes.querySelector('.ls-mline[data-mi="'+mi+'"]'); if(ln)ln.style.left=(t2/total*100)+'%'; };
+        const up2=()=>{ dragLock(false); window.removeEventListener('pointermove',mv2); window.removeEventListener('pointerup',up2);
+          if(moved){ markers.sort((x,y)=>x-y); renderTimeline(); } else seekTo(markers[mi]/total); };
+        window.addEventListener('pointermove',mv2); window.addEventListener('pointerup',up2); });
+      ruler.appendChild(mkr);
+    });
+    ruler.addEventListener('dblclick',e=>{                                // 룰러 더블클릭 = 마커 추가
+      if(e.target.closest('.ls-marker,.ls-wa'))return;
+      const rect=ruler.getBoundingClientRect(); const t2=Math.max(0,Math.min(total,(e.clientX-rect.left)/rect.width*total));
+      markers.push(t2); markers.sort((x,y)=>x-y); renderTimeline(); });
+    axPad.innerHTML='<button class="ls-zbtn" data-z="-" title="타임라인 축소">−</button><button class="ls-zbtn" data-z="+" title="타임라인 확대 (Ctrl/Alt+휠)">＋</button><span class="ls-zlab"></span>';
+    const ruWrap=mk('ls-ruwrap'); ruWrap.appendChild(ruler);
+    axis.appendChild(axPad); axis.appendChild(ruWrap);
 
     // ---- 스크롤 레인 영역 ----
     const scroll=mk('ls-scroll'); const labels=mk('ls-tl-labels'); const lanes=mk('ls-tl-lanes');
@@ -4994,8 +5427,8 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
       labels.appendChild(lab);
       const lane=mk('ls-lane layer');
       const clip=mk('ls-clip layerclip');
-      const tIn=()=>o.tIn||0, tOut=()=>((o.tOut===undefined||o.tOut===null)?FLOW:o.tOut);
-      const place=()=>{ clip.style.left=(tIn()/FLOW*100)+'%'; clip.style.width=(Math.max(0.3,tOut()-tIn())/FLOW*100)+'%'; };
+      const tIn=()=>o.tIn||0, tOut=()=>((o.tOut===undefined||o.tOut===null)?projDur():o.tOut);
+      const place=()=>{ clip.style.left=(tIn()/projDur()*100)+'%'; clip.style.width=(Math.max(0.3,tOut()-tIn())/projDur()*100)+'%'; };
       place();
       clip.innerHTML='<div class="ls-clip-th l"></div><span class="ls-clip-name">'+escapeHtml(objName(o))+'</span><div class="ls-clip-th r"></div>';
       layerClipDrag(o,clip,lane,place);
@@ -5033,7 +5466,9 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
     popHtml+= remain.length ? '<div class="ls-addgrid">'+remain.map(k=>'<button class="ls-addopt mini" data-add="auto" data-key="'+k+'">'+(AUTO_LABELS[k]||k)+'</button>').join('')+'</div>'
                             : '<div class="ls-addempty">모든 파라미터가 추가되어 있어요</div>';
     if(objs.length){ let objHtml='';
-      objs.forEach(o=>{ const rem=OBJ_PROPS.filter(([p])=>autoKeys.indexOf('obj'+o.id+'_'+p)<0);
+      objs.forEach(o=>{ const props=OBJ_PROPS.slice();
+        (o.fx||[]).forEach((f,fi)=>props.push(['fx'+fi,'FX'+(fi+1)+'·'+(FX_LABELS[f.type]||f.type)]));
+        const rem=props.filter(([p])=>autoKeys.indexOf('obj'+o.id+'_'+p)<0);
         if(rem.length) objHtml+='<div class="ls-addobjname">'+objName(o)+'</div><div class="ls-addgrid">'+
           rem.map(([p,lbl])=>'<button class="ls-addopt mini" data-add="auto" data-key="obj'+o.id+'_'+p+'">'+lbl+'</button>').join('')+'</div>'; });
       if(objHtml){ popHtml+='<div class="ls-addsec">오브젝트 애니메이션</div>'+objHtml; } }
@@ -5051,22 +5486,39 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
     labels.appendChild(addLab); lanes.appendChild(addLane);
 
     // 재생 헤드
+    markers.forEach((mt,mi)=>{ const ln=mk('ls-mline'); ln.dataset.mi=mi; ln.style.left=(mt/total*100)+'%'; lanes.appendChild(ln); });
     const ph=mk('ls-playhead'); ph.id='ls_playhead'; ph.style.display='none'; lanes.appendChild(ph);
     function laneSeek(ev){ const rect=lanes.getBoundingClientRect(); let x=((ev.touches?ev.touches[0].clientX:ev.clientX)-rect.left)/rect.width; seekTo(Math.min(1,Math.max(0,x))); }
     function startSeek(e){ if(recording)return; e.preventDefault(); e.stopPropagation(); dragLock(true); laneSeek(e); const mv=ev=>laneSeek(ev); const up=()=>{dragLock(false);window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);}; window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up); }
     ruler.addEventListener('pointerdown',startSeek); ph.addEventListener('pointerdown',startSeek);
 
-    scroll.appendChild(labels); scroll.appendChild(lanes);
+    const lanesWrap=mk('ls-laneswrap'); lanesWrap.appendChild(lanes);
+    scroll.appendChild(labels); scroll.appendChild(lanesWrap);
+    const applyZoom=()=>{ ruler.style.width=(tlZoom*100)+'%'; lanes.style.width=(tlZoom*100)+'%';
+      const zl=axPad.querySelector('.ls-zlab'); if(zl)zl.textContent=tlZoom>1.01?Math.round(tlZoom*100)+'%':'';
+      ruWrap.scrollLeft=lanesWrap.scrollLeft; };
+    applyZoom();
+    lanesWrap.addEventListener('scroll',()=>{ ruWrap.scrollLeft=lanesWrap.scrollLeft; });
+    lanesWrap.addEventListener('wheel',e=>{ if(!(e.ctrlKey||e.altKey))return; e.preventDefault();
+      const rect=lanesWrap.getBoundingClientRect();
+      const fx=(lanesWrap.scrollLeft+(e.clientX-rect.left))/Math.max(1,lanesWrap.clientWidth*tlZoom);
+      tlZoom=Math.max(1,Math.min(8,tlZoom*(e.deltaY<0?1.2:1/1.2))); if(tlZoom<1.02)tlZoom=1;
+      applyZoom();
+      lanesWrap.scrollLeft=fx*lanesWrap.clientWidth*tlZoom-(e.clientX-rect.left);
+      ruWrap.scrollLeft=lanesWrap.scrollLeft; },{passive:false});
+    axPad.querySelectorAll('.ls-zbtn').forEach(b=>b.addEventListener('click',()=>{
+      tlZoom=b.dataset.z==='+'?Math.min(8,tlZoom*1.5):Math.max(1,tlZoom/1.5); if(tlZoom<1.02)tlZoom=1;
+      applyZoom(); }));
     wireScrollDrag(scroll);
 
     body.appendChild(axis); body.appendChild(scroll); body.appendChild(pop);
+    scheduleUndoCommit();
     requestAnimationFrame(()=>redrawAllAuto());   // 폭 확정 후 자동화 곡선 그리기
-    syncPresetHeight(); updTimebar(lastPhase);
+    syncPresetHeight(); updTimebar(lastT);
   }
-  function syncPresetHeight(){ try{ const tl=root.querySelector('.ls-timeline'), pp=root.querySelector('.ls-panel-preset');
-    if(tl&&pp&&window.innerWidth>920) pp.style.height=tl.offsetHeight+'px'; else if(pp) pp.style.height=''; }catch(e){} }
+  function syncPresetHeight(){}  // 프리셋이 상단 팝오버로 이동해 높이 동기화 불필요
   function pickRegion(buf,name){ return new Promise(resolve=>{
-    const dur=buf.duration, win=FLOW; let winStart=0;
+    const dur=buf.duration, win=projDur(); let winStart=0;
     const ov=document.createElement('div'); ov.className='ls-modal';
     ov.innerHTML='<div class="ls-modal-box">'+
       '<div class="ls-modal-h">구간 선택</div>'+
@@ -5112,41 +5564,38 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
   }); }
   function clipDrag(t,clip,lane){ clip.addEventListener('pointerdown',e=>{ if(recording)return;
     if(e.target.classList.contains('ls-clip-th')||e.target.classList.contains('ls-clip-del')||e.target.classList.contains('ls-clip-fh'))return; e.preventDefault();
-    const total=FLOW; const rect=lane.getBoundingClientRect(); const cl=clipLen(t);
+    const total=projDur(); const rect=lane.getBoundingClientRect(); const cl=clipLen(t);
     dragLock(true); const startX=(e.touches?e.touches[0].clientX:e.clientX); const orig=t.startAt;
     const move=ev=>{ const dx=((ev.touches?ev.touches[0].clientX:ev.clientX)-startX)/rect.width*total;
       let ns=orig+dx; ns=Math.max(0,Math.min(total-cl,ns)); t.startAt=ns; clip.style.left=(ns/total*100)+'%'; };
-    const up=()=>{ dragLock(false); window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); if(tlPlaying)scheduleFrom(Math.min(timelineTime(),FLOW),false); };
+    const up=()=>{ dragLock(false); window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); if(tlPlaying)scheduleFrom(Math.min(timelineTime(),projDur()),false); scheduleUndoCommit(); };
     window.addEventListener('pointermove',move); window.addEventListener('pointerup',up); }); }
   function clipTrim(t,which,lane,clip,redraw,updFade){ return e=>{ if(recording)return; e.preventDefault(); e.stopPropagation(); dragLock(true);
-    const total=FLOW; const dur=t.buffer.duration;
+    const total=projDur(); const dur=t.buffer.duration;
     const move=ev=>{ const rect=lane.getBoundingClientRect(); let x=((ev.touches?ev.touches[0].clientX:ev.clientX)-rect.left)/rect.width; x=Math.min(1,Math.max(0,x)); const tl=x*total;
       if(which==='L'){ const right=t.startAt+clipLen(t); let nl=Math.max(0,Math.min(tl,right-0.3)); let delta=nl-t.startAt; let nts=t.trimStart+delta; if(nts<0){ nl-=nts; nts=0; } t.trimStart=Math.min(nts,t.trimEnd-0.3); t.startAt=nl; }
       else { let nr=Math.max(tl,t.startAt+0.3); let nlen=nr-t.startAt; let nte=t.trimStart+nlen; t.trimEnd=Math.min(dur,Math.max(nte,t.trimStart+0.3)); }
       const cl=clipLen(t); t.fadeIn=Math.min(t.fadeIn||0,cl); t.fadeOut=Math.min(t.fadeOut||0,cl-(t.fadeIn||0));
       clip.style.left=(t.startAt/total*100)+'%'; clip.style.width=(cl/total*100)+'%'; if(redraw)redraw(); if(updFade)updFade(); };
-    const up=()=>{ dragLock(false); window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); if(tlPlaying)scheduleFrom(Math.min(timelineTime(),FLOW),false); };
+    const up=()=>{ dragLock(false); window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); if(tlPlaying)scheduleFrom(Math.min(timelineTime(),projDur()),false); scheduleUndoCommit(); };
     window.addEventListener('pointermove',move); window.addEventListener('pointerup',up); }; }
   function clipFade(t,which,lane,updFade){ return e=>{ if(recording)return; e.preventDefault(); e.stopPropagation(); dragLock(true);
-    const total=FLOW;
+    const total=projDur();
     const move=ev=>{ const rect=lane.getBoundingClientRect(); let x=((ev.touches?ev.touches[0].clientX:ev.clientX)-rect.left)/rect.width*total;
       const cl=clipLen(t); const within=x-t.startAt;
       if(which==='in'){ t.fadeIn=Math.max(0,Math.min(within, cl-(t.fadeOut||0))); }
       else { t.fadeOut=Math.max(0,Math.min((t.startAt+cl)-x, cl-(t.fadeIn||0))); }
       if(updFade)updFade(); };
-    const up=()=>{ dragLock(false); window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); if(tlPlaying)scheduleFrom(Math.min(timelineTime(),FLOW),false); };
+    const up=()=>{ dragLock(false); window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); if(tlPlaying)scheduleFrom(Math.min(timelineTime(),projDur()),false); scheduleUndoCommit(); };
     window.addEventListener('pointermove',move); window.addEventListener('pointerup',up); }; }
-  function updTimebar(phase){
-    const tot=FLOW; let cur;
-    if(hasAudio()){ cur=Math.max(0,Math.min(tot,timelineTime())); }
-    else { let f=phase/(2*Math.PI); f=f-Math.floor(f); cur=f*tot; }
+  function updTimebar(t){
+    const tot=projDur();
+    const cur=Math.max(0,Math.min(tot,t||0));
     const ph=Q('#ls_playhead'); if(ph){ ph.style.display='block'; ph.style.left=(cur/tot*100).toFixed(3)+'%'; }
     const aph=Q('#ls_auto_ph'); if(aph) aph.style.left=(cur/tot*100).toFixed(3)+'%';
     const tEl=Q('#ls_time'); if(tEl)tEl.textContent=fmtT(cur)+' / '+fmtT(tot);
   }
-  function curTimeSec(phase){ const tot=FLOW;
-    if(hasAudio()) return Math.max(0,Math.min(tot, tlPlaying?timelineTime():tlFromT));
-    let f=phase/(2*Math.PI); f=f-Math.floor(f); return f*tot; }
+  // curTimeSec는 시간 1차 시계로 대체됨 — 현재 시각은 lastT
   // ===== 키프레임 보간 엔진 =====
   // 세그먼트 이징은 시작 키프레임(A)에 저장: A.m = 'smooth'(기본·레거시 smoothstep) | 'linear' | 'hold' | 'bezier'
   // bezier는 A.h=[x1,y1,x2,y2] (세그먼트 정규화 좌표, CSS cubic-bezier와 동일 의미. y는 오버슈트 허용)
@@ -5198,29 +5647,29 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
   }
   function frame(now){
     if(!glReady||offlineRendering){ rafId=requestAnimationFrame(frame); return; }
-    let phase;
-    if(recording && !hasAudio()) phase=2*Math.PI*(recElapsed/FLOW);
+    const dur=projDur(); let tSec;
+    if(recording && !hasAudio()) tSec=Math.min(dur,recElapsed);
     else if(hasAudio()){ let tt=tlPlaying?timelineTime():tlFromT; const total=totalDur();
       if(!recording && tlPlaying && total>0 && tt>=total){ scheduleFrom(0,false); tt=0; }
-      phase=2*Math.PI*(((tt)/FLOW)%1); }
-    else if(playing) phase=2*Math.PI*((((now-startT)/1000)/FLOW)%1);
-    else phase=pausedPhase;
-    lastPhase=phase;
+      tSec=Math.max(0,Math.min(dur,tt)); }
+    else if(playing) tSec=((((now-startT)/1000)%dur)+dur)%dur;
+    else tSec=Math.max(0,Math.min(dur,pausedT));
+    const phase=2*Math.PI*((tSec/FLOW)%1);
+    lastPhase=phase; lastT=tSec;
     const lv=audioLevels();
-    const tSec=curTimeSec(phase);
     { const hide=(playing||tlPlaying||recording); if(objLayer.style.display!==(hide?'none':'')) objLayer.style.display=hide?'none':''; }
     drawScene(tSec,phase,lv,recording);
-    updTimebar(phase);
+    updTimebar(tSec);
     rafId=requestAnimationFrame(frame);
   }
-  function start(){ resize(); try{renderAuto();}catch(e){} if(playing && !hasAudio()) startT=performance.now()-(lastPhase/(2*Math.PI))*FLOW*1000; if(playing && hasAudio() && !tlPlaying) startTimeline(tlFromT); if(!rafId)rafId=requestAnimationFrame(frame); }
+  function start(){ resize(); try{renderAuto();}catch(e){} if(playing && !hasAudio()) startT=performance.now()-lastT*1000; if(playing && hasAudio() && !tlPlaying) startTimeline(tlFromT); if(!rafId)rafId=requestAnimationFrame(frame); }
   function stop(){ if(rafId){ cancelAnimationFrame(rafId); rafId=null; } if(tlPlaying)pauseTimeline(); }
 
   function updPlayBtns(){ const pb=Q('#ls_tlplay'),pa=Q('#ls_tlpause'); if(pb)pb.classList.toggle('on',playing); if(pa)pa.classList.toggle('on',!playing); }
   function setPlay(p){ playing=p; if(hasAudio()){ if(p){ startTimeline(tlFromT); } else { pauseTimeline(); } } updPlayBtns(); }
-  function doPlay(){ if(recording||playing)return; if(!hasAudio()) startT=performance.now()-(pausedPhase/(2*Math.PI))*FLOW*1000; setPlay(true); }
-  function doPause(){ if(recording||!playing)return; if(!hasAudio()) pausedPhase=2*Math.PI*((((performance.now()-startT)/1000)/FLOW)%1); setPlay(false); }
-  function doStop(){ if(recording)return; if(playing){ if(!hasAudio()) pausedPhase=0; setPlay(false); } pausedPhase=0; seekTo(0); }
+  function doPlay(){ if(recording||playing)return; if(!hasAudio()) startT=performance.now()-pausedT*1000; setPlay(true); }
+  function doPause(){ if(recording||!playing)return; if(!hasAudio()) pausedT=((((performance.now()-startT)/1000)%projDur())+projDur())%projDur(); setPlay(false); }
+  function doStop(){ if(recording)return; if(playing){ setPlay(false); } pausedT=0; seekTo(0); }
   function togglePlay(){ if(playing) doPause(); else doPlay(); }
   Q('#ls_tlplay').addEventListener('click',doPlay);
   Q('#ls_tlpause').addEventListener('click',doPause);
@@ -5231,11 +5680,11 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
   document.addEventListener('keydown',onKey);
   updPlayBtns();
 
-  function seekTo(r){ r=Math.min(1,Math.max(0,r));
-    if(hasAudio()){ seekTimeline(r*totalDur()); }
-    else if(playing){ startT=performance.now()-r*FLOW*1000; }
-    else { pausedPhase=r*2*Math.PI; }
-    lastPhase=r*2*Math.PI; updTimebar(lastPhase); }
+  function seekTo(r){ r=Math.min(1,Math.max(0,r)); const dur=projDur();
+    if(hasAudio()){ seekTimeline(r*dur); }
+    else if(playing){ startT=performance.now()-r*dur*1000; }
+    else { pausedT=r*dur; }
+    lastT=r*dur; lastPhase=2*Math.PI*((lastT/FLOW)%1); updTimebar(lastT); }
 
   // image / audio file inputs
   const fileInput=Q('#ls_file');
@@ -5293,22 +5742,27 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
   const yieldTask=()=>new Promise(r=>{ const ch=new MessageChannel(); ch.port1.onmessage=()=>r(); ch.port2.postMessage(0); });
 
   // 타임라인 전체를 오프라인 믹스다운: scheduleFrom()과 동일한 배치/페이드 수식 (fromT=0 기준)
-  async function renderMixdownOffline(dur){
-    const sr=48000, len=Math.max(1,Math.ceil(dur*sr));
+  async function renderMixdownOffline(a,b){
+    // 절대시간 [a,b) 구간을 오프라인 믹스다운. 페이드는 조각선형 곡선을 로컬시간으로 옮겨 스케줄 —
+    // 구간이 페이드 중간을 자르더라도 그 지점의 게인값에서 정확히 이어진다.
+    const sr=48000, span=Math.max(0.1,b-a), len=Math.max(1,Math.ceil(span*sr));
     const oc=new OfflineAudioContext(2,len,sr);
     const master=oc.createGain(); master.connect(oc.destination);
-    tracks.forEach(t=>{ const cl=clipLen(t); const tlStart=t.startAt, tlEnd=Math.min(dur,tlStart+cl);
-      if(tlEnd<=0.01 || tlStart>=dur) return;
+    tracks.forEach(t=>{ const cl=clipLen(t); const clS=t.startAt, clE=Math.min(b,clS+cl);
+      const ovS=Math.max(clS,a); if(clE-ovS<=0.01) return;
       const src=oc.createBufferSource(); src.buffer=t.buffer;
       const g=oc.createGain(); src.connect(g); g.connect(master);
-      const fin=Math.max(0,Math.min(t.fadeIn||0,cl)); const fout=Math.max(0,Math.min(t.fadeOut||0,cl-fin));
+      const fin=Math.max(0,Math.min(t.fadeIn||0,cl)), fout=Math.max(0,Math.min(t.fadeOut||0,cl-fin));
+      const foS=clS+cl-fout; const L=x=>x-a;
+      const gainAt=x=>{ if(fin>0.01&&x<clS+fin) return Math.max(0,(x-clS)/fin);
+        if(fout>0.01&&x>foS) return Math.max(0,(clS+cl-x)/fout); return 1; };
       const gp=g.gain;
-      try{ gp.setValueAtTime(fin>0.01?0:1,Math.max(0,tlStart));
-        if(fin>0.01) gp.linearRampToValueAtTime(1,tlStart+fin);
-        const foS=tlEnd-fout;
-        if(fout>0.01){ gp.setValueAtTime(1,Math.max(0,foS)); gp.linearRampToValueAtTime(0,tlEnd); }
+      try{
+        gp.setValueAtTime(gainAt(ovS),Math.max(0,L(ovS)));
+        if(fin>0.01&&clS+fin>ovS&&clS+fin<clE) gp.linearRampToValueAtTime(1,L(clS+fin));
+        if(fout>0.01&&foS<clE){ if(foS>ovS) gp.setValueAtTime(1,L(foS)); gp.linearRampToValueAtTime(gainAt(clE),L(clE)); }
       }catch(e){}
-      try{ src.start(Math.max(0,tlStart),t.trimStart,Math.max(0.02,tlEnd-tlStart)+0.05); }catch(e){}
+      try{ src.start(Math.max(0,L(ovS)), t.trimStart+(ovS-clS), Math.max(0.02,clE-ovS)+0.05); }catch(e){}
     });
     return await oc.startRendering();
   }
@@ -5375,7 +5829,10 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
   }
 
   async function startOfflineRender(){
-    const fps=st.fps||30, dur=FLOW, frames=Math.round(dur*fps);
+    const fps=st.fps||30;
+    const waOn=(waIn!=null&&waOut!=null&&waOut>waIn+0.05);
+    const rT0=waOn?Math.max(0,waIn):0, rT1=waOn?Math.min(projDur(),waOut):projDur();
+    const dur=Math.max(0.1,rT1-rT0), frames=Math.round(dur*fps);
     const [ow,oh]=outputSize(); const audioOn=hasAudio();
     let Mux=null, vCodec=null;
     try{
@@ -5389,6 +5846,8 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
 
     recCancelled=false; recording=true; offlineRendering=true; _off={cancel:false};
     recBtn.classList.add('on'); recBtn.textContent='■ 취소'; recDot.classList.add('on'); recLabel.textContent='렌더 준비 중…';
+    const progEl=Q('#ls_prog'), progBar=progEl?progEl.querySelector('i'):null;
+    if(progEl){ progEl.classList.add('on'); if(progBar)progBar.style.width='0%'; }
     prevWH=[canvas.width,canvas.height]; canvas.width=ow; canvas.height=oh;
     let ok=false, err=null;
     try{
@@ -5401,26 +5860,28 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
       const venc=new VideoEncoder({output:(c,m)=>muxer.addVideoChunk(c,m),error:e=>{encErr=e;}});
       venc.configure({codec:vCodec,width:ow,height:oh,bitrate:targetBitrate(),framerate:fps});
       let mix=null, anal=null;
-      if(audioOn){ recLabel.textContent='오디오 믹스다운…'; mix=await renderMixdownOffline(dur);
+      if(audioOn){ recLabel.textContent='오디오 믹스다운…'; mix=await renderMixdownOffline(rT0,rT1);
         recLabel.textContent='오디오 분석…'; await yieldTask(); anal=analyzeMixFrames(mix,fps,frames); }
       const t0=performance.now(); const gop=fps*2;
       for(let i=0;i<frames;i++){
         if(_off.cancel||encErr) break;
-        const t=i/fps;
+        const t=rT0+i/fps;                                  // work area 지정 시 절대시간으로 렌더
         ovrFreq=anal?anal.freq[i]:null;
-        drawScene(t, 2*Math.PI*((t/FLOW)%1), anal?anal.kick[i]:0, false);
+        drawScene(t, 2*Math.PI*((t/FLOW)%1), anal?anal.kick[i]:0, false); // phase는 FLOW 루프 유지
         const vf=new VideoFrame(canvas,{timestamp:Math.round(i*1e6/fps),duration:Math.round(1e6/fps)});
         venc.encode(vf,{keyFrame:(i%gop)===0}); vf.close();
         while(venc.encodeQueueSize>4 && !_off.cancel && !encErr) await yieldTask();
         if((i&3)===3) await yieldTask();
         if((i&7)===7 || i===frames-1){ const sp=((i+1)/fps)/Math.max(0.001,(performance.now()-t0)/1000);
-          recLabel.textContent='렌더 '+(i+1)+'/'+frames+' · '+sp.toFixed(1)+'×'; }
+          recLabel.textContent='렌더 '+(i+1)+'/'+frames+' · '+sp.toFixed(1)+'×';
+          if(progBar)progBar.style.width=((i+1)/frames*100).toFixed(1)+'%'; }
       }
       ovrFreq=null;
       if(!_off.cancel && !encErr){
         recLabel.textContent='인코딩 마무리…'; await venc.flush();
         if(audioOn){ recLabel.textContent='오디오 인코딩…'; await encodeAudioAAC(muxer,mix); }
         muxer.finalize();
+        if(progBar)progBar.style.width='100%';
         saveBlob([target.buffer],'video/mp4'); ok=true;
       }
       try{venc.close();}catch(e){}
@@ -5428,7 +5889,9 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
     }catch(e){ err=e; }
     const cancelled=_off&&_off.cancel;
     offlineRendering=false; ovrFreq=null; _off=null; recCancelled=false;
+    if(progEl){ progEl.classList.remove('on'); if(progBar)progBar.style.width='0%'; }
     endRecState();
+    if(ok) showError('렌더 완료 — 파일이 저장됐어요.'+(waOn?' (구간 '+fmtT(rT0)+'–'+fmtT(rT1)+')':''));
     if(!ok){ showError(cancelled?'렌더를 취소했어요.':'정밀 렌더에 실패했어요. 잠시 후 다시 시도해 주세요.'); if(err){ try{console.error('[offline render]',err);}catch(e){} } }
   }
 
@@ -5442,15 +5905,19 @@ void main(){ frag=vec4(texture(uT,gl_FragCoord.xy/uRes2).rgb,1.0); }`;
     let stream=vstream, dur;
     if(audioOn){ stream=new MediaStream([...vstream.getVideoTracks(),...audioDest.stream.getAudioTracks()]);
       dur=Math.max(0.1,totalDur()); tlPlaying=true; ensureAudioNodes(); audioCtx.resume&&audioCtx.resume(); scheduleFrom(0,true); }
-    else { dur=FLOW; }
+    else { dur=projDur(); }
     _rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:targetBitrate(),audioBitsPerSecond:192000});
     const chunks=[]; _rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
-    _rec.onstop=()=>{ if(!recCancelled){ saveBlob(chunks,mime); } if(audioOn){ stopSources(); tlPlaying=false; tlFromT=0; } endRecState(); if(recCancelled){ recCancelled=false; showError('녹화를 취소했어요.'); } };
+    _rec.onstop=()=>{ if(!recCancelled){ saveBlob(chunks,mime); } if(audioOn){ stopSources(); tlPlaying=false; tlFromT=0; }
+      { const pe=Q('#ls_prog'); if(pe){ pe.classList.remove('on'); const pb=pe.querySelector('i'); if(pb)pb.style.width='0%'; } }
+      endRecState(); if(recCancelled){ recCancelled=false; showError('녹화를 취소했어요.'); } };
     const t0=performance.now(); let stopped=false;
     function tick(now){ if(stopped||!recording)return;
       if(audioOn){ recElapsed=timelineTime(); if(recElapsed>=dur-0.04){ stopped=true; finishRec(); return; } }
       else { recElapsed=(now-t0)/1000; if(recElapsed>=dur){ recElapsed=dur; stopped=true; finishRec(); return; } }
-      recLabel.textContent='REC '+recElapsed.toFixed(1)+'s'; requestAnimationFrame(tick); }
+      recLabel.textContent='REC '+recElapsed.toFixed(1)+'s';
+      { const pe=Q('#ls_prog'); if(pe){ pe.classList.add('on'); const pb=pe.querySelector('i'); if(pb)pb.style.width=Math.min(100,recElapsed/dur*100).toFixed(1)+'%'; } }
+      requestAnimationFrame(tick); }
     _rec.start(); requestAnimationFrame(tick);
     if(audioOn) showError('타임라인 전체('+fmtT(dur)+')를 실시간으로 녹화합니다.');
   }
