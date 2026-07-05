@@ -1209,6 +1209,10 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-scene::-webkit-scrollbar{ width:8px; } .ls-scene::-webkit-scrollbar-thumb{ background:var(--c-bd2); border-radius:4px; }
 .ls-scene.hidden{ display:none; }
 .ls-scene .ls-bgload{ width:100%; justify-content:center; }
+.ls-bgrow2{ display:flex; gap:6px; }
+.ls-bgrow2 .ls-act{ flex:1 1 0; width:auto; min-width:0; justify-content:center; }
+.ls-bgclear{ color:var(--c-t2); }
+.ls-bgclear:hover{ border-color:#ff6b6b; color:#ff6b6b; }
 .ls-scene .ls-grid{ gap:12px; }
 .ls-scene #ls_bgfx{ grid-template-columns:1fr 1fr; gap:11px 12px; }
 .ls-scene #ls_bgfx .ls-ctrl label{ font-size:11.5px; }
@@ -4261,7 +4265,10 @@ function createArtwork(){
         <div class="ls-scene" id="ls_scene">
           <div class="ls-opop-h"><span>배경 · 장면</span></div>
           <div class="ls-osec">배경 이미지</div>
-          <button class="ls-act ls-bgload" id="ls_load">이미지 교체</button>
+          <div class="ls-bgrow2">
+            <button class="ls-act ls-bgload" id="ls_load">이미지 교체</button>
+            <button class="ls-act ls-bgclear" id="ls_bgclear">이미지 삭제</button>
+          </div>
           <input type="file" id="ls_file" accept="image/*" hidden>
           <div class="ls-osec">배경 효과</div>
           <div class="ls-grid" id="ls_bgfx">
@@ -4752,7 +4759,7 @@ void main(){
     vals:captureVals(), auto:captureAuto(), objs:_snapObjs(),
     dur:st.dur||60, markers:markers.slice(), waIn:waIn, waOut:waOut,
     vfadeIn:st.vfadeIn||0, vfadeOut:st.vfadeOut||0,
-    trk:tracks.map(t=>({id:t.id,startAt:t.startAt,trimStart:t.trimStart,trimEnd:t.trimEnd,fadeIn:t.fadeIn||0,fadeOut:t.fadeOut||0,vol:(t.vol==null?1:t.vol)})) }); }
+    trk:tracks.map(t=>({id:t.id,startAt:t.startAt,trimStart:t.trimStart,trimEnd:t.trimEnd,fadeIn:t.fadeIn||0,fadeOut:t.fadeOut||0,vol:(t.vol==null?1:t.vol),bass:(t.bass||0),treble:(t.treble||0)})) }); }
   function undoCommit(){ if(_undoApplying)return;
     try{ const snap=_snapshot(); if(_hi>=0&&_hist[_hi]===snap)return;
       _hist.splice(_hi+1); _hist.push(snap); if(_hist.length>UNDO_MAX)_hist.shift(); _hi=_hist.length-1; }catch(e){} }
@@ -4766,7 +4773,7 @@ void main(){
       applyVals(s2.vals||{});
       applyObjs(_restObjs(s2.objs));
       applyAuto(s2.auto||{});
-      (s2.trk||[]).forEach(m=>{ const t=tracks.find(x=>x.id===m.id); if(t){ t.startAt=m.startAt; t.trimStart=m.trimStart; t.trimEnd=m.trimEnd; t.fadeIn=m.fadeIn; t.fadeOut=m.fadeOut; if(m.vol!=null)t.vol=m.vol; } });
+      (s2.trk||[]).forEach(m=>{ const t=tracks.find(x=>x.id===m.id); if(t){ t.startAt=m.startAt; t.trimStart=m.trimStart; t.trimEnd=m.trimEnd; t.fadeIn=m.fadeIn; t.fadeOut=m.fadeOut; if(m.vol!=null)t.vol=m.vol; if(m.bass!=null)t.bass=m.bass; if(m.treble!=null)t.treble=m.treble; } });
       renderTimeline(); refreshObjs();
     }catch(e){}
     _undoApplying=false; }
@@ -4809,7 +4816,12 @@ void main(){
     tracks.forEach(t=>{ const cl=clipLen(t); const tlStart=t.startAt, tlEnd=Math.min(total,tlStart+cl);
       if(tlEnd<=fromT+0.01 || tlStart>=total) return;
       const src=audioCtx.createBufferSource(); src.buffer=t.buffer;
-      const g=audioCtx.createGain(); src.connect(g); g.connect(masterGain);
+      const g=audioCtx.createGain();
+      let node=src;   // 음질(톤): 저음 low-shelf + 고음 high-shelf
+      const bass=Math.max(-15,Math.min(15,+t.bass||0)), treble=Math.max(-15,Math.min(15,+t.treble||0));
+      if(bass){ const lf=audioCtx.createBiquadFilter(); lf.type='lowshelf'; lf.frequency.value=220; lf.gain.value=bass; node.connect(lf); node=lf; }
+      if(treble){ const hf=audioCtx.createBiquadFilter(); hf.type='highshelf'; hf.frequency.value=3200; hf.gain.value=treble; node.connect(hf); node=hf; }
+      node.connect(g); g.connect(masterGain);
       const playTlStart=Math.max(tlStart,fromT); const srcOffset=t.trimStart+(playTlStart-tlStart);
       const playDur=Math.max(0.02,(tlEnd-playTlStart));
       const fin=Math.max(0,Math.min(t.fadeIn||0,cl)); const fout=Math.max(0,Math.min(t.fadeOut||0,cl-fin));
@@ -4842,7 +4854,7 @@ void main(){
       let region={start:0,end:Math.min(buf.duration,projDur())};
       if(buf.duration>projDur()+0.05){ const r=await pickRegion(buf,file.name||'음원'); if(!r){ return; } region=r; }
       const data=abToB64(ab);   // 원본 파일 바이트를 프로젝트에 임베딩(저장/복원용)
-      tracks.push({id:'t'+(++_tid), name:file.name||('트랙 '+(tracks.length+1)), buffer:buf, trimStart:region.start, trimEnd:region.end, startAt:0, fadeIn:0, fadeOut:0, vol:1, data:data, mime:file.type||'audio/mpeg', fname:file.name||''});
+      tracks.push({id:'t'+(++_tid), name:file.name||('트랙 '+(tracks.length+1)), buffer:buf, trimStart:region.start, trimEnd:region.end, startAt:0, fadeIn:0, fadeOut:0, vol:1, bass:0, treble:0, data:data, mime:file.type||'audio/mpeg', fname:file.name||''});
       renderTimeline();
       if(playing) startTimeline(tlPlaying?Math.min(timelineTime(),totalDur()):tlFromT);
     }catch(e){ showError('음원을 디코드하지 못했어요. 다른 파일로 시도해 보세요.'); }
@@ -4861,7 +4873,7 @@ void main(){
         const buf=await audioCtx.decodeAudioData(b64ToAb(m.data).slice(0));
         tracks.push({id:m.id||('t'+(++_tid)), name:m.name||m.fname||'트랙', buffer:buf,
           trimStart:m.trimStart||0, trimEnd:(m.trimEnd!=null?m.trimEnd:buf.duration), startAt:m.startAt||0,
-          fadeIn:m.fadeIn||0, fadeOut:m.fadeOut||0, vol:(m.vol==null?1:m.vol), data:m.data, mime:m.mime, fname:m.fname});
+          fadeIn:m.fadeIn||0, fadeOut:m.fadeOut||0, vol:(m.vol==null?1:m.vol), bass:(m.bass||0), treble:(m.treble||0), data:m.data, mime:m.mime, fname:m.fname});
         const nid=parseInt(String(m.id||'').replace(/\D/g,''))||0; if(nid>_tid)_tid=nid;
       }catch(e){} }
     }
@@ -4951,25 +4963,30 @@ void main(){
       bg:bgSrc||null,
       markers:markers.slice(), waIn:waIn, waOut:waOut,
       vals:captureVals(), auto:captureAuto(), objs:captureObjs(),
-      trk:tracks.map(t=>({id:t.id,name:t.name,startAt:t.startAt,trimStart:t.trimStart,trimEnd:t.trimEnd,fadeIn:t.fadeIn||0,fadeOut:t.fadeOut||0,vol:(t.vol==null?1:t.vol),data:t.data||null,mime:t.mime||null,fname:t.fname||null}))
+      trk:tracks.map(t=>({id:t.id,name:t.name,startAt:t.startAt,trimStart:t.trimStart,trimEnd:t.trimEnd,fadeIn:t.fadeIn||0,fadeOut:t.fadeOut||0,vol:(t.vol==null?1:t.vol),bass:(t.bass||0),treble:(t.treble||0),data:t.data||null,mime:t.mime||null,fname:t.fname||null}))
     };
   }
+  // ===== 프로젝트 로드 전 전체 상태 초기화 (이전 프로젝트 설정이 남지 않도록 완전 격리) =====
+  function resetArtworkState(){
+    stopSources(); tracks=[]; tlPlaying=false; tlFromT=0; selTrack=null;   // 오디오
+    objs=[]; selId=null; closePop(); try{ layerTexCache.clear(); }catch(e){} // 오브젝트
+    for(const k in auto) delete auto[k]; autoKeys=[];                        // 오토메이션
+    clearBackground();                                                      // 배경 이미지
+    KEYS.forEach(k=>{ const el=Q('#ls_'+k); if(el){ el.value=el.defaultValue; el.dispatchEvent(new Event('input')); } }); // 배경효과 기본값
+    markers=[]; waIn=null; waOut=null;                                      // 마커/렌더구간
+    st.vfadeIn=0; st.vfadeOut=0; { const a=Q('#ls_vfi'),b=Q('#ls_vfo'); if(a)a.value=0; if(b)b.value=0; } // 영상 페이드
+  }
   function applyProject(p){ if(!p)return;
-    if(p.ver>=2){
-      if(p.dur!=null)setDur(p.dur);
-      if(p.ar!=null)setAR(p.ar);
-      if(p.outH!=null)setResH(p.outH);
-      if(p.fps!=null)setFPS(p.fps);
-      markers=Array.isArray(p.markers)?p.markers.slice():[];
-      waIn=(p.waIn!=null)?p.waIn:null; waOut=(p.waOut!=null)?p.waOut:null;
-      st.vfadeIn=Math.max(0,+p.vfadeIn||0); st.vfadeOut=Math.max(0,+p.vfadeOut||0);
-      { const a=Q('#ls_vfi'), b=Q('#ls_vfo'); if(a)a.value=st.vfadeIn; if(b)b.value=st.vfadeOut; }
-      if('bg' in p){ if(p.bg) setBackground(p.bg); else clearBackground(); }   // 배경 이미지 복원
-    }
-    applyVals(p.vals||{}); applyObjs(p.objs); applyAuto(p.auto||{});
-    // 오디오: 저장된 원본 데이터가 있으면 트랙을 완전히 재구성. 없으면(구버전) 기존 트랙 메타만 패치.
-    if(Array.isArray(p.trk) && p.trk.some(m=>m&&m.data)){ restoreTracks(p.trk); }
-    else if(Array.isArray(p.trk)){ p.trk.forEach(m=>{ const t=tracks.find(x=>x.id===m.id); if(t){ t.startAt=m.startAt; t.trimStart=m.trimStart; t.trimEnd=m.trimEnd; t.fadeIn=m.fadeIn||0; t.fadeOut=m.fadeOut||0; if(m.vol!=null)t.vol=m.vol; } }); }
+    resetArtworkState();                                   // 항상 깨끗한 상태에서 시작
+    setDur(p.dur!=null?p.dur:60); setAR(p.ar!=null?p.ar:0.5625);
+    setResH(p.outH!=null?p.outH:1080); setFPS(p.fps!=null?p.fps:30);
+    markers=Array.isArray(p.markers)?p.markers.slice():[];
+    waIn=(p.waIn!=null)?p.waIn:null; waOut=(p.waOut!=null)?p.waOut:null;
+    st.vfadeIn=Math.max(0,+p.vfadeIn||0); st.vfadeOut=Math.max(0,+p.vfadeOut||0);
+    { const a=Q('#ls_vfi'), b=Q('#ls_vfo'); if(a)a.value=st.vfadeIn; if(b)b.value=st.vfadeOut; }
+    if(p.bg) setBackground(p.bg);                          // 없으면 이미 초기화(빈 배경) 상태
+    applyVals(p.vals||{}); applyObjs(p.objs||[]); applyAuto(p.auto||{});
+    if(Array.isArray(p.trk) && p.trk.some(m=>m&&m.data)) restoreTracks(p.trk);  // 임베딩된 음원만 복원
     renderTimeline(); refreshObjs();
   }
 
@@ -5107,7 +5124,7 @@ void main(){
   }
   // ===== 레이어 우클릭 컨텍스트 메뉴 (피그마식) =====
   let _ctx=null;
-  function ensureCtx(){ if(_ctx)return _ctx; _ctx=document.createElement('div'); _ctx.className='ls-ctxmenu'; root.appendChild(_ctx);
+  function ensureCtx(){ if(_ctx)return _ctx; _ctx=document.createElement('div'); _ctx.className='ls-ctxmenu'; document.body.appendChild(_ctx);
     document.addEventListener('pointerdown',e=>{ if(_ctx&&!_ctx.contains(e.target)) closeCtx(); },true);
     window.addEventListener('blur',closeCtx); document.addEventListener('scroll',closeCtx,true); return _ctx; }
   function closeCtx(){ if(_ctx) _ctx.classList.remove('on'); }
@@ -5120,17 +5137,25 @@ void main(){
     m.appendChild(ctxItem('복제','⌘D',()=>dupObj(id)));
     const sep2=document.createElement('div'); sep2.className='ls-ctxsep'; m.appendChild(sep2);
     m.appendChild(ctxItem('삭제','⌫',()=>delObj(id),true));
-    m.classList.add('on'); m.style.left='0px'; m.style.top='0px';
-    const mw=m.offsetWidth||180, mh=m.offsetHeight||200;
-    // 레이어 목록에서 우클릭(nmEl 존재)하면 그 행 우측에 붙이고, 캔버스에서 우클릭하면 마우스 위치에 띄운다.
-    const row=nmEl?root.querySelector('.ls-lyr-row[data-id="'+id+'"]'):null;
-    let L,T;
-    if(row){ const r=row.getBoundingClientRect(); L=r.right+6; T=r.top;
-      if(L+mw>window.innerWidth-6) L=r.left-mw-6;       // 오른쪽 공간 부족 시 왼쪽으로
-      if(L<6) L=Math.min(x,window.innerWidth-mw-6);
-    } else { L=x; T=y; }
-    m.style.left=Math.max(6,Math.min(L,window.innerWidth-mw-6))+'px';
-    m.style.top=Math.max(6,Math.min(T,window.innerHeight-mh-6))+'px';
+    // 먼저 화면 밖(측정용)에 표시해 크기를 잰 뒤, 정확한 위치로 옮긴다.
+    m.classList.add('on'); m.style.left='-9999px'; m.style.top='-9999px';
+    const place=()=>{
+      const mw=m.offsetWidth||180, mh=m.offsetHeight||200;
+      const vw=window.innerWidth, vh=window.innerHeight;
+      let L,T;
+      // 레이어 목록에서 우클릭(nmEl 존재)하면 그 행 우측, 캔버스에서 우클릭하면 마우스(커서) 위치
+      const row=nmEl?root.querySelector('.ls-lyr-row[data-id="'+id+'"]'):null;
+      if(row){ const r=row.getBoundingClientRect(); L=r.right+6; T=r.top;
+        if(L+mw>vw-6) L=r.left-mw-6;                 // 오른쪽 공간 부족 시 왼쪽으로
+        if(L<6) L=Math.min(x,vw-mw-6);
+      } else { L=x; T=y;                              // 커서 기준
+        if(L+mw>vw-6) L=x-mw;                         // 오른쪽 넘치면 커서 왼쪽으로
+        if(T+mh>vh-6) T=y-mh;                         // 아래로 넘치면 커서 위로
+      }
+      m.style.left=Math.max(6,Math.min(L,vw-mw-6))+'px';
+      m.style.top=Math.max(6,Math.min(T,vh-mh-6))+'px';
+    };
+    place(); requestAnimationFrame(place);           // 레이아웃 확정 후 한 번 더 보정
   }
   // 인라인 이름 편집 (레이어 목록 행)
   function beginRename(id,nmEl){ const o=findObj(id); if(!o||!nmEl)return;
@@ -5224,12 +5249,20 @@ void main(){
     h+='<div class="ls-osec">페이드</div>';
     h+='<div class="ls-orow"><span class="ls-scrub">페이드 인</span><div class="ls-oinline ls-xy"><input type="number" data-afade="in" step="0.1" min="0" max="'+cl.toFixed(1)+'" value="'+(t.fadeIn||0).toFixed(1)+'"> s</div></div>';
     h+='<div class="ls-orow"><span class="ls-scrub">페이드 아웃</span><div class="ls-oinline ls-xy"><input type="number" data-afade="out" step="0.1" min="0" max="'+cl.toFixed(1)+'" value="'+(t.fadeOut||0).toFixed(1)+'"> s</div></div>';
+    const bass=Math.max(-15,Math.min(15,+t.bass||0)), treble=Math.max(-15,Math.min(15,+t.treble||0));
+    const dbTxt=v=>(v>0?'+':'')+v+'dB';
+    h+='<div class="ls-osec">음질</div>';
+    h+='<div class="ls-orow"><span>저음</span><div class="ls-oinline"><input type="range" data-tone="bass" min="-15" max="15" step="1" value="'+bass+'"><span class="ls-oval" data-tonev="bass">'+dbTxt(bass)+'</span></div></div>';
+    h+='<div class="ls-orow"><span>고음</span><div class="ls-oinline"><input type="range" data-tone="treble" min="-15" max="15" step="1" value="'+treble+'"><span class="ls-oval" data-tonev="treble">'+dbTxt(treble)+'</span></div></div>';
     h+='<div class="ls-omhint">트랙 길이·위치는 타임라인 클립을 드래그해 조정할 수 있어요.</div>';
     p.innerHTML=h; p.classList.add('on'); showScene(false);
     p.querySelector('[data-x]').addEventListener('click',()=>{ closePop(); renderTimeline(); });
     const av=p.querySelector('[data-avol]'); if(av){
       av.addEventListener('input',()=>{ t.vol=parseFloat(av.value); const l=p.querySelector('[data-avolv]'); if(l)l.textContent=Math.round(t.vol*100)+'%'; });
       av.addEventListener('change',()=>{ if(tlPlaying) scheduleFrom(Math.min(timelineTime(),totalDur()),false); scheduleUndoCommit(); }); }
+    p.querySelectorAll('[data-tone]').forEach(el=>{ const k=el.dataset.tone;
+      el.addEventListener('input',()=>{ t[k]=parseInt(el.value,10)||0; const l=p.querySelector('[data-tonev="'+k+'"]'); if(l)l.textContent=dbTxt(t[k]); });
+      el.addEventListener('change',()=>{ if(tlPlaying) scheduleFrom(Math.min(timelineTime(),totalDur()),false); scheduleUndoCommit(); }); });
     p.querySelectorAll('[data-afade]').forEach(el=>el.addEventListener('change',()=>{ const c=clipLen(t); let v=Math.max(0,Math.min(c,parseFloat(el.value)||0));
       if(el.dataset.afade==='in'){ t.fadeIn=Math.min(v,c-(t.fadeOut||0)); el.value=t.fadeIn.toFixed(1); }
       else { t.fadeOut=Math.min(v,c-(t.fadeIn||0)); el.value=t.fadeOut.toFixed(1); }
@@ -5618,7 +5651,7 @@ void main(){
   function addAutoLane(key){ if((KEYS.indexOf(key)<0&&!isObjKey(key))||autoKeys.indexOf(key)>=0)return;
     const a=ensureAuto(key); a.on=true; autoKeys.push(key); renderTimeline(); persistAutoLocal(); }
   function removeAutoLane(key){ const i=autoKeys.indexOf(key); if(i<0)return; autoKeys.splice(i,1);
-    if(auto[key]) auto[key].on=false; renderTimeline(); persistAutoLocal(); }
+    delete auto[key]; renderTimeline(); persistAutoLocal(); }   // 데이터까지 삭제 → 저장/복원 시 되살아나지 않음
   function toggleAutoLane(key){ const a=ensureAuto(key); a.on=!a.on; renderTimeline(); persistAutoLocal(); }
   function clearAutoLane(key){ const a=ensureAuto(key); a.pts=[]; renderTimeline(); persistAutoLocal(); }
 
@@ -6095,6 +6128,7 @@ void main(){
   const fileInput=Q('#ls_file');
   Q('#ls_load').addEventListener('click',()=>fileInput.click());
   fileInput.addEventListener('change',e=>{const f=e.target.files[0]; if(f)setBackground(f); e.target.value='';});
+  { const bgClear=Q('#ls_bgclear'); if(bgClear) bgClear.addEventListener('click',()=>{ clearBackground(); scheduleUndoCommit(); showError('배경 이미지를 삭제했어요.'); }); }
   const aInput=Q('#ls_afile');
   aInput.addEventListener('change',e=>{const f=e.target.files[0]; if(f)addTrackFile(f); e.target.value='';});
   renderTimeline();
