@@ -1233,7 +1233,7 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-gchip input[type=color]{ width:30px; height:22px; border:0; padding:0; background:none; cursor:pointer; }
 .ls-gchip button{ border:0; background:none; color:var(--c-t3); cursor:pointer; font-size:13px; line-height:1; padding:0 3px; }
 .ls-gchip button:hover{ color:#ff7b7b; }
-#ls_gadd{ height:28px; padding:0 10px; font-size:12px; }
+#ls_gadd,#ls_grand{ height:28px; padding:0 10px; font-size:12px; }
 .ls-opop-h{ display:flex; align-items:center; justify-content:space-between; font-size:13px; font-weight:600; color:var(--c-t1); }
 .ls-tabs{ display:flex; gap:4px; background:var(--c-card); border:1px solid var(--c-bd); border-radius:9px; padding:3px; }
 .ls-tabs button{ flex:1; padding:6px 0; font-size:12px; font-weight:600; color:var(--c-t3); background:none; border:none; border-radius:6px; cursor:pointer; font-family:inherit; transition:.12s; }
@@ -4300,6 +4300,10 @@ function createArtwork(){
           <div class="ls-gcolors" id="ls_gcolors"></div>
           <div class="ls-osec">그라디언트 설정 · Mesh</div>
           <div class="ls-grid" id="ls_gradfx">
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_gspread">퍼짐 Spread</label><span class="ls-val" id="ls_gspreadV"></span></div><input type="range" id="ls_gspread" min="0" max="1.6" step="0.02" value="0.9"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_gorbit">궤도 반경 Orbit</label><span class="ls-val" id="ls_gorbitV"></span></div><input type="range" id="ls_gorbit" min="0" max="0.8" step="0.01" value="0.3"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_gsize">광원 크기 Size</label><span class="ls-val" id="ls_gsizeV"></span></div><input type="range" id="ls_gsize" min="0.3" max="2.2" step="0.02" value="1"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_gangle">회전 Angle</label><span class="ls-val" id="ls_gangleV"></span></div><input type="range" id="ls_gangle" min="0" max="360" step="1" value="0"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_gscale">노이즈 스케일</label><span class="ls-val" id="ls_gscaleV"></span></div><input type="range" id="ls_gscale" min="0.4" max="5" step="0.05" value="1.6"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_gsoft">부드러움</label><span class="ls-val" id="ls_gsoftV"></span></div><input type="range" id="ls_gsoft" min="0" max="1" step="0.01" value="0.55"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_gwarp">워프 강도</label><span class="ls-val" id="ls_gwarpV"></span></div><input type="range" id="ls_gwarp" min="0" max="2" step="0.02" value="0.5"></div>
@@ -4547,6 +4551,7 @@ out vec4 frag;
 uniform vec2 uRes; uniform float uPh; uniform float uSeed2; uniform int uMode;
 uniform vec3 uC[5]; uniform int uNC;
 uniform float uScale,uSoft,uWamt,uBri,uCon,uSat,uGr;
+uniform float uSpread,uOrbit,uSizeM,uAng;
 // --- 2D simplex noise: Ashima Arts webgl-noise (MIT, Ian McEwan/Stefan Gustavson) 인라인 ---
 vec3 gmod289v3(vec3 x){ return x - floor(x * (1.0/289.0)) * 289.0; }
 vec2 gmod289v2(vec2 x){ return x - floor(x * (1.0/289.0)) * 289.0; }
@@ -4574,22 +4579,27 @@ float snoise(vec2 v){
 // --- IQ cosine palette (Inigo Quilez) 인라인 — 워프 노이즈 기반 미세 iridescence ---
 vec3 gpal(float t, vec3 a, vec3 b, vec3 c, vec3 d){ return a + b*cos(6.2831853*(c*t+d)); }
 vec2 gcirc(float ph){ return vec2(cos(ph),sin(ph)); }
-// Mesh: 색 blob들이 정수배 위상으로 궤도 순환 + simplex 도메인 워프(원형 오프셋 → 완전 주기)
+// Mesh: 각 blob이 화면 전체에 분산된 고유 앵커(골든비 준난수)를 갖고, 앵커 주위 소궤도를
+// 정수배 위상으로 순환 — 원점 공전 방식의 뭉침 해소. 도메인 워프는 원형 오프셋(완전 주기).
 vec3 gradMesh(vec2 p){
+  float ar=uRes.x/uRes.y;
   vec2 np=p*uScale;
   float n1=snoise(np + gcirc(uPh)*0.9);
   float n2=snoise(np*1.31 + gcirc(uPh+2.1)*0.9 + 7.3);
   vec2 q=p + vec2(n1,n2)*uWamt*0.38;
   float pw=mix(4.2,1.35,clamp(uSoft,0.0,1.0));     // 부드러움 → 역거리 가중 지수
+  float sz=max(0.2,uSizeM);                        // 광원 크기(거리 스케일)
   vec3 acc=vec3(0.0); float wsum=0.0;
   for(int i=0;i<5;i++){
     if(i>=uNC) break;
     float fi=float(i);
+    // 앵커: 골든비 준난수 분포 → 화면 전역으로 퍼짐(uSpread로 스케일)
+    vec2 anc=(vec2(fract(fi*0.618034+0.31),fract(fi*0.381966+0.13))-0.5)*vec2(ar,1.0)*uSpread;
     float dir=(mod(fi,2.0)<0.5)?1.0:-1.0;
     float k=1.0+floor(mod(fi,3.0));                 // 위상 배수는 정수만 → 이음새 없음
-    float a=uPh*k*dir + fi*2.39996;                 // 골든앵글 초기 위상 분산
-    vec2 ctr=vec2(cos(a),sin(a+fi*1.7))*(0.30+0.13*mod(fi*0.37,1.0));
-    float d=length(q-ctr);
+    float a=uPh*k*dir + fi*2.39996;
+    vec2 ctr=anc + vec2(cos(a),sin(a+fi*1.7)*0.75)*uOrbit*(0.7+0.3*fract(fi*0.71));
+    float d=length(q-ctr)/sz;
     float w=1.0/pow(d+0.06,pw);
     acc+=uC[i]*w; wsum+=w;
   }
@@ -4600,6 +4610,7 @@ vec3 gradMesh(vec2 p){
 void main(){
   vec2 uv=gl_FragCoord.xy/uRes;
   vec2 p=uv-0.5; p.x*=uRes.x/uRes.y;
+  { float ca=cos(uAng),sa=sin(uAng); p=vec2(p.x*ca-p.y*sa, p.x*sa+p.y*ca); }   // 필드 회전
   vec3 col;
   if(uMode==0) col=gradMesh(p);
   else col=gradMesh(p);   // 2단계 모드 분기 예약(Aurora/Plasma/Bands/Concentric/Smoke)
@@ -4614,13 +4625,15 @@ void main(){
   let gradProg=null,guni={};
   try{
     gradProg=mkProg(GRAD_FS);
-    ['uRes','uPh','uSeed2','uMode','uNC','uScale','uSoft','uWamt','uBri','uCon','uSat','uGr'].forEach(n=>guni[n]=gl.getUniformLocation(gradProg,n));
+    ['uRes','uPh','uSeed2','uMode','uNC','uScale','uSoft','uWamt','uBri','uCon','uSat','uGr','uSpread','uOrbit','uSizeM','uAng'].forEach(n=>guni[n]=gl.getUniformLocation(gradProg,n));
     guni.uC=gl.getUniformLocation(gradProg,'uC[0]');
   }catch(e){ gradProg=null; }   // 실패 시 bgType='gradient'여도 이미지/기본 배경으로 동작
   // 그라디언트 상태 — 프로젝트 저장/복원·실행취소 대상
-  const GDEF={colors:['#16226e','#8a2be2','#00c8ff'],scale:1.6,soft:0.55,warp:0.5,speed:1,bright:0,contrast:0,sat:0,grain:0.02};
+  const GDEF={colors:['#16226e','#8a2be2','#00c8ff'],scale:1.6,soft:0.55,warp:0.5,speed:1,bright:0,contrast:0,sat:0,grain:0.02,
+    spread:0.9,orbit:0.3,size:1,angle:0};
   let bgType='image';
-  const grad={colors:GDEF.colors.slice(),scale:GDEF.scale,soft:GDEF.soft,warp:GDEF.warp,speed:GDEF.speed,bright:GDEF.bright,contrast:GDEF.contrast,sat:GDEF.sat,grain:GDEF.grain};
+  const grad={colors:GDEF.colors.slice(),scale:GDEF.scale,soft:GDEF.soft,warp:GDEF.warp,speed:GDEF.speed,bright:GDEF.bright,contrast:GDEF.contrast,sat:GDEF.sat,grain:GDEF.grain,
+    spread:GDEF.spread,orbit:GDEF.orbit,size:GDEF.size,angle:GDEF.angle};
   function hex2rgb(h){ h=String(h||'#888888').replace('#',''); if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
     const n=parseInt(h,16)||0; return [((n>>16)&255)/255,((n>>8)&255)/255,(n&255)/255]; }
   let gradTex=null,gradFbo=null,gradW=0,gradH=0;
@@ -4652,6 +4665,8 @@ void main(){
     cols.forEach((c,i)=>{ const r=hex2rgb(c); flat[i*3]=r[0]; flat[i*3+1]=r[1]; flat[i*3+2]=r[2]; });
     gl.uniform3fv(guni.uC,flat); gl.uniform1i(guni.uNC,Math.max(2,Math.min(5,cols.length)));
     gl.uniform1f(guni.uScale,grad.scale); gl.uniform1f(guni.uSoft,grad.soft); gl.uniform1f(guni.uWamt,grad.warp);
+    gl.uniform1f(guni.uSpread,grad.spread); gl.uniform1f(guni.uOrbit,grad.orbit); gl.uniform1f(guni.uSizeM,grad.size);
+    gl.uniform1f(guni.uAng,(grad.angle||0)*Math.PI/180);
     gl.uniform1f(guni.uBri,grad.bright); gl.uniform1f(guni.uCon,grad.contrast); gl.uniform1f(guni.uSat,grad.sat); gl.uniform1f(guni.uGr,grad.grain);
     gl.drawArrays(gl.TRIANGLES,0,3);
     gl.bindFramebuffer(gl.FRAMEBUFFER,null);
@@ -4906,8 +4921,9 @@ void main(){
 
   // ===== 그라디언트 UI 와이어링 =====
   // 슬라이더 id 'g'+prop ↔ grad[prop]. 2단계에서 오토메이션 등록 시 GKEYS를 AUTO_LABELS/KEYS에 연결.
-  const GKEYS=['gscale','gsoft','gwarp','gspeed','gbright','gcontrast','gsat','ggrain'];
-  const GFMT={gscale:v=>v.toFixed(2),gsoft:v=>Math.round(v*100)+'%',gwarp:v=>v.toFixed(2),gspeed:v=>'×'+Math.round(v),
+  const GKEYS=['gspread','gorbit','gsize','gangle','gscale','gsoft','gwarp','gspeed','gbright','gcontrast','gsat','ggrain'];
+  const GFMT={gspread:v=>v.toFixed(2),gorbit:v=>v.toFixed(2),gsize:v=>v.toFixed(2)+'×',gangle:v=>Math.round(v)+'°',
+    gscale:v=>v.toFixed(2),gsoft:v=>Math.round(v*100)+'%',gwarp:v=>v.toFixed(2),gspeed:v=>'×'+Math.round(v),
     gbright:v=>(v>0?'+':'')+v.toFixed(2),gcontrast:v=>(v>0?'+':'')+v.toFixed(2),gsat:v=>(v>0?'+':'')+v.toFixed(2),ggrain:v=>v.toFixed(3)};
   GKEYS.forEach(k=>{ const el=Q('#ls_'+k),out=Q('#ls_'+k+'V'); if(!el)return; const prop=k.slice(1);
     const upd=()=>{ grad[prop]=parseFloat(el.value); if(out)out.textContent=GFMT[k](grad[prop]); };
@@ -4916,11 +4932,29 @@ void main(){
     let h=''; grad.colors.forEach((c,i)=>{ h+='<div class="ls-gchip"><input type="color" value="'+c+'" data-gi="'+i+'">'
       +(grad.colors.length>2?'<button data-gdel="'+i+'" title="색 삭제">×</button>':'')+'</div>'; });
     if(grad.colors.length<5) h+='<button class="ls-act" id="ls_gadd">＋ 추가</button>';
+    h+='<button class="ls-act" id="ls_grand" title="조화 팔레트 랜덤 생성">🎲 랜덤</button>';
     box.innerHTML=h; }
+  // HSL 조화 스킴(유사/보색/삼각/단색조) 기반 랜덤 팔레트
+  function hsl2hex(h,s,l){ h=((h%360)+360)%360;
+    const f=n=>{ const k=(n+h/30)%12; const a=s*Math.min(l,1-l);
+      const c=l-a*Math.max(-1,Math.min(k-3,9-k,1));
+      return Math.round(c*255).toString(16).padStart(2,'0'); };
+    return '#'+f(0)+f(8)+f(4); }
+  function randPalette(){
+    const h0=Math.random()*360, type=Math.floor(Math.random()*4), n=3+Math.floor(Math.random()*3);
+    const out=[];
+    for(let i=0;i<n;i++){ let h=h0, s=0.55+Math.random()*0.4, l=0.42+Math.random()*0.26;
+      if(type===0) h=h0+i*25;                                        // 유사색
+      else if(type===1) h=h0+(i%2)*180+i*10;                         // 보색 계열
+      else if(type===2) h=h0+(i%3)*120+i*6;                          // 삼각 배색
+      else { h=h0+i*6; s=0.45+Math.random()*0.3; l=0.22+i*(0.55/Math.max(1,n-1)); }  // 단색조 명도 계단
+      out.push(hsl2hex(h,Math.min(1,s),Math.max(0.08,Math.min(0.92,l)))); }
+    return out; }
   { const box=Q('#ls_gcolors'); if(box){
     box.addEventListener('input',e=>{ const i=e.target&&e.target.getAttribute&&e.target.getAttribute('data-gi');
       if(i!=null){ grad.colors[+i]=e.target.value; scheduleUndoCommit(); } });
     box.addEventListener('click',e=>{ const t=e.target;
+      if(t&&t.id==='ls_grand'){ grad.colors=randPalette(); renderGradColors(); scheduleUndoCommit(); return; }
       if(t&&t.id==='ls_gadd'&&grad.colors.length<5){ grad.colors.push('#ffffff'); renderGradColors(); scheduleUndoCommit(); return; }
       const d=t&&t.getAttribute&&t.getAttribute('data-gdel');
       if(d!=null&&grad.colors.length>2){ grad.colors.splice(+d,1); renderGradColors(); scheduleUndoCommit(); } }); } }
@@ -4931,10 +4965,11 @@ void main(){
   { const bi=Q('#ls_bgt_img'),bgd=Q('#ls_bgt_grad');
     if(bi)bi.addEventListener('click',()=>{ setBgType('image'); scheduleUndoCommit(); });
     if(bgd)bgd.addEventListener('click',()=>{ setBgType('gradient'); scheduleUndoCommit(); }); }
-  function captureGrad(){ return {colors:grad.colors.slice(),scale:grad.scale,soft:grad.soft,warp:grad.warp,speed:grad.speed,bright:grad.bright,contrast:grad.contrast,sat:grad.sat,grain:grad.grain}; }
+  const GPROPS=GKEYS.map(k=>k.slice(1));   // ['spread','orbit',...] — 캡처/복원 단일 소스
+  function captureGrad(){ const o={colors:grad.colors.slice()}; GPROPS.forEach(p=>o[p]=grad[p]); return o; }
   function applyGrad(g){ const d=g||GDEF;
     grad.colors=(Array.isArray(d.colors)&&d.colors.length>=2)?d.colors.slice(0,5):GDEF.colors.slice();
-    ['scale','soft','warp','speed','bright','contrast','sat','grain'].forEach(p=>{ grad[p]=(d[p]!=null&&isFinite(+d[p]))?+d[p]:GDEF[p]; });
+    GPROPS.forEach(p=>{ grad[p]=(d[p]!=null&&isFinite(+d[p]))?+d[p]:GDEF[p]; });
     GKEYS.forEach(k=>{ const el=Q('#ls_'+k); if(el){ el.value=grad[k.slice(1)]; el.dispatchEvent(new Event('input')); } });
     renderGradColors(); }
   renderGradColors();
