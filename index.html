@@ -1246,6 +1246,9 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-gdice:hover{ color:var(--c-t1); border-color:var(--c-t3); }
 .ls-valedit{ width:58px; font:inherit; font-size:11px; color:inherit; background:transparent; border:1px solid var(--c-bd); border-radius:4px; padding:1px 4px; outline:none; }
 .ls-valedit:focus{ border-color:var(--acc); }
+.ls-gmixrow{ margin:2px 0 8px; }
+.ls-gmixrow select{ width:100%; height:30px; font-size:12px; color:var(--c-t1); background:color-mix(in srgb,var(--c-t1) 5%,transparent); border:1px solid var(--c-bd); border-radius:8px; padding:0 8px; outline:none; }
+.ls-gmixrow select:focus{ border-color:var(--acc); }
 .ls-opop-h{ display:flex; align-items:center; justify-content:space-between; font-size:13px; font-weight:600; color:var(--c-t1); }
 .ls-tabs{ display:flex; gap:4px; background:var(--c-card); border:1px solid var(--c-bd); border-radius:9px; padding:3px; }
 .ls-tabs button{ flex:1; padding:6px 0; font-size:12px; font-weight:600; color:var(--c-t3); background:none; border:none; border-radius:6px; cursor:pointer; font-family:inherit; transition:.12s; }
@@ -4297,9 +4300,21 @@ function createArtwork(){
           <div class="ls-opop-h"><span>배경 · 장면</span></div>
           <div class="ls-osec">배경 소스</div>
           <div class="ls-bgtype">
-            <button class="ls-act on" id="ls_bgt_img">이미지</button>
-            <button class="ls-act" id="ls_bgt_grad">그라디언트</button>
-            <button class="ls-act" id="ls_bgt_both" title="그라디언트 위에 이미지를 스크린 블렌드로 겹침">겹침</button>
+            <button class="ls-act on" id="ls_bgt_img" title="켜고 끌 수 있어요 — 둘 다 켜면 겹침">이미지</button>
+            <button class="ls-act" id="ls_bgt_grad" title="켜고 끌 수 있어요 — 둘 다 켜면 겹침">그라디언트</button>
+          </div>
+          <div id="ls_gmix_sec" style="display:none">
+          <div class="ls-osub">겹침 — 이미지 위 그라디언트 워시</div>
+          <div class="ls-gmixrow">
+            <select id="ls_gmm_sel">
+              <option value="soft">소프트 라이트 · 은은한 색조</option>
+              <option value="overlay">오버레이 · 진한 착색</option>
+              <option value="screen">스크린 · 밝은 글로우</option>
+            </select>
+          </div>
+          <div class="ls-grid ls-ggrid">
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_gmix">워시 강도</label><span class="ls-val" id="ls_gmixV"></span></div><input type="range" id="ls_gmix" min="0" max="1" step="0.01" value="0.65"></div>
+          </div>
           </div>
           <div id="ls_bgimg_sec">
           <div class="ls-osec">배경 이미지</div>
@@ -4332,17 +4347,7 @@ function createArtwork(){
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_gcontrast">대비</label><span class="ls-val" id="ls_gcontrastV"></span></div><input type="range" id="ls_gcontrast" min="-0.8" max="1" step="0.02" value="0"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_gsat">채도</label><span class="ls-val" id="ls_gsatV"></span></div><input type="range" id="ls_gsat" min="-1" max="1" step="0.02" value="0"></div>
           </div>
-          <div id="ls_gmix_sec" style="display:none">
-          <div class="ls-osub">겹침 — 이미지 위 그라디언트 워시</div>
-          <div class="ls-bgtype" id="ls_gmm">
-            <button class="ls-act on" data-gm="soft">소프트</button>
-            <button class="ls-act" data-gm="overlay">오버레이</button>
-            <button class="ls-act" data-gm="screen">스크린</button>
-          </div>
-          <div class="ls-grid ls-ggrid">
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_gmix">워시 강도</label><span class="ls-val" id="ls_gmixV"></span></div><input type="range" id="ls_gmix" min="0" max="1" step="0.01" value="0.65"></div>
-          </div>
-          </div>
+
           </div>
           <div class="ls-osec">배경 효과</div>
           <div class="ls-grid" id="ls_bgfx">
@@ -4942,39 +4947,36 @@ void main(){
     const y0=phh/2-(lines.length-1)*lh/2;
     lines.forEach((tl,i)=>ctx.fillText(tl,x0,y0+i*lh));
   }
-  // 재생바(progress) - 뮤직플레이어 스타일: 얇은 라인 + 원형 노브 + 양끝 시간(경과/-남은). 매 프레임 라이브 렌더.
+  // 재생바(progress) - 감성 플리 영상 스타일: 극세 라인 + 작은 점 + 자간 넓은 시간. 매 프레임 라이브 렌더.
   function fmtClock(s){ s=Math.max(0,Math.round(s)); const mm=Math.floor(s/60), ss=s%60; return mm+':'+String(ss).padStart(2,'0'); }
   function rasterProgress(o,W,H,cv,ctx){
     const w=Math.max(8,Math.round(o.w*W)), h=Math.max(6,Math.round(o.h*H));
     cv.width=w; cv.height=h; ctx.clearRect(0,0,w,h);
     const dur=projDur(), t=Math.max(0,Math.min(dur,curObjT||0)), p=t/dur;
-    const col=o.color||'#ffffff'; const styl=o.pstyle||'knob'; const time=(o.ptime!==false);
-    const lh=time?Math.max(8,Math.round(h*0.34)):0;                 // 시간 라벨 높이
-    const barH=h-(time?lh+Math.max(2,Math.round(h*0.10)):0);        // 바 영역
-    const cy=Math.round(barH*0.5);
+    const col=o.color||'#ffffff'; let styl=o.pstyle||'knob'; if(styl==='segments')styl='knob';   // 구버전 폴백
+    const time=(o.ptime!==false);
+    const lh=time?Math.max(8,Math.round(h*0.30)):0;
+    const barH=h-(time?lh+Math.max(3,Math.round(h*0.14)):0);
+    const cy=Math.round(barH*0.55);
+    // 스타일별 두께/노브: 전부 얇게 - 플리 영상 특유의 하늘하늘한 선
+    const th = styl==='line' ? Math.max(1.2,barH*0.07) : Math.max(1.6,barH*0.10);
+    const kr = styl==='line' ? Math.max(2.2,th*1.6)    : Math.max(3.2,th*2.1);
+    const pad=kr+1, span=w-pad*2, kx=pad+span*p;
     const rr=(x,y2,w2,h2,rad)=>{ ctx.beginPath();
       if(ctx.roundRect) ctx.roundRect(x,y2,w2,h2,rad); else ctx.rect(x,y2,w2,h2); };
+    if(styl==='glow'){ ctx.shadowColor=col; ctx.shadowBlur=Math.max(6,barH*0.35); }   // 은은한 광
     ctx.fillStyle=col;
-    if(styl==='segments'){
-      const n=24, g=Math.max(2,Math.round(w*0.007)), sw=(w-g*(n-1))/n, bh=Math.max(2,Math.round(barH*0.5)), y=cy-bh/2;
-      for(let i=0;i<n;i++){ ctx.globalAlpha=((i+0.5)/n<=p)?1:0.25; rr(i*(sw+g),y,sw,bh,Math.min(bh/2,3)); ctx.fill(); }
-      ctx.globalAlpha=1;
-    } else if(styl==='line'){
-      const th=Math.max(1.5,barH*0.10), kr=Math.max(2.5,barH*0.16);   // 극세선 + 작은 점 (레퍼런스 2)
-      ctx.globalAlpha=0.30; rr(kr,cy-th/2,w-kr*2,th,th/2); ctx.fill();
-      ctx.globalAlpha=1;    rr(kr,cy-th/2,Math.max(th,(w-kr*2)*p),th,th/2); ctx.fill();
-      const kx=kr+(w-kr*2)*p; ctx.beginPath(); ctx.arc(kx,cy,kr,0,Math.PI*2); ctx.fill();
-    } else {
-      const th=Math.max(2,barH*0.16), kr=Math.max(4,barH*0.30);       // 라인 + 뚜렷한 원형 노브 (레퍼런스 1)
-      ctx.globalAlpha=0.30; rr(kr,cy-th/2,w-kr*2,th,th/2); ctx.fill();
-      ctx.globalAlpha=1;    rr(kr,cy-th/2,Math.max(th,(w-kr*2)*p),th,th/2); ctx.fill();
-      const kx=kr+(w-kr*2)*p; ctx.beginPath(); ctx.arc(kx,cy,kr,0,Math.PI*2); ctx.fill();
-    }
+    ctx.globalAlpha=styl==='glow'?0.22:0.28; rr(pad,cy-th/2,span,th,th/2); ctx.fill();  // 트랙
+    ctx.globalAlpha=1; rr(pad,cy-th/2,Math.max(th,span*p),th,th/2); ctx.fill();         // 진행
+    ctx.beginPath(); ctx.arc(kx,cy,kr,0,Math.PI*2); ctx.fill();                         // 플레이헤드 점
+    ctx.shadowBlur=0;
     if(time){
-      ctx.globalAlpha=0.85; ctx.fillStyle=col;
-      ctx.font='600 '+lh+'px Pretendard, -apple-system, sans-serif'; ctx.textBaseline='bottom';
-      ctx.textAlign='left';  ctx.fillText(fmtClock(t),1,h-1);
-      ctx.textAlign='right'; ctx.fillText('-'+fmtClock(dur-t),w-1,h-1);
+      ctx.globalAlpha=0.75; ctx.fillStyle=col;
+      ctx.font='500 '+lh+'px Pretendard, -apple-system, sans-serif'; ctx.textBaseline='bottom';
+      try{ ctx.letterSpacing=Math.max(0.5,lh*0.08)+'px'; }catch(e){}
+      ctx.textAlign='left';  ctx.fillText(fmtClock(t),pad,h-1);
+      ctx.textAlign='right'; ctx.fillText('-'+fmtClock(dur-t),w-pad,h-1);
+      try{ ctx.letterSpacing='0px'; }catch(e){}
       ctx.globalAlpha=1;
     }
   }
@@ -5357,24 +5359,24 @@ void main(){
       if(d!=null&&grad.colors.length>2){ grad.colors.splice(+d,1); renderGradColors(); scheduleUndoCommit(); } }); }
   }
   function setBgType(t){ bgType=(t==='gradient'||t==='both')?t:'image';
-    const bi=Q('#ls_bgt_img'),bgd=Q('#ls_bgt_grad'),bb=Q('#ls_bgt_both'),si=Q('#ls_bgimg_sec'),sg=Q('#ls_grad_sec'),sm=Q('#ls_gmix_sec');
-    if(bi)bi.classList.toggle('on',bgType==='image'); if(bgd)bgd.classList.toggle('on',bgType==='gradient'); if(bb)bb.classList.toggle('on',bgType==='both');
+    const bi=Q('#ls_bgt_img'),bgd=Q('#ls_bgt_grad'),si=Q('#ls_bgimg_sec'),sg=Q('#ls_grad_sec'),sm=Q('#ls_gmix_sec');
+    if(bi)bi.classList.toggle('on',bgType!=='gradient');    // 이미지 참여 = image | both
+    if(bgd)bgd.classList.toggle('on',bgType!=='image');     // 그라디언트 참여 = gradient | both
     if(si)si.style.display=(bgType!=='gradient')?'':'none';
     if(sg)sg.style.display=(bgType!=='image')?'':'none';
     if(sm)sm.style.display=(bgType==='both')?'':'none'; }
-  { const bi=Q('#ls_bgt_img'),bgd=Q('#ls_bgt_grad'),bb=Q('#ls_bgt_both');
-    if(bi)bi.addEventListener('click',()=>{ setBgType('image'); scheduleUndoCommit(); });
-    if(bgd)bgd.addEventListener('click',()=>{ setBgType('gradient'); scheduleUndoCommit(); });
-    if(bb)bb.addEventListener('click',()=>{ setBgType('both'); scheduleUndoCommit(); }); }
-  { const mm=Q('#ls_gmm'); if(mm)mm.addEventListener('click',e=>{ const b=e.target.closest('button[data-gm]'); if(!b)return;
-      grad.mixMode=b.dataset.gm; mm.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); scheduleUndoCommit(); }); }
+  // 각 버튼은 해당 소스의 참여를 토글 — 둘 다 켜면 겹침, 마지막 하나는 끌 수 없음
+  { const bi=Q('#ls_bgt_img'),bgd=Q('#ls_bgt_grad');
+    if(bi)bi.addEventListener('click',()=>{ setBgType(bgType==='gradient'?'both':(bgType==='both'?'gradient':'image')); scheduleUndoCommit(); });
+    if(bgd)bgd.addEventListener('click',()=>{ setBgType(bgType==='image'?'both':(bgType==='both'?'image':'gradient')); scheduleUndoCommit(); }); }
+  { const ms=Q('#ls_gmm_sel'); if(ms)ms.addEventListener('change',()=>{ grad.mixMode=(ms.value==='overlay'||ms.value==='screen')?ms.value:'soft'; scheduleUndoCommit(); }); }
   const GPROPS=GKEYS.map(k=>k.slice(1));   // ['spread','orbit',...] — 캡처/복원 단일 소스
   function captureGrad(){ const o={colors:grad.colors.slice(),mixMode:grad.mixMode||'soft'}; GPROPS.forEach(p=>o[p]=grad[p]); return o; }
   function applyGrad(g){ const d=g||GDEF;
     grad.colors=(Array.isArray(d.colors)&&d.colors.length>=2)?d.colors.slice(0,5):GDEF.colors.slice();
     GPROPS.forEach(p=>{ grad[p]=(d[p]!=null&&isFinite(+d[p]))?+d[p]:GDEF[p]; });
     grad.mixMode=(d.mixMode==='overlay'||d.mixMode==='screen')?d.mixMode:'soft';
-    { const mm=Q('#ls_gmm'); if(mm)mm.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.gm===grad.mixMode)); }
+    { const ms=Q('#ls_gmm_sel'); if(ms)ms.value=grad.mixMode||'soft'; }
     GKEYS.forEach(k=>{ const el=Q('#ls_'+k); if(el){ el.value=grad[k.slice(1)]; el.dispatchEvent(new Event('input')); } });
     renderGradColors(); }
   renderGradColors();
@@ -6016,8 +6018,9 @@ void main(){
     } else if(o.type==='progress'){
       h+='<div class="ls-orow"><span>색</span><input type="color" data-f="color" value="'+o.color+'"></div>';
       h+=rowRange('opacity','투명도',0,1,0.01,o.opacity,Math.round(o.opacity*100)+'%');
+      if(o.pstyle==='segments')o.pstyle='knob';
       h+='<div class="ls-orow"><span>스타일</span><div class="ls-oseg" data-seg="pstyle">'+
-        segBtn('line','라인',o.pstyle||'knob')+segBtn('knob','라인+노브',o.pstyle||'knob')+segBtn('segments','칸',o.pstyle||'knob')+'</div></div>';
+        segBtn('line','미니멀',o.pstyle||'knob')+segBtn('knob','노브',o.pstyle||'knob')+segBtn('glow','글로우',o.pstyle||'knob')+'</div></div>';
       h+='<div class="ls-orow"><span>시간 표시</span><div class="ls-oinline"><input type="checkbox" data-ptime '+((o.ptime!==false)?'checked':'')+' title="양끝에 경과/-남은 시간 표시"></div></div>';
     } else {
       h+='<div class="ls-orow"><span>색</span><input type="color" data-f="color" value="'+o.color+'"></div>';
