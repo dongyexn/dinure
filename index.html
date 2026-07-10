@@ -4252,6 +4252,12 @@ function createArtwork(){
       <div class="ls-side" id="ls_side">
         <div class="ls-scene" id="ls_scene">
           <div class="ls-opop-h"><span>배경 · 장면</span></div>
+          <div class="ls-tabs">
+            <button data-tab="bg" class="on">배경</button>
+            <button data-tab="ai">AI 배경</button>
+            <button data-tab="lp">리빙 포토</button>
+          </div>
+          <div class="ls-tabpane" data-pane="bg">
           <div class="ls-osec">배경 소스</div>
           <div class="ls-bgtype">
             <button class="ls-act on" id="ls_bgt_img" title="켜고 끌 수 있어요 — 둘 다 켜면 겹침">이미지</button>
@@ -4297,10 +4303,9 @@ function createArtwork(){
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_gwarp">워프</label><span class="ls-val" id="ls_gwarpV"></span></div><input type="range" id="ls_gwarp" min="0" max="2" step="0.02" value="0.5"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_gspeed" title="프로젝트 길이당 루프 횟수 — 정수 배수라 루프 이음새가 없어요">흐름 속도</label><span class="ls-val" id="ls_gspeedV"></span></div><input type="range" id="ls_gspeed" min="1" max="6" step="1" value="1"></div>
           </div>
-
           </div>
-          <div class="ls-osec ls-fold" data-fold="ls_aibody">AI 배경 생성<span class="ls-foldc">▾</span></div>
-          <div id="ls_aibody" class="ls-foldbody" hidden>
+          </div>
+          <div class="ls-tabpane" data-pane="ai" hidden>
           <div class="ls-orow"><span>엔진</span><select id="ls_aieng" style="flex:1;min-width:0">
             <option value="gemini">Gemini 나노바나나 — 고품질 · 배경 수정 가능 · API 키 필요</option>
             <option value="free">무료 (Pollinations) — 키 불필요 · 생성만 · 품질 보통</option></select></div>
@@ -4311,8 +4316,7 @@ function createArtwork(){
             <button class="ls-chip" id="ls_aikey" title="Gemini API 키 — 이 기기에만 저장(프로젝트/클라우드 제외)">키</button></div></div>
           <div class="ls-ghint">Gemini: 키는 이 기기에만 저장, 무료 등급 키도 시도 가능(한도는 구글 정책에 따름) · 무료 엔진: 공개 서비스라 느리거나 일시 중단될 수 있어요</div>
           </div>
-          <div class="ls-osec ls-fold" data-fold="ls_lpbody">리빙 포토<span class="ls-foldc">▾</span></div>
-          <div id="ls_lpbody" class="ls-foldbody" hidden>
+          <div class="ls-tabpane" data-pane="lp" hidden>
           <div class="ls-orow"><span>모션 브러시</span><div class="ls-oinline">
             <button class="ls-chip" id="ls_lpedit">칠하기</button>
             <button class="ls-chip" id="ls_lpclear" title="칠한 영역 전체 삭제">전체 지우기</button></div></div>
@@ -5786,8 +5790,8 @@ void main(){
     if(tools) tools.style.display=lpEditing?'':'none';
     if(btn){ btn.classList.toggle('on',lpEditing); btn.textContent=lpEditing?'완료':'칠하기'; }
     lpDrawOverlay();
-    if(lpEditing){ const b=Q('#ls_lpbody'); if(b&&b.hidden){ b.hidden=false;   // 편집 진입 시 섹션 자동 펼침
-      const hd=root.querySelector('[data-fold="ls_lpbody"] .ls-foldc'); if(hd)hd.textContent='▴'; } }
+    if(lpEditing){ const stabs=Q('#ls_scene')&&Q('#ls_scene').querySelector('.ls-tabs');   // 편집 진입 시 리빙 포토 탭 자동 전환
+      if(stabs){ const tb=stabs.querySelector('[data-tab="lp"]'); if(tb&&!tb.classList.contains('on')) tb.click(); } }
     if(lpEditing&&!(bgSrc&&(bgType==='image'||bgType==='both'))) showError('배경 이미지가 있어야 리빙 포토가 보여요 — 먼저 이미지를 올려 주세요.'); }
   function lpCapture(){ if(!lpPainted||!lpCanvas) return null;
     return { cycles:lp.cycles|0, amp:+lp.amp||0.5, map:lpCanvas.toDataURL('image/png') }; }
@@ -5824,6 +5828,10 @@ void main(){
   root.querySelectorAll('.ls-fold').forEach(hd=>hd.addEventListener('click',()=>{   // 접이식 섹션
     const b=Q('#'+hd.dataset.fold); if(!b)return; b.hidden=!b.hidden;
     const c=hd.querySelector('.ls-foldc'); if(c)c.textContent=b.hidden?'▾':'▴'; }));
+  { const stabs=Q('#ls_scene')&&Q('#ls_scene').querySelector('.ls-tabs');            // 배경/AI 배경/리빙 포토 탭
+    if(stabs) stabs.querySelectorAll('button').forEach(tb=>tb.addEventListener('click',()=>{
+      const tk=tb.dataset.tab; stabs.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===tb));
+      root.querySelectorAll('#ls_scene > .ls-tabpane').forEach(pane=>pane.hidden=(pane.dataset.pane!==tk)); })); }
   { const eb=Q('#ls_lpedit'); if(eb)eb.addEventListener('click',()=>lpSetEditing(!lpEditing));
     const cb=Q('#ls_lpclear'); if(cb)cb.addEventListener('click',()=>{ lpReset(true); scheduleUndoCommit(); });
     const seg=root.querySelector('[data-seg="lptool"]'); if(seg)seg.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ lp.tool=b.dataset.val; seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); }));
@@ -6555,8 +6563,17 @@ void main(){
       h+=rowRange('kzoom','줌 펄스',0,2,0.02,(o.kzoom!=null?+o.kzoom:0.6),Math.round((o.kzoom!=null?+o.kzoom:0.6)*100)+'%');
       h+=rowRange('kshake','진동',0,1,0.01,(o.kshake!=null?+o.kshake:0.35),Math.round((o.kshake!=null?+o.kshake:0.35)*100)+'%');
       h+='<div class="ls-ghint" style="margin:6px 2px 2px">감지 설정은 곡 전체에 공통 · 줌 펄스/진동은 이 레이어의 타임라인 클립 구간에서만 적용돼요</div>';
+      h+='<div class="ls-osec">비트 그리드</div>';
+      h+='<div class="ls-orow"><span>타임라인 스냅</span><div class="ls-oinline">'+
+         '<button class="ls-chip" data-beatdetect>'+(beatTimes&&beatTimes.length?('비트 '+beatTimes.length+'개 · 다시 감지'):'비트 감지')+'</button></div></div>';
+      h+='<div class="ls-ghint">위 감지 설정을 기준으로 비트를 찾아 타임라인에 그리드를 표시 — 키프레임 배치가 비트에 스냅돼요</div>';
       p.innerHTML=h; p.classList.add('on'); selTrack=null; showScene(false); positionPop(o);
       p.querySelector('[data-x]').addEventListener('click',closePop);
+      const bdBtn=p.querySelector('[data-beatdetect]');
+      if(bdBtn) bdBtn.addEventListener('click',async()=>{
+        bdBtn.disabled=true; bdBtn.textContent='분석 중…';
+        await detectBeats();
+        if(p.classList.contains('on')&&selId===o.id) openPop(o.id); });
       const KFMT={ksens:v=>'×'+v.toFixed(2),kflo:v=>Math.round(v)+'Hz',kfhi:v=>Math.round(v)+'Hz',
         kgap:v=>Math.round(v)+'ms',kdecay:v=>Math.round(v)+'ms',kzoom:v=>Math.round(v*100)+'%',kshake:v=>Math.round(v*100)+'%'};
       p.querySelectorAll('[data-f]').forEach(el=>{ const f=el.dataset.f;
@@ -7364,10 +7381,6 @@ void main(){
     const toggleAdd=e=>{ e.stopPropagation(); const open=!pop.classList.contains('on'); closeMenus(); pop.classList.toggle('on',open); };
     addBtn.addEventListener('click',toggleAdd);
     labels.appendChild(addBtn);   // 좌측 레이블 컬럼 하단에 배치
-    { const bb=mk('ls-addlane-btn ls-beatbtn'); bb.innerHTML='♩ '+(beatTimes&&beatTimes.length?('비트 '+beatTimes.length+'개'):'비트 감지');
-      bb.title='킥 검출로 비트 그리드 생성 — 이후 키프레임 배치가 비트에 스냅돼요 (킥 펄스 레이어의 감지 설정 공유)';
-      bb.addEventListener('click',()=>detectBeats());
-      labels.appendChild(bb); }
 
     // 재생 헤드
     markers.forEach((mt,mi)=>{ const ln=mk('ls-mline'); ln.dataset.mi=mi; ln.style.left=(mt/total*100)+'%'; lanes.appendChild(ln); });
