@@ -7227,7 +7227,7 @@ void main(){
   }
   function renderTimeline(){
     const body=Q('#ls_tlbody'); if(!body)return; const total=projDur();
-    body.innerHTML=''; closeBlendPop();
+    body.innerHTML='';
     const mk=(cls,html)=>{ const d=document.createElement('div'); d.className=cls; if(html!=null)d.innerHTML=html; return d; };
 
     // ---- 시간 축 (고정) ----
