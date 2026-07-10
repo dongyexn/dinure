@@ -829,8 +829,8 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
   border-radius:16px; overflow:hidden; background:#0b0b0c; box-shadow:0 28px 80px -30px rgba(0,0,0,.9), 0 0 0 1px var(--c-bd); }
 @media (max-width:920px){ .ls-stage{ height:auto; width:100%; max-height:54dvh; } }
 .ls-stage canvas{ display:block; width:100%; height:100%; }
-.ls-stage:fullscreen{ border-radius:0; aspect-ratio:auto; width:100%; height:100%; max-width:none; background:#000; }
-.ls-stage:fullscreen canvas{ object-fit:contain; }
+.ls-stageWrap:fullscreen{ background:#000; }
+.ls-stageWrap:fullscreen .ls-stage{ height:auto; width:min(100vw,calc(100vh*var(--ls-ar,0.5625))); max-width:none; border-radius:0; }
 /* 영상 위 플로팅 트랜스포트 (재생 토글 + 시간) — 타임라인 바깥 */
 .ls-xport{ position:absolute; left:10px; right:10px; bottom:10px; z-index:7;
   display:flex; align-items:center; gap:11px; padding:8px 14px 8px 8px;
@@ -4276,6 +4276,7 @@ function createArtwork(){
           <button class="ls-lyr-addbtn" data-add="image">＋이미지</button>
           <button class="ls-lyr-addbtn" data-add="spectrum">＋스펙트럼</button>
           <button class="ls-lyr-addbtn" data-add="progress" title="트랙 진행 재생바">＋재생바</button>
+          <button class="ls-lyr-addbtn" data-add="kick" title="킥에 반응하는 줌 펄스·진동">＋킥 펄스</button>
         </div>
         <div class="ls-lyr-list" id="ls_layerlist"></div>
       </div>
@@ -4364,7 +4365,6 @@ function createArtwork(){
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_warp">일렁임 Warp</label><span class="ls-val" id="ls_warpV"></span></div><input type="range" id="ls_warp" min="0" max="0.24" step="0.002" value="0"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_detail">흐름결 Detail</label><span class="ls-val" id="ls_detailV"></span></div><input type="range" id="ls_detail" min="1" max="9" step="0.1" value="1"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_water">물결 Water</label><span class="ls-val" id="ls_waterV"></span></div><input type="range" id="ls_water" min="0" max="2" step="0.02" value="0"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_resp">킥 펄스 Kick</label><span class="ls-val" id="ls_respV"></span></div><input type="range" id="ls_resp" min="0" max="2" step="0.02" value="0"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_floaty">부유 Float</label><span class="ls-val" id="ls_floatyV"></span></div><input type="range" id="ls_floaty" min="0" max="2" step="0.02" value="0"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_sway">흔들 Sway</label><span class="ls-val" id="ls_swayV"></span></div><input type="range" id="ls_sway" min="0" max="1.2" step="0.02" value="0"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_vortex">소용돌이</label><span class="ls-val" id="ls_vortexV"></span></div><input type="range" id="ls_vortex" min="0" max="2" step="0.02" value="0"></div>
@@ -4975,8 +4975,8 @@ void main(){
     const barH=h-(time?lh+Math.max(3,Math.round(h*0.14)):0);
     const cy=Math.round(barH*0.55);
     // 스타일별 두께/노브: 전부 얇게 - 플리 영상 특유의 하늘하늘한 선
-    const th = styl==='line' ? Math.max(1.2,barH*0.07) : Math.max(1.6,barH*0.10);
-    const kr = styl==='line' ? Math.max(2.2,th*1.6)    : Math.max(3.2,th*2.1);
+    const th = styl==='line' ? Math.max(1.2,barH*0.07) : (styl==='player' ? Math.max(2.4,barH*0.16) : Math.max(1.6,barH*0.10));
+    const kr = styl==='line' ? Math.max(2.2,th*1.6)    : (styl==='player' ? Math.max(4.2,th*1.5)    : Math.max(3.2,th*2.1));
     const pad=kr+1, span=w-pad*2, kx=pad+span*p;
     const rr=(x,y2,w2,h2,rad)=>{ ctx.beginPath();
       if(ctx.roundRect) ctx.roundRect(x,y2,w2,h2,rad); else ctx.rect(x,y2,w2,h2); };
@@ -4991,7 +4991,7 @@ void main(){
       ctx.font='500 '+lh+'px Pretendard, -apple-system, sans-serif'; ctx.textBaseline='bottom';
       try{ ctx.letterSpacing=Math.max(0.5,lh*0.08)+'px'; }catch(e){}
       ctx.textAlign='left';  ctx.fillText(fmtClock(t),pad,h-1);
-      ctx.textAlign='right'; ctx.fillText('-'+fmtClock(dur-t),w-pad,h-1);
+      ctx.textAlign='right'; ctx.fillText(styl==='player'?fmtClock(dur):'-'+fmtClock(dur-t),w-pad,h-1);   // 플레이어: 총길이(마이너스 없음)
       try{ ctx.letterSpacing='0px'; }catch(e){}
       ctx.globalAlpha=1;
     }
@@ -5025,6 +5025,7 @@ void main(){
     else { vv.forEach((v,i)=>{ const bh=Math.max(2,v*phh); fillBar(i*bw+bw*0.15,phh-bh,bw*0.7,bh); }); }
   }
   function getLayerTexture(o,W,H){
+    if(o.type==='kick') return null;   // 비시각 컨트롤러 — 합성 루프에서 자연 스킵
     let e=layerTexCache.get(o.id); if(!e){ e={tex:mkLayerTex(),key:null,w:2,h:2}; layerTexCache.set(o.id,e); }
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);
     if(o.type==='image'){
@@ -5206,7 +5207,7 @@ void main(){
     gr:V('grain')||0, grsz:V('grainsz')||1.5,
     bloom:V('bloom')||0,
     bloomthr:V('bloomthr')||0.55, bloomwarm:V('bloomwarm')||0,
-    mblur:0, mbang:0, shake:V('shake')||0, leak:V('leak')||0, dust:V('dust')||0 }; }
+    mblur:0, mbang:0, shake:Math.min(1,(V('shake')||0)+kickShakeNow), leak:V('leak')||0, dust:V('dust')||0 }; }
   function lookOn(lk){ return Math.abs(lk.warm)>0.001||Math.abs(lk.sat)>0.001||lk.gr>0.0001
     ||lk.bloom>0.001||lk.shake>0.001||lk.leak>0.001||lk.dust>0.001; }
   // 카메라 셰이크 오프셋 — projDur 정수배 주파수 사인 합성(루프 무이음새), tSec만 사용
@@ -5215,6 +5216,13 @@ void main(){
     const x=(Math.sin(p*N1)*0.6+Math.sin(p*N3+1.7)*0.4)*0.012*amp;
     const y=(Math.cos(p*N2+0.8)*0.6+Math.sin(p*N3*2.0+0.4)*0.4)*0.012*amp;
     return [x,y]; }
+  // 킥 진동: 9/12.5Hz급 고주파(projDur 정수배 → 루프 무이음새) — 킥 엔벨로프로 게이트되어 히트마다 '탁' 떨림
+  function shakeOfsFast(tSec,amp){ const dur=projDur(); const p=2*Math.PI*tSec/dur;
+    const N1=Math.max(1,Math.round(dur*9)), N2=Math.max(1,Math.round(dur*12.5));
+    return [Math.sin(p*N1)*0.011*amp, Math.cos(p*N2+0.7)*0.011*amp]; }
+  function kickAmts(tSec){ let z=0,s=0;
+    for(const o of objs){ if(o.type==='kick'&&layerVisible(o,tSec)){ z+=(+o.kzoom||0); s+=(+o.kshake||0); } }
+    return {zoom:Math.min(2.5,z),shake:Math.min(1,s)}; }
   function resolveToScreen(srcTex,tSec){ renderLookTo(null,srcTex,tSec); }
   function renderLookTo(dstFbo,srcTex,tSec){
     const W=canvas.width,Hh=canvas.height;
@@ -5236,7 +5244,9 @@ void main(){
       gl.uniform1f(lkUni.uFade,lk.fade); gl.uniform1f(lkUni.uSatL,lk.sat); gl.uniform1f(lkUni.uCA,lk.ca);
       gl.uniform1f(lkUni.uGr2,lk.gr); gl.uniform1f(lkUni.uGrSz,lk.grsz);
       gl.uniform1f(lkUni.uMB,lk.mblur); gl.uniform1f(lkUni.uMBAng,(lk.mbang||0)*Math.PI/180);
-      { const so=(lk.shake>0.001)?shakeOfs(tSec,lk.shake):[0,0];
+      { const base=Math.max(0,lk.shake-kickShakeNow);
+        const so=(base>0.001)?shakeOfs(tSec,base):[0,0];                        // 저속 흔들(레거시 오토메이션)
+        if(kickShakeNow>0.001){ const kf=shakeOfsFast(tSec,kickShakeNow); so[0]+=kf[0]; so[1]+=kf[1]; }  // 킥 진동
         gl.uniform1f(lkUni.uShkA,lk.shake); gl.uniform2f(lkUni.uShkO,so[0],so[1]); }
       gl.uniform1f(lkUni.uLeak,lk.leak); gl.uniform1f(lkUni.uPh2,2*Math.PI*(tSec/projDur()));
       gl.uniform1f(lkUni.uDust,lk.dust);
@@ -5306,7 +5316,7 @@ void main(){
     }
   }
 
-  const KEYS=['warp','detail','water','sway','vortex','glow','resp','floaty','warmth','bloom','bloomthr','bloomwarm','leak','dust'];   // grain/grainsz/satl/shake 제거 — lookVals 폴백(0)으로 비활성
+  const KEYS=['warp','detail','water','sway','vortex','glow','floaty','warmth','bloom','bloomthr','bloomwarm','leak','dust'];   // grain/grainsz/satl/shake/resp 제거 — resp는 킥 펄스 레이어로 이관
   const st={ar:0.5625};
   const auto={};                                   // 파라미터별 오토메이션 { key:{on,pts:[{t,v}]} }
   const ensureAuto=k=>auto[k]||(auto[k]={on:false,pts:[]});
@@ -5500,7 +5510,8 @@ void main(){
   // 오디오 파형 데이터는 용량 문제로 제외 — 배치 메타만 기록, 열 때 파일 재추가 안내.
   let audioCtx=null,masterGain=null,analyser=null,audioDest=null,freqData=null;
   let fastLv=0, slowLv=0;
-  let kickEnv=0, kickRefr=0, kLowPrev=0, kLowAvg=0, kPrevClick=null;
+  let kickStep=null, kickKey='';        // 통합 킥 검출기(라이브) — 설정 변경 시 재생성
+  let kickLv=0, kickShakeNow=0;         // 이번 프레임 킥 엔벨로프 / 킥 진동량 (drawScene→룩 패스 전달)
   let ovrFreq=null; // 오프라인 렌더 시 프레임별 스펙트럼 주입(48kHz/fft1024 기준). null이면 라이브 analyser 사용
   let tracks=[];
   let tlPlaying=false, tlFromT=0, tlCtxStart=0, activeSrc=[]; let _tid=0;
@@ -5588,30 +5599,41 @@ void main(){
     }
     renderTimeline();
   }
-  function audioLevels(){ // 킥 검출 v2 — 베이스 오검출 억제
-    // 원리: (1) 저역 에너지가 "느린 이동평균 대비 급증"해야 함(서스테인 베이스는 평균이 따라와 배제),
-    //       (2) 프레임 파생(rise)이 커야 함(완만한 베이스 어택 배제),
-    //       (3) 킥 비터 특유의 고역 클릭(1.5~4.2kHz) 트랜지언트 동반 시 확정(딥 서브킥은 rise 초과분으로 대체).
-    if(!(hasAudio()&&analyser)){ kickEnv=0; return 0; }
+  // ===== 킥 검출 v3 — 적응형 스펙트럴 플럭스 온셋 =====
+  // 원리: 저역(kflo~kfhi) 대역의 "양(+)의 스펙트럼 변화량(flux)"이 최근 ~0.9초 창의
+  //       평균 + k·표준편차를 넘으면 히트. 고정 배수 문턱(v2)과 달리 곡의 볼륨·베이스
+  //       밀도에 자동 적응 → 조용한 곡의 미검출과 베이스 깔린 곡의 오검출을 동시에 줄임.
+  // 감도(sens)는 k를 나눔: 높을수록 문턱이 내려가 민감해짐. 최소 간격(gap)으로 더블 트리거 차단.
+  // 같은 검출기를 라이브(analyser)와 오프라인(analyzeMixFrames)이 공유 → 프리뷰=내보내기 일치.
+  function kickCfg(){ const o=(typeof objs!=='undefined'&&objs)?objs.find(q=>q.type==='kick'):null;
+    return o?{sens:+o.ksens||1,flo:+o.kflo||40,fhi:+o.kfhi||110,gap:+o.kgap||150,decay:+o.kdecay||260}
+            :{sens:1,flo:40,fhi:110,gap:150,decay:260}; }
+  function mkKickStep(binHz,nBins,fps,cfg){
+    const sens=Math.max(0.2,Math.min(3,+cfg.sens||1));
+    const lo=Math.max(1,Math.floor(cfg.flo/binHz)), hi=Math.max(lo,Math.min(nBins-1,Math.floor(cfg.fhi/binHz)));
+    const refrN=Math.max(1,Math.round(cfg.gap/1000*fps));
+    const decay=Math.pow(0.1,(1000/fps)/Math.max(40,cfg.decay));        // decay(ms) 동안 10%로 감쇠
+    const W=Math.max(8,Math.round(fps*0.9)); const ring=new Float32Array(W); let ri=0,rn=0;
+    const prev=new Float32Array(hi-lo+1); let env=0,refr=0;
+    return bytes=>{
+      let flux=0,k=0;
+      for(let i=lo;i<=hi;i++){ const v=bytes[i]/255; const d=v-prev[k]; if(d>0)flux+=d; prev[k]=v; k++; }
+      flux/=(hi-lo+1);
+      let mean=0; for(let i=0;i<rn;i++)mean+=ring[i]; mean/=(rn||1);
+      let va=0; for(let i=0;i<rn;i++){ const dd=ring[i]-mean; va+=dd*dd; }
+      const sd=Math.sqrt(va/(rn||1));
+      ring[ri]=flux; ri=(ri+1)%W; if(rn<W)rn++;
+      if(refr>0)refr--;
+      if(refr===0 && rn>=8 && flux>mean+(2.4/sens)*sd+0.008/sens){ env=1; refr=refrN; }
+      env*=decay; return Math.min(1,env);
+    }; }
+  function audioLevels(){
+    if(!(hasAudio()&&analyser)) return 0;
     analyser.getByteFrequencyData(freqData);
-    const n=freqData.length; const sr=(audioCtx&&audioCtx.sampleRate)||44100; const binHz=sr/analyser.fftSize;
-    const lo=Math.max(1,Math.floor(40/binHz)), hi=Math.max(lo,Math.min(n-1,Math.floor(110/binHz)));
-    const clo=Math.max(hi+1,Math.floor(1500/binHz)), chi=Math.max(clo,Math.min(n-1,Math.floor(4200/binHz)));
-    let low=0; for(let i=lo;i<=hi;i++) low+=freqData[i]/255; low/=(hi-lo+1);
-    const clen=chi-clo+1;
-    if(!kPrevClick||kPrevClick.length!==clen) kPrevClick=new Float32Array(clen);
-    let cf=0,k=0;
-    for(let i=clo;i<=chi;i++){ const v=freqData[i]/255; const d=v-kPrevClick[k]; if(d>0)cf+=d; kPrevClick[k]=v; k++; }
-    cf/=clen;
-    const rise=low-kLowPrev; kLowPrev=low;
-    kLowAvg+=(low-kLowAvg)*0.02;                          // 느린 기준선(≈0.8s) — 베이스 지속음 흡수
-    if(kickRefr>0)kickRefr--;
-    const strong=low>kLowAvg*1.30+0.02;                   // 기준선 대비 30%+ 급증
-    const attack=rise>0.025;                              // 순간 상승
-    const click=cf>0.006;                                 // 어택 클릭 동반
-    if(kickRefr===0 && strong && attack && (click||rise>0.06)){ kickEnv=1.0; kickRefr=9; }  // ~150ms 차단
-    kickEnv*=0.85;
-    return Math.min(1,kickEnv);
+    const sr=(audioCtx&&audioCtx.sampleRate)||44100, binHz=sr/analyser.fftSize;
+    const cfg=kickCfg(), key=binHz.toFixed(2)+'|'+cfg.sens+'|'+cfg.flo+'|'+cfg.fhi+'|'+cfg.gap+'|'+cfg.decay;
+    if(!kickStep||kickKey!==key){ kickStep=mkKickStep(binHz,freqData.length,60,cfg); kickKey=key; }
+    return kickStep(freqData);
   }
 
   // presets — 레이블 공용(Firebase RTDB 공유 문서). 미연결 시 IndexedDB→localStorage로 폴백
@@ -5769,7 +5791,7 @@ void main(){
   const clamp01=v=>Math.max(0,Math.min(1,v));
   const escapeHtml=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   function findObj(id){ return objs.find(o=>o.id===id); }
-  function objName(o){ if(o&&o.name&&o.name.trim()) return o.name.trim(); return o.type==='text'?('텍스트: '+(o.text||'').replace(/\n/g,' ').slice(0,12)):(o.type==='image'?'이미지':(o.type==='progress'?'재생바':'스펙트럼')); }
+  function objName(o){ if(o&&o.name&&o.name.trim()) return o.name.trim(); return o.type==='text'?('텍스트: '+(o.text||'').replace(/\n/g,' ').slice(0,12)):(o.type==='image'?'이미지':(o.type==='progress'?'재생바':(o.type==='kick'?'킥 펄스':'스펙트럼'))); }
 
   function measureText(o){
     const W=canvas.width||1080, H=canvas.height||1920, px=o.size*(H/1080);
@@ -5830,7 +5852,7 @@ void main(){
     if(!wrap._reorderWired){ lsDragReorder(wrap,'.ls-lyr-row',ids=>commitLayerOrderFromVisual(ids,true)); wrap._reorderWired=true; }
     wrap.innerHTML='';
     if(!objs.length){ return; }
-    const TAG={text:'텍스트',image:'이미지',spectrum:'스펙트럼',progress:'재생바'};
+    const TAG={text:'텍스트',image:'이미지',spectrum:'스펙트럼',progress:'재생바',kick:'킥'};
     objs.slice().reverse().forEach(o=>{        // 앞(위) 레이어가 목록 상단
       const r=document.createElement('div'); r.className='ls-lyr-row'+(o.id===selId?' sel':''); r.dataset.id=o.id;
       const tag=document.createElement('span'); tag.className='ls-lyr-tag'; tag.textContent=TAG[o.type]||'?';
@@ -5904,6 +5926,11 @@ void main(){
     measureText(o); objs.push(o); selectObj(o.id); openPop(o.id); syncLayerTracks(); }
   function addProgress(){ const o={id:objSeq++,type:'progress',x:.5,y:.93,rot:0,opacity:.95,w:.9,h:.05,color:'#ffffff',pstyle:'knob',ptime:true};
     objs.push(o); selectObj(o.id); openPop(o.id); syncLayerTracks(); }
+  function addKick(){ const ex=objs.find(q=>q.type==='kick');   // 검출 설정은 전역 공통이라 레이어는 하나로 충분
+    if(ex){ selectObj(ex.id); openPop(ex.id); showError('킥 펄스 레이어는 하나로 충분해요 — 기존 레이어를 열었어요.'); return; }
+    const o={id:objSeq++,type:'kick',x:.5,y:.5,rot:0,opacity:1,w:0,h:0,   // w/h=0 → 캔버스 히트테스트에서 자연 제외
+      ksens:1,kflo:40,kfhi:110,kgap:150,kdecay:260,kzoom:0.6,kshake:0.35};
+    objs.push(o); selectObj(o.id); openPop(o.id); syncLayerTracks(); }
   function addSpectrum(){ const o={id:objSeq++,type:'spectrum',x:.5,y:.82,rot:0,opacity:.9,w:.84,h:.16,color:'#ffffff',freqLo:40,freqHi:8000,bars:44,barRound:0};
     objs.push(o); selectObj(o.id); openPop(o.id); syncLayerTracks(); }
   let curObjT=0;
@@ -5945,6 +5972,7 @@ void main(){
     if(o.type==='text') Object.assign(c,{text:o.text,size:o.size,font:o.font,align:o.align,color:o.color,bold:o.bold,lsp:o.lsp||0});
     else if(o.type==='image') c.src=o.src;
     else if(o.type==='progress') Object.assign(c,{color:o.color,pstyle:o.pstyle||'knob',ptime:(o.ptime!==false)});
+    else if(o.type==='kick') Object.assign(c,{ksens:+o.ksens||1,kflo:+o.kflo||40,kfhi:+o.kfhi||110,kgap:+o.kgap||150,kdecay:+o.kdecay||260,kzoom:(o.kzoom!=null?+o.kzoom:0.6),kshake:(o.kshake!=null?+o.kshake:0.35)});
     else if(o.type==='spectrum') Object.assign(c,{color:o.color,freqLo:o.freqLo,freqHi:o.freqHi,bars:o.bars,sstyle:o.sstyle||'bars',barRound:o.barRound||0});
     return c; }); }
   function applyObjs(arr){ if(!Array.isArray(arr)) return;   // 오브젝트 정보 없는 구버전 프리셋은 현재 오브젝트 유지
@@ -6037,6 +6065,30 @@ void main(){
 
   function openPop(id){ const o=findObj(id); if(!o)return; const p=ensurePop(); let h='';
     h+='<div class="ls-opop-h"><span>'+objName(o)+' 설정</span><span class="ls-opop-x" data-x>×</span></div>';
+    if(o.type==='kick'){                                   // 킥 펄스 — 전용 인스펙터 (배치/모션/전환 불필요)
+      h+='<div class="ls-osec">감지 — 어떤 소리를 킥으로 볼지</div>';
+      h+=rowRange('ksens','감도',0.2,3,0.05,(+o.ksens||1),'×'+(+o.ksens||1).toFixed(2));
+      h+=rowRange('kflo','저역 시작',20,120,5,(+o.kflo||40),Math.round(+o.kflo||40)+'Hz');
+      h+=rowRange('kfhi','저역 끝',60,220,5,(+o.kfhi||110),Math.round(+o.kfhi||110)+'Hz');
+      h+=rowRange('kgap','최소 간격',60,400,10,(+o.kgap||150),Math.round(+o.kgap||150)+'ms');
+      h+='<div class="ls-osec">반응 — 킥마다 어떻게 움직일지</div>';
+      h+=rowRange('kdecay','여운',80,800,10,(+o.kdecay||260),Math.round(+o.kdecay||260)+'ms');
+      h+=rowRange('kzoom','줌 펄스',0,2,0.02,(o.kzoom!=null?+o.kzoom:0.6),Math.round((o.kzoom!=null?+o.kzoom:0.6)*100)+'%');
+      h+=rowRange('kshake','진동',0,1,0.01,(o.kshake!=null?+o.kshake:0.35),Math.round((o.kshake!=null?+o.kshake:0.35)*100)+'%');
+      h+='<div class="ls-ghint" style="margin:6px 2px 2px">감지 설정은 곡 전체에 공통 · 줌 펄스/진동은 이 레이어의 타임라인 클립 구간에서만 적용돼요</div>';
+      p.innerHTML=h; p.classList.add('on'); selTrack=null; showScene(false); positionPop(o);
+      p.querySelector('[data-x]').addEventListener('click',closePop);
+      const KFMT={ksens:v=>'×'+v.toFixed(2),kflo:v=>Math.round(v)+'Hz',kfhi:v=>Math.round(v)+'Hz',
+        kgap:v=>Math.round(v)+'ms',kdecay:v=>Math.round(v)+'ms',kzoom:v=>Math.round(v*100)+'%',kshake:v=>Math.round(v*100)+'%'};
+      p.querySelectorAll('[data-f]').forEach(el=>{ const f=el.dataset.f;
+        el.addEventListener('input',()=>{ const v=parseFloat(el.value); o[f]=v;
+          const vs=p.querySelector('[data-v="'+f+'"]'); if(vs)vs.textContent=KFMT[f]?KFMT[f](v):v;
+          if(f==='kflo'&&(+o.kfhi||110)<=v){ o.kfhi=v+10;                       // 대역 역전 방지
+            const e2=p.querySelector('[data-f="kfhi"]'); if(e2)e2.value=o.kfhi;
+            const v2=p.querySelector('[data-v="kfhi"]'); if(v2)v2.textContent=o.kfhi+'Hz'; } });
+        el.addEventListener('change',()=>scheduleUndoCommit()); });
+      return;
+    }
     // 기본값 정규화 (탭 구성 전에 확정)
     o.trIn=o.trIn&&TR_ID[o.trIn.type]>0?o.trIn:{type:'none',dur:0.6};
     o.trOut=o.trOut&&TR_ID[o.trOut.type]>0?o.trOut:{type:'none',dur:0.6};
@@ -6084,7 +6136,7 @@ void main(){
       h+=rowRange('opacity','투명도',0,1,0.01,o.opacity,Math.round(o.opacity*100)+'%');
       if(o.pstyle==='segments')o.pstyle='knob';
       h+='<div class="ls-orow"><span>스타일</span><div class="ls-oseg" data-seg="pstyle">'+
-        segBtn('line','미니멀',o.pstyle||'knob')+segBtn('knob','노브',o.pstyle||'knob')+segBtn('glow','글로우',o.pstyle||'knob')+'</div></div>';
+        segBtn('line','미니멀',o.pstyle||'knob')+segBtn('knob','노브',o.pstyle||'knob')+segBtn('glow','글로우',o.pstyle||'knob')+segBtn('player','플레이어',o.pstyle||'knob')+'</div></div>';
       h+='<div class="ls-orow"><span>시간 표시</span><div class="ls-oinline"><input type="checkbox" data-ptime '+((o.ptime!==false)?'checked':'')+' title="양끝에 경과/-남은 시간 표시"></div></div>';
     } else {
       h+='<div class="ls-orow"><span>색</span><input type="color" data-f="color" value="'+o.color+'"></div>';
@@ -6272,7 +6324,7 @@ void main(){
     e.preventDefault(); e.stopPropagation(); const id=parseInt(box.dataset.id,10); if(!findObj(id))return;
     selectObj(id); openObjCtx(e.clientX,e.clientY,id,null); });
   stage.addEventListener('pointerdown',e=>{ if(!e.target.closest('.ls-obj')&&!e.target.closest('.ls-opop')){ if(selId){ selId=null; closePop(); refreshObjs(); } } });
-  root.querySelectorAll('.ls-lyr-addbtn').forEach(b=>b.addEventListener('click',()=>{ const t=b.dataset.add; if(t==='text')addText(); else if(t==='image')addImage(); else if(t==='spectrum')addSpectrum(); else if(t==='progress')addProgress(); }));
+  root.querySelectorAll('.ls-lyr-addbtn').forEach(b=>b.addEventListener('click',()=>{ const t=b.dataset.add; if(t==='text')addText(); else if(t==='image')addImage(); else if(t==='spectrum')addSpectrum(); else if(t==='progress')addProgress(); else if(t==='kick')addKick(); }));
 
   // aspect
   Q('#ls_ratios').addEventListener('click',e=>{ const b=e.target.closest('.ls-chip'); if(!b)return;
@@ -6303,7 +6355,7 @@ void main(){
     { const sc=Q('#ls_scene'); if(sc) wireScrub(sc); } }
 
   // ===== 오토메이션 (타임라인 인라인 레인) =====
-  const AUTO_LABELS={warp:'일렁임',detail:'흐름결',water:'물결',sway:'흔들',vortex:'소용돌이',glow:'광채',resp:'킥 펄스',floaty:'부유',warmth:'색온도',bloom:'블룸',bloomthr:'블룸 문턱',bloomwarm:'블룸 온기',leak:'라이트 리크',dust:'더스트'};
+  const AUTO_LABELS={warp:'일렁임',detail:'흐름결',water:'물결',sway:'흔들',vortex:'소용돌이',glow:'광채',floaty:'부유',warmth:'색온도',bloom:'블룸',bloomthr:'블룸 문턱',bloomwarm:'블룸 온기',leak:'라이트 리크',dust:'더스트'};
   const OBJ_PROPS=[['opacity','투명도'],['x','가로'],['y','세로'],['scale','크기'],['rot','회전']];
   function isObjKey(k){ return /^obj\d+_/.test(k); }
   function objKeyParts(k){ const m=k.match(/^obj(\d+)_(\w+)$/); return m?{id:+m[1],prop:m[2]}:null; }
@@ -6841,8 +6893,11 @@ void main(){
       if(bgType==='both'&&mixProg&&tex&&hasTex){ try{ renderBothBg(); bgOverTex=mixTex; }catch(e){ bgOverTex=gradTex; } }
       else bgOverTex=gradTex;
     }
-    const bounceEff=Math.min(1.2, lv*V('resp')*0.7);
-    const hasLayers=!!(compProg&&copyProg&&objs.some(o=>layerVisible(o,tSec)));
+    kickLv=lv||0;                                        // 이번 프레임 킥 엔벨로프 — 룩 패스(진동)와 공유
+    const kAmt=kickAmts(tSec);                            // 보이는 킥 레이어의 줌/진동 합산 (클립 구간 게이트)
+    kickShakeNow=Math.min(1,kickLv*kAmt.shake);
+    const bounceEff=Math.min(1.2, kickLv*kAmt.zoom*0.7);
+    const hasLayers=!!(compProg&&copyProg&&objs.some(o=>o.type!=='kick'&&layerVisible(o,tSec)));
     const useLook=!!(lookProg&&copyProg)&&lookOn(lookVals(tSec));   // 룩 활성 시 배경 단독이어도 FBO 경유
     const useFbo=hasLayers||useLook;
     if(useFbo){ ensureFbos(canvas.width,canvas.height); gl.bindFramebuffer(gl.FRAMEBUFFER,fbos[0]); }
@@ -6906,9 +6961,9 @@ void main(){
   function doStop(){ if(recording)return; if(playing){ setPlay(false); } pausedT=0; seekTo(0); }
   function togglePlay(){ if(playing) doPause(); else doPlay(); }
   Q('#ls_tlplay').addEventListener('click',togglePlay);
-  { const fb=Q('#ls_fs'); if(fb){                              // 영상 전체 화면 토글 (Esc/재클릭으로 복귀)
-      const sync=()=>{ fb.classList.toggle('on',document.fullscreenElement===Q('#ls_stage')); };
-      fb.addEventListener('click',()=>{ const el=Q('#ls_stage');
+  { const fb=Q('#ls_fs'); if(fb){                              // 영상 전체 화면 토글 — 래퍼 대상(비율 유지 레터박스)
+      const sync=()=>{ fb.classList.toggle('on',document.fullscreenElement===Q('.ls-stageWrap')); };
+      fb.addEventListener('click',()=>{ const el=Q('.ls-stageWrap');
         if(document.fullscreenElement){ if(document.exitFullscreen)document.exitFullscreen(); }
         else if(el&&el.requestFullscreen){ el.requestFullscreen().catch(()=>{}); } });
       document.addEventListener('fullscreenchange',sync); } }
@@ -7060,12 +7115,8 @@ void main(){
             const ncr=cr*wr-ci*wi; ci=cr*wi+ci*wr; cr=ncr; } } } }
     const smooth=new Float32Array(half); const freq=new Array(frames); const kick=new Float32Array(frames);
     const minDb=-100,maxDb=-30,tau=0.1;
-    const binHz=sr/N, lo=Math.max(1,Math.floor(40/binHz)), hi=Math.max(lo,Math.min(half-1,Math.floor(110/binHz)));
-    const clo=Math.max(hi+1,Math.floor(1500/binHz)), chi=Math.max(clo,Math.min(half-1,Math.floor(4200/binHz))), clenB=chi-clo+1;
-    const prevC=new Float32Array(clenB); let lAvg=0,lPrev=0,kEnv=0,kRefr=0;
-    // 프레임레이트 독립 계수(라이브 60fps 기준값을 fps로 환산)
-    const kDecay=Math.pow(0.85,60/fps), aAlpha=1-Math.pow(1-0.02,60/fps), refrN=Math.max(1,Math.round(9*fps/60));
-    const riseTh=0.025*(60/fps), riseHi=0.06*(60/fps);
+    const binHz=sr/N;
+    const kStep=mkKickStep(binHz,half,fps,kickCfg());   // 라이브와 동일 검출기(fps 정규화) — 프리뷰=내보내기 일치
     for(let f=0;f<frames;f++){
       const end=Math.min(buf.length,Math.round((f/fps)*sr)+1), start=end-N;
       for(let i=0;i<N;i++){ const p=start+i; const s=(p>=0&&p<buf.length)?(L[p]+R[p])*0.5:0; re[i]=s*win[i]; im[i]=0; }
@@ -7076,16 +7127,7 @@ void main(){
         const db=20*Math.log10(smooth[k]+1e-12);
         bytes[k]=Math.max(0,Math.min(255,Math.round(255*(db-minDb)/(maxDb-minDb)))); }
       freq[f]=bytes;
-      let low=0; for(let i=lo;i<=hi;i++) low+=bytes[i]/255; low/=(hi-lo+1);
-      let cf=0,kk=0;
-      for(let i=clo;i<=chi;i++){ const v=bytes[i]/255; const d=v-prevC[kk]; if(d>0)cf+=d; prevC[kk]=v; kk++; }
-      cf/=clenB;
-      const rise=low-lPrev; lPrev=low;
-      lAvg+=(low-lAvg)*aAlpha;
-      if(kRefr>0)kRefr--;
-      const strong=low>lAvg*1.30+0.02, attack=rise>riseTh, click=cf>0.006*(60/fps);
-      if(kRefr===0 && strong && attack && (click||rise>riseHi)){ kEnv=0.85/kDecay; kRefr=refrN; } // 히트 프레임 값 = 라이브와 동일한 0.85
-      kEnv*=kDecay; kick[f]=Math.min(1,kEnv);
+      kick[f]=kStep(bytes);
     }
     return {freq,kick};
   }
