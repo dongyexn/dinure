@@ -1047,8 +1047,28 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-auto-dot.m-hold{ border-radius:2px; }
 .ls-auto-dot.m-linear{ transform:translate(-50%,-50%) rotate(45deg); border-radius:2px; }
 .ls-auto-dot.m-bezier{ border-color:#f6c945; }
-.ls-rvcq{ width:18px; height:18px; padding:0; border-radius:5px; border:1px solid var(--c-bd2); cursor:pointer; vertical-align:middle; }
-.ls-rvcq:hover{ border-color:var(--acc); }
+.ls-oseca{ font-style:normal; font-weight:500; font-size:10px; color:var(--c-t3); margin-left:6px; }
+.ls-rvgrid{ display:grid; grid-template-columns:repeat(3,1fr); gap:9px 10px; margin:2px 0 12px; }
+.ls-rvgrid .c label{ display:block; font-size:10.5px; color:var(--c-t3); margin-bottom:4px; white-space:nowrap; }
+.ls-rvgrid .c input[type=number]{ width:100%; box-sizing:border-box; }
+.ls-rvgrid .c .in{ display:flex; gap:6px; align-items:center; height:28px; }
+.ls-rvswatch{ flex:1; min-width:0; height:26px; padding:0; border-radius:8px; border:1px solid var(--c-bd2); cursor:pointer; }
+.ls-rvswatch:hover{ border-color:var(--acc); }
+.ls-clrpop{ width:216px; }
+.ls-clrpop .sv{ position:relative; width:100%; height:112px; border-radius:8px; overflow:hidden; cursor:crosshair; margin-bottom:8px; }
+.ls-clrpop .sv canvas{ width:100%; height:100%; display:block; }
+.ls-clrpop .dot{ position:absolute; width:11px; height:11px; margin:-5.5px 0 0 -5.5px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 1px rgba(0,0,0,.6); pointer-events:none; }
+.ls-clrpop .hue{ position:relative; width:100%; height:12px; border-radius:6px; margin-bottom:9px; cursor:ew-resize;
+  background:linear-gradient(to right,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00); }
+.ls-clrpop .hued{ position:absolute; top:50%; width:6px; height:16px; margin:-8px 0 0 -3px; border-radius:3px; background:#fff; box-shadow:0 0 0 1px rgba(0,0,0,.6); pointer-events:none; }
+.ls-clrpop .vals{ display:grid; grid-template-columns:auto 1fr 1fr 1fr; gap:4px 5px; align-items:center; margin-bottom:8px; }
+.ls-clrpop .vals em{ font-style:normal; font-size:9.5px; font-weight:800; color:var(--c-t3); letter-spacing:.4px; }
+.ls-clrpop .vals input{ width:100%; min-width:0; box-sizing:border-box; padding:3px 4px; font-size:10.5px; text-align:center;
+  background:var(--c-card); border:1px solid var(--c-bd); border-radius:6px; color:var(--c-t1); }
+.ls-clrpop .vals input[data-cf=hex]{ grid-column:2 / -1; text-align:left; padding-left:7px; letter-spacing:.5px; }
+.ls-clrpop .qrow{ display:flex; gap:6px; }
+.ls-clrpop .qrow button{ flex:1; height:20px; padding:0; border-radius:6px; border:1px solid var(--c-bd2); cursor:pointer; }
+.ls-clrpop .qrow button:hover{ border-color:var(--acc); }
 .ls-rl-link{ color:var(--acc); font-size:11px; font-weight:800; margin:0 1px; animation:lsPulse 1.6s ease-in-out infinite; }
 @keyframes lsPulse{ 0%,100%{opacity:.55} 50%{opacity:1} }
 .ls-auto-h{ position:absolute; width:9px; height:9px; border-radius:50%; background:#f6c945; border:1.5px solid rgba(0,0,0,.6);
@@ -5350,7 +5370,7 @@ void main(){
         case 'pop':   r.ds*=0.55+0.45*e; break;
         case 'tilt':  r.dr-=14*u; break;
         case 'type': break;                                // 타이핑: 트랜스폼 없음 — 글자 표시는 텍스처 단계에서 처리
-        case 'spinrev': { const K=Math.max(2,Math.min(20,+o.rvK||6));      // 스핀 리빌: 중앙 로고(작성크기/K) ↔ 프레임(작성크기)
+        case 'spinrev': { const K=Math.max(2,Math.min(30,+o.rvK||6));      // 스핀 리빌: 중앙 로고(작성크기/K) ↔ 프레임(작성크기)
           const ee=Math.max(0,Math.min(1.1,e));
           r.ds*=(1/K)+(1-1/K)*ee;
           r.dr-=((+o.rvTurns||1.5)*360)*u; break; } } };
@@ -5485,8 +5505,8 @@ void main(){
       const mo=motionOffsets(o,tSec);                    // 모션 프리셋 오프셋(키프레임 위에 가산)
       // 스핀 리빌 가림막: 로고 구멍(내접원) 크기에 동기화된 단색 아이리스 — 로고보다 먼저 그려 팔이 경계를 덮음
       if(coverProg&&o.rvCov!==false&&((o.mIn&&o.mIn.type==='spinrev')||(o.mOut&&o.mOut.type==='spinrev'))){
-        const holeK=Math.max(0.2,Math.min(1.9,(o.rvHole==null?0.62:+o.rvHole)));
-        const K2=Math.max(2,Math.min(20,+o.rvK||6));
+        const holeK=Math.max(0.2,Math.min(3.0,(o.rvHole==null?0.62:+o.rvHole)));
+        const K2=Math.max(2,Math.min(30,+o.rvK||6));
         const q=Math.max(0,Math.min(1,(mo.ds*K2-1)/(K2-1)));   // 닫힘 진행도: ds=1/K → 0(구멍 완전 폐쇄) · ds=1 → 1
         const r=Math.max(0,(Math.min(o.w*W,o.h*Hh)/2)*oscale*mo.ds*holeK*q);
         const cx2=(ox+mo.dx)*W, cy2=(1-(oy+mo.dy))*Hh;
@@ -6253,6 +6273,68 @@ void main(){
     else m.appendChild(ctxItem('오토메이션 레인 추가','',()=>{ addAutoLane(key); showError('레인 추가: '+laneLabel(key)); }));
     placeCtx(m,x,y);
   }
+  // ===== 커스텀 컬러 피커 — SV 면 + 휴 바 + HEX·RGB·HSL 세 표기 동시 편집 =====
+  function _h2r(h){ const m=/^#?([0-9a-f]{6})$/i.exec(h||''); if(!m)return null; const n=parseInt(m[1],16); return [n>>16&255,n>>8&255,n&255]; }
+  function _r2h(r,g,b2){ return '#'+[r,g,b2].map(x=>Math.max(0,Math.min(255,Math.round(x))).toString(16).padStart(2,'0')).join(''); }
+  function _rgb2hsv(r,g,b2){ r/=255;g/=255;b2/=255; const mx=Math.max(r,g,b2),mn=Math.min(r,g,b2),d=mx-mn;
+    let h2=0; if(d){ h2=(mx===r)?((g-b2)/d)%6:(mx===g)?((b2-r)/d+2):((r-g)/d+4); h2=(h2*60+360)%360; }
+    return [h2, mx?d/mx:0, mx]; }
+  function _hsv2rgb(h2,s,v){ const c=v*s, x=c*(1-Math.abs((h2/60)%2-1)), m=v-c;
+    const k=(h2<60)?[c,x,0]:(h2<120)?[x,c,0]:(h2<180)?[0,c,x]:(h2<240)?[0,x,c]:(h2<300)?[x,0,c]:[c,0,x];
+    return [(k[0]+m)*255,(k[1]+m)*255,(k[2]+m)*255]; }
+  function _rgb2hsl(r,g,b2){ r/=255;g/=255;b2/=255; const mx=Math.max(r,g,b2),mn=Math.min(r,g,b2),l=(mx+mn)/2,d=mx-mn;
+    let h2=0,s=0; if(d){ s=d/(1-Math.abs(2*l-1)); h2=(mx===r)?((g-b2)/d)%6:(mx===g)?((b2-r)/d+2):((r-g)/d+4); h2=(h2*60+360)%360; }
+    return [h2,s*100,l*100]; }
+  function _hsl2rgb(h2,s,l){ s/=100;l/=100; const c=(1-Math.abs(2*l-1))*s, x=c*(1-Math.abs((h2/60)%2-1)), m=l-c/2;
+    const k=(h2<60)?[c,x,0]:(h2<120)?[x,c,0]:(h2<180)?[0,c,x]:(h2<240)?[0,x,c]:(h2<300)?[x,0,c]:[c,0,x];
+    return [(k[0]+m)*255,(k[1]+m)*255,(k[2]+m)*255]; }
+  function openColorPop(anchor,hex,onPick){ closeKfPop();
+    let rgb=_h2r(hex)||[13,13,13]; let hsv=_rgb2hsv(rgb[0],rgb[1],rgb[2]);
+    kfPop=document.createElement('div'); kfPop.className='ls-kfpop ls-clrpop';
+    kfPop.innerHTML='<div class="sv"><canvas width="216" height="112"></canvas><div class="dot"></div></div>'
+      +'<div class="hue"><div class="hued"></div></div>'
+      +'<div class="vals">'
+      +'<em>HEX</em><input data-cf="hex" spellcheck="false">'
+      +'<em>RGB</em><input data-cf="r" inputmode="numeric"><input data-cf="g" inputmode="numeric"><input data-cf="b" inputmode="numeric">'
+      +'<em>HSL</em><input data-cf="hh" inputmode="numeric"><input data-cf="hs" inputmode="numeric"><input data-cf="hl" inputmode="numeric">'
+      +'</div><div class="qrow"></div>';
+    document.body.appendChild(kfPop);
+    const r0=anchor.getBoundingClientRect(), pw=216;
+    kfPop.style.left=Math.max(8,Math.min(window.innerWidth-pw-8,r0.left+r0.width/2-pw/2))+'px';
+    const phh=kfPop.offsetHeight||230;
+    kfPop.style.top=(r0.top-phh-8<8?(r0.bottom+8):(r0.top-phh-8))+'px';
+    kfPop.addEventListener('pointerdown',e=>e.stopPropagation());
+    const cv=kfPop.querySelector('canvas'), cx=cv.getContext('2d');
+    const dot=kfPop.querySelector('.dot'), hueEl=kfPop.querySelector('.hue'), hued=kfPop.querySelector('.hued');
+    const F={}; kfPop.querySelectorAll('[data-cf]').forEach(i2=>F[i2.dataset.cf]=i2);
+    function drawSV(){ const base=_hsv2rgb(hsv[0],1,1);
+      cx.fillStyle=_r2h(base[0],base[1],base[2]); cx.fillRect(0,0,216,112);
+      let g2=cx.createLinearGradient(0,0,216,0); g2.addColorStop(0,'#fff'); g2.addColorStop(1,'rgba(255,255,255,0)'); cx.fillStyle=g2; cx.fillRect(0,0,216,112);
+      g2=cx.createLinearGradient(0,0,0,112); g2.addColorStop(0,'rgba(0,0,0,0)'); g2.addColorStop(1,'#000'); cx.fillStyle=g2; cx.fillRect(0,0,216,112); }
+    function paint(src2){ rgb=_hsv2rgb(hsv[0],hsv[1],hsv[2]); const hx=_r2h(rgb[0],rgb[1],rgb[2]); const hsl=_rgb2hsl(rgb[0],rgb[1],rgb[2]);
+      drawSV();
+      dot.style.left=(hsv[1]*100)+'%'; dot.style.top=((1-hsv[2])*100)+'%';
+      hued.style.left=(hsv[0]/360*100)+'%';
+      if(src2!=='hex')F.hex.value=hx;
+      if(src2!=='rgb'){ F.r.value=Math.round(rgb[0]); F.g.value=Math.round(rgb[1]); F.b.value=Math.round(rgb[2]); }
+      if(src2!=='hsl'){ F.hh.value=Math.round(hsl[0]); F.hs.value=Math.round(hsl[1]); F.hl.value=Math.round(hsl[2]); }
+      onPick(hx); }
+    function dragOn(el,fn){ el.addEventListener('pointerdown',e=>{ e.preventDefault(); dragLock(true);
+      const mv=ev=>{ const r2=el.getBoundingClientRect(); fn(Math.max(0,Math.min(1,(ev.clientX-r2.left)/r2.width)),Math.max(0,Math.min(1,(ev.clientY-r2.top)/r2.height))); };
+      mv(e);
+      const up=()=>{ dragLock(false); window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up); };
+      window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up); }); }
+    dragOn(kfPop.querySelector('.sv'),(x2,y2)=>{ hsv[1]=x2; hsv[2]=1-y2; paint(); });
+    dragOn(hueEl,x2=>{ hsv[0]=x2*360; paint(); });
+    F.hex.addEventListener('input',()=>{ const v=_h2r(F.hex.value); if(v){ hsv=_rgb2hsv(v[0],v[1],v[2]); paint('hex'); } });
+    ['r','g','b'].forEach(k2=>F[k2].addEventListener('input',()=>{ const v=[+F.r.value||0,+F.g.value||0,+F.b.value||0]; hsv=_rgb2hsv(v[0],v[1],v[2]); paint('rgb'); }));
+    ['hh','hs','hl'].forEach(k2=>F[k2].addEventListener('input',()=>{ const v=_hsl2rgb(((+F.hh.value||0)%360+360)%360,Math.max(0,Math.min(100,+F.hs.value||0)),Math.max(0,Math.min(100,+F.hl.value||0))); hsv=_rgb2hsv(v[0],v[1],v[2]); paint('hsl'); }));
+    { const q=kfPop.querySelector('.qrow');                            // 빠른 선택: 기본 배경·흰색·그라디언트 대표색
+      ['#0d0d0d','#ffffff',((grad&&grad.colors&&grad.colors[0])||'#2ec4a6')].forEach(cq=>{ const b2=document.createElement('button');
+        b2.type='button'; b2.style.background=cq; b2.title=cq;
+        b2.addEventListener('click',()=>{ const v=_h2r(cq); hsv=_rgb2hsv(v[0],v[1],v[2]); paint(); }); q.appendChild(b2); }); }
+    paint();
+  }
   // ♪ 오디오 연결 팝업 — 임의 파라미터를 대역 에너지에 실시간 링크 (키프레임 위 가산, 내보내기 반영)
   function openAudLinkPop(x,y,key){ closeKfPop();
     if(autoKeys.indexOf(key)<0) addAutoLane(key);
@@ -6393,10 +6475,10 @@ void main(){
 
   function captureObjs(){ return objs.map(o=>{ const c={id:o.id,type:o.type,x:o.x,y:o.y,w:o.w,h:o.h,rot:o.rot||0,opacity:o.opacity};
     if(o.name&&o.name.trim()) c.name=o.name.trim();
-    if(o.rvK!=null) c.rvK=Math.max(2,Math.min(20,+o.rvK||6));
+    if(o.rvK!=null) c.rvK=Math.max(2,Math.min(30,+o.rvK||6));
     if(o.rvTurns!=null) c.rvTurns=Math.max(0.25,Math.min(4,+o.rvTurns||1.5));
     if(o.rvColor) c.rvColor=o.rvColor;
-    if(o.rvHole!=null) c.rvHole=Math.max(0.2,Math.min(1.9,+o.rvHole||0.62));
+    if(o.rvHole!=null) c.rvHole=Math.max(0.2,Math.min(3.0,+o.rvHole||0.62));
     if(o.rvCov===false) c.rvCov=false;
     if(o.rvStay!=null&&+o.rvStay>0) c.rvStay=Math.max(0,Math.min(60,+o.rvStay));
     if(o.rvStayIn!=null) c.rvStayIn=Math.max(0,Math.min(60,+o.rvStayIn));
@@ -6695,19 +6777,17 @@ void main(){
     { const MOL=(o.type==='text')?Object.assign({},MO_LABELS,{type:'타이핑 ⌫'}):MO_LABELS;
       h+='<div class="ls-orow"><span>퇴장 모션</span><div class="ls-oinline ls-trrow">'+mSel('out',o.mOut,MOL)+'</div></div>'; }
     { const rvOn=(o.mIn&&o.mIn.type==='spinrev')||(o.mOut&&o.mOut.type==='spinrev');
-      h+='<div class="ls-orow" data-rvrow'+(rvOn?'':' style="display:none"')+'><span>스핀 리빌</span><div class="ls-oinline ls-xy" title="배율: 중앙 크기 = 작성 크기 ÷ 배율 — 작성 크기를 화면보다 크게(예: W 500%) 잡으면 프레임이 됩니다">'
-        +'배율 <input type="number" data-rvk min="2" max="20" step="0.5" value="'+(Math.max(2,Math.min(20,+o.rvK||6)))+'"> ×'
-        +' 회전 <input type="number" data-rvt min="0.25" max="4" step="0.25" value="'+(Math.max(0.25,Math.min(4,+o.rvTurns||1.5)))+'"> 턴</div></div>';
-      h+='<div class="ls-orow" data-rvrow2'+(rvOn?'':' style="display:none"')+'><span>가림막</span><div class="ls-oinline ls-xy" title="로고 구멍 안으로만 내용이 보이고 바깥은 이 색으로 가려져요 — 구멍은 로고 크기 대비 내접원 비율">'
-        +'<button type="button" class="ls-tgl'+(o.rvCov!==false?' on':'')+'" data-rvcov></button>'
-        +' 구멍 <input type="number" data-rvh min="20" max="190" step="1" value="'+Math.round((o.rvHole==null?0.62:+o.rvHole)*100)+'"> %'
-        +'</div></div>';
-      h+='<div class="ls-orow" data-rvrow3'+(rvOn?'':' style="display:none"')+'><span>유지·색</span><div class="ls-oinline ls-xy" title="유지: 닫힌 상태(중앙 로고+단색)로 머무는 시간 — 등장은 열리기 전, 퇴장은 닫힌 후">'
-        +'등장 <input type="number" data-rvsi min="0" max="60" step="0.5" value="'+(Math.max(0,(o.rvStayIn!=null?+o.rvStayIn:+o.rvStay||0)))+'"> s'
-        +' 퇴장 <input type="number" data-rvso min="0" max="60" step="0.5" value="'+(Math.max(0,(o.rvStayOut!=null?+o.rvStayOut:+o.rvStay||0)))+'"> s'
-        +' <span class="ls-pcslot" style="width:20px;height:20px;display:inline-block;vertical-align:middle"><input type="color" data-rvc value="'+(o.rvColor||'#0d0d0d')+'" title="가림 색 — 직접 선택"></span>'
-        +' '+['#0d0d0d','#ffffff','#2ec4a6'].map((cq,qi)=>'<button type="button" class="ls-rvcq" data-rvcq="'+qi+'" style="background:'+cq+'" title="빠른 선택"></button>').join('')
-        +'</div></div>'; }
+      const _si=Math.max(0,(o.rvStayIn!=null?+o.rvStayIn:+o.rvStay||0)), _so=Math.max(0,(o.rvStayOut!=null?+o.rvStayOut:+o.rvStay||0));
+      h+='<div class="ls-osec" data-rvrow'+(rvOn?'':' style="display:none"')+'>스핀 리빌 <em class="ls-oseca">중앙 크기 = 작성 크기 ÷ 배율</em></div>'
+        +'<div class="ls-rvgrid" data-rvrow2'+(rvOn?'':' style="display:none"')+'>'
+        +'<div class="c"><label>배율 ×</label><input type="number" data-rvk min="2" max="30" step="0.5" value="'+(Math.max(2,Math.min(30,+o.rvK||6)))+'"></div>'
+        +'<div class="c"><label>회전 · 턴</label><input type="number" data-rvt min="0.25" max="4" step="0.25" value="'+(Math.max(0.25,Math.min(4,+o.rvTurns||1.5)))+'"></div>'
+        +'<div class="c"><label title="로고 크기 대비 내접원 — 100% 초과 = 로고보다 큰 구멍">구멍 %</label><input type="number" data-rvh min="20" max="300" step="1" value="'+Math.round((o.rvHole==null?0.62:+o.rvHole)*100)+'"></div>'
+        +'<div class="c"><label title="열리기 전, 닫힌 상태로 머무는 시간">유지·등장 s</label><input type="number" data-rvsi min="0" max="60" step="0.5" value="'+_si+'"></div>'
+        +'<div class="c"><label title="닫힌 후, 그 상태로 머무는 시간">유지·퇴장 s</label><input type="number" data-rvso min="0" max="60" step="0.5" value="'+_so+'"></div>'
+        +'<div class="c"><label>가림막 · 색</label><div class="in"><button type="button" class="ls-tgl'+(o.rvCov!==false?' on':'')+'" data-rvcov title="구멍 밖을 단색으로 가림"></button>'
+        +'<button type="button" class="ls-rvswatch" data-rvcbtn style="background:'+(o.rvColor||'#0d0d0d')+'" title="가림 색 — 클릭해 선택 (HEX·RGB·HSL 동시 표시)"></button></div></div>'
+        +'</div>'; }
     h+='<div class="ls-orow"><span>지속 모션</span><div class="ls-oinline ls-trrow">'
       +'<select data-ml>'+Object.keys(ML_LABELS).map(k=>'<option value="'+k+'"'+(o.mLoop.type===k?' selected':'')+'>'+ML_LABELS[k]+'</option>').join('')+'</select>'
       +'<input type="number" data-mlamt min="0" max="2" step="0.1" value="'+(Math.max(0,Math.min(2,+o.mLoop.amt||1)).toFixed(1))+'" title="강도">'
@@ -6794,20 +6874,17 @@ void main(){
           const es=p.querySelector('select[data-me="'+tag+'"]'); if(es)es.value='smooth'; }
         if(+m.dur<1){ m.dur=2.5; const d2=p.querySelector('[data-md="'+tag+'"]'); if(d2)d2.value='2.5'; } }
       { const on2=(o.mIn&&o.mIn.type==='spinrev')||(o.mOut&&o.mOut.type==='spinrev');
-        ['[data-rvrow]','[data-rvrow2]','[data-rvrow3]'].forEach(s2=>{ const row=p.querySelector(s2); if(row) row.style.display=on2?'':'none'; }); }
+        ['[data-rvrow]','[data-rvrow2]'].forEach(s2=>{ const row=p.querySelector(s2); if(row) row.style.display=on2?'':'none'; }); }
       scheduleUndoCommit(); }));
-    { const rk=p.querySelector('[data-rvk]'); if(rk)rk.addEventListener('input',()=>{ o.rvK=Math.max(2,Math.min(20,parseFloat(rk.value)||6)); scheduleUndoCommit(); });
+    { const rk=p.querySelector('[data-rvk]'); if(rk)rk.addEventListener('input',()=>{ o.rvK=Math.max(2,Math.min(30,parseFloat(rk.value)||6)); scheduleUndoCommit(); });
       const rt=p.querySelector('[data-rvt]'); if(rt)rt.addEventListener('input',()=>{ o.rvTurns=Math.max(0.25,Math.min(4,parseFloat(rt.value)||1.5)); scheduleUndoCommit(); });
-      const rc=p.querySelector('[data-rvc]'); if(rc)rc.addEventListener('input',()=>{ o.rvColor=rc.value; scheduleUndoCommit(); });
-      const rh=p.querySelector('[data-rvh]'); if(rh)rh.addEventListener('input',()=>{ o.rvHole=Math.max(0.2,Math.min(1.9,(parseFloat(rh.value)||62)/100)); scheduleUndoCommit(); });
+
+      const rh=p.querySelector('[data-rvh]'); if(rh)rh.addEventListener('input',()=>{ o.rvHole=Math.max(0.2,Math.min(3.0,(parseFloat(rh.value)||62)/100)); scheduleUndoCommit(); });
       const rv2=p.querySelector('[data-rvcov]'); if(rv2)rv2.addEventListener('click',()=>{ o.rvCov=!(o.rvCov!==false); rv2.classList.toggle('on',o.rvCov!==false); scheduleUndoCommit(); });
       const rsi=p.querySelector('[data-rvsi]'); if(rsi)rsi.addEventListener('input',()=>{ o.rvStayIn=Math.max(0,Math.min(60,parseFloat(rsi.value)||0)); scheduleUndoCommit(); });
       const rso=p.querySelector('[data-rvso]'); if(rso)rso.addEventListener('input',()=>{ o.rvStayOut=Math.max(0,Math.min(60,parseFloat(rso.value)||0)); scheduleUndoCommit(); });
-      p.querySelectorAll('[data-rvcq]').forEach(qb=>qb.addEventListener('click',()=>{      // 빠른 색: 기본 배경색·흰색·그라디언트 대표색
-        const opts=['#0d0d0d','#ffffff',((grad&&grad.colors&&grad.colors[0])||'#2ec4a6')];
-        o.rvColor=opts[+qb.dataset.rvcq]||'#0d0d0d';
-        const rc2=p.querySelector('[data-rvc]'); if(rc2)rc2.value=o.rvColor;
-        renderProjectColors(); scheduleUndoCommit(); })); }
+      { const cb=p.querySelector('[data-rvcbtn]'); if(cb)cb.addEventListener('click',ev=>{ ev.stopPropagation();
+        openColorPop(cb,o.rvColor||'#0d0d0d',v=>{ o.rvColor=v; cb.style.background=v; renderProjectColors(); scheduleUndoCommit(); }); }); } }
     p.querySelectorAll('[data-md]').forEach(el=>el.addEventListener('input',ev=>{
       const m=(el.dataset.md==='in')?o.mIn:o.mOut; m.dur=Math.max(0.1,Math.min(10,parseFloat(ev.target.value)||0.8)); scheduleUndoCommit(); }));
     p.querySelectorAll('[data-me]').forEach(el=>el.addEventListener('change',ev=>{
