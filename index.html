@@ -1196,6 +1196,12 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
   color:var(--c-t3); font-size:12px; line-height:1; padding:0; cursor:pointer; display:flex; align-items:center; justify-content:center; }
 .ls-fxdel:hover{ color:#fff; background:#c0392b; border-color:#c0392b; }
 .ls-palbtn{ width:100%; justify-content:center; padding:4px 8px; font-size:11.5px; }
+.ls-pcwrap{ display:flex; flex-wrap:wrap; gap:7px; }
+.ls-pcslot{ position:relative; width:30px; height:30px; }
+.ls-pcslot input[type=color]{ width:100%; height:100%; padding:0; border:1px solid var(--c-bd); border-radius:8px; background:none; cursor:pointer; }
+.ls-pcslot input[type=color]::-webkit-color-swatch-wrapper{ padding:2px; } .ls-pcslot input[type=color]::-webkit-color-swatch{ border:none; border-radius:6px; }
+.ls-pccnt{ position:absolute; right:-4px; top:-5px; min-width:13px; height:13px; padding:0 3px; border-radius:7px; background:var(--c-card); border:1px solid var(--c-bd2);
+  color:var(--c-t3); font-size:8.5px; font-weight:800; line-height:12px; text-align:center; pointer-events:none; }
 .ls-gempty{ width:32px; height:32px; flex:none; border-radius:50%; border:1.5px dashed var(--c-bd); background:none; color:var(--c-t3); font-size:14px; line-height:1; cursor:pointer; padding:0; opacity:.7; }
 .ls-gempty:hover{ opacity:1; border-color:var(--c-t3); color:var(--c-t1); }
 .ls-gdice{ width:32px; height:32px; flex:none; border-radius:50%; border:1px solid var(--c-bd); background:color-mix(in srgb,var(--c-t1) 5%,transparent); color:var(--c-t2); cursor:pointer; padding:0; display:flex; align-items:center; justify-content:center; }
@@ -4215,13 +4221,13 @@ function createArtwork(){
       <div class="ls-layers">
         <div class="ls-lyr-head">레이어</div>
         <div class="ls-lyr-add">
+          <button class="ls-lyr-addbtn" data-add="audio" title="음원 트랙 추가 — 최대 3개">＋음원</button>
           <button class="ls-lyr-addbtn" data-add="text" title="텍스트 오버레이">＋텍스트</button>
           <button class="ls-lyr-addbtn" data-add="image" title="이미지/로고 오버레이">＋이미지</button>
           <button class="ls-lyr-addbtn" data-add="shape" title="선·원·네모·세모 등 도형">＋쉐이프</button>
           <button class="ls-lyr-addbtn" data-add="progress" title="뮤직 플레이어 레이아웃">＋레이아웃</button>
           <button class="ls-lyr-addbtn" data-add="spectrum" title="오디오 반응 스펙트럼">＋스펙트럼</button>
           <button class="ls-lyr-addbtn" data-add="kick" title="킥에 반응하는 줌 펄스·진동">＋킥 펄스</button>
-          <button class="ls-lyr-addbtn" data-add="audio" title="음원 트랙 추가 — 최대 3개">＋음원</button>
         </div>
         <div class="ls-lyr-list" id="ls_layerlist"></div>
       </div>
@@ -4266,10 +4272,7 @@ function createArtwork(){
               <option value="screen">스크린 · 밝은 글로우</option>
             </select>
           </div>
-          <div class="ls-grid ls-ggrid">
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_gmix">워시 강도</label><span class="ls-val" id="ls_gmixV"></span></div><input type="range" id="ls_gmix" min="0" max="1" step="0.01" value="0.65"></div>
-              <div class="ls-ctrl"><div class="ls-row"><label>이미지 팔레트</label></div><button class="ls-act ls-palbtn" id="ls_palbtn" title="배경 이미지(없으면 이미지 레이어)의 대표색을 뽑아 그라디언트 색으로 적용">다시 추출</button></div>
-          </div>
+          <div class="ls-ctrl"><div class="ls-row"><label for="ls_gmix">워시 강도</label><span class="ls-val" id="ls_gmixV"></span></div><input type="range" id="ls_gmix" min="0" max="1" step="0.01" value="0.65"></div>
           </div>
           <div id="ls_bgimg_sec">
           <div class="ls-osec">배경 이미지</div>
@@ -4292,7 +4295,7 @@ function createArtwork(){
           </div>
           <div class="ls-osub">질감 · 흐름</div>
           <div class="ls-grid ls-ggrid">
-              <div class="ls-ctrl"><div class="ls-row"><label for="ls_gscale">노이즈 스케일</label><span class="ls-val" id="ls_gscaleV"></span></div><input type="range" id="ls_gscale" min="0.4" max="5" step="0.05" value="1.6"></div>
+              <div class="ls-ctrl"><div class="ls-row"><label for="ls_gscale">스케일</label><span class="ls-val" id="ls_gscaleV"></span></div><input type="range" id="ls_gscale" min="0.4" max="5" step="0.05" value="1.6"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_gsoft">부드러움</label><span class="ls-val" id="ls_gsoftV"></span></div><input type="range" id="ls_gsoft" min="0" max="1" step="0.01" value="0.55"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_gwarp">워프</label><span class="ls-val" id="ls_gwarpV"></span></div><input type="range" id="ls_gwarp" min="0" max="2" step="0.02" value="0.5"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_gspeed" title="프로젝트 길이당 루프 횟수 — 정수 배수라 루프 이음새가 없어요">흐름 속도</label><span class="ls-val" id="ls_gspeedV"></span></div><input type="range" id="ls_gspeed" min="1" max="6" step="1" value="1"></div>
@@ -4306,6 +4309,11 @@ function createArtwork(){
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_gsat">채도</label><span class="ls-val" id="ls_gsatV"></span></div><input type="range" id="ls_gsat" min="-1" max="1" step="0.02" value="0"></div>
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_gnoise">노이즈</label><span class="ls-val" id="ls_gnoiseV"></span></div><input type="range" id="ls_gnoise" min="0" max="1" step="0.01" value="0"></div>
           </div>
+          <div class="ls-osec">필터</div>
+          <div class="ls-orow" style="margin:0"><select id="ls_filter" style="flex:1;min-width:0"></select></div>
+          <div class="ls-ctrl"><div class="ls-row"><label for="ls_filterAmt">강도</label><span class="ls-val" id="ls_filterAmtV"></span></div><input type="range" id="ls_filterAmt" min="0" max="1" step="0.01" value="0.8"></div>
+          <div class="ls-osec">프로젝트 컬러</div>
+          <div class="ls-pcwrap" id="ls_projcolors"></div>
           <div class="ls-osec">움직임</div>
           <div class="ls-grid" id="ls_bgfx">
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_warp">일렁임 Warp</label><span class="ls-val" id="ls_warpV"></span></div><input type="range" id="ls_warp" min="0" max="0.24" step="0.002" value="0"></div>
@@ -4323,8 +4331,10 @@ function createArtwork(){
               <div class="ls-ctrl"><div class="ls-row"><label for="ls_leak">라이트 리크</label><span class="ls-val" id="ls_leakV"></span></div><input type="range" id="ls_leak" min="0" max="1" step="0.01" value="0"></div>
           </div>
           <div class="ls-osec">영상 페이드</div>
-          <div class="ls-orow"><span class="ls-scrub">페이드 인</span><div class="ls-oinline ls-xy"><input type="number" id="ls_vfi" step="0.1" min="0" max="600" value="0"> s</div></div>
-          <div class="ls-orow"><span class="ls-scrub">페이드 아웃</span><div class="ls-oinline ls-xy"><input type="number" id="ls_vfo" step="0.1" min="0" max="600" value="0"> s</div></div>
+          <div class="ls-grid ls-ggrid">
+              <div class="ls-orow" style="margin:0"><span class="ls-scrub">인</span><div class="ls-oinline ls-xy"><input type="number" id="ls_vfi" step="0.1" min="0" max="600" value="0"> s</div></div>
+              <div class="ls-orow" style="margin:0"><span class="ls-scrub">아웃</span><div class="ls-oinline ls-xy"><input type="number" id="ls_vfo" step="0.1" min="0" max="600" value="0"> s</div></div>
+          </div>
         </div>
       </div>
     </div>
@@ -4600,12 +4610,20 @@ uniform float uVig,uVigS,uWarm,uFade,uSatL,uCA,uGr2,uGrSz;
 uniform sampler2D uB; uniform int uHasBlur;
 uniform float uBlurA,uSoftF,uBloom,uBloomT,uBloomW;
 uniform float uMB,uMBAng,uShkA,uLeak,uPh2,uDust; uniform vec2 uShkO;
+uniform float uScan,uGli,uTone,uFT;   // 필터 프리셋 전용 — 스캔라인/글리치/스플릿톤/시간(초)
 float lhash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
 float lvnoise(vec2 p){vec2 i=floor(p),f=fract(p);float a=lhash(i),b=lhash(i+vec2(1.,0.)),c=lhash(i+vec2(0.,1.)),d=lhash(i+vec2(1.,1.));vec2 u=f*f*(3.-2.*f);return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);}
 void main(){
   vec2 uv=gl_FragCoord.xy/uRes3;
   if(uShkA>0.001){ uv=(uv-0.5)*(1.0-0.028*uShkA)+0.5+uShkO; }   // 카메라 셰이크: 미세 줌으로 가장자리 숨김
   vec2 c=uv-0.5; c.x*=uRes3.x/uRes3.y;
+  float gBand=0.0;
+  if(uGli>0.001){ float sl9=floor(uFT*7.0);                                                       // 글리치: 밴드 단위 순간 변위(7슬라이스/초)
+    float band=floor(uv.y*mix(9.0,26.0,lhash(vec2(sl9,1.3))));
+    float on=step(1.0-0.20*uGli,lhash(vec2(band,sl9)));
+    uv.x=fract(uv.x+(lhash(vec2(band*3.1,sl9*1.7))-0.5)*0.12*uGli*on);
+    gBand=on; }
+  if(uScan>0.001){ uv.x+=(lhash(vec2(floor(uv.y*uRes3.y*0.5),floor(uFT*12.0)))-0.5)*0.004*uScan; } // VHS: 라인별 미세 트래킹 지터
   vec3 col;
   if(uMB>0.001){ vec2 mdir=vec2(cos(uMBAng),sin(uMBAng));       // 모션 블러: 방향성 8탭 스미어
     vec3 acc=vec3(0.0);
@@ -4616,6 +4634,8 @@ void main(){
   else if(uCA>0.001){ vec2 d=c*uCA*0.012;                       // 방사형 미세 색수차(가장자리로 갈수록 증가)
     col=vec3(texture(uT,uv+d).r, texture(uT,uv).g, texture(uT,uv-d).b); }
   else col=texture(uT,uv).rgb;
+  if(uGli>0.001||uScan>0.001){ float sp=0.0035*uScan+(0.004+0.006*gBand)*uGli;                    // RGB 채널 분리(글리치 밴드는 강하게)
+    if(sp>0.0006){ col.r=texture(uT,uv+vec2(sp,0.0)).r; col.b=texture(uT,uv-vec2(sp,0.0)).b; } }
   if(uHasBlur==1){ vec3 bl=texture(uB,uv).rgb;
     if(uBlurA>0.001) col=mix(col,bl,uBlurA);                                  // 디포커스(전면 블러 혼합)
     if(uSoftF>0.001){ vec3 scr=1.0-(1.0-col)*(1.0-bl); col=mix(col,scr,uSoftF*0.85); }   // 소프트 포커스(스크린 혼합 → 몽롱함)
@@ -4627,6 +4647,8 @@ void main(){
   if(uFade>0.001){ col=col*(1.0-0.16*uFade)+vec3(0.10*uFade);                                     // 빛바랜 톤: 블랙 리프트+화이트 눌림
     col=pow(max(col,vec3(0.0)),vec3(1.0-0.12*uFade)); }                                           // 감마 완화
   if(abs(uSatL)>0.001){ float lum=dot(col,vec3(0.299,0.587,0.114)); col=mix(vec3(lum),col,1.0+uSatL); }
+  if(abs(uTone)>0.001){ float l2=dot(clamp(col,0.0,1.0),vec3(0.299,0.587,0.114));                 // 스플릿 톤: 그림자=틸 · 하이라이트=오렌지
+    col+=((1.0-l2)*vec3(-0.055,0.015,0.075)+l2*vec3(0.085,0.02,-0.065))*uTone; }
   if(uLeak>0.001){ float la=uPh2;                                                                 // 라이트 리크: 프로젝트 1주기로 화면 가장자리 궤도
     vec2 lp=vec2(cos(la),sin(la))*0.62;
     float d2=distance(c,lp);
@@ -4645,6 +4667,8 @@ void main(){
     float dark=step(0.9990,lhash(dp*1.7+fseed*29.0));                                             // 희소 어두운 스펙
     col+=vec3(0.9)*(line*0.22+spec*0.5)*uDust;
     col-=vec3(0.8)*dark*0.5*uDust; }
+  if(uScan>0.001){ float sl8=0.5+0.5*sin(uv.y*uRes3.y*3.14159);                                   // 스캔라인 명암 + 형광 그린 시프트
+    col*=1.0-uScan*0.18*sl8; col.g*=1.0+uScan*0.025; }
   if(uGr2>0.0001){ vec2 gp=gl_FragCoord.xy/max(1.0,uGrSz);                                        // 필름 그레인(전체 화면)
     float gn=lvnoise(gp+vec2(uSeed3*0.13,uSeed3*0.07));
     gn=mix(gn,lhash(floor(gp)+uSeed3),0.35);
@@ -4654,7 +4678,7 @@ void main(){
 }`;
   let lookProg=null,lkUni={};
   try{ lookProg=mkProg(LOOK_FS);
-    ['uT','uRes3','uSeed3','uVig','uVigS','uWarm','uFade','uSatL','uCA','uGr2','uGrSz','uB','uHasBlur','uBlurA','uSoftF','uBloom','uBloomT','uBloomW','uMB','uMBAng','uShkA','uShkO','uLeak','uPh2','uDust'].forEach(n=>lkUni[n]=gl.getUniformLocation(lookProg,n));
+    ['uT','uRes3','uSeed3','uVig','uVigS','uWarm','uFade','uSatL','uCA','uGr2','uGrSz','uB','uHasBlur','uBlurA','uSoftF','uBloom','uBloomT','uBloomW','uMB','uMBAng','uShkA','uShkO','uLeak','uPh2','uDust','uScan','uGli','uTone','uFT'].forEach(n=>lkUni[n]=gl.getUniformLocation(lookProg,n));
   }catch(e){ lookProg=null; }   // 실패 시 룩 비활성 — 기존 경로로 동작
 
   // ===== 블러 체인 — 하프 해상도 다운샘플 + 분리형 가우시안(H/V ×2회 반복) =====
@@ -5304,16 +5328,40 @@ void main(){
         case 'orbit':     r.dx+=Math.sin(ph)*0.03*a; r.dy+=(1-Math.cos(ph))*0.03*a; break; } }
     return r; }
 
+  // ===== 필터 프리셋 — 룩 파라미터 레시피(강도 슬라이더로 전체 스케일) =====
+  // 트렌드 반영: 레트로 VHS(Y2K)·CCD 캠코더·빈티지 필름·글리치·틸&오렌지 시네마틱·드리미 할레이션·느와르·로모
+  const FILTERS={
+    none:    {},
+    vintage: {warm:.30,fade:.85,sat:-.18,vig:.50,vigs:.60,gr:.40,grsz:2.0,dust:.55},          // 35mm 빈티지 필름 — 웜톤·빛바램·그레인·더스트
+    vhs:     {scan:.90,ca:.60,gr:.30,grsz:1.3,sat:.06,fade:.25},                              // 레트로 VHS — 스캔라인·트래킹 지터·RGB 분리
+    ccd:     {warm:-.18,sat:-.08,fade:.15,vig:.35,vigs:.70,gr:.25,grsz:1.2,scan:.14},         // CCD 캠코더 — 쿨톤 무디·미세 주사선
+    glitch:  {gli:1.0,ca:.50,scan:.20},                                                        // 글리치 — 밴드 변위·채널 분리
+    cine:    {tone:1.0,sat:.05,vig:.30,vigs:.85},                                              // 시네마틱 — 틸&오렌지 스플릿 톤
+    dream:   {bloom:.45,fade:.50,sat:.10,warm:.10},                                            // 드리미 — 할레이션 글로우·파스텔
+    noir:    {sat:-1.0,vig:.55,vigs:.55,gr:.30,grsz:1.6,warm:-.06},                            // 느와르 — 흑백·강한 비네트
+    lomo:    {sat:.28,vig:.75,vigs:.35,warm:.14,gr:.22,grsz:1.4}};                             // 로모 — 진한 채도·터널 비네트
+  const FILTER_LABELS={none:'없음',vintage:'빈티지 필름',vhs:'레트로 VHS',ccd:'CCD 캠코더',glitch:'글리치',cine:'시네마틱 (틸&오렌지)',dream:'드리미 글로우',noir:'느와르',lomo:'로모'};
   // 룩 파라미터 스냅샷(오토메이션 경유) + 활성 판정 + 화면 리졸브(룩 or 단순 카피)
-  function lookVals(tSec){ const V=k=>autoVal(k,tSec); return {
-    vig:0, vigs:0.5, ca:0, blur:0, sfocus:0,   // 해당 기능 제거 — 유니폼 0 고정
-    warm:V('warmth')||0, fade:0, sat:V('satl')||0,   // fade/mblur 기능 제거 - 유니폼 0 고정
+  function lookVals(tSec){ const V=k=>autoVal(k,tSec); const r={
+    vig:0, vigs:0.5, ca:0, blur:0, sfocus:0,
+    warm:V('warmth')||0, fade:0, sat:V('satl')||0,
     gr:V('grain')||0, grsz:V('grainsz')||1.5,
     bloom:V('bloom')||0,
     bloomthr:V('bloomthr')||0.55, bloomwarm:V('bloomwarm')||0,
-    mblur:0, mbang:0, shake:Math.min(1,(V('shake')||0)+kickShakeNow), leak:V('leak')||0, dust:V('dust')||0 }; }
+    mblur:0, mbang:0, shake:Math.min(1,(V('shake')||0)+kickShakeNow), leak:V('leak')||0, dust:V('dust')||0,
+    scan:0, gli:0, tone:0 };
+    const f=FILTERS[st.filter]||null, a=Math.max(0,Math.min(1,st.filterAmt==null?0.8:+st.filterAmt));
+    if(f&&a>0.001){                                        // 프리셋 레시피를 강도만큼 덧입힘 (수동 슬라이더 값과 공존)
+      r.vig=Math.min(1,r.vig+(f.vig||0)*a); if(f.vigs!=null)r.vigs=f.vigs;
+      r.warm+=(f.warm||0)*a; r.fade=Math.min(1,r.fade+(f.fade||0)*a);
+      r.sat=Math.max(-1,Math.min(1,r.sat+(f.sat||0)*a)); r.ca=Math.min(1,r.ca+(f.ca||0)*a);
+      r.gr=Math.max(r.gr,(f.gr||0)*a); if(f.grsz!=null&&(f.gr||0)*a>r.gr-0.0001)r.grsz=f.grsz;
+      r.dust=Math.max(r.dust,(f.dust||0)*a); r.bloom=Math.min(1.2,r.bloom+(f.bloom||0)*a);
+      r.scan=(f.scan||0)*a; r.gli=(f.gli||0)*a; r.tone=(f.tone||0)*a; }
+    return r; }
   function lookOn(lk){ return Math.abs(lk.warm)>0.001||Math.abs(lk.sat)>0.001||lk.gr>0.0001
-    ||lk.bloom>0.001||lk.shake>0.001||lk.leak>0.001||lk.dust>0.001; }
+    ||lk.bloom>0.001||lk.shake>0.001||lk.leak>0.001||lk.dust>0.001
+    ||lk.vig>0.001||lk.fade>0.001||lk.ca>0.001||lk.scan>0.001||lk.gli>0.001||Math.abs(lk.tone)>0.001; }
   // 카메라 셰이크 오프셋 — projDur 정수배 주파수 사인 합성(루프 무이음새), tSec만 사용
   function shakeOfs(tSec,amp){ const dur=projDur(); const p=2*Math.PI*tSec/dur;
     const N1=Math.max(1,Math.round(dur/1.4)), N2=Math.max(1,Math.round(dur/0.9)), N3=Math.max(1,Math.round(dur/2.3));
@@ -5356,6 +5404,7 @@ void main(){
         gl.uniform1f(lkUni.uShkA,lk.shake); gl.uniform2f(lkUni.uShkO,so[0],so[1]); }
       gl.uniform1f(lkUni.uLeak,lk.leak); gl.uniform1f(lkUni.uPh2,2*Math.PI*(tSec/projDur()));
       gl.uniform1f(lkUni.uDust,lk.dust);
+      gl.uniform1f(lkUni.uScan,lk.scan); gl.uniform1f(lkUni.uGli,lk.gli); gl.uniform1f(lkUni.uTone,lk.tone); gl.uniform1f(lkUni.uFT,tSec);
     }else{
       gl.useProgram(copyProg);
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,srcTex);
@@ -5451,6 +5500,35 @@ void main(){
     const upd=()=>{ grad[prop]=parseFloat(el.value); if(out)out.textContent=GFMT[k](grad[prop])+(isAuto(k)?' · 오토':''); if(prop==='soft')renderGradBand(); };
     el.addEventListener('input',upd); upd();
     if(GAUTO_LABELS[k]){ const row=el.closest('.ls-ctrl'); if(row) row.addEventListener('contextmenu',ev=>{ ev.preventDefault(); ev.stopPropagation(); openAutoCtx(ev.clientX,ev.clientY,k); }); } });
+  // ── 필터 프리셋 ──
+  { const fs=Q('#ls_filter'), fa=Q('#ls_filterAmt'), fv=Q('#ls_filterAmtV');
+    if(fs){ fs.innerHTML=Object.keys(FILTER_LABELS).map(k=>'<option value="'+k+'">'+FILTER_LABELS[k]+'</option>').join('');
+      fs.addEventListener('change',()=>{ st.filter=fs.value; scheduleUndoCommit(); }); }
+    if(fa){ const upd=()=>{ st.filterAmt=parseFloat(fa.value); if(fv)fv.textContent=Math.round(st.filterAmt*100)+'%'; };
+      fa.addEventListener('input',upd); fa.addEventListener('change',()=>scheduleUndoCommit()); upd(); }
+    st.filter=st.filter||'none'; }
+  // ── 프로젝트 컬러 — 쓰인 색을 한자리에 모아 일괄 교체 (오브젝트 색·이펙트 색·그라디언트) ──
+  function collectProjColors(){ const m=new Map();
+    const add=(hex,apply)=>{ if(typeof hex!=='string')return; const h2=hex.toLowerCase(); if(!/^#[0-9a-f]{6}$/.test(h2))return;
+      if(!m.has(h2))m.set(h2,[]); m.get(h2).push(apply); };
+    objs.forEach(o=>{ if(o.color) add(o.color,v=>{ o.color=v; try{layerTexCache.delete(o.id);}catch(e){} });
+      (o.fx||[]).forEach(f=>{ if(f.color) add(f.color,v=>{ f.color=v; }); }); });
+    (grad.colors||[]).forEach((c,i)=>add(c,v=>{ grad.colors[i]=v; }));
+    return m; }
+  let _pcSig='';
+  function renderProjectColors(force){ const box=Q('#ls_projcolors'); if(!box)return;
+    if(!force&&document.activeElement&&box.contains(document.activeElement))return;   // 피커 조작 중 재생성 금지
+    const m=collectProjColors(); const sig=[...m.keys()].map(k=>k+':'+m.get(k).length).join('|');
+    if(!force&&sig===_pcSig)return; _pcSig=sig;
+    box.innerHTML=m.size?[...m.entries()].map(([h2,u])=>'<div class="ls-pcslot" title="'+h2+' · '+u.length+'곳에서 사용 — 바꾸면 전부 교체"><input type="color" value="'+h2+'" data-pc="'+h2+'"><span class="ls-pccnt">'+u.length+'</span></div>').join('')
+      :'<div style="font-size:11px;color:var(--c-t3);padding:2px 0 4px">아직 사용된 컬러가 없어요 — 오브젝트·이펙트·그라디언트 색이 여기 모여요</div>'; }
+  { const box=Q('#ls_projcolors'); if(box){
+    box.addEventListener('input',e=>{ const inp=e.target.closest('input[type=color]'); if(!inp)return;
+      const from=inp.dataset.pc, to=inp.value.toLowerCase(); if(!from||from===to)return;
+      const uses=collectProjColors().get(from)||[]; uses.forEach(fn=>fn(to)); inp.dataset.pc=to;
+      renderGradColors(); refreshObjs();
+      if(objPop&&objPop.classList.contains('on')&&selId!=null) openPop(selId); });   // 열려 있는 인스펙터의 색 칩 동기화
+    box.addEventListener('change',()=>{ scheduleUndoCommit(); renderProjectColors(true); }); } }
   function renderGradColors(){ const box=Q('#ls_gcolors'); if(!box)return;
     let h='';
     for(let i=0;i<5;i++){
@@ -5564,7 +5642,6 @@ void main(){
     if(bi)bi.addEventListener('click',()=>{ setBgType(bgType==='gradient'?'both':(bgType==='both'?'gradient':'image')); scheduleUndoCommit(); });
     if(bgd)bgd.addEventListener('click',()=>{ setBgType(bgType==='image'?'both':(bgType==='both'?'image':'gradient')); scheduleUndoCommit(); }); }
   { const ms=Q('#ls_gmm_sel'); if(ms)ms.addEventListener('change',()=>{ grad.mixMode=(ms.value==='overlay'||ms.value==='screen')?ms.value:'soft'; scheduleUndoCommit(); }); }
-  { const pb=Q('#ls_palbtn'); if(pb)pb.addEventListener('click',()=>applyImagePalette(false)); }
   const GPROPS=GKEYS.map(k=>k.slice(1));   // ['spread','orbit',...] — 캡처/복원 단일 소스
   function captureGrad(){ const o={colors:grad.colors.slice(),mixMode:grad.mixMode||'soft',stops:Array.isArray(grad.stops)?grad.stops.slice():null}; GPROPS.forEach(p=>o[p]=grad[p]); return o; }
   function applyGrad(g){ const d=g||GDEF;
@@ -5597,17 +5674,21 @@ void main(){
     bgType:bgType, grad:captureGrad(),
     dur:st.dur||60, markers:markers.slice(), waIn:waIn, waOut:waOut,
     vfadeIn:st.vfadeIn||0, vfadeOut:st.vfadeOut||0,
+    filter:st.filter||'none', filterAmt:(st.filterAmt==null?0.8:st.filterAmt),
     trk:tracks.map(t=>({id:t.id,startAt:t.startAt,trimStart:t.trimStart,trimEnd:t.trimEnd,fadeIn:t.fadeIn||0,fadeOut:t.fadeOut||0,vol:(t.vol==null?1:t.vol),bass:(t.bass||0),treble:(t.treble||0)})) }); }
   function undoCommit(){ if(_undoApplying)return;
     try{ const snap=_snapshot(); if(_hi>=0&&_hist[_hi]===snap)return;
       _hist.splice(_hi+1); _hist.push(snap); if(_hist.length>UNDO_MAX)_hist.shift(); _hi=_hist.length-1; }catch(e){} }
-  function scheduleUndoCommit(){ if(_undoApplying)return; clearTimeout(_undoTimer); _undoTimer=setTimeout(undoCommit,400); }
+  function scheduleUndoCommit(){ if(_undoApplying)return; clearTimeout(_undoTimer); _undoTimer=setTimeout(undoCommit,400);
+    try{ renderProjectColors(); }catch(e){} }   // 색 관련 변이는 전부 여길 지남 — 시그니처 가드로 비용 미미
   function _undoApply(snap){ _undoApplying=true;
     try{ const s2=JSON.parse(snap);
       st.dur=s2.dur; const durEl=header.querySelector('#ls_durin'); if(durEl)durEl.value=Math.round(s2.dur);
       markers=(s2.markers||[]).slice(); waIn=s2.waIn; waOut=s2.waOut;
       st.vfadeIn=Math.max(0,+s2.vfadeIn||0); st.vfadeOut=Math.max(0,+s2.vfadeOut||0);
       { const a=Q('#ls_vfi'), b=Q('#ls_vfo'); if(a)a.value=st.vfadeIn; if(b)b.value=st.vfadeOut; }
+      st.filter=FILTERS[s2.filter]?s2.filter:'none'; st.filterAmt=Math.max(0,Math.min(1,s2.filterAmt==null?0.8:+s2.filterAmt));
+      { const fs2=Q('#ls_filter'),fa2=Q('#ls_filterAmt'); if(fs2)fs2.value=st.filter; if(fa2){ fa2.value=st.filterAmt; fa2.dispatchEvent(new Event('input')); } }
       applyVals(s2.vals||{});
       if(s2.grad)applyGrad(s2.grad); if(s2.bgType)setBgType(s2.bgType);
       applyObjs(_restObjs(s2.objs));
@@ -5846,6 +5927,7 @@ void main(){
   function captureProject(){
     return {
       ver:2, ar:st.ar, outH:st.outH||1080, fps:st.fps||30, dur:st.dur||60,
+      filter:st.filter||'none', filterAmt:(st.filterAmt==null?0.8:st.filterAmt),
       vfadeIn:st.vfadeIn||0, vfadeOut:st.vfadeOut||0,
       bg:bgSrc||null,
       bgType:bgType, grad:captureGrad(),
@@ -5864,6 +5946,7 @@ void main(){
     KEYS.forEach(k=>{ const el=Q('#ls_'+k); if(el){ el.value=el.defaultValue; el.dispatchEvent(new Event('input')); } }); // 배경효과 기본값
     markers=[]; waIn=null; waOut=null;                                      // 마커/렌더구간
     st.vfadeIn=0; st.vfadeOut=0; { const a=Q('#ls_vfi'),b=Q('#ls_vfo'); if(a)a.value=0; if(b)b.value=0; } // 영상 페이드
+    st.filter='none'; st.filterAmt=0.8; { const fs2=Q('#ls_filter'),fa2=Q('#ls_filterAmt'); if(fs2)fs2.value='none'; if(fa2){ fa2.value=0.8; fa2.dispatchEvent(new Event('input')); } } // 필터
   }
   function applyProject(p){ if(!p)return;
     resetArtworkState();                                   // 항상 깨끗한 상태에서 시작
@@ -5872,6 +5955,8 @@ void main(){
     markers=Array.isArray(p.markers)?p.markers.slice():[];
     waIn=(p.waIn!=null)?p.waIn:null; waOut=(p.waOut!=null)?p.waOut:null;
     st.vfadeIn=Math.max(0,+p.vfadeIn||0); st.vfadeOut=Math.max(0,+p.vfadeOut||0);
+    st.filter=FILTERS[p.filter]?p.filter:'none'; st.filterAmt=Math.max(0,Math.min(1,p.filterAmt==null?0.8:+p.filterAmt));
+    { const fs2=Q('#ls_filter'),fa2=Q('#ls_filterAmt'); if(fs2)fs2.value=st.filter; if(fa2){ fa2.value=st.filterAmt; fa2.dispatchEvent(new Event('input')); } }
     { const a=Q('#ls_vfi'), b=Q('#ls_vfo'); if(a)a.value=st.vfadeIn; if(b)b.value=st.vfadeOut; }
     if(p.bg) setBackground(p.bg);                          // 없으면 이미 초기화(빈 배경) 상태
     applyGrad(p.grad||null); setBgType((p.bgType==='gradient'||p.bgType==='both')?p.bgType:'image');  // 구버전 프로젝트는 image
@@ -6108,7 +6193,7 @@ void main(){
   }
   // 캔버스 우클릭 시 목록 행이 없을 때 대비한 플로팅 이름 편집 (간단히 목록 렌더 후 재시도)
   function beginRenameFloat(id){ refreshObjs(); const el=root.querySelector('.ls-lyr-row[data-id="'+id+'"] .ls-lyr-nm'); if(el) beginRename(id,el); }
-  function refreshObjs(){ renderObjLayer(); renderObjList(); syncLayerNames(); scheduleUndoCommit(); }
+  function refreshObjs(){ renderObjLayer(); renderObjList(); syncLayerNames(); try{renderProjectColors();}catch(e){} scheduleUndoCommit(); }
   // 레이어 이름 변경(개명·텍스트 내용 수정)을 타임라인 라벨·클립에 즉시 반영 — 재빌드 없이 텍스트만
   function syncLayerNames(){ objs.forEach(o=>{ const nm=objName(o);
     root.querySelectorAll('.ls-rlabel.layer[data-id="'+o.id+'"] .ls-rl-name, .ls-lane.layer[data-id="'+o.id+'"] .ls-clip-name')
