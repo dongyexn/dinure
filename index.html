@@ -802,7 +802,11 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-fbrow .ls-chip{ flex:1; min-width:0; padding:8px 0; font-size:12px; border-radius:8px; }
 @media (max-width:920px){ .ls-fbrow{ flex:none; } }
 @media (max-width:920px){ .ls-center{ height:auto; } }
-.ls-stageWrap{ flex:1; min-height:0; display:flex; align-items:center; justify-content:center; }
+.ls-stageWrap{ flex:1; min-height:0; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+.ls-zoombadge{ position:absolute; right:10px; top:10px; z-index:9; display:none; align-items:center; padding:4px 9px;
+  border-radius:8px; border:1px solid var(--c-bd2); background:var(--c-card); color:var(--c-t2);
+  font-size:11px; font-weight:700; cursor:pointer; user-select:none; }
+.ls-zoombadge:hover{ color:var(--c-t1); border-color:var(--acc); }
 @media (max-width:920px){ .ls-stageWrap{ flex:none; } }
 .ls-stage{ position:relative; height:100%; aspect-ratio:var(--ls-ar,0.5625); max-width:100%; width:auto;
   border-radius:16px; overflow:hidden; background:#0b0b0c; box-shadow:0 28px 80px -30px rgba(0,0,0,.9), 0 0 0 1px var(--c-bd); }
@@ -1043,6 +1047,8 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-auto-dot.m-hold{ border-radius:2px; }
 .ls-auto-dot.m-linear{ transform:translate(-50%,-50%) rotate(45deg); border-radius:2px; }
 .ls-auto-dot.m-bezier{ border-color:#f6c945; }
+.ls-rl-link{ color:var(--acc); font-size:11px; font-weight:800; margin:0 1px; animation:lsPulse 1.6s ease-in-out infinite; }
+@keyframes lsPulse{ 0%,100%{opacity:.55} 50%{opacity:1} }
 .ls-auto-h{ position:absolute; width:9px; height:9px; border-radius:50%; background:#f6c945; border:1.5px solid rgba(0,0,0,.6);
   transform:translate(-50%,-50%); cursor:grab; z-index:4; touch-action:none; }
 .ls-auto-h:active{ cursor:grabbing; }
@@ -1195,6 +1201,16 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-fxdel{ flex:none; width:18px; height:18px; border-radius:6px; border:1px solid var(--c-bd2); background:var(--c-card);
   color:var(--c-t3); font-size:12px; line-height:1; padding:0; cursor:pointer; display:flex; align-items:center; justify-content:center; }
 .ls-fxdel:hover{ color:#fff; background:#c0392b; border-color:#c0392b; }
+.ls-anchor{ position:absolute; width:11px; height:11px; margin:-5.5px 0 0 -5.5px; border-radius:50%;
+  border:2px solid var(--acc); background:var(--c-panel); box-shadow:0 0 0 1.5px rgba(0,0,0,.35); cursor:crosshair; z-index:5;
+  display:none; pointer-events:none; }
+body.ls-altdown .ls-anchor{ display:block; pointer-events:auto; }   /* Alt 누른 동안만 드래그 가능 — 중앙 그랩 가로채기 방지 */
+.ls-anchor.off{ display:block; }                                    /* 중앙이 아니면 표시(인디케이터) — 드래그는 여전히 Alt */
+.ls-anchor::after{ content:''; position:absolute; left:50%; top:50%; width:3px; height:3px; margin:-1.5px 0 0 -1.5px; border-radius:50%; background:var(--acc); }
+.ls-ancgrid{ display:grid; grid-template-columns:repeat(3,15px); grid-auto-rows:15px; gap:2px; }
+.ls-ancgrid button{ padding:0; border:1px solid var(--c-bd); border-radius:4px; background:var(--c-card); cursor:pointer; position:relative; }
+.ls-ancgrid button::after{ content:''; position:absolute; left:50%; top:50%; width:4px; height:4px; margin:-2px 0 0 -2px; border-radius:50%; background:var(--c-t3); }
+.ls-ancgrid button.on{ border-color:var(--acc); } .ls-ancgrid button.on::after{ background:var(--acc); }
 .ls-palbtn{ width:100%; justify-content:center; padding:4px 8px; font-size:11.5px; }
 .ls-pcwrap{ display:flex; flex-wrap:wrap; gap:7px; }
 .ls-pcslot{ position:relative; width:30px; height:30px; }
@@ -4233,6 +4249,7 @@ function createArtwork(){
         <div class="ls-lyr-list" id="ls_layerlist"></div>
       </div>
       <div class="ls-stageWrap">
+        <div class="ls-zoombadge" id="ls_zoombadge" title="캔버스 줌 — 클릭하면 100%로 (Ctrl+휠 줌 · 휠/휠클릭 드래그 팬 · Ctrl+0 초기화)">100%</div>
         <div class="ls-stage" id="ls_stage">
           <canvas id="ls_gl"></canvas>
           <canvas id="ls_obj" class="ls-objcanvas"></canvas>
@@ -5289,8 +5306,8 @@ void main(){
   // ===== 오브젝트 모션 프리셋 (등장 / 지속 / 퇴장) =====
   // 키프레임 오토메이션 값 위에 가산(위치·회전)/곱(스케일)되는 트랜스폼 오프셋 — 셰이더 무수정.
   // 시간축은 tSec만 사용(미리보기=내보내기 일치). 지속 모션 주기는 projDur 정수 분할로 스냅해 루프 무이음새.
-  const MI_LABELS={none:'없음',left:'왼쪽에서',right:'오른쪽에서',up:'아래에서 ↑',down:'위에서 ↓',pop:'팝 (스케일)',tilt:'틸트 (회전)'};
-  const MO_LABELS={none:'없음',left:'왼쪽으로',right:'오른쪽으로',up:'위로 ↑',down:'아래로 ↓',pop:'팝 (스케일)',tilt:'틸트 (회전)'};
+  const MI_LABELS={none:'없음',left:'왼쪽에서',right:'오른쪽에서',up:'아래에서 ↑',down:'위에서 ↓',pop:'팝 (스케일)',tilt:'틸트 (회전)',spinrev:'스핀 리빌 (로고 프레임)'};
+  const MO_LABELS={none:'없음',left:'왼쪽으로',right:'오른쪽으로',up:'위로 ↑',down:'아래로 ↓',pop:'팝 (스케일)',tilt:'틸트 (회전)',spinrev:'스핀 리빌 (중앙 복귀)'};
   const ME_LABELS={back:'쫀득하게',elastic:'탱글탱글',smooth:'부드럽게',linear:'일정하게'};
   const ML_LABELS={none:'없음',float:'둥실 (상하)',sway:'흔들 (좌우)',pulse:'펄스 (크기)',tiltswing:'틸트 스윙',orbit:'궤도'};
   function easeM(n,p){ p=Math.max(0,Math.min(1,p));
@@ -5311,7 +5328,11 @@ void main(){
         case 'up':    r.dy+=D*u; break;                  // 아래(+y)에서 위로 진입 / 위로 퇴장
         case 'down':  r.dy-=D*u; break;
         case 'pop':   r.ds*=0.55+0.45*e; break;
-        case 'tilt':  r.dr-=14*u; break; } };
+        case 'tilt':  r.dr-=14*u; break;
+        case 'spinrev': { const K=Math.max(2,Math.min(12,+o.rvK||6));      // 스핀 리빌: 중앙 로고(작성크기/K) ↔ 프레임(작성크기)
+          const ee=Math.max(0,Math.min(1.1,e));
+          r.ds*=(1/K)+(1-1/K)*ee;
+          r.dr-=((+o.rvTurns||1.5)*360)*u; break; } } };
     if(o.mIn&&o.mIn.type&&o.mIn.type!=='none'&&+o.mIn.dur>0){
       const p=(tSec-ti)/+o.mIn.dur;
       if(p<1) ap(o.mIn,easeM(o.mIn.ease||'back',p)); }
@@ -5363,7 +5384,7 @@ void main(){
     for(const o of objs){ if(o.type!=='lfx'||o.hidden||!layerVisible(o,tSec))continue;
       const f=FILTERS[o.fkind]; if(!f)continue;
       const ka='obj'+o.id+'_famt', a2=auto[ka];
-      const a=Math.max(0,Math.min(1,(a2&&a2.on&&a2.pts&&a2.pts.length)?autoVal(ka,tSec):(o.famt==null?0.8:+o.famt)));
+      const a=Math.max(0,Math.min(1,(a2&&a2.on&&((a2.pts&&a2.pts.length)||(a2.lk&&a2.lk.on)))?autoVal(ka,tSec,(o.famt==null?0.8:+o.famt)):(o.famt==null?0.8:+o.famt)));
       if(a<=0.001)continue;
       r.vig=Math.min(1,r.vig+(f.vig||0)*a); if(f.vigs!=null)r.vigs=f.vigs;
       r.warm+=(f.warm||0)*a; r.fade=Math.min(1,r.fade+(f.fade||0)*a);
@@ -5389,7 +5410,7 @@ void main(){
     return [Math.sin(p*N1)*0.011*amp, Math.cos(p*N2+0.7)*0.011*amp]; }
   function kickAmts(tSec){ let z=0,s=0;
     for(const o of objs){ if(o.type==='kick'&&!o.hidden&&layerVisible(o,tSec)){
-      const ka='obj'+o.id+'_'; const an=(pk,d)=>{ const a2=auto[ka+pk]; return (a2&&a2.on&&a2.pts&&a2.pts.length)?autoVal(ka+pk,tSec):d; };
+      const ka='obj'+o.id+'_'; const an=(pk,d)=>{ const a2=auto[ka+pk]; return (a2&&a2.on&&((a2.pts&&a2.pts.length)||(a2.lk&&a2.lk.on)))?autoVal(ka+pk,tSec,d):d; };
       z+=Math.max(0,an('kzoom',+o.kzoom||0)); s+=Math.max(0,an('kshake',(o.kshake!=null?+o.kshake:0))); } }   // 효과값 자체가 키프레임 대상
     return {zoom:Math.min(2.5,z),shake:Math.min(1,s)}; }
   function resolveToScreen(srcTex,tSec){ renderLookTo(null,srcTex,tSec); }
@@ -5435,19 +5456,46 @@ void main(){
       if(o.hidden||!layerVisible(o,tSec)) continue;   // 숨김 레이어는 프리뷰·내보내기 모두 제외(피그마식)
       const ent=getLayerTexture(o,W,Hh); if(!ent) continue;
       const stx=applyLayerFx(o,ent.tex,ent.w,ent.h,tSec);
-      const ka='obj'+o.id+'_'; const an=(pk,d)=>{ const a2=auto[ka+pk]; return (a2&&a2.on&&a2.pts&&a2.pts.length)?autoVal(ka+pk,tSec):d; };
+      const ka='obj'+o.id+'_'; const an=(pk,d)=>{ const a2=auto[ka+pk]; return (a2&&a2.on&&((a2.pts&&a2.pts.length)||(a2.lk&&a2.lk.on)))?autoVal(ka+pk,tSec,d):d; };
       const opacity=Math.max(0,Math.min(1,an('opacity',o.opacity)));
       const ox=an('x',o.x), oy=an('y',o.y), orot=an('rot',o.rot||0)+((+o.spin||0)*tSec), oscale=an('scale',1);
       const mo=motionOffsets(o,tSec);                    // 모션 프리셋 오프셋(키프레임 위에 가산)
+      // 스핀 리빌 가림막: 로고 구멍(내접원) 크기에 동기화된 단색 아이리스 — 로고보다 먼저 그려 팔이 경계를 덮음
+      if(coverProg&&o.rvCov!==false&&((o.mIn&&o.mIn.type==='spinrev')||(o.mOut&&o.mOut.type==='spinrev'))){
+        const holeK=Math.max(0.2,Math.min(0.95,(o.rvHole==null?0.62:+o.rvHole)));
+        const r=Math.max(0,(Math.min(o.w*W,o.h*Hh)/2)*oscale*mo.ds*holeK);
+        const cx2=(ox+mo.dx)*W, cy2=(1-(oy+mo.dy))*Hh;
+        const far=Math.hypot(Math.max(cx2,W-cx2),Math.max(cy2,Hh-cy2));   // 중심에서 가장 먼 코너
+        const fe=Math.max(1.5,Math.min(W,Hh)*0.004);
+        if(r-fe<far){                                     // 구멍이 화면을 다 덮으면 패스 생략
+          const nxt2=1-cur;
+          gl.bindFramebuffer(gl.FRAMEBUFFER,fbos[nxt2]); gl.viewport(0,0,W,Hh);
+          gl.useProgram(coverProg);
+          gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,fboTex[cur]); gl.uniform1i(cvUni.uDst,0);
+          gl.uniform2f(cvUni.uRes7,W,Hh); gl.uniform2f(cvUni.uCC,cx2,cy2);
+          gl.uniform1f(cvUni.uCR,r); gl.uniform1f(cvUni.uCFe,fe);
+          { const c3=hex2rgb(o.rvColor||'#0d0d0d'); gl.uniform3f(cvUni.uCCol,c3[0],c3[1],c3[2]); }
+          gl.drawArrays(gl.TRIANGLES,0,3);
+          cur=nxt2; } }
       const nxt=1-cur;
       gl.bindFramebuffer(gl.FRAMEBUFFER,fbos[nxt]); gl.viewport(0,0,W,Hh);
       gl.useProgram(compProg);
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,fboTex[cur]); gl.uniform1i(cuni.uDst,0);
       gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D,stx); gl.uniform1i(cuni.uSrc,1);
       gl.uniform2f(cuni.uRes,W,Hh);
-      gl.uniform2f(cuni.uCenter, (ox+mo.dx)*W, (1-(oy+mo.dy))*Hh);
+      const rad=((orot||0)+mo.dr)*Math.PI/180;
+      let cxg=(ox+mo.dx)*W, cyg=(1-(oy+mo.dy))*Hh;
+      { const ax0=(o.ax==null?0.5:+o.ax), ay0=(o.ay==null?0.5:+o.ay);   // 앵커(기준점): 회전·스케일 피벗 — 유효 중심 C'=A+R·(s·(C−A))
+        if(ax0!==0.5||ay0!==0.5){
+          const s=oscale*mo.ds;
+          const aox=(ax0-0.5)*o.w*W, aoy=(ay0-0.5)*o.h*Hh;              // 화면(px, y-아래) 앵커 오프셋
+          const Axg=cxg+aox, Ayg=cyg-aoy;                                // GL(y-위) 앵커 좌표
+          const vx=-aox*s, vy=aoy*s;                                     // 앵커→중심 벡터(GL) × 스케일
+          const cr=Math.cos(-rad), sr=Math.sin(-rad);                    // GL y-위 좌표계에선 화면 시계방향 = 수학 음의 회전
+          cxg=Axg+vx*cr-vy*sr; cyg=Ayg+vx*sr+vy*cr; } }
+      gl.uniform2f(cuni.uCenter,cxg,cyg);
       gl.uniform2f(cuni.uHalf, Math.max(1,o.w*W/2*oscale*mo.ds*fxPadRX), Math.max(1,o.h*Hh/2*oscale*mo.ds*fxPadRY));   // 패딩 배율: 번짐 여유 포함 확장
-      const rad=((orot||0)+mo.dr)*Math.PI/180; gl.uniform2f(cuni.uRotCS,Math.cos(rad),Math.sin(rad));
+      gl.uniform2f(cuni.uRotCS,Math.cos(rad),Math.sin(rad));
       gl.uniform1f(cuni.uOpacity,opacity);
       gl.uniform1i(cuni.uBlend,BLEND_ID[o.blend]||0);
       gl.uniform1f(cuni.uBlendAmt, o.blendAmt==null?1:Math.max(0,Math.min(1,o.blendAmt)));
@@ -5462,6 +5510,20 @@ void main(){
     }
     return cur;
   }
+  // 아이리스 가림막 셰이더 — 원 밖=단색, 원 안=투명(내용 유지), 가장자리 소프트
+  const COVER_FS=`#version 300 es
+precision highp float;
+out vec4 frag;
+uniform sampler2D uDst; uniform vec2 uRes7; uniform vec2 uCC; uniform float uCR,uCFe; uniform vec3 uCCol;
+void main(){
+  vec2 p=gl_FragCoord.xy;
+  vec3 d=texture(uDst,p/uRes7).rgb;
+  float outside=smoothstep(uCR-uCFe,uCR+uCFe,distance(p,uCC));
+  frag=vec4(mix(d,uCCol,outside),1.0);
+}`;
+  let coverProg=null,cvUni={};
+  try{ coverProg=mkProg(COVER_FS);
+    ['uDst','uRes7','uCC','uCR','uCFe','uCCol'].forEach(n=>cvUni[n]=gl.getUniformLocation(coverProg,n)); }catch(e){ coverProg=null; }
   function plainCopyToScreen(srcTex){
     gl.bindFramebuffer(gl.FRAMEBUFFER,null); gl.viewport(0,0,canvas.width,canvas.height);
     gl.useProgram(copyProg);
@@ -5495,7 +5557,7 @@ void main(){
   const GAUTO_LABELS={gspread:'그라디언트 · 퍼짐',gorbit:'그라디언트 · 궤도',gsize:'그라디언트 · 광원 크기',gangle:'그라디언트 · 회전',
     gscale:'그라디언트 · 노이즈 스케일',gsoft:'그라디언트 · 부드러움',gwarp:'그라디언트 · 워프',gmix:'배경 · 워시 강도',
     gbright:'배경 · 밝기',gcontrast:'배경 · 대비',gsat:'배경 · 채도',gnoise:'배경 · 노이즈'};
-  const gAutoVal=(p,tSec)=>{ const a=auto['g'+p]; return (a&&a.on&&a.pts&&a.pts.length)?autoVal('g'+p,tSec):(+grad[p]||0); };
+  const gAutoVal=(p,tSec)=>{ const a=auto['g'+p]; return (a&&a.on&&((a.pts&&a.pts.length)||(a.lk&&a.lk.on)))?autoVal('g'+p,tSec,(+grad[p]||0)):(+grad[p]||0); };
   const FMT={flow:v=>v.toFixed(1)+'s',warp:v=>v.toFixed(3),scale:v=>v.toFixed(2)+'×',detail:v=>v.toFixed(1),drift:v=>v<1?'끄기':v.toFixed(0),bloom:v=>Math.round(v*50)+'%',bloomthr:v=>v.toFixed(2),leak:v=>Math.round(v*100)+'%',fadein:v=>v.toFixed(1)+'s',fadeout:v=>v.toFixed(1)+'s',rgb:v=>v<0.001?'끄기':Math.round(v*100)+'%',water:v=>v<0.001?'끄기':Math.round(v*50)+'%'};
   function fmt(k,v){return (FMT[k]||(x=>x.toFixed(2)))(v);}
   KEYS.forEach(k=>{ const el=Q('#ls_'+k),out=Q('#ls_'+k+'V');
@@ -5520,6 +5582,7 @@ void main(){
     const add=(hex,apply)=>{ if(typeof hex!=='string')return; const h2=hex.toLowerCase(); if(!/^#[0-9a-f]{6}$/.test(h2))return;
       if(!m.has(h2))m.set(h2,[]); m.get(h2).push(apply); };
     objs.forEach(o=>{ if(o.color) add(o.color,v=>{ o.color=v; try{layerTexCache.delete(o.id);}catch(e){} });
+      if(o.rvColor) add(o.rvColor,v=>{ o.rvColor=v; });
       (o.fx||[]).forEach(f=>{ if(f.color) add(f.color,v=>{ f.color=v; }); }); });
     (grad.colors||[]).forEach((c,i)=>add(c,v=>{ grad.colors[i]=v; }));
     return m; }
@@ -5700,6 +5763,7 @@ void main(){
       applyAuto(s2.auto||{});
       (s2.trk||[]).forEach(m=>{ const t=tracks.find(x=>x.id===m.id); if(t){ t.startAt=m.startAt; t.trimStart=m.trimStart; t.trimEnd=m.trimEnd; t.fadeIn=m.fadeIn; t.fadeOut=m.fadeOut; if(m.vol!=null)t.vol=m.vol; if(m.bass!=null)t.bass=m.bass; if(m.treble!=null)t.treble=m.treble; } });
       renderTimeline(); refreshObjs();
+      try{ _hist[_hi]=_snapshot(); }catch(e){}   // 적용 직후 재직렬화로 리베이스 — 캡처 드리프트가 리두 히스토리를 자르지 않게
     }catch(e){}
     _undoApplying=false; }
   function doUndo(){ clearTimeout(_undoTimer); undoCommit();
@@ -5918,7 +5982,7 @@ void main(){
   function fixObjAspect(oldAR,newAR){
     if(!isFinite(oldAR)||!isFinite(newAR)||oldAR<=0||newAR<=0||Math.abs(oldAR-newAR)<1e-6)return;
     const r=oldAR/newAR;
-    objs.forEach(o=>{ o.w=Math.max(0.005,Math.min(4,o.w*r)); });
+    objs.forEach(o=>{ o.w=Math.max(0.005,Math.min(10,o.w*r)); });
     layerTexCache.clear(); refreshObjs();
   }
   function setAR(v){ v=parseFloat(v)||0.5625; const _old=st.ar; st.ar=v; fixObjAspect(_old,v); stage.style.setProperty('--ls-ar',v); _setChip('#ls_ratios','data-ar',v); resize(); }
@@ -6067,8 +6131,12 @@ void main(){
       const d=document.createElement('div'); d.className='ls-obj'+(selIds.has(o.id)?' sel':'')+(o.locked?' lock':''); d.dataset.id=o.id;
       d.style.left=((o.x-o.w/2)*100)+'%'; d.style.top=((o.y-o.h/2)*100)+'%';
       d.style.width=(o.w*100)+'%'; d.style.height=(o.h*100)+'%';
+      const ax0=(o.ax==null?0.5:+o.ax), ay0=(o.ay==null?0.5:+o.ay);
+      if(ax0!==0.5||ay0!==0.5) d.style.transformOrigin=(ax0*100)+'% '+(ay0*100)+'%';   // 렌더와 동일 피벗
       if(o.rot) d.style.transform='rotate('+o.rot+'deg)';
       HANDLES.forEach(h=>{ const hd=document.createElement('div'); hd.className='ls-ohandle'; hd.dataset.h=h; d.appendChild(hd); });
+      if(selIds.has(o.id)&&selIds.size===1){ const an=document.createElement('div'); an.className='ls-anchor'+((ax0!==0.5||ay0!==0.5)?' off':''); an.title='기준점 (회전·스케일 피벗) — Alt 누른 채 드래그로 이동';
+        an.style.left=(ax0*100)+'%'; an.style.top=(ay0*100)+'%'; d.appendChild(an); }
       objLayer.appendChild(d);
     }
   }
@@ -6081,7 +6149,8 @@ void main(){
     objs.slice().reverse().forEach(o=>{        // 앞(위) 레이어가 목록 상단
       const r=document.createElement('div'); r.className='ls-lyr-row'+(selIds.has(o.id)?' sel':'')+(o.hidden?' hid':''); r.dataset.id=o.id;
       const tag=document.createElement('span'); tag.className='ls-lyr-tag'; tag.textContent=TAG[o.type]||'?';
-      const nm=document.createElement('div'); nm.className='ls-lyr-nm'; nm.textContent=objName(o);
+      const nm=document.createElement('div'); nm.className='ls-lyr-nm'; nm.textContent=objName(o)+(o.gid!=null?' ⛓':'');
+      if(o.gid!=null) nm.title='그룹 G'+o.gid+' — 캔버스에서 클릭=그룹 전체, 더블클릭=개별';
       const eye=document.createElement('button'); eye.className='ls-lyr-ic'+(o.hidden?' act':''); eye.title=o.hidden?'다시 표시':'숨기기';
       eye.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/>'+(o.hidden?'<line x1="4" y1="20" x2="20" y2="4"/>':'')+'</svg>';
       eye.addEventListener('click',ev=>{ ev.stopPropagation(); o.hidden=!o.hidden; refreshObjs(); scheduleUndoCommit(); });
@@ -6150,10 +6219,36 @@ void main(){
   // 파라미터 우클릭 → 오토메이션 메뉴 (레인 추가/제거 · 현재 시점 키프레임)
   function openAutoCtx(x,y,key){ const m=ensureCtx(); m.innerHTML='';
     const has=autoKeys.indexOf(key)>=0;
+    const linked=auto[key]&&auto[key].lk&&auto[key].lk.on;
     m.appendChild(ctxItem('◇ 현재 시점에 키프레임','',()=>addAutoKfNow(key)));
+    m.appendChild(ctxItem(linked?'♪ 오디오 연결 편집…':'♪ 오디오에 연결…','',()=>openAudLinkPop(x,y,key)));
     if(has) m.appendChild(ctxItem('오토메이션 레인 제거','',()=>removeAutoLane(key),true));
     else m.appendChild(ctxItem('오토메이션 레인 추가','',()=>{ addAutoLane(key); showError('레인 추가: '+laneLabel(key)); }));
     placeCtx(m,x,y);
+  }
+  // ♪ 오디오 연결 팝업 — 임의 파라미터를 대역 에너지에 실시간 링크 (키프레임 위 가산, 내보내기 반영)
+  function openAudLinkPop(x,y,key){ closeKfPop();
+    if(autoKeys.indexOf(key)<0) addAutoLane(key);
+    const a=ensureAuto(key); if(!a.lk) a.lk={on:false,band:'low',amt:0.3}; a.on=true;
+    kfPop=document.createElement('div'); kfPop.className='ls-kfpop';
+    const paint=()=>{ const lk=a.lk;
+      kfPop.innerHTML='<div class="sec">♪ 오디오 연결 — '+laneLabel(key)+'</div>'
+        +'<div class="row">'+[['low','저역 (킥·베이스)'],['mid','중역'],['high','고역'],['lvl','전체']].map(b=>'<button data-b="'+b[0]+'" class="'+(lk.on&&lk.band===b[0]?'on':'')+'">'+b[1]+'</button>').join('')+'</div>'
+        +'<div class="sec" data-amtlab>반응 강도 '+Math.round(lk.amt*100)+'% — 음수는 역방향</div>'
+        +'<div class="row"><input type="range" data-amt min="-1" max="1" step="0.05" value="'+lk.amt+'" style="width:100%"></div>'
+        +'<div class="row"><button data-a="off"'+(lk.on?' class="warn"':'')+'>'+(lk.on?'연결 해제':'대역을 선택하면 연결돼요')+'</button></div>'
+        +'<div class="hint">음악의 대역 에너지가 이 값을 실시간으로 밀어요 · 키프레임과 공존(가산) · 내보내기에도 동일 반영</div>'; };
+    paint(); document.body.appendChild(kfPop);
+    const pw=230; kfPop.style.left=Math.max(8,Math.min(window.innerWidth-pw-8,x-pw/2))+'px';
+    kfPop.style.top=Math.max(8,Math.min(window.innerHeight-(kfPop.offsetHeight||200)-8,y+8))+'px';
+    kfPop.addEventListener('pointerdown',e=>e.stopPropagation());
+    kfPop.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return;
+      if(b.dataset.b){ a.lk.on=true; a.lk.band=b.dataset.b; paint(); renderTimeline(); persistAutoLocal(); }
+      else if(b.dataset.a==='off'&&a.lk.on){ a.lk.on=false; paint(); renderTimeline(); persistAutoLocal(); } });
+    kfPop.addEventListener('input',e=>{ const r=e.target.closest('[data-amt]'); if(!r)return;
+      a.lk.amt=Math.max(-1,Math.min(1,parseFloat(r.value)||0));
+      const l2=kfPop.querySelector('[data-amtlab]'); if(l2)l2.textContent='반응 강도 '+Math.round(a.lk.amt*100)+'% — 음수는 역방향';
+      persistAutoLocal(); });
   }
   // el(또는 감싸는 컨트롤 행) 우클릭에 오토메이션 메뉴 연결
   function wireAutoCtx(el,keyFn){ if(!el||el._autoCtxWired)return; el._autoCtxWired=true;
@@ -6163,6 +6258,8 @@ void main(){
     m.appendChild(ctxItem('이름 변경','',()=>{ const el=root.querySelector('.ls-lyr-row[data-id="'+id+'"] .ls-lyr-nm'); if(el) beginRename(id,el); else beginRenameFloat(id); }));
     if(o.type==='image') m.appendChild(ctxItem('이미지 교체','',()=>replaceImage(id)));
     m.appendChild(ctxItem('복제','⌘D',()=>dupObj(id)));
+    if(selIds.size>1) m.appendChild(ctxItem('그룹으로 묶기','⌘G',()=>groupSelected()));
+    { const oq=findObj(id); if(oq&&oq.gid!=null) m.appendChild(ctxItem('그룹 해제','⌘⇧G',()=>{ selIds=new Set(groupIds(oq.gid)); ungroupSelected(); })); }
     const sep2=document.createElement('div'); sep2.className='ls-ctxsep'; m.appendChild(sep2);
     m.appendChild(ctxItem('삭제','⌫',()=>delObj(id),true));
     // 먼저 화면 밖(측정용)에 표시해 크기를 잰 뒤, 정확한 위치로 옮긴다.
@@ -6208,9 +6305,20 @@ void main(){
     if(selIds.size!==1) closePop();
     selTrack=null; refreshObjs(); }
   function syncLayerTracks(){ try{ if(typeof renderTimeline==='function') renderTimeline(); }catch(e){} scheduleUndoCommit(); }
+  let groupSeq=1;
+  function groupIds(gid){ return objs.filter(q=>q.gid===gid).map(q=>q.id); }
+  function groupSelected(){ const ids=[...selIds]; if(ids.length<2){ showError('두 개 이상 선택한 뒤 Ctrl+G로 묶어요.'); return; }
+    const g=groupSeq++; ids.forEach(i2=>{ const q=findObj(i2); if(q&&q.type!=='kick'&&q.type!=='lfx') q.gid=g; });
+    refreshObjs(); scheduleUndoCommit(); showError('그룹으로 묶었어요 ('+ids.length+'개) — 더블클릭=개별 선택, Ctrl+Shift+G=해제'); }
+  function ungroupSelected(){ const ids=selIds.size?[...selIds]:(selId!=null?[selId]:[]);
+    const gids=new Set(); ids.forEach(i2=>{ const q=findObj(i2); if(q&&q.gid!=null) gids.add(q.gid); });
+    if(!gids.size) return;
+    let n=0; objs.forEach(q=>{ if(q.gid!=null&&gids.has(q.gid)){ delete q.gid; n++; } });   // 멤버 하나만 골라도 그룹 전체 해제
+    if(n){ refreshObjs(); scheduleUndoCommit(); showError('그룹을 해제했어요 ('+n+'개).'); } }
   function dupObj(id){ const o=findObj(id); if(!o)return;
+    // (복제본은 그룹 미승계 — 아래 c 생성 후 gid 제거)
     const c=JSON.parse(JSON.stringify(Object.assign({},o,{img:undefined})));
-    c.id=objSeq++; c.x=clamp01((o.x||0.5)+0.03); c.y=clamp01((o.y||0.5)+0.03);
+    c.id=objSeq++; c.x=clamp01((o.x||0.5)+0.03); c.y=clamp01((o.y||0.5)+0.03); delete c.gid;
     if(o.type==='image'){ c.src=o.src; c.img=o.img; }   // 동일 이미지 참조 재사용(텍스처는 id별 캐시)
     objs.push(c); selectObj(c.id); syncLayerTracks(); showError('레이어를 복제했어요 (Ctrl+D).'); }
   function delObj(id){ objs=objs.filter(o=>o.id!==id); const e=layerTexCache.get(id); if(e){ try{gl.deleteTexture(e.tex);}catch(err){} layerTexCache.delete(id); }
@@ -6258,6 +6366,14 @@ void main(){
 
   function captureObjs(){ return objs.map(o=>{ const c={id:o.id,type:o.type,x:o.x,y:o.y,w:o.w,h:o.h,rot:o.rot||0,opacity:o.opacity};
     if(o.name&&o.name.trim()) c.name=o.name.trim();
+    if(o.rvK!=null) c.rvK=Math.max(2,Math.min(12,+o.rvK||6));
+    if(o.rvTurns!=null) c.rvTurns=Math.max(0.25,Math.min(4,+o.rvTurns||1.5));
+    if(o.rvColor) c.rvColor=o.rvColor;
+    if(o.rvHole!=null) c.rvHole=Math.max(0.2,Math.min(0.95,+o.rvHole||0.62));
+    if(o.rvCov===false) c.rvCov=false;
+    if(o.gid!=null) c.gid=o.gid;
+    if(o.ax!=null&&+o.ax!==0.5) c.ax=Math.max(-0.5,Math.min(1.5,+o.ax));
+    if(o.ay!=null&&+o.ay!==0.5) c.ay=Math.max(-0.5,Math.min(1.5,+o.ay));
     if(o.blend&&o.blend!=='normal'&&BLEND_ID[o.blend]!==undefined) c.blend=o.blend;
     if(o.blendAmt!=null&&o.blendAmt!==1) c.blendAmt=Math.max(0,Math.min(1,o.blendAmt));
     if(o.tIn>0) c.tIn=o.tIn;
@@ -6283,6 +6399,7 @@ void main(){
   function applyObjs(arr){ if(!Array.isArray(arr)) return;   // 오브젝트 정보 없는 구버전 프리셋은 현재 오브젝트 유지
     objs=[]; selId=null; selIds=new Set(); closePop(); layerTexCache.clear();
     arr.forEach(c=>{ if(c&&c.type==='particles') return;   // 파티클 레이어 기능 제거 — 구 프로젝트 레이어는 건너뜀
+      if(c&&c.gid!=null&&c.gid>=groupSeq) groupSeq=c.gid+1;
       const o=Object.assign({},c); o.rot=o.rot||0;
       if(o.type==='shape'&&o.shape==='ring'){ o.shape='circle'; o.fillMode='stroke'; }   // 링 종류 제거 — 원+윤곽으로 통합
       if(o.type==='progress') o.lkind='player';   // 인스타그램 레이아웃 제거 — 플레이어로 통합
@@ -6450,6 +6567,10 @@ void main(){
     h+='<div class="ls-orow"><span>정렬</span><div class="ls-oseg ls-align" style="flex:1">'+
        [['l','⇤','왼쪽 정렬'],['ch','↔','가로 중앙'],['r','⇥','오른쪽 정렬'],['t','⤒','위 정렬'],['cv','↕','세로 중앙'],['b','⤓','아래 정렬']]
        .map(a=>'<button data-al="'+a[0]+'" title="'+a[2]+'">'+a[1]+'</button>').join('')+'</div></div>';
+    { const ax0=(o.ax==null?0.5:+o.ax), ay0=(o.ay==null?0.5:+o.ay);
+      h+='<div class="ls-orow"><span title="회전·스케일의 피벗 — Alt 누른 채 캔버스의 점을 드래그해도 돼요">기준점</span><div class="ls-oinline"><div class="ls-ancgrid">'
+        +[0,0.5,1].map(y2=>[0,0.5,1].map(x2=>'<button data-anc data-ax="'+x2+'" data-ay="'+y2+'"'+(Math.abs(x2-ax0)<0.01&&Math.abs(y2-ay0)<0.01?' class="on"':'')+' title="'+(x2*100)+'%, '+(y2*100)+'%"></button>').join('')).join('')
+        +'</div></div></div>'; }
     h+='<div class="ls-orow"><span>위치</span><div class="ls-oinline ls-xy">'+
        '<span class="ls-scrub" data-for="x">X</span> <input type="number" data-xy="x" step="0.1" value="'+(o.x*100).toFixed(1)+'"> % '+
        '<span class="ls-scrub" data-for="y">Y</span> <input type="number" data-xy="y" step="0.1" value="'+(o.y*100).toFixed(1)+'"> %</div></div>';
@@ -6541,6 +6662,14 @@ void main(){
       +'<select data-me="'+tag+'" class="ls-mease" title="이징(가속 곡선)">'+Object.keys(ME_LABELS).map(k=>'<option value="'+k+'"'+((m.ease||'back')===k?' selected':'')+'>'+ME_LABELS[k]+'</option>').join('')+'</select>';
     h+='<div class="ls-orow"><span>등장 모션</span><div class="ls-oinline ls-trrow">'+mSel('in',o.mIn,MI_LABELS)+'</div></div>';
     h+='<div class="ls-orow"><span>퇴장 모션</span><div class="ls-oinline ls-trrow">'+mSel('out',o.mOut,MO_LABELS)+'</div></div>';
+    { const rvOn=(o.mIn&&o.mIn.type==='spinrev')||(o.mOut&&o.mOut.type==='spinrev');
+      h+='<div class="ls-orow" data-rvrow'+(rvOn?'':' style="display:none"')+'><span>스핀 리빌</span><div class="ls-oinline ls-xy" title="배율: 중앙 크기 = 작성 크기 ÷ 배율 — 작성 크기를 화면보다 크게(예: W 500%) 잡으면 프레임이 됩니다">'
+        +'배율 <input type="number" data-rvk min="2" max="12" step="0.5" value="'+(Math.max(2,Math.min(12,+o.rvK||6)))+'"> ×'
+        +' 회전 <input type="number" data-rvt min="0.25" max="4" step="0.25" value="'+(Math.max(0.25,Math.min(4,+o.rvTurns||1.5)))+'"> 턴</div></div>';
+      h+='<div class="ls-orow" data-rvrow2'+(rvOn?'':' style="display:none"')+'><span>가림막</span><div class="ls-oinline ls-xy" title="로고 구멍 안으로만 내용이 보이고 바깥은 이 색으로 가려져요 — 구멍은 로고 크기 대비 내접원 비율">'
+        +'<button type="button" class="ls-tgl'+(o.rvCov!==false?' on':'')+'" data-rvcov></button>'
+        +' 구멍 <input type="number" data-rvh min="20" max="95" step="1" value="'+Math.round((o.rvHole==null?0.62:+o.rvHole)*100)+'"> %'
+        +' <input type="color" data-rvc value="'+(o.rvColor||'#0d0d0d')+'" title="가림 색"></div></div>'; }
     h+='<div class="ls-orow"><span>지속 모션</span><div class="ls-oinline ls-trrow">'
       +'<select data-ml>'+Object.keys(ML_LABELS).map(k=>'<option value="'+k+'"'+(o.mLoop.type===k?' selected':'')+'>'+ML_LABELS[k]+'</option>').join('')+'</select>'
       +'<input type="number" data-mlamt min="0" max="2" step="0.1" value="'+(Math.max(0,Math.min(2,+o.mLoop.amt||1)).toFixed(1))+'" title="강도">'
@@ -6566,12 +6695,14 @@ void main(){
     const syncXY=()=>{ p.querySelectorAll('[data-xy]').forEach(el=>{ el.value=(o[el.dataset.xy]*100).toFixed(1); }); };
     p.querySelectorAll('[data-wh]').forEach(el=>el.addEventListener('change',()=>{
       const v=parseFloat(el.value); if(!isFinite(v)||v<1)return;
-      const k2=el.dataset.wh, nv=Math.min(4,v/100);
+      const k2=el.dataset.wh, nv=Math.min(10,v/100);   // 화면보다 큰 프레임 로고(스핀 리빌 등) 허용
       const lock=p.querySelector('[data-arlock]'); const locked=lock&&lock.classList.contains('on');
-      if(k2==='w'){ if(locked&&o.w>0) o.h=Math.min(3,o.h*(nv/o.w)); o.w=nv; }   // 잠금: 현재 비율 유지(비례 스케일)
-      else { if(locked&&o.h>0) o.w=Math.min(4,o.w*(nv/o.h)); o.h=nv; }
+      if(k2==='w'){ if(locked&&o.w>0) o.h=Math.min(10,o.h*(nv/o.w)); o.w=nv; }   // 잠금: 현재 비율 유지(비례 스케일)
+      else { if(locked&&o.h>0) o.w=Math.min(10,o.w*(nv/o.h)); o.h=nv; }
       refreshObjs(); p.querySelectorAll('[data-wh]').forEach(e2=>{ e2.value=(o[e2.dataset.wh]*100).toFixed(1); }); }));
     const arl=p.querySelector('[data-arlock]'); if(arl)arl.addEventListener('click',()=>arl.classList.toggle('on'));
+    p.querySelectorAll('[data-anc]').forEach(b2=>b2.addEventListener('click',()=>{ o.ax=+b2.dataset.ax; o.ay=+b2.dataset.ay;
+      p.querySelectorAll('[data-anc]').forEach(x2=>x2.classList.toggle('on',x2===b2)); refreshObjs(); scheduleUndoCommit(); }));
     { const ip=p.querySelector('[data-imgpal]'); if(ip)ip.addEventListener('click',()=>applyImagePalette(false,o.src)); }
     const spn=p.querySelector('[data-spin]'); if(spn)spn.addEventListener('change',()=>{ o.spin=Math.max(-1080,Math.min(1080,parseFloat(spn.value)||0)); scheduleUndoCommit(); });
     const fadd=p.querySelector('[data-fontadd]'); if(fadd)fadd.addEventListener('click',addUserFont);
@@ -6617,11 +6748,22 @@ void main(){
     // 모션 프리셋 — 모션 선택 시 대응 전환이 '없음'이면 같은 길이 페이드를 자동 페어링(완성된 룩 원클릭)
     p.querySelectorAll('[data-m]').forEach(el=>el.addEventListener('change',ev=>{
       const tag=el.dataset.m, m=(tag==='in')?o.mIn:o.mOut; m.type=ev.target.value;
-      if(m.type!=='none'){ const tr=(tag==='in')?o.trIn:o.trOut;
+      if(m.type!=='none'&&m.type!=='spinrev'){ const tr=(tag==='in')?o.trIn:o.trOut;   // 스핀 리빌은 페이드 없이 불투명 유지
         if(tr&&tr.type==='none'){ tr.type='fade'; tr.dur=Math.max(0.1,Math.min(10,+m.dur||0.8));
           const s=p.querySelector('select[data-tr="'+tag+'"]'); if(s)s.value='fade';
           const d=p.querySelector('[data-trd="'+tag+'"]'); if(d)d.value=tr.dur.toFixed(1); } }
+      if(m.type==='spinrev'){ if((m.ease||'back')==='back'){ m.ease='smooth';           // 리빌은 등속에 가까운 곡선이 자연스러움
+          const es=p.querySelector('select[data-me="'+tag+'"]'); if(es)es.value='smooth'; }
+        if(+m.dur<1){ m.dur=2.5; const d2=p.querySelector('[data-md="'+tag+'"]'); if(d2)d2.value='2.5'; } }
+      { const on2=(o.mIn&&o.mIn.type==='spinrev')||(o.mOut&&o.mOut.type==='spinrev');
+        const row=p.querySelector('[data-rvrow]'); if(row) row.style.display=on2?'':'none';
+        const row2=p.querySelector('[data-rvrow2]'); if(row2) row2.style.display=on2?'':'none'; }
       scheduleUndoCommit(); }));
+    { const rk=p.querySelector('[data-rvk]'); if(rk)rk.addEventListener('input',()=>{ o.rvK=Math.max(2,Math.min(12,parseFloat(rk.value)||6)); scheduleUndoCommit(); });
+      const rt=p.querySelector('[data-rvt]'); if(rt)rt.addEventListener('input',()=>{ o.rvTurns=Math.max(0.25,Math.min(4,parseFloat(rt.value)||1.5)); scheduleUndoCommit(); });
+      const rc=p.querySelector('[data-rvc]'); if(rc)rc.addEventListener('input',()=>{ o.rvColor=rc.value; scheduleUndoCommit(); });
+      const rh=p.querySelector('[data-rvh]'); if(rh)rh.addEventListener('input',()=>{ o.rvHole=Math.max(0.2,Math.min(0.95,(parseFloat(rh.value)||62)/100)); scheduleUndoCommit(); });
+      const rv2=p.querySelector('[data-rvcov]'); if(rv2)rv2.addEventListener('click',()=>{ o.rvCov=!(o.rvCov!==false); rv2.classList.toggle('on',o.rvCov!==false); scheduleUndoCommit(); }); }
     p.querySelectorAll('[data-md]').forEach(el=>el.addEventListener('input',ev=>{
       const m=(el.dataset.md==='in')?o.mIn:o.mOut; m.dur=Math.max(0.1,Math.min(10,parseFloat(ev.target.value)||0.8)); scheduleUndoCommit(); }));
     p.querySelectorAll('[data-me]').forEach(el=>el.addEventListener('change',ev=>{
@@ -6677,6 +6819,25 @@ void main(){
     }
   }
 
+  { const altCls=on=>document.body.classList.toggle('ls-altdown',!!on);
+    document.addEventListener('keydown',e=>{ if(e.key==='Alt'&&root.isConnected){ e.preventDefault(); altCls(true); } });
+    document.addEventListener('keyup',e=>{ if(e.key==='Alt') altCls(false); });
+    window.addEventListener('blur',()=>altCls(false)); }
+  objLayer.addEventListener('pointerdown',e=>{ const an=e.target.closest('.ls-anchor'); if(!an)return;
+    const box=an.closest('.ls-obj'); const o=findObj(parseInt(box.dataset.id,10)); if(!o)return;
+    e.preventDefault(); e.stopPropagation(); dragLock(true);
+    const mv=ev=>{ const br=box.getBoundingClientRect();                 // 회전 미반영 근사(회전 중 드래그는 시각 오차 허용)
+      let nx=(ev.clientX-br.left)/Math.max(1,br.width), ny=(ev.clientY-br.top)/Math.max(1,br.height);
+      const sn=v=>{ for(const t of [0,0.5,1]) if(Math.abs(v-t)<0.06) return t; return v; };
+      o.ax=Math.max(-0.5,Math.min(1.5,sn(nx))); o.ay=Math.max(-0.5,Math.min(1.5,sn(ny)));
+      an.style.left=(o.ax*100)+'%'; an.style.top=(o.ay*100)+'%';
+      box.style.transformOrigin=(o.ax*100)+'% '+(o.ay*100)+'%';
+      { const g=objPop&&objPop.querySelector('.ls-ancgrid'); if(g) g.querySelectorAll('button').forEach(b2=>b2.classList.toggle('on',Math.abs(+b2.dataset.ax-o.ax)<0.01&&Math.abs(+b2.dataset.ay-o.ay)<0.01)); } };
+    const up=()=>{ dragLock(false); window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up); scheduleUndoCommit(); };
+    window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up); },true);
+  objLayer.addEventListener('dblclick',e=>{ const box=e.target.closest('.ls-obj'); if(!box)return;
+    const id=parseInt(box.dataset.id,10); const o=findObj(id); if(!o||o.gid==null)return;
+    e.preventDefault(); e.stopPropagation(); selectObj(id); openPop(id); });   // 그룹 더블클릭=개별 진입
   objLayer.addEventListener('pointerdown',e=>{
     const box=e.target.closest('.ls-obj'); if(!box)return;
     const handle=e.target.closest('.ls-ohandle'); const id=parseInt(box.dataset.id,10); const o=findObj(id); if(!o)return;
@@ -6684,12 +6845,22 @@ void main(){
     const shift0=e.shiftKey;                              // Shift: 드래그=축 고정 이동 · 제자리 클릭=다중 선택 토글(up에서)
     const wasSel=(selId===id);                            // 겹침 순환 판정용
     const groupDrag=(selIds.size>1&&selIds.has(id));      // 그룹 멤버 클릭 → 선택 유지, 앵커만 교체
+    // 더블클릭 감지(수동) — 선택 변경으로 DOM이 재생성돼도 동작
+    const _now=performance.now();
+    const isDbl=(objLayer._lastClk&&objLayer._lastClk.id===id&&_now-objLayer._lastClk.t<420&&Math.hypot(e.clientX-objLayer._lastClk.x,e.clientY-objLayer._lastClk.y)<6);
+    objLayer._lastClk={id,t:_now,x:e.clientX,y:e.clientY};
     if(!shift0){
-      if(groupDrag){ selId=id; closePop(); refreshObjs(); }
+      if(isDbl&&o.gid!=null){ selectObj(id); openPop(id); }   // 그룹 더블클릭 → 개별 진입
+      else if(groupDrag){ selId=id; closePop(); refreshObjs(); }
+      else if(o.gid!=null&&!(selIds.size===1&&selIds.has(id))){   // 그룹 멤버 첫 클릭 → 그룹 전체 선택 (이미 개별 진입 상태면 유지)
+        const gids=groupIds(o.gid);
+        if(gids.length>1){ selIds=new Set(gids); selId=id; closePop(); refreshObjs(); }
+        else { selectObj(id); openPop(id); } }
       else { selectObj(id); openPop(id); } }
     const r=stage.getBoundingClientRect(), sx=e.clientX, sy=e.clientY;
     const o0={x:o.x,y:o.y,w:o.w,h:o.h,size:o.size||0}; const hh=handle?handle.dataset.h:null; dragLock(true);
-    const group=(groupDrag&&!hh)?[...selIds].map(gid=>{ const g=findObj(gid); return (g&&!g.locked&&g.id!==id)?{o:g,x:g.x,y:g.y}:null; }).filter(Boolean):null;
+    const multiNow=(selIds.size>1&&selIds.has(id));       // 그룹 자동 확장 포함, 현재 다중 선택이면 함께 이동
+    const group=(multiNow&&!hh)?[...selIds].map(gid2=>{ const g=findObj(gid2); return (g&&!g.locked&&g.id!==id)?{o:g,x:g.x,y:g.y}:null; }).filter(Boolean):null;
     const gv=Q('#ls_gv'), gh=Q('#ls_gh'); const TH=0.008;   // 스냅 임계(스테이지 비율)
     const tg=hh?null:buildSnapTargets(o,objs);               // 드래그 시작 시점의 스냅 타깃
     const mv=ev=>{ const dx=(ev.clientX-sx)/r.width, dy=(ev.clientY-sy)/r.height; const free=ev.altKey;   // Alt = 자유(스냅 해제)
@@ -6717,7 +6888,7 @@ void main(){
       window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up);
       if(shift0&&!hh&&Math.hypot(ev.clientX-sx,ev.clientY-sy)<4){ selectObjAdd(id); return; }   // Shift 제자리 클릭 → 다중 선택 토글
       // 겹침 순환: 이미 선택된 오브젝트를 드래그 없이 제자리 클릭 -> 같은 지점의 아래 오브젝트로 순환 (재생바 등 위 레이어에 가려진 오브젝트 선택용)
-      if(wasSel&&!hh&&selIds.size<=1&&Math.hypot(ev.clientX-sx,ev.clientY-sy)<4){
+      if(wasSel&&!hh&&!isDbl&&selIds.size<=1&&Math.hypot(ev.clientX-sx,ev.clientY-sy)<4){
         const px=(sx-r.left)/r.width, py=(sy-r.top)/r.height;
         const hits=[];                                     // 위(z 최상단)부터, 회전 미반영 bbox 판정
         for(let i=objs.length-1;i>=0;i--){ const q=objs[i];
@@ -6745,6 +6916,7 @@ void main(){
       const ns=new Set(baseSel);
       for(const q of objs){ if(q.type==='kick'||q.type==='lfx'||q.hidden||q.locked) continue;
         if(q.x+q.w/2>fx0&&q.x-q.w/2<fx1&&q.y+q.h/2>fy0&&q.y-q.h/2<fy1) ns.add(q.id); }   // bbox 교차(회전 미반영)
+      [...ns].forEach(i3=>{ const q=findObj(i3); if(q&&q.gid!=null) groupIds(q.gid).forEach(j3=>ns.add(j3)); });   // 그룹 통째 포함
       selIds=ns; selId=ns.size?[...ns][ns.size-1]:null;
       renderObjLayer(); renderObjList(); };
     const up=()=>{ window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up);
@@ -6760,6 +6932,29 @@ void main(){
     if(sw2) sw2.addEventListener('pointerdown',e=>{ if(e.button!==0||recording) return;
       if(e.target!==sw2) return;                            // 스테이지·전송바 위 클릭은 각자 처리
       openProjPanel(); }); }
+  // ── 캔버스 줌/팬 — Ctrl+휠(트랙패드 핀치) 줌 · 휠 팬 · 휠클릭 드래그 팬 · Ctrl+0 리셋 (렌더 해상도 불변, 표시만 확대)
+  { const sw3=root.querySelector('.ls-stageWrap'); const zb=Q('#ls_zoombadge');
+    let z=1, px=0, py=0;
+    const apply=()=>{ stage.style.transform=(z===1&&!px&&!py)?'':('translate('+px.toFixed(1)+'px,'+py.toFixed(1)+'px) scale('+z.toFixed(4)+')');
+      if(zb){ zb.style.display=(z===1&&!px&&!py)?'none':'flex'; zb.textContent=Math.round(z*100)+'%'; } };
+    const reset=()=>{ z=1; px=0; py=0; apply(); };
+    if(sw3){
+      sw3.addEventListener('wheel',e=>{ if(recording) return; e.preventDefault();
+        if(e.ctrlKey||e.metaKey){                             // 줌 — 커서 지점 고정
+          const r=stage.getBoundingClientRect(); const cx=r.left+r.width/2, cy=r.top+r.height/2;
+          const nz=Math.max(0.25,Math.min(6,z*Math.exp(-e.deltaY*0.0016))); const kk=nz/z; if(kk===1) return;
+          px+=(cx-e.clientX)*(kk-1); py+=(cy-e.clientY)*(kk-1); z=nz; apply();
+        } else { px-=e.deltaX; py-=e.deltaY; apply(); } },{passive:false});
+      sw3.addEventListener('pointerdown',e=>{ if(e.button!==1||recording) return;   // 휠클릭 드래그 팬
+        e.preventDefault(); e.stopPropagation(); dragLock(true);
+        const sx=e.clientX, sy=e.clientY, px0=px, py0=py;
+        const mv=ev=>{ px=px0+(ev.clientX-sx); py=py0+(ev.clientY-sy); apply(); };
+        const up=()=>{ dragLock(false); window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up); };
+        window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up); },true);
+      document.addEventListener('fullscreenchange',reset); }
+    if(zb) zb.addEventListener('click',reset);
+    document.addEventListener('keydown',e=>{ if(!root.isConnected) return;
+      if((e.ctrlKey||e.metaKey)&&e.key==='0'&&!e.target.closest('input,textarea,select')){ e.preventDefault(); reset(); } }); }
   root.querySelectorAll('.ls-lyr-addbtn').forEach(b=>b.addEventListener('click',()=>{ const t=b.dataset.add; if(t==='text')addText(); else if(t==='image')addImage(); else if(t==='shape')addShape(); else if(t==='spectrum')addSpectrum(); else if(t==='progress')addProgress(); else if(t==='kick')addKick();
     else if(t==='audio'){ if(tracks.length>=MAXTR) showError('음원 트랙은 최대 '+MAXTR+'개예요.'); else aInput.click(); }
     else if(t==='lfx') addFilterLayer(); }));
@@ -6799,8 +6994,23 @@ void main(){
   function isObjKey(k){ return /^obj\d+_/.test(k); }
   function objKeyParts(k){ const m=k.match(/^obj(\d+)_(\w+)$/); return m?{id:+m[1],prop:m[2]}:null; }
   function objPropRange(p){ if(/^fx\d+$/.test(p)) return {min:0,max:1}; if(p==='kzoom')return {min:0,max:2}; if(p==='kshake')return {min:0,max:1}; if(p==='famt')return {min:0,max:1};
-    return p==='opacity'?{min:0,max:1}:(p==='x'||p==='y')?{min:0,max:1}:p==='scale'?{min:0.2,max:3}:{min:-180,max:180}; }
+    return p==='opacity'?{min:0,max:1}:(p==='x'||p==='y')?{min:0,max:1}:p==='scale'?{min:0.05,max:10}:{min:-180,max:180}; }
   function objPropStatic(o,p){ const fm=p.match(/^fx(\d+)$/); if(fm){ const f=o&&o.fx&&o.fx[+fm[1]]; return f?Math.max(0,Math.min(1,+f.amount||0)):0; } return p==='scale'?1:(o&&o[p]!==undefined?o[p]:0); }
+  // 대역 에너지 엔벨로프(어택 즉시·릴리즈 지수) — 오디오 링크 신호원. ovrFreq 주입 시 오프라인 렌더도 동일 값 → 내보내기 재현.
+  const audEnv={low:0,mid:0,high:0,lvl:0}; let _audT=null;
+  const AUD_BANDS={low:[30,150],mid:[400,2500],high:[4000,12000],lvl:[40,14000]};
+  function audioBandsNow(tSec){
+    let FD=null,binHz=0;
+    if(ovrFreq){ FD=ovrFreq; binHz=48000/1024; }
+    else if(hasAudio()&&analyser&&freqData&&(tlPlaying||recording)){ analyser.getByteFrequencyData(freqData); FD=freqData; binHz=((audioCtx&&audioCtx.sampleRate)||44100)/analyser.fftSize; }
+    const dt=(_audT==null)?1/60:Math.max(0.001,Math.min(0.2,Math.abs(tSec-_audT))); _audT=tSec;
+    const rel=Math.exp(-dt/0.28);
+    for(const b in AUD_BANDS){ let raw=0;
+      if(FD&&binHz>0){ const f0=AUD_BANDS[b][0],f1=AUD_BANDS[b][1];
+        const i0=Math.max(1,Math.floor(f0/binHz)), i1=Math.min(FD.length-1,Math.ceil(f1/binHz));
+        if(i1>=i0){ let s=0; for(let i=i0;i<=i1;i++)s+=FD[i]; raw=Math.pow((s/(i1-i0+1))/255,1.5); } }
+      audEnv[b]=Math.max(raw,audEnv[b]*rel); if(audEnv[b]<0.001)audEnv[b]=0; }
+  }
   function autoStatic(k){ if(isObjKey(k)){ const pp=objKeyParts(k); return pp?objPropStatic(findObj(pp.id),pp.prop):0; } if(GAUTO_LABELS[k]) return +grad[k.slice(1)]||0; return st[k]; }
   function laneLabel(k){ if(isObjKey(k)){ const pp=objKeyParts(k); const o=pp&&findObj(pp.id);
     const fm=pp&&pp.prop&&pp.prop.match(/^fx(\d+)$/);
@@ -6809,13 +7019,24 @@ void main(){
     return (o?objName(o):'오브젝트')+' · '+pl; } return GAUTO_LABELS[k]||AUTO_LABELS[k]||k; }
   let autoKeys=[];                                  // 화면에 표시 중인 오토메이션 레인(파라미터 키) 순서
   function paramRange(k){ if(isObjKey(k)){ const pp=objKeyParts(k); return objPropRange(pp?pp.prop:''); } const el=Q('#ls_'+k); return el?{min:parseFloat(el.min),max:parseFloat(el.max)}:{min:0,max:2}; }
-  function captureAuto(){ const o={}; for(const k in auto){ const a=auto[k]; if(a&&a.pts&&a.pts.length){ o[k]={on:!!a.on,pts:a.pts.map(p=>{ const q={t:p.t,v:p.v}; if(p.m&&p.m!=='smooth')q.m=p.m; if(p.m==='bezier'&&p.h&&p.h.length===4)q.h=p.h.slice(); return q; })}; } } return o; }
+  function captureAuto(){ const o={}; for(const k in auto){ const a=auto[k]; if(!a) continue;
+    const hasP=a.pts&&a.pts.length, hasL=a.lk&&a.lk.on; if(!hasP&&!hasL) continue;
+    const q={on:!!a.on,pts:(a.pts||[]).map(p=>{ const r={t:p.t,v:p.v}; if(p.m&&p.m!=='smooth')r.m=p.m; if(p.m==='bezier'&&p.h&&p.h.length===4)r.h=p.h.slice(); return r; })};
+    if(hasL) q.lk={on:true,band:a.lk.band,amt:Math.max(-1,Math.min(1,+a.lk.amt||0))};
+    o[k]=q; } return o; }
   function sanePt(p){ const q={t:+p.t,v:+p.v};
     if(p.m==='linear'||p.m==='hold') q.m=p.m;
     else if(p.m==='bezier'&&Array.isArray(p.h)&&p.h.length===4&&p.h.every(n=>isFinite(+n))){ q.m='bezier'; q.h=[Math.max(0,Math.min(1,+p.h[0])),Math.max(-2,Math.min(3,+p.h[1])),Math.max(0,Math.min(1,+p.h[2])),Math.max(-2,Math.min(3,+p.h[3]))]; }
     return q; } // m 없음/불명 → 레거시 smooth
   function applyAuto(o){ for(const k in auto) delete auto[k]; autoKeys=[];
-    if(o&&typeof o==='object'){ for(const k in o){ const a=o[k]; if(a&&Array.isArray(a.pts)&&(KEYS.indexOf(k)>=0||(isObjKey(k)&&findObj((objKeyParts(k)||{}).id)))){ auto[k]={on:!!a.on,pts:a.pts.map(sanePt).sort((x,y)=>x.t-y.t)}; autoKeys.push(k); } } }
+    if(o&&typeof o==='object'){ for(const k in o){ const a=o[k];
+      const okKey=(KEYS.indexOf(k)>=0||GAUTO_LABELS[k]||(isObjKey(k)&&findObj((objKeyParts(k)||{}).id)));   // 그라디언트 키 복원 포함
+      if(!a||!okKey) continue;
+      const hasP=Array.isArray(a.pts)&&a.pts.length, hasL=a.lk&&a.lk.on;
+      if(!hasP&&!hasL) continue;
+      const na={on:!!a.on,pts:(Array.isArray(a.pts)?a.pts.map(sanePt).sort((x,y)=>x.t-y.t):[])};
+      if(a.lk){ na.lk={on:!!a.lk.on,band:AUD_BANDS[a.lk.band]?a.lk.band:'low',amt:Math.max(-1,Math.min(1,+a.lk.amt||0))}; }
+      auto[k]=na; autoKeys.push(k); } }
     KEYS.forEach(k=>{ const el=Q('#ls_'+k); if(el) el.dispatchEvent(new Event('input')); });
     if(typeof renderTimeline==='function') renderTimeline(); }
   function persistAutoLocal(){ scheduleUndoCommit(); }   // 오토메이션은 프로젝트 저장으로만 관리(로컬 자동저장 제거)
@@ -6993,8 +7214,9 @@ void main(){
     kfPop=document.createElement('div'); kfPop.className='ls-kfpop';
     let html='<div class="sec">보간 · '+pt.t.toFixed(2)+'s → 다음 키프레임</div><div class="row">'+
       [['smooth','스무스'],['linear','직선'],['hold','홀드'],['bezier','베지어']].map(mm=>'<button data-m="'+mm[0]+'" class="'+(mode===mm[0]?'on':'')+'">'+mm[1]+'</button>').join('')+'</div>';
-    if(mode==='bezier') html+='<div class="sec">이징 프리셋</div><div class="row">'+
-      [['easy','Easy'],['in','In'],['out','Out'],['inout','InOut']].map(pp=>'<button data-p="'+pp[0]+'">'+pp[1]+'</button>').join('')+'</div>';
+    if(mode==='bezier') html+='<div class="sec">이징 프리셋'+(selN>1?' — 선택 '+selN+'개에 적용':'')+'</div><div class="row">'+
+      [['easy','Easy'],['in','In'],['out','Out'],['inout','InOut']].map(pp=>'<button data-p="'+pp[0]+'">'+pp[1]+'</button>').join('')+'</div><div class="row">'+
+      [['back','Back ↷'],['backin','BackIn ↶'],['snap','Snap ⚡']].map(pp=>'<button data-p="'+pp[0]+'">'+pp[1]+'</button>').join('')+'</div>';
     html+='<div class="row"><button data-a="copy">복사'+(selN>1?' ('+selN+')':'')+'</button><button data-a="del" class="warn">삭제'+(selN>1?' ('+selN+')':'')+'</button></div>';
     if(selN>=2) html+='<div class="sec">선택 구간 시간 스케일 (첫 키프레임 기준)</div><div class="row"><button data-a="s5">×0.5</button><button data-a="s2">×2</button></div>';
     html+='<div class="hint">Shift+클릭 다중선택 · Ctrl+C/V 복사·붙여넣기(재생헤드 기준) · Del 삭제'+(expandedLanes.has(key)?' · 노란 핸들 드래그로 곡선 편집':' · ∿ 버튼으로 그래프 확장 시 베지어 핸들 편집')+'</div>';
@@ -7007,10 +7229,14 @@ void main(){
     kfPop.addEventListener('pointerdown',e=>e.stopPropagation());
     kfPop.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return;
       if(b.dataset.m){ const m=b.dataset.m;
-        if(m==='smooth'){ delete pt.m; delete pt.h; }
-        else { pt.m=m; if(m==='bezier'&&(!pt.h||pt.h.length!==4)) pt.h=EASE_PRESETS.easy.slice(); if(m!=='bezier') delete pt.h; }
+        const idxs=(selN>=2&&kfSel.key===key)?[...kfSel.idx]:[i];                       // 다중 선택 → 일괄 적용
+        idxs.forEach(j=>{ const q=a.pts[j]; if(!q)return;
+          if(m==='smooth'){ delete q.m; delete q.h; }
+          else { q.m=m; if(m==='bezier'&&(!q.h||q.h.length!==4)) q.h=EASE_PRESETS.easy.slice(); if(m!=='bezier') delete q.h; } });
         drawAutoStrip(key,stripEl); persistAutoLocal(); openKfPop(key,i,stripEl); }
-      else if(b.dataset.p){ pt.m='bezier'; pt.h=EASE_PRESETS[b.dataset.p].slice(); drawAutoStrip(key,stripEl); persistAutoLocal(); openKfPop(key,i,stripEl); }
+      else if(b.dataset.p){ const idxs=(selN>=2&&kfSel.key===key)?[...kfSel.idx]:[i];
+        idxs.forEach(j=>{ const q=a.pts[j]; if(!q)return; q.m='bezier'; q.h=EASE_PRESETS[b.dataset.p].slice(); });
+        drawAutoStrip(key,stripEl); persistAutoLocal(); openKfPop(key,i,stripEl); }
       else if(b.dataset.a==='copy'){ if(selN<2){ clearSel(); kfSel.key=key; kfSel.idx.add(i); } copyKfSel(); closeKfPop(); }
       else if(b.dataset.a==='del'){ closeKfPop(); if(selN>=2){ deleteKfSel(); } else { a.pts.splice(i,1); clearSel(); drawAutoStrip(key,stripEl); persistAutoLocal(); } }
       else if(b.dataset.a==='s5'||b.dataset.a==='s2'){ scaleKfSel(b.dataset.a==='s5'?0.5:2); closeKfPop(); }
@@ -7043,6 +7269,7 @@ void main(){
     if(!root.isConnected||recording)return;
     const mod=e.ctrlKey||e.metaKey;
     if(mod&&(e.key==='z'||e.key==='Z')){ e.preventDefault(); if(e.shiftKey)doRedo(); else doUndo(); }
+    else if(mod&&(e.key==='g'||e.key==='G')){ e.preventDefault(); if(e.shiftKey) ungroupSelected(); else groupSelected(); }
     else if(mod&&(e.key==='y'||e.key==='Y')){ e.preventDefault(); doRedo(); }
     else if(mod&&(e.key==='c'||e.key==='C')){ if(kfSel.key&&kfSel.idx.size){ e.preventDefault(); copyKfSel(); } }
     else if(mod&&(e.key==='v'||e.key==='V')){ if(kfClip){ e.preventDefault(); pasteKfClip(); } }
@@ -7195,6 +7422,7 @@ void main(){
       const exp=expandedLanes.has(key);
       const lab=mk('ls-rlabel auto'+(exp?' expanded':''));
       lab.innerHTML='<span class="ls-rl-name">'+laneLabel(key)+'</span>'+
+        ((a.lk&&a.lk.on)?'<span class="ls-rl-link" title="오디오 연결됨 ('+({low:'저역',mid:'중역',high:'고역',lvl:'전체'})[a.lk.band]+') — 노브 우클릭으로 편집">♪</span>':'')+
         '<span class="ls-rl-g'+(exp?' on':'')+'" title="그래프 편집 (베지어 핸들)">∿</span>'+
         '<span class="ls-autotog'+(a.on?' on':'')+'" title="사용/해제">'+(a.on?'ON':'OFF')+'</span>'+
         '<span class="ls-rl-x" title="레인 삭제">×</span>';
@@ -7324,7 +7552,8 @@ void main(){
   // ===== 키프레임 보간 엔진 =====
   // 세그먼트 이징은 시작 키프레임(A)에 저장: A.m = 'smooth'(기본·레거시 smoothstep) | 'linear' | 'hold' | 'bezier'
   // bezier는 A.h=[x1,y1,x2,y2] (세그먼트 정규화 좌표, CSS cubic-bezier와 동일 의미. y는 오버슈트 허용)
-  const EASE_PRESETS={ easy:[0.33,0,0.67,1], in:[0.42,0,1,1], out:[0,0,0.58,1], inout:[0.42,0,0.58,1] };
+  const EASE_PRESETS={ easy:[0.33,0,0.67,1], in:[0.42,0,1,1], out:[0,0,0.58,1], inout:[0.42,0,0.58,1],
+    back:[0.34,1.56,0.64,1], backin:[0.36,0,0.66,-0.56], snap:[0.9,0,0.1,1] };   // 오버슛·역오버슛·스냅(급출발-급정지)
   function bezierY(x1,y1,x2,y2,u){ // x(s)=u를 뉴턴+이분법으로 풀어 y(s) 반환
     if(u<=0)return 0; if(u>=1)return 1;
     const cx=3*x1, bx=3*(x2-x1)-cx, ax=1-cx-bx;
@@ -7343,16 +7572,25 @@ void main(){
     if(m==='bezier'&&A.h&&A.h.length===4) return bezierY(A.h[0],A.h[1],A.h[2],A.h[3],u);
     return u*u*(3-2*u); // 'smooth' — m 미지정 레거시 포인트와 동일 거동
   }
-  function autoVal(k,t){ const a=auto[k]; if(!a||!a.on||!a.pts||!a.pts.length) return autoStatic(k);
+  function autoBase(k,t){ const a=auto[k]; if(!a||!a.on||!a.pts||!a.pts.length) return undefined;
     const p=a.pts; if(p.length===1) return p[0].v;
     if(t<=p[0].t) return p[0].v; if(t>=p[p.length-1].t) return p[p.length-1].v;
     for(let i=0;i<p.length-1;i++){ const A=p[i],B=p[i+1]; if(t>=A.t&&t<=B.t){ const u=(t-A.t)/Math.max(1e-6,B.t-A.t); return A.v+(B.v-A.v)*segEase(A,u); } }
-    return autoStatic(k); }
+    return undefined; }
+  function autoVal(k,t,base){ let v=autoBase(k,t);
+    if(v===undefined) v=(base!==undefined)?base:autoStatic(k);
+    const a=auto[k];
+    if(a&&a.on&&a.lk&&a.lk.on&&Math.abs(+a.lk.amt||0)>0.0001){   // 오디오 링크: 대역 에너지 × 강도 × 레인지 폭 가산
+      const r2=paramRange(k); const e=audEnv[a.lk.band]||0;
+      v=(+v||0)+e*(+a.lk.amt)*(r2.max-r2.min);
+      v=Math.max(r2.min,Math.min(r2.max,v)); }
+    return v; }
   // 결정적 시드: 같은 t → 같은 픽셀(오프라인 렌더 재현성 보장). 프레임마다 값은 변해 그레인 플리커는 유지됨.
   function detSeed(t){ const x=Math.sin(t*127.1+311.7)*43758.5453; return (x-Math.floor(x))*1000.0; }
   let offlineRendering=false;
   // 시간 명시적 씬 드로우: 프리뷰 rAF 루프와 오프라인 렌더가 공유하는 단일 진실 소스
   function drawScene(tSec,phase,lv,comp){
+    try{ audioBandsNow(tSec); }catch(e){}                    // 오디오 링크 신호 갱신(프레임당 1회)
     const V=k=>autoVal(k,tSec); curObjT=tSec;
     // 배경 소스 결정: image | gradient | both(그라디언트+이미지 스크린 합성). 시간축은 tSec만 사용.
     const useGrad=((bgType==='gradient'||bgType==='both')&&gradProg);
