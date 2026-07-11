@@ -1047,6 +1047,8 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-auto-dot.m-hold{ border-radius:2px; }
 .ls-auto-dot.m-linear{ transform:translate(-50%,-50%) rotate(45deg); border-radius:2px; }
 .ls-auto-dot.m-bezier{ border-color:#f6c945; }
+.ls-rvcq{ width:18px; height:18px; padding:0; border-radius:5px; border:1px solid var(--c-bd2); cursor:pointer; vertical-align:middle; }
+.ls-rvcq:hover{ border-color:var(--acc); }
 .ls-rl-link{ color:var(--acc); font-size:11px; font-weight:800; margin:0 1px; animation:lsPulse 1.6s ease-in-out infinite; }
 @keyframes lsPulse{ 0%,100%{opacity:.55} 50%{opacity:1} }
 .ls-auto-h{ position:absolute; width:9px; height:9px; border-radius:50%; background:#f6c945; border:1.5px solid rgba(0,0,0,.6);
@@ -5132,10 +5134,28 @@ void main(){
       return e; }
     let ro=o;                                              // 가사 모드: 현재 줄로 텍스트 치환 → 캐시 키에 줄 내용 반영
     if(o.type==='text'&&o.lyricOn) ro=Object.assign({},o,{text:activeLyric(o,curObjT||0)||' '});
+    if(o.type==='text'&&!o.lyricOn){                        // 타이핑 모션: 시점별 부분 문자열 + 깜빡이는 커서 (부분열별 캐시라 루프 재생 시 캐시 적중)
+      const tw=typewriterState(o,curObjT||0);
+      if(tw) ro=Object.assign({},ro,{text:tw.txt}); }
     const key=layerContentKey(ro,W,H);
     if(e.key!==key){ rasterText(ro,W,H,scratch,scratchCtx);
       gl.bindTexture(gl.TEXTURE_2D,e.tex); gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,scratch); e.key=key; e.w=scratch.width; e.h=scratch.height; }
     return e;
+  }
+  // 타이핑 모션 상태 — 등장: 0→N 글자, 퇴장: N→0 (개행 제외 실문자 기준), 타이핑 중 커서 '▎' 0.5s 주기 점멸(결정적)
+  function typewriterState(o,t){
+    const tIn=(o.mIn&&o.mIn.type==='type'&&+o.mIn.dur>0), tOut=(o.mOut&&o.mOut.type==='type'&&+o.mOut.dur>0);
+    if(!tIn&&!tOut) return null;
+    const full=String(o.text||''); const N=full.replace(/\n/g,'').length; if(!N) return null;
+    const ti=o.tIn||0, to2=(o.tOut===undefined||o.tOut===null)?projDur():o.tOut;
+    let n=N, typing=false;
+    if(tIn){ const u=(t-ti)/+o.mIn.dur; if(u<1){ n=Math.min(n,Math.max(0,Math.floor(N*Math.max(0,u)))); typing=true; } }
+    if(tOut){ const u=(to2-t)/+o.mOut.dur; if(u<1){ n=Math.min(n,Math.max(0,Math.ceil(N*Math.max(0,u)))); typing=true; } }
+    if(!typing&&n>=N) return null;                          // 완성 구간 — 원문 그대로(캐시 안정)
+    let out='',c=0;                                          // 개행 보존하며 앞에서 n글자
+    for(const ch of full){ if(ch==='\n'){ out+=ch; continue; } if(c>=n) break; out+=ch; c++; }
+    const cur=typing&&(Math.floor(t*2)%2===0);               // 0.5s 점멸(결정적 → 내보내기 재현)
+    return {txt:(out+(cur?'▎':''))||' '};
   }
   function layerVisible(o,t){ const ti=o.tIn||0, to=(o.tOut===undefined||o.tOut===null)?projDur():o.tOut;
     return t>=ti && (t<to || (to>=projDur()-1e-4 && t<=to+1e-4)); }   // 클립이 프로젝트 끝까지면 끝 프레임 포함(60s에서 사라지던 오류)
@@ -5329,16 +5349,17 @@ void main(){
         case 'down':  r.dy-=D*u; break;
         case 'pop':   r.ds*=0.55+0.45*e; break;
         case 'tilt':  r.dr-=14*u; break;
-        case 'spinrev': { const K=Math.max(2,Math.min(15,+o.rvK||6));      // 스핀 리빌: 중앙 로고(작성크기/K) ↔ 프레임(작성크기)
+        case 'type': break;                                // 타이핑: 트랜스폼 없음 — 글자 표시는 텍스처 단계에서 처리
+        case 'spinrev': { const K=Math.max(2,Math.min(20,+o.rvK||6));      // 스핀 리빌: 중앙 로고(작성크기/K) ↔ 프레임(작성크기)
           const ee=Math.max(0,Math.min(1.1,e));
           r.ds*=(1/K)+(1-1/K)*ee;
           r.dr-=((+o.rvTurns||1.5)*360)*u; break; } } };
     if(o.mIn&&o.mIn.type&&o.mIn.type!=='none'&&+o.mIn.dur>0){
-      const st1=(o.mIn.type==='spinrev')?Math.max(0,+o.rvStay||0):0;    // 유지: 닫힌 채 시작 후 st1초 뒤에 열림
+      const st1=(o.mIn.type==='spinrev')?Math.max(0,(o.rvStayIn!=null?+o.rvStayIn:+o.rvStay||0)):0;   // 유지(등장): 닫힌 채 시작 후 st1초 뒤에 열림
       const p=(tSec-ti-st1)/+o.mIn.dur;
       if(p<1) ap(o.mIn,easeM(o.mIn.ease||'back',p)); }
     if(o.mOut&&o.mOut.type&&o.mOut.type!=='none'&&+o.mOut.dur>0){
-      const st2=(o.mOut.type==='spinrev')?Math.max(0,+o.rvStay||0):0;   // 유지: 닫힘 완료 후 st2초간 그 상태 유지(뚝 끊김 방지)
+      const st2=(o.mOut.type==='spinrev')?Math.max(0,(o.rvStayOut!=null?+o.rvStayOut:+o.rvStay||0)):0; // 유지(퇴장): 닫힘 완료 후 st2초간 유지(뚝 끊김 방지)
       const p=(to2-tSec-st2)/+o.mOut.dur;
       if(p<1) ap(o.mOut,easeM(o.mOut.ease||'back',p)); }
     if(o.mLoop&&o.mLoop.type&&o.mLoop.type!=='none'&&+o.mLoop.amt>0){
@@ -5464,13 +5485,13 @@ void main(){
       const mo=motionOffsets(o,tSec);                    // 모션 프리셋 오프셋(키프레임 위에 가산)
       // 스핀 리빌 가림막: 로고 구멍(내접원) 크기에 동기화된 단색 아이리스 — 로고보다 먼저 그려 팔이 경계를 덮음
       if(coverProg&&o.rvCov!==false&&((o.mIn&&o.mIn.type==='spinrev')||(o.mOut&&o.mOut.type==='spinrev'))){
-        const holeK=Math.max(0.2,Math.min(0.95,(o.rvHole==null?0.62:+o.rvHole)));
-        const K2=Math.max(2,Math.min(15,+o.rvK||6));
+        const holeK=Math.max(0.2,Math.min(1.9,(o.rvHole==null?0.62:+o.rvHole)));
+        const K2=Math.max(2,Math.min(20,+o.rvK||6));
         const q=Math.max(0,Math.min(1,(mo.ds*K2-1)/(K2-1)));   // 닫힘 진행도: ds=1/K → 0(구멍 완전 폐쇄) · ds=1 → 1
         const r=Math.max(0,(Math.min(o.w*W,o.h*Hh)/2)*oscale*mo.ds*holeK*q);
         const cx2=(ox+mo.dx)*W, cy2=(1-(oy+mo.dy))*Hh;
         const far=Math.hypot(Math.max(cx2,W-cx2),Math.max(cy2,Hh-cy2));   // 중심에서 가장 먼 코너
-        const fe=Math.max(1.5,Math.min(W,Hh)*0.004);
+        const fe=Math.max(2,r*0.28);                                       // 소프트 페더 — 로고 크기에 비례해 함께 커짐(열린 형태 로고와 자연 융합)
         if(r-fe<far){                                     // 구멍이 화면을 다 덮으면 패스 생략
           const nxt2=1-cur;
           gl.bindFramebuffer(gl.FRAMEBUFFER,fbos[nxt2]); gl.viewport(0,0,W,Hh);
@@ -5478,6 +5499,7 @@ void main(){
           gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,fboTex[cur]); gl.uniform1i(cvUni.uDst,0);
           gl.uniform2f(cvUni.uRes7,W,Hh); gl.uniform2f(cvUni.uCC,cx2,cy2);
           gl.uniform1f(cvUni.uCR,r); gl.uniform1f(cvUni.uCFe,fe);
+          gl.uniform1f(cvUni.uCFloor,Math.max(0,Math.min(1,1-q*7)));       // q<1/7 구간에서 바닥이 1로 상승 → 잔점 소멸
           { const c3=hex2rgb(o.rvColor||'#0d0d0d'); gl.uniform3f(cvUni.uCCol,c3[0],c3[1],c3[2]); }
           gl.drawArrays(gl.TRIANGLES,0,3);
           cur=nxt2; } }
@@ -5518,16 +5540,17 @@ void main(){
   const COVER_FS=`#version 300 es
 precision highp float;
 out vec4 frag;
-uniform sampler2D uDst; uniform vec2 uRes7; uniform vec2 uCC; uniform float uCR,uCFe; uniform vec3 uCCol;
+uniform sampler2D uDst; uniform vec2 uRes7; uniform vec2 uCC; uniform float uCR,uCFe,uCFloor; uniform vec3 uCCol;
 void main(){
   vec2 p=gl_FragCoord.xy;
   vec3 d=texture(uDst,p/uRes7).rgb;
   float outside=smoothstep(uCR-uCFe,uCR+uCFe,distance(p,uCC));
+  outside=max(outside,uCFloor);                     // 폐쇄 직전 전면 상승 바닥 — 중앙 잔점 방지(연속)
   frag=vec4(mix(d,uCCol,outside),1.0);
 }`;
   let coverProg=null,cvUni={};
   try{ coverProg=mkProg(COVER_FS);
-    ['uDst','uRes7','uCC','uCR','uCFe','uCCol'].forEach(n=>cvUni[n]=gl.getUniformLocation(coverProg,n)); }catch(e){ coverProg=null; }
+    ['uDst','uRes7','uCC','uCR','uCFe','uCFloor','uCCol'].forEach(n=>cvUni[n]=gl.getUniformLocation(coverProg,n)); }catch(e){ coverProg=null; }
   function plainCopyToScreen(srcTex){
     gl.bindFramebuffer(gl.FRAMEBUFFER,null); gl.viewport(0,0,canvas.width,canvas.height);
     gl.useProgram(copyProg);
@@ -6370,12 +6393,14 @@ void main(){
 
   function captureObjs(){ return objs.map(o=>{ const c={id:o.id,type:o.type,x:o.x,y:o.y,w:o.w,h:o.h,rot:o.rot||0,opacity:o.opacity};
     if(o.name&&o.name.trim()) c.name=o.name.trim();
-    if(o.rvK!=null) c.rvK=Math.max(2,Math.min(15,+o.rvK||6));
+    if(o.rvK!=null) c.rvK=Math.max(2,Math.min(20,+o.rvK||6));
     if(o.rvTurns!=null) c.rvTurns=Math.max(0.25,Math.min(4,+o.rvTurns||1.5));
     if(o.rvColor) c.rvColor=o.rvColor;
-    if(o.rvHole!=null) c.rvHole=Math.max(0.2,Math.min(0.95,+o.rvHole||0.62));
+    if(o.rvHole!=null) c.rvHole=Math.max(0.2,Math.min(1.9,+o.rvHole||0.62));
     if(o.rvCov===false) c.rvCov=false;
     if(o.rvStay!=null&&+o.rvStay>0) c.rvStay=Math.max(0,Math.min(60,+o.rvStay));
+    if(o.rvStayIn!=null) c.rvStayIn=Math.max(0,Math.min(60,+o.rvStayIn));
+    if(o.rvStayOut!=null) c.rvStayOut=Math.max(0,Math.min(60,+o.rvStayOut));
     if(o.gid!=null) c.gid=o.gid;
     if(o.ax!=null&&+o.ax!==0.5) c.ax=Math.max(-0.5,Math.min(1.5,+o.ax));
     if(o.ay!=null&&+o.ay!==0.5) c.ay=Math.max(-0.5,Math.min(1.5,+o.ay));
@@ -6665,17 +6690,24 @@ void main(){
     const mSel=(tag,m,LAB)=>'<select data-m="'+tag+'">'+Object.keys(LAB).map(k=>'<option value="'+k+'"'+(m.type===k?' selected':'')+'>'+LAB[k]+'</option>').join('')+'</select>'
       +'<input type="number" data-md="'+tag+'" min="0.1" max="10" step="0.1" value="'+(Math.max(0.1,Math.min(10,+m.dur||0.8)).toFixed(1))+'" title="길이(초)"><em>s</em>'
       +'<select data-me="'+tag+'" class="ls-mease" title="이징(가속 곡선)">'+Object.keys(ME_LABELS).map(k=>'<option value="'+k+'"'+((m.ease||'back')===k?' selected':'')+'>'+ME_LABELS[k]+'</option>').join('')+'</select>';
-    h+='<div class="ls-orow"><span>등장 모션</span><div class="ls-oinline ls-trrow">'+mSel('in',o.mIn,MI_LABELS)+'</div></div>';
-    h+='<div class="ls-orow"><span>퇴장 모션</span><div class="ls-oinline ls-trrow">'+mSel('out',o.mOut,MO_LABELS)+'</div></div>';
+    { const MIL=(o.type==='text')?Object.assign({},MI_LABELS,{type:'타이핑 ✍'}):MI_LABELS;
+      h+='<div class="ls-orow"><span>등장 모션</span><div class="ls-oinline ls-trrow">'+mSel('in',o.mIn,MIL)+'</div></div>'; }
+    { const MOL=(o.type==='text')?Object.assign({},MO_LABELS,{type:'타이핑 ⌫'}):MO_LABELS;
+      h+='<div class="ls-orow"><span>퇴장 모션</span><div class="ls-oinline ls-trrow">'+mSel('out',o.mOut,MOL)+'</div></div>'; }
     { const rvOn=(o.mIn&&o.mIn.type==='spinrev')||(o.mOut&&o.mOut.type==='spinrev');
       h+='<div class="ls-orow" data-rvrow'+(rvOn?'':' style="display:none"')+'><span>스핀 리빌</span><div class="ls-oinline ls-xy" title="배율: 중앙 크기 = 작성 크기 ÷ 배율 — 작성 크기를 화면보다 크게(예: W 500%) 잡으면 프레임이 됩니다">'
-        +'배율 <input type="number" data-rvk min="2" max="15" step="0.5" value="'+(Math.max(2,Math.min(15,+o.rvK||6)))+'"> ×'
+        +'배율 <input type="number" data-rvk min="2" max="20" step="0.5" value="'+(Math.max(2,Math.min(20,+o.rvK||6)))+'"> ×'
         +' 회전 <input type="number" data-rvt min="0.25" max="4" step="0.25" value="'+(Math.max(0.25,Math.min(4,+o.rvTurns||1.5)))+'"> 턴</div></div>';
       h+='<div class="ls-orow" data-rvrow2'+(rvOn?'':' style="display:none"')+'><span>가림막</span><div class="ls-oinline ls-xy" title="로고 구멍 안으로만 내용이 보이고 바깥은 이 색으로 가려져요 — 구멍은 로고 크기 대비 내접원 비율">'
         +'<button type="button" class="ls-tgl'+(o.rvCov!==false?' on':'')+'" data-rvcov></button>'
-        +' 구멍 <input type="number" data-rvh min="20" max="95" step="1" value="'+Math.round((o.rvHole==null?0.62:+o.rvHole)*100)+'"> %'
-        +' 유지 <input type="number" data-rvs min="0" max="60" step="0.5" value="'+(Math.max(0,+o.rvStay||0))+'" title="등장 전·퇴장 후, 닫힌 상태(중앙 로고+단색)로 머무는 시간"> s'
-        +' 색 <input type="color" data-rvc value="'+(o.rvColor||'#0d0d0d')+'" title="가림 색 — 구멍 밖을 채우는 단색"></div></div>'; }
+        +' 구멍 <input type="number" data-rvh min="20" max="190" step="1" value="'+Math.round((o.rvHole==null?0.62:+o.rvHole)*100)+'"> %'
+        +'</div></div>';
+      h+='<div class="ls-orow" data-rvrow3'+(rvOn?'':' style="display:none"')+'><span>유지·색</span><div class="ls-oinline ls-xy" title="유지: 닫힌 상태(중앙 로고+단색)로 머무는 시간 — 등장은 열리기 전, 퇴장은 닫힌 후">'
+        +'등장 <input type="number" data-rvsi min="0" max="60" step="0.5" value="'+(Math.max(0,(o.rvStayIn!=null?+o.rvStayIn:+o.rvStay||0)))+'"> s'
+        +' 퇴장 <input type="number" data-rvso min="0" max="60" step="0.5" value="'+(Math.max(0,(o.rvStayOut!=null?+o.rvStayOut:+o.rvStay||0)))+'"> s'
+        +' <span class="ls-pcslot" style="width:20px;height:20px;display:inline-block;vertical-align:middle"><input type="color" data-rvc value="'+(o.rvColor||'#0d0d0d')+'" title="가림 색 — 직접 선택"></span>'
+        +' '+['#0d0d0d','#ffffff','#2ec4a6'].map((cq,qi)=>'<button type="button" class="ls-rvcq" data-rvcq="'+qi+'" style="background:'+cq+'" title="빠른 선택"></button>').join('')
+        +'</div></div>'; }
     h+='<div class="ls-orow"><span>지속 모션</span><div class="ls-oinline ls-trrow">'
       +'<select data-ml>'+Object.keys(ML_LABELS).map(k=>'<option value="'+k+'"'+(o.mLoop.type===k?' selected':'')+'>'+ML_LABELS[k]+'</option>').join('')+'</select>'
       +'<input type="number" data-mlamt min="0" max="2" step="0.1" value="'+(Math.max(0,Math.min(2,+o.mLoop.amt||1)).toFixed(1))+'" title="강도">'
@@ -6754,7 +6786,7 @@ void main(){
     // 모션 프리셋 — 모션 선택 시 대응 전환이 '없음'이면 같은 길이 페이드를 자동 페어링(완성된 룩 원클릭)
     p.querySelectorAll('[data-m]').forEach(el=>el.addEventListener('change',ev=>{
       const tag=el.dataset.m, m=(tag==='in')?o.mIn:o.mOut; m.type=ev.target.value;
-      if(m.type!=='none'&&m.type!=='spinrev'){ const tr=(tag==='in')?o.trIn:o.trOut;   // 스핀 리빌은 페이드 없이 불투명 유지
+      if(m.type!=='none'&&m.type!=='spinrev'&&m.type!=='type'){ const tr=(tag==='in')?o.trIn:o.trOut;   // 스핀 리빌·타이핑은 페이드 없이 불투명 유지
         if(tr&&tr.type==='none'){ tr.type='fade'; tr.dur=Math.max(0.1,Math.min(10,+m.dur||0.8));
           const s=p.querySelector('select[data-tr="'+tag+'"]'); if(s)s.value='fade';
           const d=p.querySelector('[data-trd="'+tag+'"]'); if(d)d.value=tr.dur.toFixed(1); } }
@@ -6762,15 +6794,20 @@ void main(){
           const es=p.querySelector('select[data-me="'+tag+'"]'); if(es)es.value='smooth'; }
         if(+m.dur<1){ m.dur=2.5; const d2=p.querySelector('[data-md="'+tag+'"]'); if(d2)d2.value='2.5'; } }
       { const on2=(o.mIn&&o.mIn.type==='spinrev')||(o.mOut&&o.mOut.type==='spinrev');
-        const row=p.querySelector('[data-rvrow]'); if(row) row.style.display=on2?'':'none';
-        const row2=p.querySelector('[data-rvrow2]'); if(row2) row2.style.display=on2?'':'none'; }
+        ['[data-rvrow]','[data-rvrow2]','[data-rvrow3]'].forEach(s2=>{ const row=p.querySelector(s2); if(row) row.style.display=on2?'':'none'; }); }
       scheduleUndoCommit(); }));
-    { const rk=p.querySelector('[data-rvk]'); if(rk)rk.addEventListener('input',()=>{ o.rvK=Math.max(2,Math.min(15,parseFloat(rk.value)||6)); scheduleUndoCommit(); });
+    { const rk=p.querySelector('[data-rvk]'); if(rk)rk.addEventListener('input',()=>{ o.rvK=Math.max(2,Math.min(20,parseFloat(rk.value)||6)); scheduleUndoCommit(); });
       const rt=p.querySelector('[data-rvt]'); if(rt)rt.addEventListener('input',()=>{ o.rvTurns=Math.max(0.25,Math.min(4,parseFloat(rt.value)||1.5)); scheduleUndoCommit(); });
       const rc=p.querySelector('[data-rvc]'); if(rc)rc.addEventListener('input',()=>{ o.rvColor=rc.value; scheduleUndoCommit(); });
-      const rh=p.querySelector('[data-rvh]'); if(rh)rh.addEventListener('input',()=>{ o.rvHole=Math.max(0.2,Math.min(0.95,(parseFloat(rh.value)||62)/100)); scheduleUndoCommit(); });
+      const rh=p.querySelector('[data-rvh]'); if(rh)rh.addEventListener('input',()=>{ o.rvHole=Math.max(0.2,Math.min(1.9,(parseFloat(rh.value)||62)/100)); scheduleUndoCommit(); });
       const rv2=p.querySelector('[data-rvcov]'); if(rv2)rv2.addEventListener('click',()=>{ o.rvCov=!(o.rvCov!==false); rv2.classList.toggle('on',o.rvCov!==false); scheduleUndoCommit(); });
-      const rs=p.querySelector('[data-rvs]'); if(rs)rs.addEventListener('input',()=>{ o.rvStay=Math.max(0,Math.min(60,parseFloat(rs.value)||0)); scheduleUndoCommit(); }); }
+      const rsi=p.querySelector('[data-rvsi]'); if(rsi)rsi.addEventListener('input',()=>{ o.rvStayIn=Math.max(0,Math.min(60,parseFloat(rsi.value)||0)); scheduleUndoCommit(); });
+      const rso=p.querySelector('[data-rvso]'); if(rso)rso.addEventListener('input',()=>{ o.rvStayOut=Math.max(0,Math.min(60,parseFloat(rso.value)||0)); scheduleUndoCommit(); });
+      p.querySelectorAll('[data-rvcq]').forEach(qb=>qb.addEventListener('click',()=>{      // 빠른 색: 기본 배경색·흰색·그라디언트 대표색
+        const opts=['#0d0d0d','#ffffff',((grad&&grad.colors&&grad.colors[0])||'#2ec4a6')];
+        o.rvColor=opts[+qb.dataset.rvcq]||'#0d0d0d';
+        const rc2=p.querySelector('[data-rvc]'); if(rc2)rc2.value=o.rvColor;
+        renderProjectColors(); scheduleUndoCommit(); })); }
     p.querySelectorAll('[data-md]').forEach(el=>el.addEventListener('input',ev=>{
       const m=(el.dataset.md==='in')?o.mIn:o.mOut; m.dur=Math.max(0.1,Math.min(10,parseFloat(ev.target.value)||0.8)); scheduleUndoCommit(); }));
     p.querySelectorAll('[data-me]').forEach(el=>el.addEventListener('change',ev=>{
