@@ -1054,6 +1054,9 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-rvgrid .c .in{ display:flex; gap:6px; align-items:center; height:28px; }
 .ls-rvswatch{ flex:1; min-width:0; height:26px; padding:0; border-radius:8px; border:1px solid var(--c-bd2); cursor:pointer; }
 .ls-rvswatch:hover{ border-color:var(--acc); }
+.ls-rvseq{ width:100%; padding:7px 10px; font-size:11.5px; font-weight:700; border-radius:9px;
+  border:1px dashed var(--c-bd2); background:transparent; color:var(--c-t2); cursor:pointer; }
+.ls-rvseq:hover{ border-color:var(--acc); color:var(--acc); }
 .ls-clrpop{ width:216px; }
 .ls-clrpop .sv{ position:relative; width:100%; height:112px; border-radius:8px; overflow:hidden; cursor:crosshair; margin-bottom:8px; }
 .ls-clrpop .sv canvas{ width:100%; height:100%; display:block; }
@@ -5370,18 +5373,27 @@ void main(){
         case 'pop':   r.ds*=0.55+0.45*e; break;
         case 'tilt':  r.dr-=14*u; break;
         case 'type': break;                                // 타이핑: 트랜스폼 없음 — 글자 표시는 텍스처 단계에서 처리
-        case 'spinrev': { const K=Math.max(2,Math.min(30,+o.rvK||6));      // 스핀 리빌: 중앙 로고(작성크기/K) ↔ 프레임(작성크기)
-          const ee=Math.max(0,Math.min(1.1,e));
-          r.ds*=(1/K)+(1-1/K)*ee;
+        case 'spinrev': { const K=Math.max(2,Math.min(50,+o.rvK||6));      // 스핀 리빌: 중앙 로고(작성크기/K) ↔ 프레임(작성크기)
+          let press=0, ee2=0;                                               // e<0 관례: 프레스(클릭 눌림/착지 스쿼시) — 성장 없이 |e|만큼 축소
+          if(e<0){ press=Math.min(0.2,-e); } else { ee2=Math.max(0,Math.min(1.1,e)); }
+          r.ds*=((1/K)+(1-1/K)*ee2)*(1-press);
           r.dr-=((+o.rvTurns||1.5)*360)*u; break; } } };
     if(o.mIn&&o.mIn.type&&o.mIn.type!=='none'&&+o.mIn.dur>0){
-      const st1=(o.mIn.type==='spinrev')?Math.max(0,(o.rvStayIn!=null?+o.rvStayIn:+o.rvStay||0)):0;   // 유지(등장): 닫힌 채 시작 후 st1초 뒤에 열림
-      const p=(tSec-ti-st1)/+o.mIn.dur;
-      if(p<1) ap(o.mIn,easeM(o.mIn.ease||'back',p)); }
+      if(o.mIn.type==='spinrev'){                                            // 유지 → 프레스(절대시간) → 개방(이징)
+        const st1=Math.max(0,(o.rvStayIn!=null?+o.rvStayIn:+o.rvStay||0));
+        const PT=Math.min(0.28,+o.mIn.dur*0.2), tt=tSec-ti-st1;
+        if(tt<PT) ap(o.mIn,-0.10*Math.sin(Math.max(0,tt)/PT*Math.PI));       // 닫힌 채 눌림(유지 중 tt<0 → sin(0)=0 → 정지 상태)
+        else { const p=(tt-PT)/(+o.mIn.dur-PT); if(p<1) ap(o.mIn,easeM(o.mIn.ease||'back',p)); } }
+      else { const p=(tSec-ti)/+o.mIn.dur;
+        if(p<1) ap(o.mIn,easeM(o.mIn.ease||'back',p)); } }
     if(o.mOut&&o.mOut.type&&o.mOut.type!=='none'&&+o.mOut.dur>0){
-      const st2=(o.mOut.type==='spinrev')?Math.max(0,(o.rvStayOut!=null?+o.rvStayOut:+o.rvStay||0)):0; // 유지(퇴장): 닫힘 완료 후 st2초간 유지(뚝 끊김 방지)
-      const p=(to2-tSec-st2)/+o.mOut.dur;
-      if(p<1) ap(o.mOut,easeM(o.mOut.ease||'back',p)); }
+      if(o.mOut.type==='spinrev'){                                           // 폐쇄(이징) → 착지 스쿼시(절대시간) → 유지
+        const st2=Math.max(0,(o.rvStayOut!=null?+o.rvStayOut:+o.rvStay||0));
+        const PT=Math.min(0.28,+o.mOut.dur*0.2), tt=to2-tSec-st2;            // tt: 완전 폐쇄까지 남은 시간
+        if(tt<PT) ap(o.mOut,-0.10*Math.sin(Math.max(0,tt)/PT*Math.PI));
+        else { const p=(tt-PT)/(+o.mOut.dur-PT); if(p<1) ap(o.mOut,easeM(o.mOut.ease||'back',p)); } }
+      else { const p=(to2-tSec)/+o.mOut.dur;
+        if(p<1) ap(o.mOut,easeM(o.mOut.ease||'back',p)); } }
     if(o.mLoop&&o.mLoop.type&&o.mLoop.type!=='none'&&+o.mLoop.amt>0){
       const L=o.mLoop, dur=projDur();
       const per=Math.max(0.4,Math.min(30,+L.per||3));
@@ -5505,8 +5517,8 @@ void main(){
       const mo=motionOffsets(o,tSec);                    // 모션 프리셋 오프셋(키프레임 위에 가산)
       // 스핀 리빌 가림막: 로고 구멍(내접원) 크기에 동기화된 단색 아이리스 — 로고보다 먼저 그려 팔이 경계를 덮음
       if(coverProg&&o.rvCov!==false&&((o.mIn&&o.mIn.type==='spinrev')||(o.mOut&&o.mOut.type==='spinrev'))){
-        const holeK=Math.max(0.2,Math.min(3.0,(o.rvHole==null?0.62:+o.rvHole)));
-        const K2=Math.max(2,Math.min(30,+o.rvK||6));
+        const holeK=Math.max(0.2,Math.min(5.0,(o.rvHole==null?0.62:+o.rvHole)));
+        const K2=Math.max(2,Math.min(50,+o.rvK||6));
         const q=Math.max(0,Math.min(1,(mo.ds*K2-1)/(K2-1)));   // 닫힘 진행도: ds=1/K → 0(구멍 완전 폐쇄) · ds=1 → 1
         const r=Math.max(0,(Math.min(o.w*W,o.h*Hh)/2)*oscale*mo.ds*holeK*q);
         const cx2=(ox+mo.dx)*W, cy2=(1-(oy+mo.dy))*Hh;
@@ -6329,10 +6341,12 @@ void main(){
     F.hex.addEventListener('input',()=>{ const v=_h2r(F.hex.value); if(v){ hsv=_rgb2hsv(v[0],v[1],v[2]); paint('hex'); } });
     ['r','g','b'].forEach(k2=>F[k2].addEventListener('input',()=>{ const v=[+F.r.value||0,+F.g.value||0,+F.b.value||0]; hsv=_rgb2hsv(v[0],v[1],v[2]); paint('rgb'); }));
     ['hh','hs','hl'].forEach(k2=>F[k2].addEventListener('input',()=>{ const v=_hsl2rgb(((+F.hh.value||0)%360+360)%360,Math.max(0,Math.min(100,+F.hs.value||0)),Math.max(0,Math.min(100,+F.hl.value||0))); hsv=_rgb2hsv(v[0],v[1],v[2]); paint('hsl'); }));
-    { const q=kfPop.querySelector('.qrow');                            // 빠른 선택: 기본 배경·흰색·그라디언트 대표색
-      ['#0d0d0d','#ffffff',((grad&&grad.colors&&grad.colors[0])||'#2ec4a6')].forEach(cq=>{ const b2=document.createElement('button');
+    { const q=kfPop.querySelector('.qrow');                            // 빠른 선택: 기본 3색 + 프로젝트에서 쓰는 색
+      let qc=['#0d0d0d','#ffffff',((grad&&grad.colors&&grad.colors[0])||'#2ec4a6')];
+      try{ qc=qc.concat([...collectProjColors().keys()]); }catch(e){}
+      [...new Set(qc.map(s2=>s2.toLowerCase()))].slice(0,8).forEach(cq=>{ const b2=document.createElement('button');
         b2.type='button'; b2.style.background=cq; b2.title=cq;
-        b2.addEventListener('click',()=>{ const v=_h2r(cq); hsv=_rgb2hsv(v[0],v[1],v[2]); paint(); }); q.appendChild(b2); }); }
+        b2.addEventListener('click',()=>{ const v=_h2r(cq); if(v){ hsv=_rgb2hsv(v[0],v[1],v[2]); paint(); } }); q.appendChild(b2); }); }
     paint();
   }
   // ♪ 오디오 연결 팝업 — 임의 파라미터를 대역 에너지에 실시간 링크 (키프레임 위 가산, 내보내기 반영)
@@ -6446,6 +6460,32 @@ void main(){
     const o={id:objSeq++,type:'kick',x:.5,y:.5,rot:0,opacity:1,w:0,h:0,   // w/h=0 → 캔버스 히트테스트에서 자연 제외
       ksens:1,kflo:40,kfhi:110,kgap:150,kdecay:260,kzoom:0.6,kshake:0.35};
     objs.push(o); selectObj(o.id); openPop(o.id); syncLayerTracks(); }
+  // 원클릭 인트로·아웃트로 시퀀스: 단색 배경에서 아티스트/트랙명 타이핑 → 텍스트가 로고로 교체 → 로고가 살짝 눌렸다 조리개처럼 개방(아웃트로는 역순)
+  function buildRevealSequence(logo){
+    if(!logo||logo.type!=='image'){ showError('로고(이미지) 레이어에서 실행해 주세요.'); return; }
+    const T=projDur(), col=logo.rvColor||'#0d0d0d';
+    if(T<10){ showError('프로젝트 길이가 너무 짧아요(10초 이상 권장).'); return; }
+    logo.mIn={type:'spinrev',dur:1.6,ease:'smooth'}; logo.mOut={type:'spinrev',dur:1.6,ease:'smooth'};
+    logo.rvCov=true; logo.rvStayIn=0.55; logo.rvStayOut=0.55;
+    if(logo.rvK==null||+logo.rvK<8) logo.rvK=10;
+    logo.tIn=2.3; logo.tOut=T-2.3;
+    const mkRect=(a,b2)=>({id:objSeq++,type:'shape',x:.5,y:.5,rot:0,opacity:1,w:2.2,h:2.2,
+      shape:'rect',color:col,fillMode:'fill',strokeW:6,rad:0,tIn:a,tOut:b2});
+    const mkText=(txt,y2,big,a,b2,mi,mo2)=>{ const t2={id:objSeq++,type:'text',x:.5,y:y2,rot:0,opacity:1,
+      text:txt,size:big?64:40,font:'sans',align:'center',color:'#ffffff',bold:big,w:.6,h:.1,tIn:a,tOut:b2,mIn:mi,mOut:mo2};
+      try{ measureText(t2); }catch(e){} return t2; };
+    const seq=[];
+    seq.push(mkRect(0,2.42));                                                       // 인트로 단색(가림색과 동일 → 이음새 없음)
+    seq.push(mkText('ARTIST',.46,true,0.2,2.32,{type:'type',dur:0.9,ease:'smooth'},{type:'type',dur:0.35,ease:'smooth'}));
+    seq.push(mkText('Track Title',.56,false,0.6,2.32,{type:'type',dur:0.9,ease:'smooth'},{type:'type',dur:0.35,ease:'smooth'}));
+    seq.push(mkRect(T-2.42,T));                                                     // 아웃트로 단색
+    seq.push(mkText('ARTIST',.46,true,T-2.32,T-0.15,{type:'none',dur:0.3,ease:'smooth'},{type:'type',dur:0.9,ease:'smooth'}));
+    seq.push(mkText('Track Title',.56,false,T-2.32,T-0.35,{type:'none',dur:0.3,ease:'smooth'},{type:'type',dur:0.75,ease:'smooth'}));
+    const li=objs.indexOf(logo); if(li>=0) objs.splice(li,1);                       // 순서: 콘텐츠 < 단색 < 텍스트 < 로고
+    seq.forEach(s2=>objs.push(s2)); objs.push(logo);
+    selectObj(logo.id); syncLayerTracks(); renderTimeline(); refreshObjs(); scheduleUndoCommit();
+    showError('시퀀스 구성 완료 — 텍스트 2개(ARTIST/Track Title)를 더블클릭해 내용만 바꿔 주세요.');
+  }
   function addShape(){ const o={id:objSeq++,type:'shape',x:.5,y:.5,rot:0,opacity:1,w:.3,h:.17,
       shape:'rect',color:'#ffffff',fillMode:'fill',strokeW:6,rad:0.12};
     objs.push(o); selectObj(o.id); openPop(o.id); syncLayerTracks(); }
@@ -6475,10 +6515,10 @@ void main(){
 
   function captureObjs(){ return objs.map(o=>{ const c={id:o.id,type:o.type,x:o.x,y:o.y,w:o.w,h:o.h,rot:o.rot||0,opacity:o.opacity};
     if(o.name&&o.name.trim()) c.name=o.name.trim();
-    if(o.rvK!=null) c.rvK=Math.max(2,Math.min(30,+o.rvK||6));
+    if(o.rvK!=null) c.rvK=Math.max(2,Math.min(50,+o.rvK||6));
     if(o.rvTurns!=null) c.rvTurns=Math.max(0.25,Math.min(4,+o.rvTurns||1.5));
     if(o.rvColor) c.rvColor=o.rvColor;
-    if(o.rvHole!=null) c.rvHole=Math.max(0.2,Math.min(3.0,+o.rvHole||0.62));
+    if(o.rvHole!=null) c.rvHole=Math.max(0.2,Math.min(5.0,+o.rvHole||0.62));
     if(o.rvCov===false) c.rvCov=false;
     if(o.rvStay!=null&&+o.rvStay>0) c.rvStay=Math.max(0,Math.min(60,+o.rvStay));
     if(o.rvStayIn!=null) c.rvStayIn=Math.max(0,Math.min(60,+o.rvStayIn));
@@ -6780,14 +6820,15 @@ void main(){
       const _si=Math.max(0,(o.rvStayIn!=null?+o.rvStayIn:+o.rvStay||0)), _so=Math.max(0,(o.rvStayOut!=null?+o.rvStayOut:+o.rvStay||0));
       h+='<div class="ls-osec" data-rvrow'+(rvOn?'':' style="display:none"')+'>스핀 리빌 <em class="ls-oseca">중앙 크기 = 작성 크기 ÷ 배율</em></div>'
         +'<div class="ls-rvgrid" data-rvrow2'+(rvOn?'':' style="display:none"')+'>'
-        +'<div class="c"><label>배율 ×</label><input type="number" data-rvk min="2" max="30" step="0.5" value="'+(Math.max(2,Math.min(30,+o.rvK||6)))+'"></div>'
+        +'<div class="c"><label>배율 ×</label><input type="number" data-rvk min="2" max="50" step="0.5" value="'+(Math.max(2,Math.min(50,+o.rvK||6)))+'"></div>'
         +'<div class="c"><label>회전 · 턴</label><input type="number" data-rvt min="0.25" max="4" step="0.25" value="'+(Math.max(0.25,Math.min(4,+o.rvTurns||1.5)))+'"></div>'
-        +'<div class="c"><label title="로고 크기 대비 내접원 — 100% 초과 = 로고보다 큰 구멍">구멍 %</label><input type="number" data-rvh min="20" max="300" step="1" value="'+Math.round((o.rvHole==null?0.62:+o.rvHole)*100)+'"></div>'
+        +'<div class="c"><label title="로고 크기 대비 내접원 — 100% 초과 = 로고보다 큰 구멍">구멍 %</label><input type="number" data-rvh min="20" max="500" step="1" value="'+Math.round((o.rvHole==null?0.62:+o.rvHole)*100)+'"></div>'
         +'<div class="c"><label title="열리기 전, 닫힌 상태로 머무는 시간">유지·등장 s</label><input type="number" data-rvsi min="0" max="60" step="0.5" value="'+_si+'"></div>'
         +'<div class="c"><label title="닫힌 후, 그 상태로 머무는 시간">유지·퇴장 s</label><input type="number" data-rvso min="0" max="60" step="0.5" value="'+_so+'"></div>'
         +'<div class="c"><label>가림막 · 색</label><div class="in"><button type="button" class="ls-tgl'+(o.rvCov!==false?' on':'')+'" data-rvcov title="구멍 밖을 단색으로 가림"></button>'
         +'<button type="button" class="ls-rvswatch" data-rvcbtn style="background:'+(o.rvColor||'#0d0d0d')+'" title="가림 색 — 클릭해 선택 (HEX·RGB·HSL 동시 표시)"></button></div></div>'
-        +'</div>'; }
+        +'</div>'
+        +(o.type==='image'?'<div class="ls-orow" data-rvrow4'+(rvOn?'':' style="display:none"')+'><span></span><div class="ls-oinline"><button type="button" class="ls-rvseq" data-rvseq title="단색 배경에서 아티스트/트랙명이 타이핑되고, 텍스트가 로고로 교체된 뒤 살짝 눌렸다가 조리개처럼 열리는 인트로 — 아웃트로는 역순으로 자동 구성">🎬 타이핑→로고→조리개 시퀀스 자동 구성</button></div></div>':''); }
     h+='<div class="ls-orow"><span>지속 모션</span><div class="ls-oinline ls-trrow">'
       +'<select data-ml>'+Object.keys(ML_LABELS).map(k=>'<option value="'+k+'"'+(o.mLoop.type===k?' selected':'')+'>'+ML_LABELS[k]+'</option>').join('')+'</select>'
       +'<input type="number" data-mlamt min="0" max="2" step="0.1" value="'+(Math.max(0,Math.min(2,+o.mLoop.amt||1)).toFixed(1))+'" title="강도">'
@@ -6874,17 +6915,18 @@ void main(){
           const es=p.querySelector('select[data-me="'+tag+'"]'); if(es)es.value='smooth'; }
         if(+m.dur<1){ m.dur=2.5; const d2=p.querySelector('[data-md="'+tag+'"]'); if(d2)d2.value='2.5'; } }
       { const on2=(o.mIn&&o.mIn.type==='spinrev')||(o.mOut&&o.mOut.type==='spinrev');
-        ['[data-rvrow]','[data-rvrow2]'].forEach(s2=>{ const row=p.querySelector(s2); if(row) row.style.display=on2?'':'none'; }); }
+        ['[data-rvrow]','[data-rvrow2]','[data-rvrow4]'].forEach(s2=>{ const row=p.querySelector(s2); if(row) row.style.display=on2?'':'none'; }); }
       scheduleUndoCommit(); }));
-    { const rk=p.querySelector('[data-rvk]'); if(rk)rk.addEventListener('input',()=>{ o.rvK=Math.max(2,Math.min(30,parseFloat(rk.value)||6)); scheduleUndoCommit(); });
+    { const rk=p.querySelector('[data-rvk]'); if(rk)rk.addEventListener('input',()=>{ o.rvK=Math.max(2,Math.min(50,parseFloat(rk.value)||6)); scheduleUndoCommit(); });
       const rt=p.querySelector('[data-rvt]'); if(rt)rt.addEventListener('input',()=>{ o.rvTurns=Math.max(0.25,Math.min(4,parseFloat(rt.value)||1.5)); scheduleUndoCommit(); });
 
-      const rh=p.querySelector('[data-rvh]'); if(rh)rh.addEventListener('input',()=>{ o.rvHole=Math.max(0.2,Math.min(3.0,(parseFloat(rh.value)||62)/100)); scheduleUndoCommit(); });
+      const rh=p.querySelector('[data-rvh]'); if(rh)rh.addEventListener('input',()=>{ o.rvHole=Math.max(0.2,Math.min(5.0,(parseFloat(rh.value)||62)/100)); scheduleUndoCommit(); });
       const rv2=p.querySelector('[data-rvcov]'); if(rv2)rv2.addEventListener('click',()=>{ o.rvCov=!(o.rvCov!==false); rv2.classList.toggle('on',o.rvCov!==false); scheduleUndoCommit(); });
       const rsi=p.querySelector('[data-rvsi]'); if(rsi)rsi.addEventListener('input',()=>{ o.rvStayIn=Math.max(0,Math.min(60,parseFloat(rsi.value)||0)); scheduleUndoCommit(); });
       const rso=p.querySelector('[data-rvso]'); if(rso)rso.addEventListener('input',()=>{ o.rvStayOut=Math.max(0,Math.min(60,parseFloat(rso.value)||0)); scheduleUndoCommit(); });
       { const cb=p.querySelector('[data-rvcbtn]'); if(cb)cb.addEventListener('click',ev=>{ ev.stopPropagation();
-        openColorPop(cb,o.rvColor||'#0d0d0d',v=>{ o.rvColor=v; cb.style.background=v; renderProjectColors(); scheduleUndoCommit(); }); }); } }
+        openColorPop(cb,o.rvColor||'#0d0d0d',v=>{ o.rvColor=v; cb.style.background=v; renderProjectColors(); scheduleUndoCommit(); }); }); }
+      { const sq=p.querySelector('[data-rvseq]'); if(sq)sq.addEventListener('click',()=>buildRevealSequence(o)); } }
     p.querySelectorAll('[data-md]').forEach(el=>el.addEventListener('input',ev=>{
       const m=(el.dataset.md==='in')?o.mIn:o.mOut; m.dur=Math.max(0.1,Math.min(10,parseFloat(ev.target.value)||0.8)); scheduleUndoCommit(); }));
     p.querySelectorAll('[data-me]').forEach(el=>el.addEventListener('change',ev=>{
@@ -7076,6 +7118,14 @@ void main(){
     if(zb) zb.addEventListener('click',reset);
     document.addEventListener('keydown',e=>{ if(!root.isConnected) return;
       if((e.ctrlKey||e.metaKey)&&e.key==='0'&&!e.target.closest('input,textarea,select')){ e.preventDefault(); reset(); } }); }
+  // 모든 색상 입력을 커스텀 피커(HEX·RGB·HSL 동시)로 — 네이티브 다이얼로그 차단, value+input/change 디스패치로 기존 와이어링 그대로 동작
+  root.addEventListener('click',e=>{
+    const inp=e.target.closest('input[type=color]'); if(!inp) return;
+    e.preventDefault(); e.stopPropagation();
+    openColorPop(inp, inp.value||'#000000', v=>{ inp.value=v;
+      inp.dispatchEvent(new Event('input',{bubbles:true}));
+      inp.dispatchEvent(new Event('change',{bubbles:true})); });
+  },true);
   root.querySelectorAll('.ls-lyr-addbtn').forEach(b=>b.addEventListener('click',()=>{ const t=b.dataset.add; if(t==='text')addText(); else if(t==='image')addImage(); else if(t==='shape')addShape(); else if(t==='spectrum')addSpectrum(); else if(t==='progress')addProgress(); else if(t==='kick')addKick();
     else if(t==='audio'){ if(tracks.length>=MAXTR) showError('음원 트랙은 최대 '+MAXTR+'개예요.'); else aInput.click(); }
     else if(t==='lfx') addFilterLayer(); }));
