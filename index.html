@@ -5393,7 +5393,7 @@ void main(){
         if(tt<PT) ap(o.mOut,-0.10*Math.sin(Math.max(0,tt)/PT*Math.PI));
         else { const p=(tt-PT)/(+o.mOut.dur-PT); if(p<1) ap(o.mOut,easeM(o.mOut.ease||'back',p)); } }
       else { const p=(to2-tSec)/+o.mOut.dur;
-        if(p<1) ap(o.mOut,easeM(o.mOut.ease||'back',p)); } }
+        if(p<1) ap(o.mOut,1-easeM(o.mOut.ease||'back',1-p)); } }   // 퇴장은 이징 미러(가속 이탈) — back 오버슛이 끝부분에 실려 밖으로 쫀득하게 나감
     if(o.mLoop&&o.mLoop.type&&o.mLoop.type!=='none'&&+o.mLoop.amt>0){
       const L=o.mLoop, dur=projDur();
       const per=Math.max(0.4,Math.min(30,+L.per||3));
@@ -5647,6 +5647,7 @@ void main(){
     return m; }
   let _pcSig='';
   function renderProjectColors(force){ const box=Q('#ls_projcolors'); if(!box)return;
+    if(document.querySelector('.ls-clrpop'))return;   // 커스텀 피커 세션 동안 슬롯 DOM 동결(force 포함) — 입력 노드가 분리되면 위임 이벤트가 유실됨
     if(!force&&document.activeElement&&box.contains(document.activeElement))return;   // 피커 조작 중 재생성 금지
     const m=collectProjColors(); const sig=[...m.keys()].map(k=>k+':'+m.get(k).length).join('|');
     if(!force&&sig===_pcSig)return; _pcSig=sig;
@@ -6107,7 +6108,8 @@ void main(){
   header.querySelectorAll('.ls-menubtn').forEach(btn=>{ btn.addEventListener('click',e=>{ e.stopPropagation();
     const pop=btn.nextElementSibling; const willOpen=!pop.classList.contains('on'); closeMenus();
     pop.classList.toggle('on',willOpen); btn.classList.toggle('open',willOpen); }); });
-  document.addEventListener('pointerdown',e=>{ if(root.isConnected && !e.target.closest('.ls-menu') && !e.target.closest('.ls-addpop') && !e.target.closest('.ls-addlane')) closeMenus(); });
+  document.addEventListener('pointerdown',e=>{ const t=(e.target&&e.target.closest)?e.target:null;   // e.target이 document 등 비요소일 수 있음
+    if(root.isConnected && (!t || (!t.closest('.ls-menu') && !t.closest('.ls-addpop') && !t.closest('.ls-addlane')))) closeMenus(); });
   // 레이어 블렌드 모드 (인스펙터 셀렉트에서 사용)
   const BLENDS=[['normal','노멀'],['add','더하기'],['multiply','곱하기'],['screen','스크린'],['overlay','오버레이']];
   // (배경효과는 인스펙터 장면 패널에 상시 인라인 표시 — 팝오버 토글 제거됨)
@@ -7370,7 +7372,8 @@ void main(){
 
   // ===== 키프레임 팝업 · 클립보드 · 단축키 =====
   let kfPop=null, kfClip=null, kfTip=null;
-  function closeKfPop(){ if(kfPop){ kfPop.remove(); kfPop=null; } }
+  function closeKfPop(){ if(kfPop){ const wasClr=!!(kfPop.classList&&kfPop.classList.contains('ls-clrpop')); kfPop.remove(); kfPop=null;
+    if(wasClr) setTimeout(()=>{ try{ renderProjectColors(true); }catch(e){} },0); } }   // 피커 닫힘 후 팔레트 동기화(재오픈 시엔 위 동결 가드가 무해화)
   function showKfTip(x,y,t,v){ if(!kfTip){ kfTip=document.createElement('div'); kfTip.className='ls-kftip'; document.body.appendChild(kfTip); }
     kfTip.textContent=t.toFixed(2)+'s · '+(Math.abs(v)<10?v.toFixed(2):Math.round(v));
     kfTip.style.left=(x+14)+'px'; kfTip.style.top=(y-28)+'px'; kfTip.style.display='block'; }
@@ -7873,7 +7876,10 @@ void main(){
   renderTimeline();
   ['dragenter','dragover'].forEach(ev=>stage.addEventListener(ev,e=>{e.preventDefault();stage.classList.add('drag');}));
   ['dragleave','drop'].forEach(ev=>stage.addEventListener(ev,e=>{e.preventDefault();stage.classList.remove('drag');}));
-  stage.addEventListener('drop',e=>{const f=e.dataTransfer.files[0]; if(f&&f.type.startsWith('image/'))setBackground(f,true);});
+  stage.addEventListener('drop',e=>{const f=e.dataTransfer.files[0]; if(!f)return;
+    if(f.type.startsWith('image/'))setBackground(f,true);
+    else if(f.type.startsWith('video/'))showError('영상 파일은 배경으로 쓸 수 없어요 — 배경은 이미지(JPG/PNG)만 지원해요.');
+    else if(f.type.startsWith('audio/'))showError('오디오는 하단 오디오 패널의 트랙 추가로 넣어 주세요.');});
 
   // recording — 1순위: 오프라인 정밀 렌더(WebCodecs+mp4-muxer, 프레임 단위·결정적·드랍 없음)
   //             2순위: 실시간 MediaRecorder 폴백(WebCodecs 미지원 브라우저)
