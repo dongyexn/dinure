@@ -775,6 +775,31 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-lyr-x:hover{ color:#fff; background:color-mix(in srgb,#ff6b6b 80%,transparent); }
 .ls-lyr-nmedit{ flex:1; min-width:0; font-size:12px; font-weight:600; color:var(--c-t1); background:var(--c-bg);
   border:1px solid var(--acc); border-radius:6px; padding:2px 6px; outline:none; font-family:inherit; }
+/* 레이어 그룹 — 폴더식 헤더 행 + 멤버 들여쓰기 */
+.ls-lyr-grp{ display:flex; align-items:center; gap:7px; padding:7px 9px; border:1px solid var(--c-bd);
+  border-radius:9px; background:color-mix(in srgb,var(--c-t1) 5%,var(--c-card)); cursor:pointer; transition:.12s; }
+.ls-lyr-grp:hover{ border-color:var(--c-bd2); }
+.ls-lyr-grp.sel{ border-color:var(--acc); background:color-mix(in srgb,var(--acc) 14%,transparent); }
+.ls-lyr-grp .garr{ flex:none; width:16px; height:16px; display:flex; align-items:center; justify-content:center;
+  font-size:9px; color:var(--c-t3); border-radius:4px; transition:transform .12s; }
+.ls-lyr-grp.fold .garr{ transform:rotate(-90deg); }
+.ls-lyr-grp .gnm{ flex:1; min-width:0; font-size:12px; font-weight:700; color:var(--c-t1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ls-lyr-grp .gcnt{ flex:none; font-size:10px; font-weight:700; color:var(--c-t3); }
+.ls-lyr-grp .gx{ flex:none; width:20px; height:20px; display:flex; align-items:center; justify-content:center;
+  border-radius:6px; color:var(--c-t3); font-size:12px; cursor:pointer; }
+.ls-lyr-grp .gx:hover{ color:var(--acc); background:var(--c-hov); }
+.ls-lyr-row.ing{ margin-left:16px; }
+/* 프로젝트 폰트 — 폰트별 일괄 교체 행 */
+.ls-pfrow{ display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.ls-pfrow select{ flex:1; min-width:0; }
+.ls-pfcnt{ flex:none; font-size:10.5px; font-weight:700; color:var(--c-t3); }
+/* 모션 겹침 행 */
+.ls-mxrow .ls-mxdel{ flex:none; width:18px; height:18px; display:flex; align-items:center; justify-content:center;
+  border:none; background:transparent; border-radius:5px; color:var(--c-t3); font-size:13px; line-height:1; cursor:pointer; }
+.ls-mxrow .ls-mxdel:hover{ color:#fff; background:color-mix(in srgb,#ff6b6b 80%,transparent); }
+.ls-mxadd{ font-size:11px; font-weight:600; color:var(--c-t3); background:transparent; border:1px dashed var(--c-bd);
+  border-radius:8px; padding:5px 8px; cursor:pointer; margin:0 0 8px; width:100%; }
+.ls-mxadd:hover{ color:var(--acc); border-color:var(--acc); }
 /* 우클릭 컨텍스트 메뉴 (피그마식) */
 .ls-ctxmenu{ position:fixed; z-index:10001; min-width:172px; display:none; flex-direction:column; padding:5px;
   background:color-mix(in srgb, var(--panel,#181818) 85%, transparent);
@@ -4265,6 +4290,7 @@ function createArtwork(){
           <button class="ls-lyr-addbtn" data-add="audio" title="음원 트랙 추가 — 최대 3개">＋음원</button>
           <button class="ls-lyr-addbtn" data-add="text" title="텍스트 오버레이">＋텍스트</button>
           <button class="ls-lyr-addbtn" data-add="image" title="이미지/로고 오버레이">＋이미지</button>
+          <button class="ls-lyr-addbtn" data-add="video" title="영상 오버레이 — 파일을 캔버스에 드래그해서 놓아도 추가돼요 (MP4/WebM · 소리는 음원 트랙 사용)">＋영상</button>
           <button class="ls-lyr-addbtn" data-add="shape" title="선·원·네모·세모 등 도형">＋쉐이프</button>
           <button class="ls-lyr-addbtn" data-add="progress" title="뮤직 플레이어 레이아웃">＋레이아웃</button>
           <button class="ls-lyr-addbtn" data-add="spectrum" title="오디오 반응 스펙트럼">＋스펙트럼</button>
@@ -4303,6 +4329,8 @@ function createArtwork(){
           <div class="ls-tabpane">
           <div class="ls-osec">프로젝트 컬러</div>
           <div class="ls-pcwrap" id="ls_projcolors"></div>
+          <div class="ls-osec">프로젝트 폰트</div>
+          <div id="ls_projfonts"></div>
           <div class="ls-osec">영상 페이드</div>
           <div class="ls-grid ls-ggrid">
               <div class="ls-orow" style="margin:0"><span class="ls-scrub">인</span><div class="ls-oinline ls-xy"><input type="number" id="ls_vfi" step="0.1" min="0" max="600" value="0"> s</div></div>
@@ -4564,6 +4592,7 @@ void main(){
     im.onload=()=>{ const cols=extractPalette(im,4);
       if(!cols){ if(!silent)showError('팔레트를 추출하지 못했어요.'); return; }
       grad.colors=cols; grad.stops=null;                    // 새 팔레트 → 폭 균등 초기화
+      if(bgType==='image') setBgType(bgSrc?'both':'gradient');   // 그라디언트가 꺼져 있으면 켬 — 꺼진 채로는 적용돼도 화면에 안 보임(미적용 오류)
       try{ renderGradColors(); }catch(e){}
       scheduleUndoCommit();
       if(!silent)showError('이미지 팔레트를 그라디언트에 적용했어요.'); };
@@ -5138,6 +5167,15 @@ void main(){
     let e=layerTexCache.get(o.id); if(!e){ e={tex:mkLayerTex(),key:null,w:2,h:2}; layerTexCache.set(o.id,e); }
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);   // 프리멀티플라이드 업로드 — 투명 텍셀의 검정 RGB가 밉맵/보간에 섞여 생기는 어두운 테두리 방지
+    if(o.type==='video'){
+      const v=o.vid; if(!v||v.readyState<2||!v.videoWidth) return null;
+      const fkey='v|'+o.id+'|'+v.currentTime.toFixed(3)+'|'+v.videoWidth;   // 현재 프레임 시각이 바뀔 때만 재업로드
+      if(e.key!==fkey){ gl.bindTexture(gl.TEXTURE_2D,e.tex);
+        try{ gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,v); }catch(err){ return null; }
+        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);   // 매 프레임 업로드 — 밉맵 생략(성능)
+        e.key=fkey; e.w=v.videoWidth; e.h=v.videoHeight; }
+      return e;
+    }
     if(o.type==='image'){
       if(!(o.img&&o.img.complete&&o.img.naturalWidth)) return null;
       const key=layerContentKey(o,W,H);
@@ -5386,6 +5424,8 @@ void main(){
         else { const p=(tt-PT)/(+o.mIn.dur-PT); if(p<1) ap(o.mIn,easeM(o.mIn.ease||'back',p)); } }
       else { const p=(tSec-ti)/+o.mIn.dur;
         if(p<1) ap(o.mIn,easeM(o.mIn.ease||'back',p)); } }
+    (o.mInX||[]).forEach(m=>{ if(!m||!m.type||m.type==='none'||!(+m.dur>0)||m.type==='spinrev'||m.type==='type')return;   // 겹침 등장 모션 — 오프셋 가산으로 자연 중첩
+      const p=(tSec-ti)/+m.dur; if(p<1) ap(m,easeM(m.ease||'back',p)); });
     if(o.mOut&&o.mOut.type&&o.mOut.type!=='none'&&+o.mOut.dur>0){
       if(o.mOut.type==='spinrev'){                                           // 폐쇄(이징) → 착지 스쿼시(절대시간) → 유지
         const st2=Math.max(0,(o.rvStayOut!=null?+o.rvStayOut:+o.rvStay||0));
@@ -5394,8 +5434,10 @@ void main(){
         else { const p=(tt-PT)/(+o.mOut.dur-PT); if(p<1) ap(o.mOut,easeM(o.mOut.ease||'back',p)); } }
       else { const p=(to2-tSec)/+o.mOut.dur;
         if(p<1) ap(o.mOut,1-easeM(o.mOut.ease||'back',1-p)); } }   // 퇴장은 이징 미러(가속 이탈) — back 오버슛이 끝부분에 실려 밖으로 쫀득하게 나감
-    if(o.mLoop&&o.mLoop.type&&o.mLoop.type!=='none'&&+o.mLoop.amt>0){
-      const L=o.mLoop, dur=projDur();
+    (o.mOutX||[]).forEach(m=>{ if(!m||!m.type||m.type==='none'||!(+m.dur>0)||m.type==='spinrev'||m.type==='type')return;   // 겹침 퇴장 모션
+      const p=(to2-tSec)/+m.dur; if(p<1) ap(m,1-easeM(m.ease||'back',1-p)); });
+    const apLoop=L=>{ if(!L||!L.type||L.type==='none'||!(+L.amt>0))return;
+      const dur=projDur();
       const per=Math.max(0.4,Math.min(30,+L.per||3));
       const N=Math.max(1,Math.round(dur/per));           // 주기 스냅: dur/N ≈ per → 루프 이음새 없음
       const ph=2*Math.PI*((tSec-ti)*N/dur);              // t=tIn에서 중립 시작
@@ -5405,7 +5447,8 @@ void main(){
         case 'sway':      r.dx+=Math.sin(ph)*0.035*a; break;
         case 'pulse':     r.ds*=1+Math.sin(ph)*0.06*a; break;
         case 'tiltswing': r.dr+=Math.sin(ph)*8*a; break;
-        case 'orbit':     r.dx+=Math.sin(ph)*0.03*a; r.dy+=(1-Math.cos(ph))*0.03*a; break; } }
+        case 'orbit':     r.dx+=Math.sin(ph)*0.03*a; r.dy+=(1-Math.cos(ph))*0.03*a; break; } };
+    apLoop(o.mLoop); (o.mLoopX||[]).forEach(apLoop);     // 지속 모션도 겹침 가능 — 둥실+펄스 등 합성
     return r; }
 
   // ===== 필터 프리셋 — 룩 파라미터 레시피(강도 슬라이더로 전체 스케일) =====
@@ -5509,6 +5552,7 @@ void main(){
     const W=canvas.width,Hh=canvas.height;
     for(const o of list){
       if(o.hidden||!layerVisible(o,tSec)) continue;   // 숨김 레이어는 프리뷰·내보내기 모두 제외(피그마식)
+      if(o.type==='video') syncVideoRT(o,tSec);       // 비디오: 프로젝트 시간축에 맞춰 재생/일시정지/드리프트 보정
       const ent=getLayerTexture(o,W,Hh); if(!ent) continue;
       const stx=applyLayerFx(o,ent.tex,ent.w,ent.h,tSec);
       const ka='obj'+o.id+'_'; const an=(pk,d)=>{ const a2=auto[ka+pk]; return (a2&&a2.on&&((a2.pts&&a2.pts.length)||(a2.lk&&a2.lk.on)))?autoVal(ka+pk,tSec,d):d; };
@@ -5656,10 +5700,34 @@ void main(){
   { const box=Q('#ls_projcolors'); if(box){
     box.addEventListener('input',e=>{ const inp=e.target.closest('input[type=color]'); if(!inp)return;
       const from=inp.dataset.pc, to=inp.value.toLowerCase(); if(!from||from===to)return;
-      const uses=collectProjColors().get(from)||[]; uses.forEach(fn=>fn(to)); inp.dataset.pc=to;
+      // 세션 첫 변경 시 교체 대상(클로저)을 노드에 고정 — 드래그 도중 다른 팔레트 색과 값이 겹쳐도
+      // 대상이 병합되거나 유실되지 않음(기존 '교체 미적용/엉뚱한 색까지 교체' 오류의 원인)
+      if(!inp._pcUses||!inp._pcUses.length) inp._pcUses=collectProjColors().get(from)||[];
+      inp._pcUses.forEach(fn=>fn(to)); inp.dataset.pc=to;
       renderGradColors(); refreshObjs();
       if(objPop&&objPop.classList.contains('on')&&selId!=null) openPop(selId); });   // 열려 있는 인스펙터의 색 칩 동기화
     box.addEventListener('change',()=>{ scheduleUndoCommit(); renderProjectColors(true); }); } }
+  // ── 프로젝트 폰트 — 쓰인 폰트를 한자리에 모아 일괄 교체 (텍스트·뮤직 플레이어 레이아웃) ──
+  function collectProjFonts(){ const m=new Map();
+    const add=(key,apply)=>{ if(!key||!FONT_LABELS[key])return; if(!m.has(key))m.set(key,[]); m.get(key).push(apply); };
+    objs.forEach(o=>{
+      if(o.type==='text') add(o.font||'sans',v=>{ o.font=v; try{layerTexCache.delete(o.id);}catch(e){} try{measureText(o);}catch(e){} });
+      if(o.type==='progress') add(o.ptfont||'sans',v=>{ o.ptfont=v; }); });
+    return m; }
+  let _pfSig='';
+  function renderProjectFonts(force){ const box=Q('#ls_projfonts'); if(!box)return;
+    if(!force&&document.activeElement&&box.contains(document.activeElement))return;   // 셀렉트 조작 중 재생성 금지
+    const m=collectProjFonts(); const sig=[...m.keys()].map(k=>k+':'+m.get(k).length).join('|');
+    if(!force&&sig===_pfSig)return; _pfSig=sig;
+    box.innerHTML=m.size?[...m.entries()].map(([k,u])=>'<div class="ls-pfrow" title="'+(FONT_LABELS[k]||k)+' · '+u.length+'곳에서 사용 — 바꾸면 전부 교체">'
+        +'<select data-pf="'+k+'">'+fontOpts(k)+'</select><span class="ls-pfcnt">'+u.length+'곳</span></div>').join('')
+      :'<div style="font-size:11px;color:var(--c-t3);padding:2px 0 4px">아직 사용된 폰트가 없어요 — 텍스트·레이아웃 폰트가 여기 모여요</div>'; }
+  { const box=Q('#ls_projfonts'); if(box){
+    box.addEventListener('change',e=>{ const sel=e.target.closest('select[data-pf]'); if(!sel)return;
+      const from=sel.dataset.pf, to=sel.value; if(!from||from===to||!FONT_LABELS[to])return;
+      (collectProjFonts().get(from)||[]).forEach(fn=>fn(to)); sel.dataset.pf=to;
+      refreshObjs(); scheduleUndoCommit(); renderProjectFonts(true);
+      if(objPop&&objPop.classList.contains('on')&&selId!=null) openPop(selId); }); } }   // 열려 있는 인스펙터의 폰트 셀렉트 동기화
   function renderGradColors(){ const box=Q('#ls_gcolors'); if(!box)return;
     let h='';
     for(let i=0;i<5;i++){
@@ -5798,10 +5866,10 @@ void main(){
   const UNDO_MAX=50;
   let _hist=[], _hi=-1, _undoApplying=false, _undoTimer=null;
   const _imgSrcs={};
-  function _snapObjs(){ return captureObjs().map(c=>{ if(c.type==='image'&&c.src){ _imgSrcs[c.id]=c.src; const d=Object.assign({},c); d.src='@img:'+c.id; return d; } return c; }); }
-  function _restObjs(arr){ return (arr||[]).map(c=>{ if(c.type==='image'&&typeof c.src==='string'&&c.src.indexOf('@img:')===0){ const d=Object.assign({},c); d.src=_imgSrcs[+c.src.slice(5)]||''; return d; } return c; }); }
+  function _snapObjs(){ return captureObjs().map(c=>{ if((c.type==='image'||c.type==='video')&&c.src){ _imgSrcs[c.id]=c.src; const d=Object.assign({},c); d.src='@img:'+c.id; return d; } return c; }); }
+  function _restObjs(arr){ return (arr||[]).map(c=>{ if((c.type==='image'||c.type==='video')&&typeof c.src==='string'&&c.src.indexOf('@img:')===0){ const d=Object.assign({},c); d.src=_imgSrcs[+c.src.slice(5)]||''; return d; } return c; }); }
   function _snapshot(){ return JSON.stringify({
-    vals:captureVals(), auto:captureAuto(), objs:_snapObjs(),
+    vals:captureVals(), auto:captureAuto(), objs:_snapObjs(), groups:groupMeta,
     bgType:bgType, grad:captureGrad(),
     dur:st.dur||60, markers:markers.slice(), waIn:waIn, waOut:waOut,
     vfadeIn:st.vfadeIn||0, vfadeOut:st.vfadeOut||0,
@@ -5820,6 +5888,7 @@ void main(){
       applyVals(s2.vals||{});
       if(s2.grad)applyGrad(s2.grad); if(s2.bgType)setBgType(s2.bgType);
       applyObjs(_restObjs(s2.objs));
+      groupMeta=(s2.groups&&typeof s2.groups==='object')?s2.groups:{}; pruneGroupMeta();
       applyAuto(s2.auto||{});
       (s2.trk||[]).forEach(m=>{ const t=tracks.find(x=>x.id===m.id); if(t){ t.startAt=m.startAt; t.trimStart=m.trimStart; t.trimEnd=m.trimEnd; t.fadeIn=m.fadeIn; t.fadeOut=m.fadeOut; if(m.vol!=null)t.vol=m.vol; if(m.bass!=null)t.bass=m.bass; if(m.treble!=null)t.treble=m.treble; } });
       renderTimeline(); refreshObjs();
@@ -6060,14 +6129,15 @@ void main(){
       bg:bgSrc||null,
       bgType:bgType, grad:captureGrad(),
       markers:markers.slice(), waIn:waIn, waOut:waOut,
-      vals:captureVals(), auto:captureAuto(), objs:captureObjs(),
+      vals:captureVals(), auto:captureAuto(), objs:captureObjs(), groups:JSON.parse(JSON.stringify(groupMeta)),
       trk:tracks.map(t=>({id:t.id,name:t.name,startAt:t.startAt,trimStart:t.trimStart,trimEnd:t.trimEnd,fadeIn:t.fadeIn||0,fadeOut:t.fadeOut||0,vol:(t.vol==null?1:t.vol),bass:(t.bass||0),treble:(t.treble||0),data:t.data||null,mime:t.mime||null,fname:t.fname||null}))
     };
   }
   // ===== 프로젝트 로드 전 전체 상태 초기화 (이전 프로젝트 설정이 남지 않도록 완전 격리) =====
   function resetArtworkState(){
     stopSources(); tracks=[]; tlPlaying=false; tlFromT=0; selTrack=null;   // 오디오
-    objs=[]; selId=null; selIds=new Set(); closePop(); try{ layerTexCache.clear(); }catch(e){} // 오브젝트
+    objs.forEach(q=>{ if(q.vid){ try{ q.vid.pause(); q.vid.removeAttribute('src'); q.vid.load(); }catch(e){} } });   // 비디오 정리
+    objs=[]; selId=null; selIds=new Set(); groupMeta={}; closePop(); try{ layerTexCache.clear(); }catch(e){} // 오브젝트
     for(const k in auto) delete auto[k]; autoKeys=[];                        // 오토메이션
     clearBackground();                                                       // 배경 이미지
     applyGrad(null); setBgType('image');                                    // 그라디언트 기본값·소스 타입 초기화
@@ -6088,6 +6158,7 @@ void main(){
     if(p.bg) setBackground(p.bg);                          // 없으면 이미 초기화(빈 배경) 상태
     applyGrad(p.grad||null); setBgType((p.bgType==='gradient'||p.bgType==='both')?p.bgType:'image');  // 구버전 프로젝트는 image
     applyVals(p.vals||{}); applyObjs(p.objs||[]); applyAuto(p.auto||{});
+    groupMeta=(p.groups&&typeof p.groups==='object')?JSON.parse(JSON.stringify(p.groups)):{}; pruneGroupMeta();
     if(Array.isArray(p.trk) && p.trk.some(m=>m&&m.data)) restoreTracks(p.trk);  // 임베딩된 음원만 복원
     else if(Array.isArray(p.trk)&&p.trk.length) showError('음원은 용량 문제로 클라우드 프리셋에 포함되지 않아요 — 파일을 다시 추가해 주세요.');
     renderTimeline(); refreshObjs();
@@ -6140,7 +6211,7 @@ void main(){
   const clamp01=v=>Math.max(0,Math.min(1,v));
   const escapeHtml=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   function findObj(id){ return objs.find(o=>o.id===id); }
-  function objName(o){ if(o&&o.name&&o.name.trim()) return o.name.trim(); if(o&&o.type==='lfx') return '필터: '+(FILTER_LABELS[o.fkind]||o.fkind||''); return o.type==='text'?('텍스트: '+(o.text||'').replace(/\n/g,' ').slice(0,12)):(o.type==='image'?'이미지':(o.type==='progress'?'레이아웃':(o.type==='kick'?'킥 펄스':(o.type==='shape'?'쉐이프':'스펙트럼')))); }
+  function objName(o){ if(o&&o.name&&o.name.trim()) return o.name.trim(); if(o&&o.type==='lfx') return '필터: '+(FILTER_LABELS[o.fkind]||o.fkind||''); return o.type==='text'?('텍스트: '+(o.text||'').replace(/\n/g,' ').slice(0,12)):(o.type==='image'?'이미지':(o.type==='video'?'영상':(o.type==='progress'?'레이아웃':(o.type==='kick'?'킥 펄스':(o.type==='shape'?'쉐이프':'스펙트럼'))))); }
 
   function measureText(o){
     const W=canvas.width||1080, H=canvas.height||1920, px=o.size*(H/1080);
@@ -6206,12 +6277,40 @@ void main(){
     if(!wrap._reorderWired){ lsDragReorder(wrap,'.ls-lyr-row',ids=>commitLayerOrderFromVisual(ids,true)); wrap._reorderWired=true; }
     wrap.innerHTML='';
     if(!objs.length){ return; }
-    const TAG={text:'텍스트',image:'이미지',shape:'쉐이프',spectrum:'스펙트럼',progress:'레이아웃',kick:'킥',lfx:'필터'};
+    pruneGroupMeta();
+    const TAG={text:'텍스트',image:'이미지',video:'영상',shape:'쉐이프',spectrum:'스펙트럼',progress:'레이아웃',kick:'킥',lfx:'필터'};
+    const seenG=new Set();
     objs.slice().reverse().forEach(o=>{        // 앞(위) 레이어가 목록 상단
-      const r=document.createElement('div'); r.className='ls-lyr-row'+(selIds.has(o.id)?' sel':'')+(o.hidden?' hid':''); r.dataset.id=o.id;
+      // ── 그룹 헤더: 해당 그룹의 최상단 멤버 직전에 폴더 행 삽입 ──
+      if(o.gid!=null&&!seenG.has(o.gid)){ seenG.add(o.gid);
+        const gm=ensureGroupMeta(o.gid), gids=groupIds(o.gid);
+        const allSel=gids.length&&gids.every(i2=>selIds.has(i2));
+        const gr=document.createElement('div'); gr.className='ls-lyr-grp'+(allSel?' sel':'')+(gm.collapsed?' fold':''); gr.dataset.gid=o.gid;
+        const ar=document.createElement('span'); ar.className='garr'; ar.textContent='▾'; ar.title=gm.collapsed?'그룹 펼치기':'그룹 접기';
+        const gn=document.createElement('div'); gn.className='gnm'; gn.textContent=gm.name||('그룹 '+o.gid); gn.title='클릭=그룹 전체 선택 · 더블클릭=이름 바꾸기';
+        const gc=document.createElement('span'); gc.className='gcnt'; gc.textContent=gids.length;
+        const gx=document.createElement('span'); gx.className='gx'; gx.textContent='⛓'; gx.title='그룹 해제 (Ctrl+Shift+G)';
+        gr.appendChild(ar); gr.appendChild(gn); gr.appendChild(gc); gr.appendChild(gx);
+        ar.addEventListener('click',ev=>{ ev.stopPropagation(); gm.collapsed=!gm.collapsed; renderObjList(); });
+        gx.addEventListener('click',ev=>{ ev.stopPropagation(); selIds=new Set(gids); selId=gids[gids.length-1]||null; ungroupSelected(); });
+        gr.addEventListener('click',()=>{ selIds=new Set(gids); selId=gids[gids.length-1]||null; selTrack=null; refreshObjs(); syncSelPop(); });
+        gn.addEventListener('dblclick',ev=>{ ev.stopPropagation();
+          const inp=document.createElement('input'); inp.className='ls-lyr-nmedit'; inp.value=gm.name||''; gn.replaceWith(inp); inp.focus(); inp.select();
+          const done=()=>{ gm.name=(inp.value||'').trim()||('그룹 '+o.gid); renderObjList(); scheduleUndoCommit(); };
+          inp.addEventListener('keydown',ke=>{ if(ke.key==='Enter')done(); if(ke.key==='Escape')renderObjList(); });
+          inp.addEventListener('blur',done); inp.addEventListener('click',ke=>ke.stopPropagation()); });
+        gr.addEventListener('contextmenu',ev=>{ ev.preventDefault(); ev.stopPropagation();
+          selIds=new Set(gids); selId=gids[gids.length-1]||null; refreshObjs(); syncSelPop();
+          const m=ensureCtx(); m.innerHTML='';
+          m.appendChild(ctxItem('그룹 해제','⌘⇧G',()=>ungroupSelected()));
+          m.appendChild(ctxItem('그룹 삭제','',()=>{ gids.forEach(delObj); },true));
+          placeCtx(m,ev.clientX,ev.clientY); });
+        wrap.appendChild(gr); }
+      const gm2=(o.gid!=null)?groupMeta[o.gid]:null;
+      const r=document.createElement('div'); r.className='ls-lyr-row'+(selIds.has(o.id)?' sel':'')+(o.hidden?' hid':'')+(o.gid!=null?' ing':''); r.dataset.id=o.id;
+      if(gm2&&gm2.collapsed) r.style.display='none';       // 접힌 그룹 멤버 — 순서 커밋을 위해 DOM에는 유지, 표시만 숨김
       const tag=document.createElement('span'); tag.className='ls-lyr-tag'; tag.textContent=TAG[o.type]||'?';
-      const nm=document.createElement('div'); nm.className='ls-lyr-nm'; nm.textContent=objName(o)+(o.gid!=null?' ⛓':'');
-      if(o.gid!=null) nm.title='그룹 G'+o.gid+' — 캔버스에서 클릭=그룹 전체, 더블클릭=개별';
+      const nm=document.createElement('div'); nm.className='ls-lyr-nm'; nm.textContent=objName(o);
       const eye=document.createElement('button'); eye.className='ls-lyr-ic'+(o.hidden?' act':''); eye.title=o.hidden?'다시 표시':'숨기기';
       eye.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/>'+(o.hidden?'<line x1="4" y1="20" x2="20" y2="4"/>':'')+'</svg>';
       eye.addEventListener('click',ev=>{ ev.stopPropagation(); o.hidden=!o.hidden; refreshObjs(); scheduleUndoCommit(); });
@@ -6418,7 +6517,7 @@ void main(){
   }
   // 캔버스 우클릭 시 목록 행이 없을 때 대비한 플로팅 이름 편집 (간단히 목록 렌더 후 재시도)
   function beginRenameFloat(id){ refreshObjs(); const el=root.querySelector('.ls-lyr-row[data-id="'+id+'"] .ls-lyr-nm'); if(el) beginRename(id,el); }
-  function refreshObjs(){ renderObjLayer(); renderObjList(); syncLayerNames(); try{renderProjectColors();}catch(e){} scheduleUndoCommit(); }
+  function refreshObjs(){ renderObjLayer(); renderObjList(); syncLayerNames(); try{renderProjectColors();}catch(e){} try{renderProjectFonts();}catch(e){} scheduleUndoCommit(); }
   // 레이어 이름 변경(개명·텍스트 내용 수정)을 타임라인 라벨·클립에 즉시 반영 — 재빌드 없이 텍스트만
   function syncLayerNames(){ objs.forEach(o=>{ const nm=objName(o);
     root.querySelectorAll('.ls-rlabel.layer[data-id="'+o.id+'"] .ls-rl-name, .ls-lane.layer[data-id="'+o.id+'"] .ls-clip-name')
@@ -6427,26 +6526,35 @@ void main(){
   function selectObjAdd(id){                             // Shift+클릭 토글(피그마식)
     if(selIds.has(id)){ selIds.delete(id); if(selId===id) selId=selIds.size?[...selIds][selIds.size-1]:null; }
     else { selIds.add(id); selId=id; }
-    if(selIds.size!==1) closePop();
-    selTrack=null; refreshObjs(); }
+    selTrack=null; refreshObjs(); syncSelPop(); }
   function syncLayerTracks(){ try{ if(typeof renderTimeline==='function') renderTimeline(); }catch(e){} scheduleUndoCommit(); }
   let groupSeq=1;
+  let groupMeta={};                                       // gid → {name, collapsed} — 레이어 패널 그룹 헤더 표시용
+  function ensureGroupMeta(gid){ if(!groupMeta[gid]) groupMeta[gid]={name:'그룹 '+gid,collapsed:false}; return groupMeta[gid]; }
+  function pruneGroupMeta(){ const live=new Set(objs.filter(q=>q.gid!=null).map(q=>q.gid));
+    Object.keys(groupMeta).forEach(k=>{ if(!live.has(+k)) delete groupMeta[k]; }); }
+  // 선택 개수에 맞는 인스펙터로 동기화 — 2개 이상=다중 선택 패널, 1개=단일, 0개=닫기
+  function syncSelPop(){ if(selIds.size>1) openMultiPop(); else if(selIds.size===1&&selId!=null&&findObj(selId)) openPop(selId); else closePop(); }
   function groupIds(gid){ return objs.filter(q=>q.gid===gid).map(q=>q.id); }
   function groupSelected(){ const ids=[...selIds]; if(ids.length<2){ showError('두 개 이상 선택한 뒤 Ctrl+G로 묶어요.'); return; }
     const g=groupSeq++; ids.forEach(i2=>{ const q=findObj(i2); if(q&&q.type!=='kick'&&q.type!=='lfx') q.gid=g; });
-    refreshObjs(); scheduleUndoCommit(); showError('그룹으로 묶었어요 ('+ids.length+'개) — 더블클릭=개별 선택, Ctrl+Shift+G=해제'); }
+    ensureGroupMeta(g);
+    refreshObjs(); syncSelPop(); scheduleUndoCommit(); showError('그룹으로 묶었어요 ('+ids.length+'개) — 더블클릭=개별 선택, Ctrl+Shift+G=해제'); }
   function ungroupSelected(){ const ids=selIds.size?[...selIds]:(selId!=null?[selId]:[]);
     const gids=new Set(); ids.forEach(i2=>{ const q=findObj(i2); if(q&&q.gid!=null) gids.add(q.gid); });
     if(!gids.size) return;
     let n=0; objs.forEach(q=>{ if(q.gid!=null&&gids.has(q.gid)){ delete q.gid; n++; } });   // 멤버 하나만 골라도 그룹 전체 해제
-    if(n){ refreshObjs(); scheduleUndoCommit(); showError('그룹을 해제했어요 ('+n+'개).'); } }
+    gids.forEach(g=>delete groupMeta[g]);
+    if(n){ refreshObjs(); syncSelPop(); scheduleUndoCommit(); showError('그룹을 해제했어요 ('+n+'개).'); } }
   function dupObj(id){ const o=findObj(id); if(!o)return;
     // (복제본은 그룹 미승계 — 아래 c 생성 후 gid 제거)
-    const c=JSON.parse(JSON.stringify(Object.assign({},o,{img:undefined})));
+    const c=JSON.parse(JSON.stringify(Object.assign({},o,{img:undefined,vid:undefined})));
     c.id=objSeq++; c.x=clamp01((o.x||0.5)+0.03); c.y=clamp01((o.y||0.5)+0.03); delete c.gid;
     if(o.type==='image'){ c.src=o.src; c.img=o.img; }   // 동일 이미지 참조 재사용(텍스처는 id별 캐시)
+    else if(o.type==='video'){ c.src=o.src; try{ makeVideoEl(c); }catch(e){} }   // 비디오는 독립 재생 헤드 필요 — 엘리먼트 새로 생성
     objs.push(c); selectObj(c.id); syncLayerTracks(); showError('레이어를 복제했어요 (Ctrl+D).'); }
-  function delObj(id){ objs=objs.filter(o=>o.id!==id); const e=layerTexCache.get(id); if(e){ try{gl.deleteTexture(e.tex);}catch(err){} layerTexCache.delete(id); }
+  function delObj(id){ { const oo=findObj(id); if(oo&&oo.vid){ try{ oo.vid.pause(); oo.vid.removeAttribute('src'); oo.vid.load(); }catch(e){} } }
+    objs=objs.filter(o=>o.id!==id); const e=layerTexCache.get(id); if(e){ try{gl.deleteTexture(e.tex);}catch(err){} layerTexCache.delete(id); }
     selIds.delete(id); if(selId===id){ selId=selIds.size?[...selIds][selIds.size-1]:null; if(selId==null)closePop(); } refreshObjs(); syncLayerTracks(); }
 
   function addText(){ const o={id:objSeq++,type:'text',x:.5,y:.5,rot:0,opacity:1,text:'텍스트',size:72,font:'sans',align:'center',color:'#ffffff',bold:true,w:.3,h:.1};
@@ -6494,6 +6602,52 @@ void main(){
   function addSpectrum(){ const o={id:objSeq++,type:'spectrum',x:.5,y:.82,rot:0,opacity:.9,w:.84,h:.16,color:'#ffffff',freqLo:40,freqHi:8000,bars:44,barRound:0};
     objs.push(o); selectObj(o.id); openPop(o.id); syncLayerTracks(); }
   let curObjT=0;
+  // ===== 영상(비디오) 레이어 — 드래그&드롭 또는 ＋영상 버튼으로 추가 =====
+  // 프로젝트 시간축(tSec-tIn)에 맞춰 자체 길이로 반복 재생. 소리는 포함하지 않음(음원 트랙 사용).
+  function videoTargetT(o,tSec){ const ti=o.tIn||0, d=Math.max(0.1,+o.vdur||((o.vid&&o.vid.duration)||1));
+    let vt=(tSec-ti)%d; if(vt<0)vt+=d; return Math.min(Math.max(0,vt),Math.max(0,d-0.001)); }
+  function syncVideoRT(o,tSec){ const v=o.vid; if(!v||offlineRendering)return;   // 오프라인 렌더는 seekVideosExact가 프레임 정밀 시킹
+    const vt=videoTargetT(o,tSec);
+    if(playing||tlPlaying||recording){
+      if(v.paused){ try{ v.currentTime=vt; }catch(e){} try{ v.play().catch(()=>{}); }catch(e){} }
+      else if(Math.abs(v.currentTime-vt)>0.3){ try{ v.currentTime=vt; }catch(e){} }   // 루프 랩/시킹 드리프트 보정
+    } else {
+      if(!v.paused){ try{ v.pause(); }catch(e){} }
+      if(!v._seeking&&Math.abs(v.currentTime-vt)>0.05){ v._seeking=true;
+        const fin=()=>{ v._seeking=false; v.removeEventListener('seeked',fin); };
+        v.addEventListener('seeked',fin); setTimeout(fin,400);
+        try{ v.currentTime=vt; }catch(e){ fin(); } } } }
+  async function seekVideosExact(t){                                     // 오프라인 정밀 렌더용 — seeked 대기
+    const vids=objs.filter(q=>q.type==='video'&&q.vid&&!q.hidden);
+    for(const o of vids){ const v=o.vid; if(v.readyState<1)continue;
+      try{ if(!v.paused)v.pause(); }catch(e){}
+      const vt=videoTargetT(o,t); if(Math.abs(v.currentTime-vt)<0.001)continue;
+      await new Promise(res=>{ let done=false; const fin=()=>{ if(!done){ done=true; v.removeEventListener('seeked',fin); res(); } };
+        v.addEventListener('seeked',fin); setTimeout(fin,400);
+        try{ v.currentTime=vt; }catch(e){ fin(); } }); } }
+  function makeVideoEl(o){ const v=document.createElement('video');
+    v.muted=true; v.playsInline=true; v.preload='auto'; v.loop=false;
+    v.addEventListener('loadedmetadata',()=>{ o.ar=(v.videoWidth/Math.max(1,v.videoHeight))||o.ar||1;
+      o.vdur=Math.max(0.1,v.duration||o.vdur||1); refreshObjs(); });
+    v.src=o.src; o.vid=v; return v; }
+  function addVideoFromFile(f){ if(!f||!f.type||!f.type.startsWith('video/'))return;
+    if(f.size>80*1024*1024){ showError('영상이 너무 커요 (80MB 이하 권장) — 짧게 잘라 다시 시도해 주세요.'); return; }
+    const rd=new FileReader();
+    rd.onload=()=>{ const src=rd.result; const v=document.createElement('video');
+      v.muted=true; v.playsInline=true; v.preload='auto'; v.loop=false;
+      v.onerror=()=>showError('영상을 불러오지 못했어요 — MP4(H.264)/WebM 코덱을 지원해요.');
+      v.onloadedmetadata=()=>{ const ar=(v.videoWidth/Math.max(1,v.videoHeight))||1;
+        const W=canvas.width||1080,H=canvas.height||1920; let w=.55,h=w*(W/H)/ar; if(h>.8){ h=.8; w=h*ar*(H/W); }
+        const o={id:objSeq++,type:'video',x:.5,y:.5,rot:0,opacity:1,w:w,h:h,vid:v,src:src,ar:ar,vdur:Math.max(0.1,v.duration||1)};
+        try{ v.currentTime=0; }catch(e){}
+        objs.push(o); selectObj(o.id); openPop(o.id); syncLayerTracks();
+        showError('영상 레이어를 추가했어요 — 클립 시작부터 반복 재생돼요. 소리는 음원 트랙으로 넣어 주세요.'+(f.size>30*1024*1024?' (큰 파일이라 프로젝트 저장 용량이 커질 수 있어요)':'')); };
+      v.src=src; };
+    rd.onerror=()=>showError('영상 파일을 읽지 못했어요.');
+    rd.readAsDataURL(f); }
+  function addVideo(){ const inp=document.createElement('input'); inp.type='file'; inp.accept='video/*';
+    inp.onchange=()=>{ const f=inp.files&&inp.files[0]; if(f)addVideoFromFile(f); };
+    inp.click(); }
   function addImage(){ const inp=document.createElement('input'); inp.type='file'; inp.accept='image/*';
     inp.onchange=()=>{ const f=inp.files&&inp.files[0]; if(!f)return; const rd=new FileReader();
       rd.onload=()=>{ const src=rd.result; const img=new Image();
@@ -6540,10 +6694,18 @@ void main(){
     if(o.trOut&&TR_ID[o.trOut.type]>0) c.trOut={type:o.trOut.type,dur:Math.max(0.1,Math.min(10,+o.trOut.dur||0.6))};
     if(o.mIn&&MI_LABELS[o.mIn.type]&&o.mIn.type!=='none') c.mIn={type:o.mIn.type,dur:Math.max(0.1,Math.min(10,+o.mIn.dur||0.8)),ease:(ME_LABELS[o.mIn.ease]?o.mIn.ease:'back')};
     if(o.mOut&&MO_LABELS[o.mOut.type]&&o.mOut.type!=='none') c.mOut={type:o.mOut.type,dur:Math.max(0.1,Math.min(10,+o.mOut.dur||0.8)),ease:(ME_LABELS[o.mOut.ease]?o.mOut.ease:'back')};
+    { const sx=(arr,LAB)=>(Array.isArray(arr)?arr:[]).filter(m=>m&&LAB[m.type]&&m.type!=='none'&&m.type!=='spinrev'&&m.type!=='type').slice(0,2)
+        .map(m=>({type:m.type,dur:Math.max(0.1,Math.min(10,+m.dur||0.8)),ease:(ME_LABELS[m.ease]?m.ease:'back')}));
+      const a1=sx(o.mInX,MI_LABELS); if(a1.length)c.mInX=a1;
+      const a2=sx(o.mOutX,MO_LABELS); if(a2.length)c.mOutX=a2;
+      const a3=(Array.isArray(o.mLoopX)?o.mLoopX:[]).filter(m=>m&&ML_LABELS[m.type]&&m.type!=='none').slice(0,2)
+        .map(m=>({type:m.type,amt:Math.max(0,Math.min(2,+m.amt||1)),per:Math.max(0.4,Math.min(30,+m.per||3))}));
+      if(a3.length)c.mLoopX=a3; }
     if(o.mLoop&&ML_LABELS[o.mLoop.type]&&o.mLoop.type!=='none') c.mLoop={type:o.mLoop.type,amt:Math.max(0,Math.min(2,+o.mLoop.amt||1)),per:Math.max(0.4,Math.min(30,+o.mLoop.per||3))};
     if(o.noLook) c.noLook=true;
     if(o.type==='text') Object.assign(c,{text:o.text,size:o.size,font:o.font,align:o.align,color:o.color,bold:o.bold,lsp:o.lsp||0,lyricOn:!!o.lyricOn,lyrics:o.lyrics||''});
     else if(o.type==='image') c.src=o.src;
+    else if(o.type==='video'){ c.src=o.src; if(+o.vdur>0)c.vdur=+o.vdur; if(o.ar)c.ar=o.ar; }
     else if(o.type==='progress') Object.assign(c,{color:o.color,ptitle:o.ptitle||'',partist:o.partist||'',ptfont:o.ptfont||'sans',ptsize:+o.ptsize||17,pasize:+o.pasize||12});
     else if(o.type==='shape') Object.assign(c,{shape:o.shape||'rect',color:o.color,fillMode:o.fillMode||'fill',strokeW:+o.strokeW||6,rad:+o.rad||0});
     else if(o.type==='kick') Object.assign(c,{ksens:+o.ksens||1,kflo:+o.kflo||40,kfhi:+o.kfhi||110,kgap:+o.kgap||150,kdecay:+o.kdecay||260,kzoom:(o.kzoom!=null?+o.kzoom:0.6),kshake:(o.kshake!=null?+o.kshake:0.35)});
@@ -6551,6 +6713,7 @@ void main(){
     else if(o.type==='spectrum') Object.assign(c,{color:o.color,freqLo:o.freqLo,freqHi:o.freqHi,bars:o.bars,sstyle:o.sstyle||'bars',barRound:o.barRound||0});
     return c; }); }
   function applyObjs(arr){ if(!Array.isArray(arr)) return;   // 오브젝트 정보 없는 구버전 프리셋은 현재 오브젝트 유지
+    objs.forEach(q=>{ if(q.vid){ try{ q.vid.pause(); q.vid.removeAttribute('src'); q.vid.load(); }catch(e){} } });   // 기존 비디오 정리
     objs=[]; selId=null; selIds=new Set(); closePop(); layerTexCache.clear();
     arr.forEach(c=>{ if(c&&c.type==='particles') return;   // 파티클 레이어 기능 제거 — 구 프로젝트 레이어는 건너뜀
       if(c&&c.gid!=null&&c.gid>=groupSeq) groupSeq=c.gid+1;
@@ -6566,8 +6729,14 @@ void main(){
       o.trOut=(o.trOut&&TR_ID[o.trOut.type]>0)?{type:o.trOut.type,dur:Math.max(0.1,Math.min(10,+o.trOut.dur||0.6))}:null;
       o.mIn=(o.mIn&&MI_LABELS[o.mIn.type]&&o.mIn.type!=='none')?{type:o.mIn.type,dur:Math.max(0.1,Math.min(10,+o.mIn.dur||0.8)),ease:(ME_LABELS[o.mIn.ease]?o.mIn.ease:'back')}:null;
       o.mOut=(o.mOut&&MO_LABELS[o.mOut.type]&&o.mOut.type!=='none')?{type:o.mOut.type,dur:Math.max(0.1,Math.min(10,+o.mOut.dur||0.8)),ease:(ME_LABELS[o.mOut.ease]?o.mOut.ease:'back')}:null;
+      { const sx=(arr,LAB)=>(Array.isArray(arr)?arr:[]).filter(m=>m&&LAB[m.type]&&m.type!=='none'&&m.type!=='spinrev'&&m.type!=='type').slice(0,2)
+          .map(m=>({type:m.type,dur:Math.max(0.1,Math.min(10,+m.dur||0.8)),ease:(ME_LABELS[m.ease]?m.ease:'back')}));
+        o.mInX=sx(o.mInX,MI_LABELS); o.mOutX=sx(o.mOutX,MO_LABELS);
+        o.mLoopX=(Array.isArray(o.mLoopX)?o.mLoopX:[]).filter(m=>m&&ML_LABELS[m.type]&&m.type!=='none').slice(0,2)
+          .map(m=>({type:m.type,amt:Math.max(0,Math.min(2,+m.amt||1)),per:Math.max(0.4,Math.min(30,+m.per||3))})); }
       o.mLoop=(o.mLoop&&ML_LABELS[o.mLoop.type]&&o.mLoop.type!=='none')?{type:o.mLoop.type,amt:Math.max(0,Math.min(2,+o.mLoop.amt||1)),per:Math.max(0.4,Math.min(30,+o.mLoop.per||3))}:null;
       if(o.type==='image'&&o.src){ o.img=new Image(); o.img.onload=()=>refreshObjs(); o.img.src=o.src; }
+      if(o.type==='video'&&o.src){ try{ makeVideoEl(o); }catch(e){} }
       objs.push(o); objSeq=Math.max(objSeq,(o.id||0)+1); });
     refreshObjs(); syncLayerTracks(); }
 
@@ -6581,8 +6750,48 @@ void main(){
   function openProjPanel(){ selId=null; selIds=new Set(); if(objPop) objPop.classList.remove('on'); selTrack=null;
     const s=sceneEl(); if(s) s.classList.add('hidden');
     const pr=Q('#ls_proj'); if(pr) pr.classList.remove('hidden');
-    renderObjLayer(); renderObjList(); try{ renderProjectColors(true); }catch(e){} }
+    renderObjLayer(); renderObjList(); try{ renderProjectColors(true); }catch(e){} try{ renderProjectFonts(true); }catch(e){} }
   function closePop(){ if(objPop) objPop.classList.remove('on'); selTrack=null; showScene(true); }
+  // ===== 다중 선택 인스펙터 — 2개 이상 선택 시 공통 속성·정렬·그룹 작업 =====
+  function openMultiPop(){ const ids=[...selIds].filter(i2=>findObj(i2)); if(ids.length<2){ syncSelPop(); return; }
+    const list=ids.map(findObj);
+    const p=ensurePop();
+    const avgOp=list.reduce((s,q)=>s+(+q.opacity||0),0)/list.length;
+    const gidSet=new Set(list.filter(q=>q.gid!=null).map(q=>q.gid));
+    const sameGroup=(gidSet.size===1&&list.every(q=>q.gid!=null));
+    let h='<div class="ls-opop-h"><span>'+ids.length+'개 레이어 선택'+(sameGroup?' · '+((groupMeta[[...gidSet][0]]||{}).name||'그룹'):'')+'</span><span class="ls-opop-x" data-x>×</span></div>';
+    h+='<div class="ls-osec">공통 속성</div>';
+    h+='<div class="ls-orow"><span>투명도</span><div class="ls-oinline"><input type="range" data-mop min="0" max="1" step="0.01" value="'+avgOp.toFixed(2)+'"><span class="ls-oval" data-mopv>'+Math.round(avgOp*100)+'%</span></div></div>';
+    h+='<div class="ls-osec">정렬 · 분배 <em class="ls-oseca">선택 묶음 기준</em></div>';
+    h+='<div class="ls-orow"><span>정렬</span><div class="ls-oseg ls-align" style="flex:1">'+
+       [['l','⇤','왼쪽 정렬'],['cx','↔','가로 가운데'],['r','⇥','오른쪽 정렬'],['t','⤒','위 정렬'],['cy','↕','세로 가운데'],['b','⤓','아래 정렬']]
+       .map(a=>'<button data-mal="'+a[0]+'" title="'+a[2]+'">'+a[1]+'</button>').join('')+'</div></div>';
+    h+='<div class="ls-orow"><span>분배</span><div class="ls-oseg" style="flex:1"><button data-mal="dx" title="가로 균등 분배 (3개 이상)">⋯ 가로</button><button data-mal="dy" title="세로 균등 분배 (3개 이상)">⋮ 세로</button></div></div>';
+    h+='<div class="ls-osec">그룹</div>';
+    h+='<div class="ls-orow"><span></span><div class="ls-oinline" style="gap:6px">'+
+       (sameGroup?'<button class="ls-act" data-mungrp style="flex:1">그룹 해제 (⌘⇧G)</button>'
+                 :'<button class="ls-act" data-mgrp style="flex:1">그룹으로 묶기 (⌘G)</button>'+(gidSet.size?'<button class="ls-act" data-mungrp style="flex:1">그룹 해제</button>':''))+'</div></div>';
+    h+='<div class="ls-osec">일괄 작업</div>';
+    h+='<div class="ls-orow"><span></span><div class="ls-oinline" style="gap:6px">'+
+       '<button class="ls-act" data-mdup style="flex:1">복제 (⌘D)</button>'+
+       '<button class="ls-act" data-mhide style="flex:1">'+(list.every(q=>q.hidden)?'모두 표시':'모두 숨김')+'</button>'+
+       '<button class="ls-act" data-mdel style="flex:1;color:#ff6b6b">삭제</button></div></div>';
+    h+='<div class="ls-omhint">Shift+클릭·마퀴 드래그로 선택을 조절할 수 있어요 · 캔버스 드래그로 함께 이동돼요.</div>';
+    p.innerHTML=h; p.classList.add('on'); selTrack=null; showScene(false);
+    p.querySelector('[data-x]').addEventListener('click',()=>{ selId=null; selIds.clear(); closePop(); refreshObjs(); });
+    { const mo=p.querySelector('[data-mop]'); if(mo)mo.addEventListener('input',()=>{ const v=Math.max(0,Math.min(1,parseFloat(mo.value)||0));
+        ids.forEach(i2=>{ const q=findObj(i2); if(q)q.opacity=v; });
+        const l=p.querySelector('[data-mopv]'); if(l)l.textContent=Math.round(v*100)+'%'; scheduleUndoCommit(); }); }
+    p.querySelectorAll('[data-mal]').forEach(b=>b.addEventListener('click',()=>alignSel(b.dataset.mal)));
+    { const g=p.querySelector('[data-mgrp]'); if(g)g.addEventListener('click',groupSelected);
+      const u=p.querySelector('[data-mungrp]'); if(u)u.addEventListener('click',ungroupSelected);
+      const d=p.querySelector('[data-mdup]'); if(d)d.addEventListener('click',()=>{ const nids=[];
+        ids.forEach(i2=>{ const q=findObj(i2); if(!q)return; dupObj(i2); nids.push(objs[objs.length-1].id); });
+        if(nids.length){ selIds=new Set(nids); selId=nids[nids.length-1]; refreshObjs(); syncSelPop(); } });
+      const hd=p.querySelector('[data-mhide]'); if(hd)hd.addEventListener('click',()=>{ const on=!list.every(q=>q.hidden);
+        ids.forEach(i2=>{ const q=findObj(i2); if(q)q.hidden=on; }); refreshObjs(); scheduleUndoCommit(); openMultiPop(); });
+      const dl=p.querySelector('[data-mdel]'); if(dl)dl.addEventListener('click',()=>{ ids.forEach(delObj); }); }
+  }
   function positionPop(o){}  // 도킹 인스펙터(우측 고정) — 플로팅 좌표 계산 불필요
   // ===== 오디오 트랙 인스펙터 (#4: 볼륨 · 페이드) =====
   function selectTrack(id){ if(!tracks.find(t=>t.id===id))return; selId=null; selTrack=id; refreshObjs(); openTrackPop(id); renderTimeline(); }
@@ -6751,6 +6960,11 @@ void main(){
       h+=rowRange('opacity','투명도',0,1,0.01,o.opacity,Math.round(o.opacity*100)+'%');
       h+=rowRange('rot','회전',-180,180,1,o.rot,o.rot+'°');
       h+='<div class="ls-orow"><span>팔레트</span><button type="button" class="ls-act" data-imgpal style="flex:1;justify-content:center" title="이 이미지의 대표색을 뽑아 배경 그라디언트에 적용">이미지 팔레트 → 그라디언트</button></div>';
+    } else if(o.type==='video'){
+      h+=rowRange('opacity','투명도',0,1,0.01,o.opacity,Math.round(o.opacity*100)+'%');
+      h+=rowRange('rot','회전',-180,180,1,o.rot,o.rot+'°');
+      h+='<div class="ls-orow"><span>길이</span><div class="ls-oinline"><span class="ls-oval" style="min-width:0">'+(+o.vdur?(+o.vdur).toFixed(1)+'s · 클립 시작부터 반복':'로딩 중…')+'</span></div></div>';
+      h+='<div class="ls-ghint" style="margin:2px 2px 6px">소리는 포함되지 않아요 — 하단 오디오 패널의 음원 트랙을 함께 사용해 주세요</div>';
     } else if(o.type==='shape'){
       h+='<div class="ls-orow"><span>종류</span><select data-f="shape" style="flex:1;min-width:0">'+Object.keys(SHAPE_KINDS).map(k=>'<option value="'+k+'"'+((o.shape||'rect')===k?' selected':'')+'>'+SHAPE_KINDS[k]+'</option>').join('')+'</select></div>';
       h+='<div class="ls-orow"><span>색</span><input type="color" data-f="color" value="'+o.color+'"></div>';
@@ -6814,10 +7028,20 @@ void main(){
     const mSel=(tag,m,LAB)=>'<select data-m="'+tag+'">'+Object.keys(LAB).map(k=>'<option value="'+k+'"'+(m.type===k?' selected':'')+'>'+LAB[k]+'</option>').join('')+'</select>'
       +'<input type="number" data-md="'+tag+'" min="0.1" max="10" step="0.1" value="'+(Math.max(0.1,Math.min(10,+m.dur||0.8)).toFixed(1))+'" title="길이(초)"><em>s</em>'
       +'<select data-me="'+tag+'" class="ls-mease" title="이징(가속 곡선)">'+Object.keys(ME_LABELS).map(k=>'<option value="'+k+'"'+((m.ease||'back')===k?' selected':'')+'>'+ME_LABELS[k]+'</option>').join('')+'</select>';
+    const XLAB={left:MI_LABELS.left,right:MI_LABELS.right,up:MI_LABELS.up,down:MI_LABELS.down,pop:MI_LABELS.pop,tilt:MI_LABELS.tilt};   // 겹침용 — 스핀 리빌·타이핑 제외
+    const mxRow=(tag,i,m)=>'<div class="ls-orow ls-mxrow"><span>겹침 '+(i+1)+'</span><div class="ls-oinline ls-trrow">'
+      +'<select data-mxt="'+tag+':'+i+'">'+Object.keys(XLAB).map(k=>'<option value="'+k+'"'+(m.type===k?' selected':'')+'>'+XLAB[k]+'</option>').join('')+'</select>'
+      +'<input type="number" data-mxd="'+tag+':'+i+'" min="0.1" max="10" step="0.1" value="'+(Math.max(0.1,Math.min(10,+m.dur||0.8)).toFixed(1))+'" title="길이(초)"><em>s</em>'
+      +'<select data-mxe="'+tag+':'+i+'" class="ls-mease" title="이징(가속 곡선)">'+Object.keys(ME_LABELS).map(k=>'<option value="'+k+'"'+((m.ease||'back')===k?' selected':'')+'>'+ME_LABELS[k]+'</option>').join('')+'</select>'
+      +'<button type="button" class="ls-mxdel" data-mxdel="'+tag+':'+i+'" title="겹침 모션 삭제">×</button></div></div>';
     { const MIL=(o.type==='text')?Object.assign({},MI_LABELS,{type:'타이핑 ✍'}):MI_LABELS;
-      h+='<div class="ls-orow"><span>등장 모션</span><div class="ls-oinline ls-trrow">'+mSel('in',o.mIn,MIL)+'</div></div>'; }
+      h+='<div class="ls-orow"><span>등장 모션</span><div class="ls-oinline ls-trrow">'+mSel('in',o.mIn,MIL)+'</div></div>';
+      (o.mInX=Array.isArray(o.mInX)?o.mInX:[]).forEach((m,i)=>{ h+=mxRow('in',i,m); });
+      if(o.mInX.length<2) h+='<button type="button" class="ls-mxadd" data-mxadd="in" title="슬라이드+팝처럼 등장 모션을 겹쳐 동시에 적용해요">＋ 등장 모션 겹치기</button>'; }
     { const MOL=(o.type==='text')?Object.assign({},MO_LABELS,{type:'타이핑 ⌫'}):MO_LABELS;
-      h+='<div class="ls-orow"><span>퇴장 모션</span><div class="ls-oinline ls-trrow">'+mSel('out',o.mOut,MOL)+'</div></div>'; }
+      h+='<div class="ls-orow"><span>퇴장 모션</span><div class="ls-oinline ls-trrow">'+mSel('out',o.mOut,MOL)+'</div></div>';
+      (o.mOutX=Array.isArray(o.mOutX)?o.mOutX:[]).forEach((m,i)=>{ h+=mxRow('out',i,m); });
+      if(o.mOutX.length<2) h+='<button type="button" class="ls-mxadd" data-mxadd="out" title="슬라이드+틸트처럼 퇴장 모션을 겹쳐 동시에 적용해요">＋ 퇴장 모션 겹치기</button>'; }
     { const rvOn=(o.mIn&&o.mIn.type==='spinrev')||(o.mOut&&o.mOut.type==='spinrev');
       const _si=Math.max(0,(o.rvStayIn!=null?+o.rvStayIn:+o.rvStay||0)), _so=Math.max(0,(o.rvStayOut!=null?+o.rvStayOut:+o.rvStay||0));
       h+='<div class="ls-osec" data-rvrow'+(rvOn?'':' style="display:none"')+'>스핀 리빌 <em class="ls-oseca">중앙 크기 = 작성 크기 ÷ 배율</em></div>'
@@ -6835,6 +7059,14 @@ void main(){
       +'<select data-ml>'+Object.keys(ML_LABELS).map(k=>'<option value="'+k+'"'+(o.mLoop.type===k?' selected':'')+'>'+ML_LABELS[k]+'</option>').join('')+'</select>'
       +'<input type="number" data-mlamt min="0" max="2" step="0.1" value="'+(Math.max(0,Math.min(2,+o.mLoop.amt||1)).toFixed(1))+'" title="강도">'
       +'<input type="number" data-mlper min="0.4" max="30" step="0.1" value="'+(Math.max(0.4,Math.min(30,+o.mLoop.per||3)).toFixed(1))+'" title="주기(초) — 루프에 맞게 자동 스냅"><em>s</em></div></div>';
+    { const LX={float:ML_LABELS.float,sway:ML_LABELS.sway,pulse:ML_LABELS.pulse,tiltswing:ML_LABELS.tiltswing,orbit:ML_LABELS.orbit};
+      (o.mLoopX=Array.isArray(o.mLoopX)?o.mLoopX:[]).forEach((m,i)=>{
+        h+='<div class="ls-orow ls-mxrow"><span>겹침 '+(i+1)+'</span><div class="ls-oinline ls-trrow">'
+          +'<select data-mxt="loop:'+i+'">'+Object.keys(LX).map(k=>'<option value="'+k+'"'+(m.type===k?' selected':'')+'>'+LX[k]+'</option>').join('')+'</select>'
+          +'<input type="number" data-mxa="loop:'+i+'" min="0" max="2" step="0.1" value="'+(Math.max(0,Math.min(2,+m.amt||1)).toFixed(1))+'" title="강도">'
+          +'<input type="number" data-mxp="loop:'+i+'" min="0.4" max="30" step="0.1" value="'+(Math.max(0.4,Math.min(30,+m.per||3)).toFixed(1))+'" title="주기(초)"><em>s</em>'
+          +'<button type="button" class="ls-mxdel" data-mxdel="loop:'+i+'" title="겹침 모션 삭제">×</button></div></div>'; });
+      if(o.mLoopX.length<2) h+='<button type="button" class="ls-mxadd" data-mxadd="loop" title="둥실+펄스처럼 지속 모션을 겹쳐 동시에 적용해요">＋ 지속 모션 겹치기</button>'; }
     h+='<div class="ls-osec">전환</div>';
     h+='<div class="ls-orow"><span>등장 전환</span><div class="ls-oinline ls-trrow">'+trSel('in',o.trIn)+'</div></div>';
     h+='<div class="ls-orow"><span>퇴장 전환</span><div class="ls-oinline ls-trrow">'+trSel('out',o.trOut)+'</div></div>';
@@ -6936,6 +7168,20 @@ void main(){
     { const ml=p.querySelector('[data-ml]'); if(ml)ml.addEventListener('change',ev=>{ o.mLoop.type=ev.target.value; scheduleUndoCommit(); });
       const ma=p.querySelector('[data-mlamt]'); if(ma)ma.addEventListener('input',()=>{ o.mLoop.amt=Math.max(0,Math.min(2,parseFloat(ma.value)||0)); scheduleUndoCommit(); });
       const mp2=p.querySelector('[data-mlper]'); if(mp2)mp2.addEventListener('input',()=>{ o.mLoop.per=Math.max(0.4,Math.min(30,parseFloat(mp2.value)||3)); scheduleUndoCommit(); }); }
+    // 겹침 모션(등장/퇴장/지속) — 추가·삭제·편집
+    { const arrOf=tag=>tag==='in'?o.mInX:(tag==='out'?o.mOutX:o.mLoopX);
+      const parse=el=>{ const s=el.dataset.mxt||el.dataset.mxd||el.dataset.mxe||el.dataset.mxa||el.dataset.mxp||el.dataset.mxdel; const q=s.split(':'); return {tag:q[0],i:+q[1]}; };
+      p.querySelectorAll('[data-mxadd]').forEach(b=>b.addEventListener('click',()=>{ const tag=b.dataset.mxadd; const arr=arrOf(tag);
+        if(arr.length>=2)return;
+        arr.push(tag==='loop'?{type:'pulse',amt:1,per:3}:{type:'pop',dur:0.8,ease:'back'});
+        scheduleUndoCommit(); openPop(o.id); }));
+      p.querySelectorAll('[data-mxdel]').forEach(b=>b.addEventListener('click',()=>{ const q=parse(b); const arr=arrOf(q.tag);
+        if(arr&&arr[q.i]!=null){ arr.splice(q.i,1); scheduleUndoCommit(); openPop(o.id); } }));
+      p.querySelectorAll('[data-mxt]').forEach(el=>el.addEventListener('change',()=>{ const q=parse(el); const m=arrOf(q.tag)[q.i]; if(m){ m.type=el.value; scheduleUndoCommit(); } }));
+      p.querySelectorAll('[data-mxd]').forEach(el=>el.addEventListener('input',()=>{ const q=parse(el); const m=arrOf(q.tag)[q.i]; if(m){ m.dur=Math.max(0.1,Math.min(10,parseFloat(el.value)||0.8)); scheduleUndoCommit(); } }));
+      p.querySelectorAll('[data-mxe]').forEach(el=>el.addEventListener('change',()=>{ const q=parse(el); const m=arrOf(q.tag)[q.i]; if(m){ m.ease=ME_LABELS[el.value]?el.value:'back'; scheduleUndoCommit(); } }));
+      p.querySelectorAll('[data-mxa]').forEach(el=>el.addEventListener('input',()=>{ const q=parse(el); const m=arrOf(q.tag)[q.i]; if(m){ m.amt=Math.max(0,Math.min(2,parseFloat(el.value)||0)); scheduleUndoCommit(); } }));
+      p.querySelectorAll('[data-mxp]').forEach(el=>el.addEventListener('input',()=>{ const q=parse(el); const m=arrOf(q.tag)[q.i]; if(m){ m.per=Math.max(0.4,Math.min(30,parseFloat(el.value)||3)); scheduleUndoCommit(); } })); }
     const blendSel=p.querySelector('[data-blendsel]');
     if(blendSel) blendSel.addEventListener('change',ev=>{ o.blend=ev.target.value; renderTimeline(); refreshObjs(); });
     // 우클릭 → 오토메이션 (투명도·회전·위치·크기·이펙트 강도)
@@ -7016,10 +7262,10 @@ void main(){
     objLayer._lastClk={id,t:_now,x:e.clientX,y:e.clientY};
     if(!shift0){
       if(isDbl&&o.gid!=null){ selectObj(id); openPop(id); }   // 그룹 더블클릭 → 개별 진입
-      else if(groupDrag){ selId=id; closePop(); refreshObjs(); }
+      else if(groupDrag){ selId=id; refreshObjs(); openMultiPop(); }
       else if(o.gid!=null&&!(selIds.size===1&&selIds.has(id))){   // 그룹 멤버 첫 클릭 → 그룹 전체 선택 (이미 개별 진입 상태면 유지)
         const gids=groupIds(o.gid);
-        if(gids.length>1){ selIds=new Set(gids); selId=id; closePop(); refreshObjs(); }
+        if(gids.length>1){ selIds=new Set(gids); selId=id; refreshObjs(); openMultiPop(); }
         else { selectObj(id); openPop(id); } }
       else { selectObj(id); openPop(id); } }
     const r=stage.getBoundingClientRect(), sx=e.clientX, sy=e.clientY;
@@ -7087,6 +7333,7 @@ void main(){
     const up=()=>{ window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up);
       if(mq){ mq.remove(); mq=null; }
       if(!moved&&!e.shiftKey){ selId=null; selIds.clear(); closePop(); }
+      else if(moved) syncSelPop();   // 마퀴 결과에 맞는 인스펙터 — 2개 이상이면 다중 선택 패널
       refreshObjs(); };
     window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up);
   });
@@ -7128,7 +7375,7 @@ void main(){
       inp.dispatchEvent(new Event('input',{bubbles:true}));
       inp.dispatchEvent(new Event('change',{bubbles:true})); });
   },true);
-  root.querySelectorAll('.ls-lyr-addbtn').forEach(b=>b.addEventListener('click',()=>{ const t=b.dataset.add; if(t==='text')addText(); else if(t==='image')addImage(); else if(t==='shape')addShape(); else if(t==='spectrum')addSpectrum(); else if(t==='progress')addProgress(); else if(t==='kick')addKick();
+  root.querySelectorAll('.ls-lyr-addbtn').forEach(b=>b.addEventListener('click',()=>{ const t=b.dataset.add; if(t==='text')addText(); else if(t==='image')addImage(); else if(t==='video')addVideo(); else if(t==='shape')addShape(); else if(t==='spectrum')addSpectrum(); else if(t==='progress')addProgress(); else if(t==='kick')addKick();
     else if(t==='audio'){ if(tracks.length>=MAXTR) showError('음원 트랙은 최대 '+MAXTR+'개예요.'); else aInput.click(); }
     else if(t==='lfx') addFilterLayer(); }));
 
@@ -7462,7 +7709,7 @@ void main(){
     else if(mod&&(e.key==='d'||e.key==='D')&&(selIds.size||(selId&&findObj(selId)))){ e.preventDefault();
       const ids=selIds.size?[...selIds]:[selId]; const nids=[];
       ids.forEach(idq=>{ if(!findObj(idq))return; dupObj(idq); nids.push(selId); });   // dupObj가 새 id를 selId로 둠
-      if(nids.length>1){ selIds=new Set(nids); selId=nids[nids.length-1]; closePop(); refreshObjs(); } }
+      if(nids.length>1){ selIds=new Set(nids); selId=nids[nids.length-1]; refreshObjs(); openMultiPop(); } }
     else if(e.key==='Escape'&&(selId||selIds.size)){ selId=null; selIds.clear(); closePop(); refreshObjs(); }
     else if((e.key==='ArrowLeft'||e.key==='ArrowRight')&&!kfPop&&!mod){ e.preventDefault();
       const dur=projDur(), stp=(1/(st.fps||30))*(e.shiftKey?10:1);
@@ -7878,7 +8125,7 @@ void main(){
   ['dragleave','drop'].forEach(ev=>stage.addEventListener(ev,e=>{e.preventDefault();stage.classList.remove('drag');}));
   stage.addEventListener('drop',e=>{const f=e.dataTransfer.files[0]; if(!f)return;
     if(f.type.startsWith('image/'))setBackground(f,true);
-    else if(f.type.startsWith('video/'))showError('영상 파일은 배경으로 쓸 수 없어요 — 배경은 이미지(JPG/PNG)만 지원해요.');
+    else if(f.type.startsWith('video/'))addVideoFromFile(f);   // 영상 드롭 → 비디오 레이어로 추가 (배경은 계속 이미지 전용)
     else if(f.type.startsWith('audio/'))showError('오디오는 하단 오디오 패널의 트랙 추가로 넣어 주세요.');});
 
   // recording — 1순위: 오프라인 정밀 렌더(WebCodecs+mp4-muxer, 프레임 단위·결정적·드랍 없음)
@@ -8068,10 +8315,12 @@ void main(){
       if(audioOn){ recLabel.textContent='오디오 믹스다운…'; mix=await renderMixdownOffline(rT0,rT1);
         recLabel.textContent='오디오 분석…'; await yieldTask(); anal=analyzeMixFrames(mix,fps,frames); }
       const t0=performance.now(); const gop=fps*2;
+      const hasVid=objs.some(q=>q.type==='video'&&q.vid&&!q.hidden);   // 비디오 레이어 존재 시 프레임별 정밀 시킹
       for(let i=0;i<frames;i++){
         if(_off.cancel||encErr) break;
         const t=rT0+i/fps;                                  // work area 지정 시 절대시간으로 렌더
         ovrFreq=anal?anal.freq[i]:null;
+        if(hasVid) await seekVideosExact(t);
         drawScene(t, 2*Math.PI*((t/FLOW)%1), anal?anal.kick[i]:0, false); // phase는 FLOW 루프 유지
         const vf=new VideoFrame(canvas,{timestamp:Math.round(i*1e6/fps),duration:Math.round(1e6/fps)});
         venc.encode(vf,{keyFrame:(i%gop)===0}); vf.close();
