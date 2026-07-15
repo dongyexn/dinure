@@ -761,6 +761,8 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
   background:var(--c-card); border:1px dashed var(--c-bd2); border-radius:9px; cursor:pointer;
   font-family:inherit; transition:.13s; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .ls-lyr-addbtn:hover{ border-color:var(--acc); color:var(--acc); }
+.ls-lyr-div{ flex:none; height:1px; margin:0 2px; background:var(--c-bd); }
+.ls select[data-f="font"],.ls select[data-f="ptfont"],.ls select[data-pf]{ cursor:ns-resize; }
 .ls-lyr-list{ flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; display:flex; flex-direction:column; gap:6px; padding-right:2px; }
 .ls-lyr-list::-webkit-scrollbar{ width:8px; } .ls-lyr-list::-webkit-scrollbar-thumb{ background:var(--c-bd2); border-radius:8px; }
 .ls-lyr-list::-webkit-scrollbar-track{ background:transparent; }
@@ -875,9 +877,11 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-time{ flex:none; font-size:13px; color:#fff; font-variant-numeric:tabular-nums; text-shadow:0 1px 2px rgba(0,0,0,.6); }
 
 /* 오디오 타임라인 (필모라식 멀티트랙) */
-.ls-timeline{ position:relative; flex:none; background:var(--c-panel); border:1px solid var(--c-bd); border-radius:16px; padding:14px 15px 13px; box-sizing:border-box; overflow-x:clip; }
+.ls-timeline{ --tl-label-w:272px; position:relative; flex:none; background:var(--c-panel); border:1px solid var(--c-bd); border-radius:16px; padding:14px 15px 13px; box-sizing:border-box; overflow-x:clip; }
+@media (max-width:920px){ .ls-timeline{ --tl-label-w:150px; } }
 .ls-tl-body{ display:flex; flex-direction:column; position:relative; }
-.ls-tl-labels{ width:150px; flex:none; display:flex; flex-direction:column; gap:7px; box-sizing:border-box; }
+.ls-tl-labels{ width:var(--tl-label-w,150px); flex:none; display:flex; flex-direction:column; gap:7px; box-sizing:border-box; }
+.ls-rlabel.hid .ls-rl-name{ opacity:.45; }
 .ls-rlabel{ height:38px; box-sizing:border-box; display:flex; align-items:center; padding:0 12px; border-radius:8px;
   background:var(--c-card); border:1px solid var(--c-bd); font-size:11.5px; font-weight:600; color:var(--c-t2);
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -906,18 +910,18 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-clip:active{ cursor:grabbing; }
 .ls-clip-wave{ position:absolute; inset:0; width:100%; height:100%; z-index:1; opacity:.9; pointer-events:none; }
 .ls-clip-name{ flex:1; min-width:0; font-size:11px; font-weight:600; color:var(--c-t1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding:0 16px; pointer-events:none; }
-.ls-clip-th{ position:absolute; top:0; bottom:0; width:14px; cursor:ew-resize; display:flex; align-items:center; justify-content:center; z-index:3; touch-action:none; background:color-mix(in srgb,var(--acc) 55%,transparent); }
-.ls-clip-th.l{ border-radius:7px 0 0 7px; } .ls-clip-th.r{ border-radius:0 7px 7px 0; }
+.ls-clip-th{ position:absolute; top:0; bottom:0; width:14px; cursor:ew-resize; z-index:3; touch-action:none; background:transparent; }
 .ls-clip-th.l{ left:0; } .ls-clip-th.r{ right:0; }
-.ls-clip-th::after{ content:''; width:2px; height:42%; border-radius:2px; background:#fff; box-shadow:3px 0 0 #fff, -3px 0 0 #fff; }
 .ls-clip-del{ position:absolute; top:3px; right:3px; width:17px; height:17px; border-radius:5px; z-index:4;
   display:flex; align-items:center; justify-content:center; font-size:12px; line-height:1; color:#fff; background:rgba(0,0,0,.45); cursor:pointer; }
 .ls-clip-del:hover{ background:#ff5a3c; }
 .ls-clip-fi,.ls-clip-fo{ position:absolute; top:0; bottom:0; pointer-events:none; z-index:2; width:0; }
 .ls-clip-fi{ left:0; background:linear-gradient(to right, rgba(0,0,0,.62), transparent); }
 .ls-clip-fo{ right:0; background:linear-gradient(to left, rgba(0,0,0,.62), transparent); }
-.ls-clip-fh{ position:absolute; top:3px; width:13px; height:13px; border-radius:50%; background:#ffb24d; border:2px solid #fff;
-  cursor:ew-resize; z-index:7; transform:translateX(-50%); touch-action:none; box-shadow:0 1px 4px rgba(0,0,0,.6); }
+.ls-clip-fh{ position:absolute; top:3px; width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.7);
+  cursor:ew-resize; z-index:7; transform:translateX(-50%); touch-action:none; transition:background .12s, transform .12s; }
+.ls-clip-fh::before{ content:''; position:absolute; inset:-7px; }
+.ls-clip-fh:hover{ background:#fff; transform:translateX(-50%) scale(1.3); }
 .ls-clip-fh.in{ left:0; } .ls-clip-fh.out{ left:100%; }
 .ls-playhead{ position:absolute; top:0; bottom:0; width:2px; background:#fff; box-shadow:0 0 6px rgba(255,255,255,.8); z-index:6; cursor:ew-resize; }
 .ls-playhead::before{ content:''; position:absolute; left:-7px; right:-7px; top:0; bottom:0; }
@@ -1019,7 +1023,7 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 }
 /* ===== Loop Studio — 통합 타임라인 (고정 축 + 스크롤 레인) ===== */
 .ls-axis{ display:flex; gap:8px; }
-.ls-axis-pad{ width:150px; flex:none; }
+.ls-axis-pad{ width:var(--tl-label-w,150px); flex:none; }
 .ls-ruwrap{ flex:1; min-width:0; overflow:hidden; }
 .ls-ruwrap .ls-ruler{ min-width:100%; }
 .ls-laneswrap{ flex:1; min-width:0; overflow-x:clip; overflow-y:hidden; }
@@ -1035,8 +1039,15 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
   background:color-mix(in srgb, var(--panel,#181818) 85%, transparent);
   backdrop-filter:blur(16px) saturate(1.5); -webkit-backdrop-filter:blur(16px) saturate(1.5);
   border:1px solid var(--bd2,rgba(255,255,255,.16)); color:var(--t1,#fff); box-shadow:0 6px 18px -6px rgba(0,0,0,.7); }
-.ls-wa{ position:absolute; top:0; bottom:0; background:color-mix(in srgb,var(--acc) 16%,transparent);
-  border-left:2px solid var(--acc); border-right:2px solid var(--acc); z-index:2; cursor:pointer; }
+.ls-wa{ position:absolute; top:0; bottom:0; background:color-mix(in srgb,var(--acc) 14%,transparent);
+  border-left:2px solid color-mix(in srgb,var(--acc) 55%,transparent); border-right:2px solid color-mix(in srgb,var(--acc) 55%,transparent);
+  z-index:4; cursor:grab; box-sizing:border-box; }
+.ls-wa:active{ cursor:grabbing; }
+.ls-wa.loop{ background:color-mix(in srgb,var(--acc) 32%,transparent); border-color:var(--acc); }
+.ls-wa-h{ position:absolute; top:0; bottom:0; width:12px; cursor:ew-resize; touch-action:none; }
+.ls-wa-h.l{ left:-6px; } .ls-wa-h.r{ right:-6px; }
+.ls-waband{ position:absolute; top:0; bottom:0; background:color-mix(in srgb,var(--acc) 5%,transparent); pointer-events:none; z-index:0; }
+.ls-waband.loop{ background:color-mix(in srgb,var(--acc) 9%,transparent); }
 .ls-axis .ls-ruler{ flex:1; min-width:0; }
 .ls-scroll{ display:flex; gap:8px; align-items:flex-start; height:172px; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; padding-right:3px; }
 .ls-scroll.grabbing{ cursor:grabbing; user-select:none; }
@@ -1049,7 +1060,6 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-rlabel.layer .ls-rl-name{ cursor:pointer; }
 .ls-rlabel.layer .ls-rl-name:hover{ color:var(--acc); }
 .ls-clip.layerclip{ background:color-mix(in srgb,#f6c945 22%,var(--c-card)); border-color:color-mix(in srgb,#f6c945 55%,transparent); }
-.ls-clip.layerclip .ls-clip-th{ background:color-mix(in srgb,#f6c945 50%,transparent); }
 .ls-blendbtn.act{ color:var(--acc); border-color:var(--acc); background:color-mix(in srgb,var(--acc) 14%,transparent); }
 .ls-blendopt.on{ color:var(--accent,#3182F6); }
 .ls-rlabel.audio,.ls-lane.audio{ height:38px; }
@@ -4298,6 +4308,7 @@ function createArtwork(){
           <button class="ls-lyr-addbtn" data-add="kick" title="킥에 반응하는 줌 펄스·진동">＋킥 펄스</button>
           <button class="ls-lyr-addbtn" data-add="lfx" title="화면 전체에 적용되는 필터 — 클립 구간·강도 오토메이션 지원, 여러 장 겹치기 가능">＋필터</button>
         </div>
+        <div class="ls-lyr-div"></div>
         <div class="ls-lyr-list" id="ls_layerlist"></div>
       </div>
       <div class="ls-stageWrap">
@@ -5731,6 +5742,25 @@ void main(){
       (collectProjFonts().get(from)||[]).forEach(fn=>fn(to)); sel.dataset.pf=to;
       refreshObjs(); scheduleUndoCommit(); renderProjectFonts(true);
       if(objPop&&objPop.classList.contains('on')&&selId!=null) openPop(selId); }); } }   // 열려 있는 인스펙터의 폰트 셀렉트 동기화
+  // ===== 폰트 셀렉트 스크럽 — 셀렉트 위에서 드래그하면 폰트가 바로 바뀌며 적용, 클릭하면 평소처럼 목록이 열림 =====
+  function isFontSel(el){ return !!el&&el.tagName==='SELECT'&&(el.dataset.f==='font'||el.dataset.f==='ptfont'||el.dataset.pf!==undefined); }
+  root.addEventListener('mousedown',e=>{ if(isFontSel(e.target)) e.preventDefault(); },true);   // 네이티브 드롭다운 자동 오픈 차단(클릭은 아래서 showPicker로)
+  root.addEventListener('pointerdown',e=>{
+    if(!isFontSel(e.target)||e.button!==0)return;
+    e.preventDefault();
+    let el=e.target; const y0=e.clientY, i0=el.selectedIndex; let moved=false;
+    dragLock(true);
+    const apply=idx=>{ idx=Math.max(0,Math.min(el.options.length-1,idx)); if(idx===el.selectedIndex)return;
+      el.selectedIndex=idx;
+      el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true}));
+      if(!el.isConnected&&el.dataset.pf!==undefined){                     // 프로젝트 폰트는 change 시 재생성 — 새 엘리먼트로 갈아탐
+        const nx=Q('#ls_projfonts select[data-pf="'+el.value+'"]'); if(nx) el=nx; } };
+    const mv=ev=>{ const dy=y0-ev.clientY; if(!moved&&Math.abs(dy)>3)moved=true; if(moved)apply(i0+Math.round(dy/16)); };
+    const up=()=>{ dragLock(false); window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up);
+      if(!moved){ try{ if(el.showPicker)el.showPicker(); else el.focus(); }catch(e2){ try{el.focus();}catch(e3){} } }
+      else scheduleUndoCommit(); };
+    window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up);
+  },true);
   function renderGradColors(){ const box=Q('#ls_gcolors'); if(!box)return;
     let h='';
     for(let i=0;i<5;i++){
@@ -5861,7 +5891,9 @@ void main(){
   function projDur(){ return Math.max(5,Math.min(600,(st&&st.dur)||60)); }
   let tlZoom=1;  // 타임라인 가로 줌 (1~8×)
   let markers=[];              // 타임라인 마커(초). 룰러 더블클릭/M키 추가, 드래그 이동, 더블클릭 삭제
-  let waIn=null, waOut=null;   // 렌더 구간(work area). I/O 키로 지정 — 지정 시 해당 구간만 내보냄
+  let waIn=null, waOut=null;   // 렌더 구간(work area). I/O 키·Shift+룰러 드래그로 지정 — 지정 시 해당 구간만 내보냄
+  let waLoop=false;            // 구간 반복 재생 (밴드 클릭으로 토글)
+  const waActive=()=>(waIn!=null&&waOut!=null&&waOut>waIn+0.05);
 
   // ===== 실행취소 (Ctrl+Z / Ctrl+Shift+Z·Ctrl+Y) =====
   // 스냅샷 스택. 이미지 dataURL은 사이드테이블로 분리해 스택 메모리 폭증 방지.
@@ -5874,7 +5906,7 @@ void main(){
   function _snapshot(){ return JSON.stringify({
     vals:captureVals(), auto:captureAuto(), objs:_snapObjs(), groups:groupMeta,
     bgType:bgType, grad:captureGrad(),
-    dur:st.dur||60, markers:markers.slice(), waIn:waIn, waOut:waOut,
+    dur:st.dur||60, markers:markers.slice(), waIn:waIn, waOut:waOut, waLoop:waLoop,
     vfadeIn:st.vfadeIn||0, vfadeOut:st.vfadeOut||0,
     trk:tracks.map(t=>({id:t.id,startAt:t.startAt,trimStart:t.trimStart,trimEnd:t.trimEnd,fadeIn:t.fadeIn||0,fadeOut:t.fadeOut||0,vol:(t.vol==null?1:t.vol),bass:(t.bass||0),treble:(t.treble||0)})) }); }
   function undoCommit(){ if(_undoApplying)return;
@@ -5885,7 +5917,7 @@ void main(){
   function _undoApply(snap){ _undoApplying=true;
     try{ const s2=JSON.parse(snap);
       st.dur=s2.dur; const durEl=header.querySelector('#ls_durin'); if(durEl)durEl.value=Math.round(s2.dur);
-      markers=(s2.markers||[]).slice(); waIn=s2.waIn; waOut=s2.waOut;
+      markers=(s2.markers||[]).slice(); waIn=s2.waIn; waOut=s2.waOut; waLoop=!!s2.waLoop;
       st.vfadeIn=Math.max(0,+s2.vfadeIn||0); st.vfadeOut=Math.max(0,+s2.vfadeOut||0);
       { const a=Q('#ls_vfi'), b=Q('#ls_vfo'); if(a)a.value=st.vfadeIn; if(b)b.value=st.vfadeOut; }
       applyVals(s2.vals||{});
@@ -6131,7 +6163,7 @@ void main(){
       vfadeIn:st.vfadeIn||0, vfadeOut:st.vfadeOut||0,
       bg:bgSrc||null,
       bgType:bgType, grad:captureGrad(),
-      markers:markers.slice(), waIn:waIn, waOut:waOut,
+      markers:markers.slice(), waIn:waIn, waOut:waOut, waLoop:waLoop,
       vals:captureVals(), auto:captureAuto(), objs:captureObjs(), groups:JSON.parse(JSON.stringify(groupMeta)),
       trk:tracks.map(t=>({id:t.id,name:t.name,startAt:t.startAt,trimStart:t.trimStart,trimEnd:t.trimEnd,fadeIn:t.fadeIn||0,fadeOut:t.fadeOut||0,vol:(t.vol==null?1:t.vol),bass:(t.bass||0),treble:(t.treble||0),data:t.data||null,mime:t.mime||null,fname:t.fname||null}))
     };
@@ -6145,7 +6177,7 @@ void main(){
     clearBackground();                                                       // 배경 이미지
     applyGrad(null); setBgType('image');                                    // 그라디언트 기본값·소스 타입 초기화
     KEYS.forEach(k=>{ const el=Q('#ls_'+k); if(el){ el.value=el.defaultValue; el.dispatchEvent(new Event('input')); } }); // 배경효과 기본값
-    markers=[]; waIn=null; waOut=null;                                      // 마커/렌더구간
+    markers=[]; waIn=null; waOut=null; waLoop=false;                                      // 마커/렌더구간
     st.vfadeIn=0; st.vfadeOut=0; { const a=Q('#ls_vfi'),b=Q('#ls_vfo'); if(a)a.value=0; if(b)b.value=0; } // 영상 페이드
   }
   function applyProject(p){ if(!p)return;
@@ -6153,7 +6185,7 @@ void main(){
     setDur(p.dur!=null?p.dur:60); setAR(p.ar!=null?p.ar:0.5625);
     setResH(p.outH!=null?p.outH:1080); setFPS(p.fps!=null?p.fps:30);
     markers=Array.isArray(p.markers)?p.markers.slice():[];
-    waIn=(p.waIn!=null)?p.waIn:null; waOut=(p.waOut!=null)?p.waOut:null;
+    waIn=(p.waIn!=null)?p.waIn:null; waOut=(p.waOut!=null)?p.waOut:null; waLoop=!!p.waLoop;
     st.vfadeIn=Math.max(0,+p.vfadeIn||0); st.vfadeOut=Math.max(0,+p.vfadeOut||0);
     if(p.filter&&p.filter!=='none'&&FILTERS[p.filter]&&!(p.objs||[]).some(c=>c&&c.type==='lfx'))   // 구버전(전역 필터) → 필터 레이어로 이전
       setTimeout(()=>{ try{ if(!objs.some(q=>q.type==='lfx')){ objs.push({id:objSeq++,type:'lfx',x:.5,y:.5,rot:0,opacity:1,w:0,h:0,fkind:p.filter,famt:Math.max(0,Math.min(1,p.filterAmt==null?0.8:+p.filterAmt))}); refreshObjs(); renderTimeline(); } }catch(e){} },0);
@@ -6280,13 +6312,15 @@ void main(){
       objLayer.appendChild(d);
     }
   }
+  const LTAG={text:'텍스트',image:'이미지',video:'영상',shape:'쉐이프',spectrum:'스펙트럼',progress:'레이아웃',kick:'킥',lfx:'필터'};
+  function eyeSvg(hidden){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/>'+(hidden?'<line x1="4" y1="20" x2="20" y2="4"/>':'')+'</svg>'; }
   function renderObjList(){                 // 좌측 통합 레이어 패널 렌더
     const wrap=Q('#ls_layerlist'); if(!wrap)return;
     if(!wrap._reorderWired){ lsDragReorder(wrap,'.ls-lyr-row',ids=>commitLayerOrderFromVisual(ids,true)); wrap._reorderWired=true; }
     wrap.innerHTML='';
     if(!objs.length){ return; }
     pruneGroupMeta();
-    const TAG={text:'텍스트',image:'이미지',video:'영상',shape:'쉐이프',spectrum:'스펙트럼',progress:'레이아웃',kick:'킥',lfx:'필터'};
+    const TAG=LTAG;
     const seenG=new Set();
     objs.slice().reverse().forEach(o=>{        // 앞(위) 레이어가 목록 상단
       // ── 그룹 헤더: 해당 그룹의 최상단 멤버 직전에 폴더 행 삽입 ──
@@ -6320,7 +6354,7 @@ void main(){
       const tag=document.createElement('span'); tag.className='ls-lyr-tag'; tag.textContent=TAG[o.type]||'?';
       const nm=document.createElement('div'); nm.className='ls-lyr-nm'; nm.textContent=objName(o);
       const eye=document.createElement('button'); eye.className='ls-lyr-ic'+(o.hidden?' act':''); eye.title=o.hidden?'다시 표시':'숨기기';
-      eye.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/>'+(o.hidden?'<line x1="4" y1="20" x2="20" y2="4"/>':'')+'</svg>';
+      eye.innerHTML=eyeSvg(o.hidden);
       eye.addEventListener('click',ev=>{ ev.stopPropagation(); o.hidden=!o.hidden; refreshObjs(); scheduleUndoCommit(); });
       const lk2=document.createElement('button'); lk2.className='ls-lyr-ic'+(o.locked?' act':''); lk2.title=o.locked?'잠금 해제':'잠금 — 캔버스에서 선택·이동 불가';
       lk2.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="11" width="12" height="8" rx="2"/><path d="'+(o.locked?'M9 11V8a3 3 0 0 1 6 0v3':'M9 11V8a3 3 0 0 1 5.8-1')+'"/></svg>';
@@ -6529,7 +6563,11 @@ void main(){
   // 레이어 이름 변경(개명·텍스트 내용 수정)을 타임라인 라벨·클립에 즉시 반영 — 재빌드 없이 텍스트만
   function syncLayerNames(){ objs.forEach(o=>{ const nm=objName(o);
     root.querySelectorAll('.ls-rlabel.layer[data-id="'+o.id+'"] .ls-rl-name, .ls-lane.layer[data-id="'+o.id+'"] .ls-clip-name')
-      .forEach(el=>{ if(el.textContent!==nm) el.textContent=nm; }); }); }
+      .forEach(el=>{ if(el.textContent!==nm) el.textContent=nm; });
+    root.querySelectorAll('.ls-rlabel.layer[data-id="'+o.id+'"]').forEach(lab=>{ const on=!!o.hidden;
+      if(lab.classList.contains('hid')!==on) lab.classList.toggle('hid',on);
+      const b=lab.querySelector('.ls-rl-eye'); if(b&&b.classList.contains('act')!==on){
+        b.classList.toggle('act',on); b.title=on?'다시 표시':'숨기기'; b.innerHTML=eyeSvg(on); } }); }); }
   function selectObj(id){ selId=id; selIds=new Set(id!=null?[id]:[]); selTrack=null; refreshObjs(); }
   function selectObjAdd(id){                             // Shift+클릭 토글(피그마식)
     if(selIds.has(id)){ selIds.delete(id); if(selId===id) selId=selIds.size?[...selIds][selIds.size-1]:null; }
@@ -7791,14 +7829,31 @@ void main(){
     const tickStep=total<=90?10:(total<=240?30:60);
     for(let s=0;s<=total;s+=tickStep){ const tk=mk('ls-ruler-tick'+(s+tickStep>total?' last':'')); tk.style.left=(s/total*100)+'%'; tk.textContent=fmtT(s); ruler.appendChild(tk);
       const ln=mk('ls-ruler-line'); ln.style.left=(s/total*100)+'%'; ruler.appendChild(ln); }
-    if(waIn!=null&&waOut!=null&&waOut>waIn+0.05){                       // 렌더 구간 밴드
-      const wa=mk('ls-wa'); wa.style.left=(Math.max(0,waIn)/total*100)+'%';
-      wa.style.width=((Math.min(total,waOut)-Math.max(0,waIn))/total*100)+'%';
-      wa.title='렌더 구간 '+fmtT(waIn)+'–'+fmtT(waOut)+' · 더블클릭=해제';
-      wa.addEventListener('pointerdown',e=>e.stopPropagation());
-      wa.addEventListener('dblclick',e=>{ e.stopPropagation(); waIn=null; waOut=null; renderTimeline(); showError('렌더 구간을 해제했어요.'); });
-      ruler.appendChild(wa);
-    }
+    // ---- 렌더/루프 구간 밴드 (AE 워크 에어리어식: 드래그=이동, 양끝=크기, 클릭=루프 토글, Shift+룰러 드래그=지정) ----
+    const wa=mk('ls-wa'+(waLoop?' loop':'')); const waL=mk('ls-wa-h l'); const waR=mk('ls-wa-h r');
+    wa.appendChild(waL); wa.appendChild(waR);
+    const waBand=mk('ls-waband'+(waLoop?' loop':''));
+    const updWa=()=>{ const on=waActive(); wa.style.display=on?'':'none'; waBand.style.display=on?'':'none'; if(!on)return;
+      const l=Math.max(0,waIn)/total*100, w=(Math.min(total,waOut)-Math.max(0,waIn))/total*100;
+      wa.style.left=l+'%'; wa.style.width=w+'%'; waBand.style.left=l+'%'; waBand.style.width=w+'%';
+      wa.title='구간 '+fmtT(waIn)+'–'+fmtT(waOut)+' · 클릭=반복 재생 토글 · 드래그=이동 · 양끝=크기 · 더블클릭=해제 · 내보내기는 이 구간만'; };
+    updWa(); ruler.appendChild(wa);
+    wa.addEventListener('dblclick',e=>{ e.stopPropagation(); waIn=null; waOut=null; waLoop=false; renderTimeline(); showError('구간을 해제했어요.'); });
+    wa.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); dragLock(true);
+      const rect=ruler.getBoundingClientRect(); const x0=e.clientX; const in0=waIn, out0=waOut;
+      const edge=(e.target===waL)?'l':((e.target===waR)?'r':null); let moved=false;
+      const mv=ev=>{ if(Math.abs(ev.clientX-x0)>2)moved=true; if(!moved)return;
+        const dt=(ev.clientX-x0)/rect.width*total;
+        if(edge==='l') waIn=Math.max(0,Math.min(out0-0.1,in0+dt));
+        else if(edge==='r') waOut=Math.min(total,Math.max(in0+0.1,out0+dt));
+        else { const len=out0-in0; const ni=Math.max(0,Math.min(total-len,in0+dt)); waIn=ni; waOut=ni+len; }
+        updWa(); };
+      const up=()=>{ dragLock(false); window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up);
+        if(!moved){ waLoop=!waLoop; wa.classList.toggle('loop',waLoop); waBand.classList.toggle('loop',waLoop);
+          showError(waLoop?'구간 반복 재생 ON — 재생하면 이 구간만 돌아요':'구간 반복 재생 OFF');
+          if(waLoop&&tlPlaying)scheduleFrom(Math.max(0,waIn),false); }
+        scheduleUndoCommit(); };
+      window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up); });
     markers.forEach((mt,mi)=>{                                            // 마커 깃발
       const mkr=mk('ls-marker'); mkr.style.left=(mt/total*100)+'%'; mkr.title=fmtT(mt)+' · 클릭=이동, 드래그=옮기기, 더블클릭=삭제';
       mkr.addEventListener('dblclick',e=>{ e.stopPropagation(); markers.splice(mi,1); renderTimeline(); });
@@ -7826,7 +7881,7 @@ void main(){
     // 오디오 트랙 레인
     tracks.forEach(t=>{
       const lab=mk('ls-rlabel audio'+(selTrack===t.id?' sel':''));
-      lab.innerHTML='<span class="ls-rl-name">'+t.name.replace(/[<>&]/g,'')+'</span><span class="ls-rl-x" title="트랙 삭제">×</span>';
+      lab.innerHTML='<span class="ls-lyr-tag">음원</span><span class="ls-rl-name">'+t.name.replace(/[<>&]/g,'')+'</span><span class="ls-rl-x" title="트랙 삭제">×</span>';
       lab.title=t.name; labels.appendChild(lab);
       lab.querySelector('.ls-rl-name').addEventListener('click',()=>{ selectTrack(t.id); });
       lab.querySelector('.ls-rl-x').addEventListener('click',ev=>{ ev.stopPropagation(); removeTrack(t.id); });
@@ -7855,11 +7910,14 @@ void main(){
 
     // 레이어 트랙 (Phase 3b): in/out 구간 드래그 + 블렌드 모드
     objs.forEach(o=>{
-      const lab=mk('ls-rlabel layer'); lab.dataset.id=o.id;
-      lab.innerHTML='<span class="ls-rl-name">'+escapeHtml(objName(o))+'</span>'+
+      const lab=mk('ls-rlabel layer'+(o.hidden?' hid':'')); lab.dataset.id=o.id;
+      lab.innerHTML='<span class="ls-lyr-tag">'+(LTAG[o.type]||'?')+'</span>'+
+        '<span class="ls-rl-name">'+escapeHtml(objName(o))+'</span>'+
+        '<button class="ls-lyr-ic ls-rl-eye'+(o.hidden?' act':'')+'" title="'+(o.hidden?'다시 표시':'숨기기')+'">'+eyeSvg(o.hidden)+'</button>'+
         '<span class="ls-rl-x" title="레이어 삭제">×</span>';
       lab.title=objName(o)+' · 이름 드래그=순서, 트랙바 드래그=이동, 양끝=구간(in/out)';
       lab.querySelector('.ls-rl-name').addEventListener('click',()=>{ selectObj(o.id); openPop(o.id); });
+      lab.querySelector('.ls-rl-eye').addEventListener('click',ev=>{ ev.stopPropagation(); o.hidden=!o.hidden; refreshObjs(); scheduleUndoCommit(); });
       lab.querySelector('.ls-rl-x').addEventListener('click',ev=>{ ev.stopPropagation(); delObj(o.id); });
       labels.appendChild(lab);
       const lane=mk('ls-lane layer'); lane.dataset.id=o.id;
@@ -7900,9 +7958,18 @@ void main(){
     if(beatTimes&&beatTimes.length){ const tot2=projDur();                    // 비트 그리드 눈금
       for(const b of beatTimes){ if(b>tot2)break;
         const bl=mk('ls-beatline'); bl.style.left=(b/tot2*100).toFixed(3)+'%'; lanes.appendChild(bl); } }
+    lanes.appendChild(waBand);
     const ph=mk('ls-playhead'); ph.id='ls_playhead'; ph.style.display='none'; lanes.appendChild(ph);
     function laneSeek(ev){ const rect=lanes.getBoundingClientRect(); let x=((ev.touches?ev.touches[0].clientX:ev.clientX)-rect.left)/rect.width; seekTo(Math.min(1,Math.max(0,x))); }
-    function startSeek(e){ if(recording)return; e.preventDefault(); e.stopPropagation(); dragLock(true); laneSeek(e); const mv=ev=>laneSeek(ev); const up=()=>{dragLock(false);window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);}; window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up); }
+    function startSeek(e){ if(recording)return; e.preventDefault(); e.stopPropagation();
+      if(e.shiftKey){ dragLock(true);                                     // Shift+드래그 = 렌더/루프 구간 지정
+        const rect=ruler.getBoundingClientRect(); const t0=Math.max(0,Math.min(total,(e.clientX-rect.left)/rect.width*total));
+        waIn=t0; waOut=t0; updWa();
+        const mv=ev=>{ const t2=Math.max(0,Math.min(total,(ev.clientX-rect.left)/rect.width*total)); waIn=Math.min(t0,t2); waOut=Math.max(t0,t2); updWa(); };
+        const up=()=>{ dragLock(false); window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up);
+          if(!waActive()){ waIn=null; waOut=null; updWa(); } else scheduleUndoCommit(); };
+        window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up); return; }
+      dragLock(true); laneSeek(e); const mv=ev=>laneSeek(ev); const up=()=>{dragLock(false);window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);}; window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up); }
     ruler.addEventListener('pointerdown',startSeek); ph.addEventListener('pointerdown',startSeek);
 
     const lanesWrap=mk('ls-laneswrap'); lanesWrap.appendChild(lanes);
@@ -8103,9 +8170,11 @@ void main(){
     const dur=projDur(); let tSec;
     if(recording && !hasAudio()) tSec=Math.min(dur,recElapsed);
     else if(hasAudio()){ let tt=tlPlaying?timelineTime():tlFromT; const total=totalDur();
-      if(!recording && tlPlaying && total>0 && tt>=total){ scheduleFrom(0,false); tt=0; }
+      if(!recording && tlPlaying && waLoop && waActive() && tt>=Math.min(waOut,total||waOut)){ scheduleFrom(Math.max(0,waIn),false); tt=Math.max(0,waIn); }
+      else if(!recording && tlPlaying && total>0 && tt>=total){ scheduleFrom(0,false); tt=0; }
       tSec=Math.max(0,Math.min(dur,tt)); }
-    else if(playing) tSec=((((now-startT)/1000)%dur)+dur)%dur;
+    else if(playing){ tSec=((((now-startT)/1000)%dur)+dur)%dur;
+      if(waLoop && waActive() && (tSec<waIn-0.05||tSec>=waOut)){ startT=now-Math.max(0,waIn)*1000; tSec=Math.max(0,waIn); } }
     else tSec=Math.max(0,Math.min(dur,pausedT));
     const phase=2*Math.PI*((tSec/FLOW)%1);
     lastPhase=phase; lastT=tSec;
