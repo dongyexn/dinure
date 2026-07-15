@@ -733,6 +733,8 @@ body.ls-dragging, body.ls-dragging *{ -webkit-user-select:none !important; user-
 /* topbar에 마운트됐을 때: 폭을 채우고 카드 배경 없이 헤더로 녹아들게 */
 .topbar .ls-header{ flex:0 1 auto; min-width:0; justify-content:flex-end; }
 body.ls-hdr-on .topbar{ height:auto; min-height:56px; }
+body.ls-hdr-on .wrap{ padding-top:14px; }
+body.ls-hdr-on .ls{ height:calc(100dvh - 136px); }
 body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 @media (max-width:920px){ body.ls-hdr-on .topbar{ flex-wrap:wrap; padding-top:7px; padding-bottom:7px; } }
 .ls-hdur{ display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--c-t2);
@@ -762,7 +764,6 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
   font-family:inherit; transition:.13s; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .ls-lyr-addbtn:hover{ border-color:var(--acc); color:var(--acc); }
 .ls-lyr-div{ flex:none; height:1px; margin:0 2px; background:var(--c-bd); }
-.ls select[data-f="font"],.ls select[data-f="ptfont"],.ls select[data-pf]{ cursor:ns-resize; }
 .ls-lyr-list{ flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; display:flex; flex-direction:column; gap:6px; padding-right:2px; }
 .ls-lyr-list::-webkit-scrollbar{ width:8px; } .ls-lyr-list::-webkit-scrollbar-thumb{ background:var(--c-bd2); border-radius:8px; }
 .ls-lyr-list::-webkit-scrollbar-track{ background:transparent; }
@@ -877,7 +878,7 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-time{ flex:none; font-size:13px; color:#fff; font-variant-numeric:tabular-nums; text-shadow:0 1px 2px rgba(0,0,0,.6); }
 
 /* 오디오 타임라인 (필모라식 멀티트랙) */
-.ls-timeline{ --tl-label-w:272px; position:relative; flex:none; background:var(--c-panel); border:1px solid var(--c-bd); border-radius:16px; padding:14px 15px 13px; box-sizing:border-box; overflow-x:clip; }
+.ls-timeline{ --tl-label-w:257px; position:relative; flex:none; background:var(--c-panel); border:1px solid var(--c-bd); border-radius:16px; padding:14px 15px 13px; box-sizing:border-box; overflow-x:clip; }
 @media (max-width:920px){ .ls-timeline{ --tl-label-w:150px; } }
 .ls-tl-body{ display:flex; flex-direction:column; position:relative; }
 .ls-tl-labels{ width:var(--tl-label-w,150px); flex:none; display:flex; flex-direction:column; gap:7px; box-sizing:border-box; }
@@ -5742,25 +5743,17 @@ void main(){
       (collectProjFonts().get(from)||[]).forEach(fn=>fn(to)); sel.dataset.pf=to;
       refreshObjs(); scheduleUndoCommit(); renderProjectFonts(true);
       if(objPop&&objPop.classList.contains('on')&&selId!=null) openPop(selId); }); } }   // 열려 있는 인스펙터의 폰트 셀렉트 동기화
-  // ===== 폰트 셀렉트 스크럽 — 셀렉트 위에서 드래그하면 폰트가 바로 바뀌며 적용, 클릭하면 평소처럼 목록이 열림 =====
+  // ===== 폰트 셀렉트 휠 스크롤 — 셀렉트 위에서 휠을 굴리면 폰트가 바로 바뀌며 적용, 클릭은 평소처럼 목록 =====
   function isFontSel(el){ return !!el&&el.tagName==='SELECT'&&(el.dataset.f==='font'||el.dataset.f==='ptfont'||el.dataset.pf!==undefined); }
-  root.addEventListener('mousedown',e=>{ if(isFontSel(e.target)) e.preventDefault(); },true);   // 네이티브 드롭다운 자동 오픈 차단(클릭은 아래서 showPicker로)
-  root.addEventListener('pointerdown',e=>{
-    if(!isFontSel(e.target)||e.button!==0)return;
-    e.preventDefault();
-    let el=e.target; const y0=e.clientY, i0=el.selectedIndex; let moved=false;
-    dragLock(true);
-    const apply=idx=>{ idx=Math.max(0,Math.min(el.options.length-1,idx)); if(idx===el.selectedIndex)return;
-      el.selectedIndex=idx;
-      el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true}));
-      if(!el.isConnected&&el.dataset.pf!==undefined){                     // 프로젝트 폰트는 change 시 재생성 — 새 엘리먼트로 갈아탐
-        const nx=Q('#ls_projfonts select[data-pf="'+el.value+'"]'); if(nx) el=nx; } };
-    const mv=ev=>{ const dy=y0-ev.clientY; if(!moved&&Math.abs(dy)>3)moved=true; if(moved)apply(i0+Math.round(dy/16)); };
-    const up=()=>{ dragLock(false); window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up);
-      if(!moved){ try{ if(el.showPicker)el.showPicker(); else el.focus(); }catch(e2){ try{el.focus();}catch(e3){} } }
-      else scheduleUndoCommit(); };
-    window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up);
-  },true);
+  root.addEventListener('wheel',e=>{
+    const el=e.target; if(!isFontSel(el))return;
+    e.preventDefault(); e.stopPropagation();
+    const idx=Math.max(0,Math.min(el.options.length-1,el.selectedIndex+(e.deltaY>0?1:-1)));
+    if(idx===el.selectedIndex)return;
+    el.selectedIndex=idx;
+    el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true}));
+    scheduleUndoCommit();
+  },{passive:false,capture:true});
   function renderGradColors(){ const box=Q('#ls_gcolors'); if(!box)return;
     let h='';
     for(let i=0;i<5;i++){
@@ -5908,7 +5901,7 @@ void main(){
     bgType:bgType, grad:captureGrad(),
     dur:st.dur||60, markers:markers.slice(), waIn:waIn, waOut:waOut, waLoop:waLoop,
     vfadeIn:st.vfadeIn||0, vfadeOut:st.vfadeOut||0,
-    trk:tracks.map(t=>({id:t.id,startAt:t.startAt,trimStart:t.trimStart,trimEnd:t.trimEnd,fadeIn:t.fadeIn||0,fadeOut:t.fadeOut||0,vol:(t.vol==null?1:t.vol),bass:(t.bass||0),treble:(t.treble||0)})) }); }
+    trk:tracks.map(t=>({id:t.id,startAt:t.startAt,trimStart:t.trimStart,trimEnd:t.trimEnd,fadeIn:t.fadeIn||0,fadeOut:t.fadeOut||0,vol:(t.vol==null?1:t.vol),bass:(t.bass||0),treble:(t.treble||0),muted:!!t.muted})) }); }
   function undoCommit(){ if(_undoApplying)return;
     try{ const snap=_snapshot(); if(_hi>=0&&_hist[_hi]===snap)return;
       _hist.splice(_hi+1); _hist.push(snap); if(_hist.length>UNDO_MAX)_hist.shift(); _hi=_hist.length-1; }catch(e){} }
@@ -5925,7 +5918,7 @@ void main(){
       applyObjs(_restObjs(s2.objs));
       groupMeta=(s2.groups&&typeof s2.groups==='object')?s2.groups:{}; pruneGroupMeta();
       applyAuto(s2.auto||{});
-      (s2.trk||[]).forEach(m=>{ const t=tracks.find(x=>x.id===m.id); if(t){ t.startAt=m.startAt; t.trimStart=m.trimStart; t.trimEnd=m.trimEnd; t.fadeIn=m.fadeIn; t.fadeOut=m.fadeOut; if(m.vol!=null)t.vol=m.vol; if(m.bass!=null)t.bass=m.bass; if(m.treble!=null)t.treble=m.treble; } });
+      (s2.trk||[]).forEach(m=>{ const t=tracks.find(x=>x.id===m.id); if(t){ t.startAt=m.startAt; t.trimStart=m.trimStart; t.trimEnd=m.trimEnd; t.fadeIn=m.fadeIn; t.fadeOut=m.fadeOut; if(m.vol!=null)t.vol=m.vol; if(m.bass!=null)t.bass=m.bass; if(m.treble!=null)t.treble=m.treble; t.muted=!!m.muted; } });
       renderTimeline(); refreshObjs();
       try{ _hist[_hi]=_snapshot(); }catch(e){}   // 적용 직후 재직렬화로 리베이스 — 캡처 드리프트가 리두 히스토리를 자르지 않게
     }catch(e){}
@@ -5971,6 +5964,7 @@ void main(){
     try{ masterGain.gain.cancelScheduledValues(now); masterGain.gain.setValueAtTime(1,now); }catch(e){}
     // 각 클립: 자기 위치(startAt)에서 재생 + 트랙별 페이드, 동시 구간은 믹스
     tracks.forEach(t=>{ const cl=clipLen(t); const tlStart=t.startAt, tlEnd=Math.min(total,tlStart+cl);
+      if(t.muted) return;
       if(tlEnd<=fromT+0.01 || tlStart>=total) return;
       const src=audioCtx.createBufferSource(); src.buffer=t.buffer;
       const g=audioCtx.createGain();
@@ -6030,7 +6024,7 @@ void main(){
         const buf=await audioCtx.decodeAudioData(b64ToAb(m.data).slice(0));
         tracks.push({id:m.id||('t'+(++_tid)), name:m.name||m.fname||'트랙', buffer:buf,
           trimStart:m.trimStart||0, trimEnd:(m.trimEnd!=null?m.trimEnd:buf.duration), startAt:m.startAt||0,
-          fadeIn:m.fadeIn||0, fadeOut:m.fadeOut||0, vol:(m.vol==null?1:m.vol), bass:(m.bass||0), treble:(m.treble||0), data:m.data, mime:m.mime, fname:m.fname});
+          fadeIn:m.fadeIn||0, fadeOut:m.fadeOut||0, vol:(m.vol==null?1:m.vol), bass:(m.bass||0), treble:(m.treble||0), muted:!!m.muted, data:m.data, mime:m.mime, fname:m.fname});
         const nid=parseInt(String(m.id||'').replace(/\D/g,''))||0; if(nid>_tid)_tid=nid;
       }catch(e){} }
     }
@@ -6165,7 +6159,7 @@ void main(){
       bgType:bgType, grad:captureGrad(),
       markers:markers.slice(), waIn:waIn, waOut:waOut, waLoop:waLoop,
       vals:captureVals(), auto:captureAuto(), objs:captureObjs(), groups:JSON.parse(JSON.stringify(groupMeta)),
-      trk:tracks.map(t=>({id:t.id,name:t.name,startAt:t.startAt,trimStart:t.trimStart,trimEnd:t.trimEnd,fadeIn:t.fadeIn||0,fadeOut:t.fadeOut||0,vol:(t.vol==null?1:t.vol),bass:(t.bass||0),treble:(t.treble||0),data:t.data||null,mime:t.mime||null,fname:t.fname||null}))
+      trk:tracks.map(t=>({id:t.id,name:t.name,startAt:t.startAt,trimStart:t.trimStart,trimEnd:t.trimEnd,fadeIn:t.fadeIn||0,fadeOut:t.fadeOut||0,vol:(t.vol==null?1:t.vol),bass:(t.bass||0),treble:(t.treble||0),muted:!!t.muted,data:t.data||null,mime:t.mime||null,fname:t.fname||null}))
     };
   }
   // ===== 프로젝트 로드 전 전체 상태 초기화 (이전 프로젝트 설정이 남지 않도록 완전 격리) =====
@@ -6313,6 +6307,7 @@ void main(){
     }
   }
   const LTAG={text:'텍스트',image:'이미지',video:'영상',shape:'쉐이프',spectrum:'스펙트럼',progress:'레이아웃',kick:'킥',lfx:'필터'};
+  function spkSvg(muted){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9.5v5h3.4L12 18.5v-13L7.4 9.5H4z"/>'+(muted?'<line x1="15.5" y1="9.5" x2="20.5" y2="14.5"/><line x1="20.5" y1="9.5" x2="15.5" y2="14.5"/>':'<path d="M15.5 9a4.2 4.2 0 0 1 0 6"/><path d="M17.8 6.8a7.4 7.4 0 0 1 0 10.4"/>')+'</svg>'; }
   function eyeSvg(hidden){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/>'+(hidden?'<line x1="4" y1="20" x2="20" y2="4"/>':'')+'</svg>'; }
   function renderObjList(){                 // 좌측 통합 레이어 패널 렌더
     const wrap=Q('#ls_layerlist'); if(!wrap)return;
@@ -7836,10 +7831,11 @@ void main(){
     const updWa=()=>{ const on=waActive(); wa.style.display=on?'':'none'; waBand.style.display=on?'':'none'; if(!on)return;
       const l=Math.max(0,waIn)/total*100, w=(Math.min(total,waOut)-Math.max(0,waIn))/total*100;
       wa.style.left=l+'%'; wa.style.width=w+'%'; waBand.style.left=l+'%'; waBand.style.width=w+'%';
-      wa.title='구간 '+fmtT(waIn)+'–'+fmtT(waOut)+' · 클릭=반복 재생 토글 · 드래그=이동 · 양끝=크기 · 더블클릭=해제 · 내보내기는 이 구간만'; };
+      wa.title='구간 '+fmtT(waIn)+'–'+fmtT(waOut)+' · 클릭=반복 재생 토글 · 드래그=이동 · 양끝=크기 · 더블클릭=해제 · 내보내기는 이 구간만 (룰러 우클릭 드래그로 새 구간)'; };
     updWa(); ruler.appendChild(wa);
     wa.addEventListener('dblclick',e=>{ e.stopPropagation(); waIn=null; waOut=null; waLoop=false; renderTimeline(); showError('구간을 해제했어요.'); });
-    wa.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); dragLock(true);
+    wa.addEventListener('pointerdown',e=>{ if(e.button===2)return;        // 우클릭은 룰러로 버블 → 구간 재지정
+      e.preventDefault(); e.stopPropagation(); dragLock(true);
       const rect=ruler.getBoundingClientRect(); const x0=e.clientX; const in0=waIn, out0=waOut;
       const edge=(e.target===waL)?'l':((e.target===waR)?'r':null); let moved=false;
       const mv=ev=>{ if(Math.abs(ev.clientX-x0)>2)moved=true; if(!moved)return;
@@ -7880,10 +7876,16 @@ void main(){
 
     // 오디오 트랙 레인
     tracks.forEach(t=>{
-      const lab=mk('ls-rlabel audio'+(selTrack===t.id?' sel':''));
-      lab.innerHTML='<span class="ls-lyr-tag">음원</span><span class="ls-rl-name">'+t.name.replace(/[<>&]/g,'')+'</span><span class="ls-rl-x" title="트랙 삭제">×</span>';
+      const lab=mk('ls-rlabel audio'+(selTrack===t.id?' sel':'')+(t.muted?' hid':''));
+      lab.innerHTML='<span class="ls-lyr-tag">음원</span><span class="ls-rl-name">'+t.name.replace(/[<>&]/g,'')+'</span>'+
+        '<button class="ls-lyr-ic ls-rl-mute'+(t.muted?' act':'')+'" title="'+(t.muted?'소리 켜기':'소리 끄기')+'">'+spkSvg(!!t.muted)+'</button>'+
+        '<span class="ls-rl-x" title="트랙 삭제">×</span>';
       lab.title=t.name; labels.appendChild(lab);
       lab.querySelector('.ls-rl-name').addEventListener('click',()=>{ selectTrack(t.id); });
+      lab.querySelector('.ls-rl-mute').addEventListener('click',ev=>{ ev.stopPropagation(); t.muted=!t.muted;
+        const b=ev.currentTarget; b.classList.toggle('act',t.muted); b.title=t.muted?'소리 켜기':'소리 끄기'; b.innerHTML=spkSvg(!!t.muted);
+        lab.classList.toggle('hid',!!t.muted);
+        if(tlPlaying) scheduleFrom(Math.min(timelineTime(),totalDur()),false); scheduleUndoCommit(); });
       lab.querySelector('.ls-rl-x').addEventListener('click',ev=>{ ev.stopPropagation(); removeTrack(t.id); });
       const lane=mk('ls-lane audio'); const cl=clipLen(t);
       const clip=mk('ls-clip');
@@ -7962,14 +7964,16 @@ void main(){
     const ph=mk('ls-playhead'); ph.id='ls_playhead'; ph.style.display='none'; lanes.appendChild(ph);
     function laneSeek(ev){ const rect=lanes.getBoundingClientRect(); let x=((ev.touches?ev.touches[0].clientX:ev.clientX)-rect.left)/rect.width; seekTo(Math.min(1,Math.max(0,x))); }
     function startSeek(e){ if(recording)return; e.preventDefault(); e.stopPropagation();
-      if(e.shiftKey){ dragLock(true);                                     // Shift+드래그 = 렌더/루프 구간 지정
+      if(e.button===2){ dragLock(true);                                   // 우클릭 드래그 = 렌더/루프 구간 지정
         const rect=ruler.getBoundingClientRect(); const t0=Math.max(0,Math.min(total,(e.clientX-rect.left)/rect.width*total));
         waIn=t0; waOut=t0; updWa();
         const mv=ev=>{ const t2=Math.max(0,Math.min(total,(ev.clientX-rect.left)/rect.width*total)); waIn=Math.min(t0,t2); waOut=Math.max(t0,t2); updWa(); };
         const up=()=>{ dragLock(false); window.removeEventListener('pointermove',mv); window.removeEventListener('pointerup',up);
           if(!waActive()){ waIn=null; waOut=null; updWa(); } else scheduleUndoCommit(); };
         window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up); return; }
+      if(e.button!==0)return;
       dragLock(true); laneSeek(e); const mv=ev=>laneSeek(ev); const up=()=>{dragLock(false);window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);}; window.addEventListener('pointermove',mv); window.addEventListener('pointerup',up); }
+    ruler.addEventListener('contextmenu',e=>{ e.preventDefault(); e.stopPropagation(); });
     ruler.addEventListener('pointerdown',startSeek); ph.addEventListener('pointerdown',startSeek);
 
     const lanesWrap=mk('ls-laneswrap'); lanesWrap.appendChild(lanes);
@@ -8306,6 +8310,7 @@ void main(){
     const oc=new OfflineAudioContext(2,len,sr);
     const master=oc.createGain(); master.connect(oc.destination);
     tracks.forEach(t=>{ const cl=clipLen(t); const clS=t.startAt, clE=Math.min(b,clS+cl);
+      if(t.muted) return;
       const ovS=Math.max(clS,a); if(clE-ovS<=0.01) return;
       const src=oc.createBufferSource(); src.buffer=t.buffer;
       const g=oc.createGain();
