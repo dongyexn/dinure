@@ -5764,7 +5764,7 @@ void main(){
     box.innerHTML=m.size?[...m.entries()].map(([k,u])=>'<div class="ls-pfrow" title="'+(FONT_LABELS[k]||(String(k).indexOf('sys_')===0?String(k).slice(4):k))+' · '+u.length+'곳에서 사용 — 바꾸면 전부 교체">'
         +'<select data-pf="'+k+'">'+fontOpts(k)+'</select><span class="ls-pfcnt">'+u.length+'곳</span></div>').join('')
       :'<div style="font-size:11px;color:var(--c-t3);padding:2px 0 4px">아직 사용된 폰트가 없어요 — 텍스트·레이아웃 폰트가 여기 모여요</div>';
-    box.innerHTML+='<button type="button" class="ls-mxadd" data-sysload style="margin-top:6px" title="이 컴퓨터에 설치된 폰트 전부를 폰트 목록에 추가 (Chrome/Edge)">🖥 시스템 폰트 불러오기</button>'; }
+    box.innerHTML+='<button type="button" class="ls-mxadd" data-sysload style="margin-top:6px" title="이 컴퓨터에 설치된 폰트를 하나도 빠짐없이 폰트 목록에 추가 — OS 기본 + 직접 설치한 폰트 전부 (Chrome/Edge)">🖥 이 컴퓨터의 모든 폰트 불러오기</button>'; }
   { const box=Q('#ls_projfonts'); if(box){
     box.addEventListener('click',e=>{ if(e.target.closest('[data-sysload]')) loadSystemFonts(); });
     box.addEventListener('change',e=>{ const sel=e.target.closest('select[data-pf]'); if(!sel)return;
@@ -6521,23 +6521,51 @@ void main(){
     if(autoKeys.indexOf(key)<0) addAutoLane(key);
     const a=ensureAuto(key); if(!a.lk) a.lk={on:false,band:'low',amt:0.3}; a.on=true;
     kfPop=document.createElement('div'); kfPop.className='ls-kfpop';
+    const fmtHz=v=>v>=1000?((v/1000).toFixed(v>=10000?0:1)+'kHz'):(Math.round(v)+'Hz');
     const paint=()=>{ const lk=a.lk;
+      const f0=Math.max(20,Math.min(16000,+lk.f0||60)), f1=Math.max(20,Math.min(16000,+lk.f1||4000));
+      const thr=Math.max(0,Math.min(0.9,+lk.thr||0)), atk=Math.max(0,Math.min(0.5,+lk.atk||0));
+      const rel=Math.max(0.03,Math.min(2,(lk.rel==null?0.28:+lk.rel)));
       kfPop.innerHTML='<div class="sec">♪ 오디오 연결 — '+laneLabel(key)+'</div>'
-        +'<div class="row">'+[['low','저역 (킥·베이스)'],['mid','중역'],['high','고역'],['lvl','전체']].map(b=>'<button data-b="'+b[0]+'" class="'+(lk.on&&lk.band===b[0]?'on':'')+'">'+b[1]+'</button>').join('')+'</div>'
+        +'<div class="row">'+[['low','저역'],['mid','중역'],['high','고역'],['lvl','전체'],['custom','커스텀']].map(b=>'<button data-b="'+b[0]+'" class="'+(lk.on&&lk.band===b[0]?'on':'')+'">'+b[1]+'</button>').join('')+'</div>'
+        +(lk.on&&lk.band==='custom'
+          ?('<div class="sec" data-f0lab>대역 시작 '+fmtHz(f0)+'</div>'
+            +'<div class="row"><input type="range" data-lk="f0" min="20" max="8000" step="10" value="'+f0+'" style="width:100%"></div>'
+            +'<div class="sec" data-f1lab>대역 끝 '+fmtHz(f1)+'</div>'
+            +'<div class="row"><input type="range" data-lk="f1" min="100" max="16000" step="20" value="'+f1+'" style="width:100%"></div>')
+          :'')
         +'<div class="sec" data-amtlab>반응 강도 '+Math.round(lk.amt*100)+'% — 음수는 역방향</div>'
-        +'<div class="row"><input type="range" data-amt min="-1" max="1" step="0.05" value="'+lk.amt+'" style="width:100%"></div>'
+        +'<div class="row"><input type="range" data-lk="amt" min="-1" max="1" step="0.05" value="'+lk.amt+'" style="width:100%"></div>'
+        +'<div class="sec" data-thrlab>게이트 '+Math.round(thr*100)+'%'+(thr>0?' — 이 이하 에너지는 무시':' — 0이면 항상 반응')+'</div>'
+        +'<div class="row"><input type="range" data-lk="thr" min="0" max="0.9" step="0.05" value="'+thr+'" style="width:100%"></div>'
+        +'<div class="sec" data-atklab>어택 '+(atk<=0.002?'즉시':Math.round(atk*1000)+'ms')+'</div>'
+        +'<div class="row"><input type="range" data-lk="atk" min="0" max="0.5" step="0.01" value="'+atk+'" style="width:100%"></div>'
+        +'<div class="sec" data-rellab>릴리즈 '+Math.round(rel*1000)+'ms</div>'
+        +'<div class="row"><input type="range" data-lk="rel" min="0.03" max="1.5" step="0.01" value="'+rel+'" style="width:100%"></div>'
         +'<div class="row"><button data-a="off"'+(lk.on?' class="warn"':'')+'>'+(lk.on?'연결 해제':'대역을 선택하면 연결돼요')+'</button></div>'
-        +'<div class="hint">음악의 대역 에너지가 이 값을 실시간으로 밀어요 · 키프레임과 공존(가산) · 내보내기에도 동일 반영</div>'; };
+        +'<div class="hint">대역 에너지 → 게이트 → 어택/릴리즈 스무딩 → 이 값에 가산 · 키프레임과 공존 · 내보내기에도 동일 반영</div>'; };
     paint(); document.body.appendChild(kfPop);
-    const pw=230; kfPop.style.left=Math.max(8,Math.min(window.innerWidth-pw-8,x-pw/2))+'px';
+    const pw=270; kfPop.style.width=pw+'px';
+    kfPop.style.left=Math.max(8,Math.min(window.innerWidth-pw-8,x-pw/2))+'px';
     kfPop.style.top=Math.max(8,Math.min(window.innerHeight-(kfPop.offsetHeight||200)-8,y+8))+'px';
     kfPop.addEventListener('pointerdown',e=>e.stopPropagation());
     kfPop.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return;
-      if(b.dataset.b){ a.lk.on=true; a.lk.band=b.dataset.b; paint(); renderTimeline(); persistAutoLocal(); }
-      else if(b.dataset.a==='off'&&a.lk.on){ a.lk.on=false; paint(); renderTimeline(); persistAutoLocal(); } });
-    kfPop.addEventListener('input',e=>{ const r=e.target.closest('[data-amt]'); if(!r)return;
-      a.lk.amt=Math.max(-1,Math.min(1,parseFloat(r.value)||0));
-      const l2=kfPop.querySelector('[data-amtlab]'); if(l2)l2.textContent='반응 강도 '+Math.round(a.lk.amt*100)+'% — 음수는 역방향';
+      if(b.dataset.b){ a.lk.on=true; a.lk.band=b.dataset.b; delete a.lk._e; paint(); renderTimeline(); persistAutoLocal(); }
+      else if(b.dataset.a==='off'&&a.lk.on){ a.lk.on=false; delete a.lk._e; paint(); renderTimeline(); persistAutoLocal(); } });
+    kfPop.addEventListener('input',e=>{ const r=e.target.closest('[data-lk]'); if(!r)return;
+      const f=r.dataset.lk; let v=parseFloat(r.value)||0; const lk=a.lk;
+      if(f==='amt'){ lk.amt=Math.max(-1,Math.min(1,v));
+        const l2=kfPop.querySelector('[data-amtlab]'); if(l2)l2.textContent='반응 강도 '+Math.round(lk.amt*100)+'% — 음수는 역방향'; }
+      else if(f==='f0'){ lk.f0=v; if((+lk.f1||4000)<v+50)lk.f1=v+50;
+        const l2=kfPop.querySelector('[data-f0lab]'); if(l2)l2.textContent='대역 시작 '+fmtHz(v); }
+      else if(f==='f1'){ lk.f1=v; if((+lk.f0||60)>v-50)lk.f0=Math.max(20,v-50);
+        const l2=kfPop.querySelector('[data-f1lab]'); if(l2)l2.textContent='대역 끝 '+fmtHz(v); }
+      else if(f==='thr'){ lk.thr=v;
+        const l2=kfPop.querySelector('[data-thrlab]'); if(l2)l2.textContent='게이트 '+Math.round(v*100)+'%'+(v>0?' — 이 이하 에너지는 무시':' — 0이면 항상 반응'); }
+      else if(f==='atk'){ lk.atk=v;
+        const l2=kfPop.querySelector('[data-atklab]'); if(l2)l2.textContent='어택 '+(v<=0.002?'즉시':Math.round(v*1000)+'ms'); }
+      else if(f==='rel'){ lk.rel=v;
+        const l2=kfPop.querySelector('[data-rellab]'); if(l2)l2.textContent='릴리즈 '+Math.round(v*1000)+'ms'; }
       persistAutoLocal(); });
   }
   // el(또는 감싸는 컨트롤 행) 우클릭에 오토메이션 메뉴 연결
@@ -6625,25 +6653,6 @@ void main(){
   function dupObj(id){ const o=findObj(id); if(!o)return;
     const c=cloneObjFrom(o); c.x=clamp01((o.x||0.5)+0.03); c.y=clamp01((o.y||0.5)+0.03);
     objs.push(c); selectObj(c.id); syncLayerTracks(); showError('레이어를 복제했어요 (Ctrl+D).'); }
-  // ===== 레이어 프리셋 — 스타일·모션·구간을 통째로 저장해 재사용 (로컬 저장) =====
-  function lpLoad(){ try{ const a=JSON.parse(localStorage.getItem('ls_layerPresets')||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
-  function lpPersist(a){ try{ localStorage.setItem('ls_layerPresets',JSON.stringify(a)); return true; }
-    catch(e){ showError('프리셋 저장 실패 — 저장 공간이 가득 찼어요. 이미지·영상 프리셋은 용량이 커서 몇 개만 유지하는 걸 권해요.'); return false; } }
-  function saveLayerPreset(o){ let nm=''; try{ nm=window.prompt('프리셋 이름',objName(o))||''; }catch(e){} nm=nm.trim(); if(!nm)return;
-    const c=captureObjs().find(x=>x.id===o.id); if(!c)return; delete c.id;
-    const a=lpLoad(); const ix=a.findIndex(p2=>p2.name===nm); if(ix>=0)a[ix]={name:nm,obj:c}; else a.push({name:nm,obj:c});
-    if(lpPersist(a)){ showError('레이어 프리셋 "'+nm+'" 저장 — 어떤 레이어에서든 ＋로 불러올 수 있어요.');
-      if(objPop&&objPop.classList.contains('on'))openPop(o.id); } }
-  function applyLayerPreset(i){ const a=lpLoad(); const p2=a[i]; if(!p2||!p2.obj)return;
-    const o=JSON.parse(JSON.stringify(p2.obj)); o.id=objSeq++; delete o.gid; o.rot=o.rot||0;
-    o.tIn=Math.max(0,Math.min(projDur(),+o.tIn||0));
-    if(o.tOut!=null) o.tOut=Math.max(o.tIn+0.1,Math.min(projDur(),+o.tOut));
-    if(o.type==='video'){ try{ makeVideoEl(o); }catch(e){} }
-    if(o.type==='text'){ try{ measureText(o); }catch(e){} }
-    objs.push(o); selectObj(o.id); openPop(o.id); syncLayerTracks();
-    showError('프리셋 "'+p2.name+'"을 새 레이어로 추가했어요.'); }
-  function delLayerPreset(i){ const a=lpLoad(); if(!a[i])return; const nm=a[i].name; a.splice(i,1); lpPersist(a);
-    showError('프리셋 "'+nm+'"을 삭제했어요.'); if(objPop&&objPop.classList.contains('on')&&selId!=null)openPop(selId); }
   function splitAtPlayhead(){                              // S — 선택한 레이어/트랙을 재생 헤드에서 분할
     const t=lastT, dur=projDur(); let did=0;
     const ids=selIds.size?[...selIds]:(selId!=null?[selId]:[]);
@@ -6987,9 +6996,15 @@ void main(){
     system:'System UI',arial:'Arial',helvetica:'Helvetica',times:'Times New Roman',georgia:'Georgia',
     verdana:'Verdana',trebuchet:'Trebuchet MS',tahoma:'Tahoma',courier:'Courier New',impact:'Impact',palatino:'Palatino',
     malgun:'맑은 고딕',nanumgothic:'나눔고딕',nanummyeongjo:'나눔명조'};
-  function fontOpts(cur){ let h=Object.keys(FONT_LABELS).map(k=>'<option value="'+k+'"'+(k===cur?' selected':'')+'>'+FONT_LABELS[k]+'</option>').join('');
-    if(cur&&!FONT_LABELS[cur]&&String(cur).indexOf('sys_')===0)   // 시스템 폰트로 저장된 프로젝트 — 목록 미등록이어도 현재 값 유지 표시
-      h='<option value="'+cur+'" selected>'+escapeHtml(String(cur).slice(4).slice(0,24))+' (시스템)</option>'+h;
+  function fontOpts(cur){
+    const base=[],user=[],sys=[];
+    Object.keys(FONT_LABELS).forEach(k=>{ (String(k).indexOf('sys_')===0?sys:(String(k).indexOf('u_')===0?user:base)).push(k); });
+    const opt=k=>'<option value="'+k+'"'+(k===cur?' selected':'')+'>'+FONT_LABELS[k]+'</option>';
+    let h=base.map(opt).join('');
+    if(user.length)h+='<optgroup label="내 폰트 파일">'+user.map(opt).join('')+'</optgroup>';
+    if(sys.length)h+='<optgroup label="내 컴퓨터 폰트 ('+sys.length+')">'+sys.map(opt).join('')+'</optgroup>';
+    if(cur&&!FONT_LABELS[cur]&&String(cur).indexOf('sys_')===0)   // 컴퓨터 폰트로 저장된 프로젝트 — 목록 미등록이어도 현재 값 유지 표시
+      h='<option value="'+cur+'" selected>'+escapeHtml(String(cur).slice(4).slice(0,24))+' (내 컴퓨터)</option>'+h;
     return h; }
   // 시스템(로컬 설치) 폰트 불러오기 — Local Font Access API (Chrome/Edge, 사용자 제스처+권한 필요)
   // 패밀리 단위로 'sys_패밀리' 키 등록 → 모든 폰트 셀렉트에 노출. 저장 프로젝트는 fontFam이 키에서 즉시 해석.
@@ -6997,14 +7012,14 @@ void main(){
     if(typeof window.queryLocalFonts!=='function'){ showError('이 브라우저는 시스템 폰트 접근을 지원하지 않아요 — Chrome/Edge에서 사용해 주세요.'); return; }
     try{
       const fonts=await window.queryLocalFonts();
-      const fams=[...new Set(fonts.map(f=>f&&f.family).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+      const fams=[...new Set(fonts.map(f=>f&&f.family).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ko'));
       let n=0;
       fams.forEach(fam=>{ const key='sys_'+fam; if(!OFONTS[key]){
-        OFONTS[key]="'"+String(fam).replace(/['"\\]/g,'')+"',sans-serif"; FONT_LABELS[key]=String(fam).slice(0,24); n++; } });
+        OFONTS[key]="'"+String(fam).replace(/['"\\]/g,'')+"',sans-serif"; FONT_LABELS[key]=String(fam).slice(0,28); n++; } });
       if(n){ layerTexCache.clear();
         if(objPop&&objPop.classList.contains('on')&&selId!=null&&findObj(selId)) openPop(selId);   // 열린 인스펙터의 폰트 목록 갱신
         try{ renderProjectFonts(true); }catch(e){}
-        showError('시스템 폰트 '+n+'개 패밀리를 불러왔어요 — 폰트 목록에서 선택하세요. (이 세션 동안 유지 · 프로젝트에는 폰트명으로 저장)'); }
+        showError('이 컴퓨터의 폰트 '+n+'개 패밀리를 전부 불러왔어요 — 폰트 목록의 "내 컴퓨터 폰트" 그룹에서 선택하세요. (세션 동안 유지 · 프로젝트에는 폰트명으로 저장)'); }
       else showError('추가할 새 폰트가 없어요 — 이미 전부 목록에 있어요.');
     }catch(e){ showError('시스템 폰트 접근이 거부되었어요 — 주소창의 권한 요청을 허용해 주세요.'); }
   }
@@ -7196,14 +7211,6 @@ void main(){
     h+='<div class="ls-orow"><span>모드</span><select data-blendsel style="flex:1;min-width:0">'+
        BLENDS.map(b=>'<option value="'+b[0]+'"'+(o.blend===b[0]?' selected':'')+'>'+b[1]+'</option>').join('')+'</select></div>';
     h+=rowRange('blendAmt','강도',0,1,0.01,o.blendAmt,Math.round(o.blendAmt*100)+'%');
-    { const lps=lpLoad();
-      h+='<div class="ls-osec">레이어 프리셋</div>';
-      h+='<div class="ls-orow"><span>스타일·모션·구간 통째 저장/재사용</span><div class="ls-oinline">'
-        +'<select data-lpsel style="flex:1;min-width:0"><option value="">'+(lps.length?('프리셋 선택… ('+lps.length+')'):'저장된 프리셋 없음')+'</option>'
-        +lps.map((p2,i)=>'<option value="'+i+'">'+escapeHtml(p2.name)+'</option>').join('')+'</select>'
-        +'<button class="ls-fontadd" data-lpadd title="선택한 프리셋을 새 레이어로 추가">＋</button>'
-        +'<button class="ls-fontadd" data-lpsave title="이 레이어를 프리셋으로 저장">💾</button>'
-        +'<button class="ls-fontadd" data-lpdel title="선택한 프리셋 삭제">🗑</button></div></div>'; }
     h+='</div>'; // end props pane
 
     // ===== 모션 pane =====
@@ -7326,11 +7333,6 @@ void main(){
     { const nl=p.querySelector('[data-nolook]'); if(nl)nl.addEventListener('click',()=>{ o.noLook=!o.noLook; nl.classList.toggle('on',o.noLook); scheduleUndoCommit(); }); }
     { const pt=p.querySelector('[data-ptext]'); if(pt)pt.addEventListener('click',()=>splitPlayerText(o)); }
     { const tb=p.querySelector('[data-typo]'); if(tb)tb.addEventListener('click',()=>openTypoPop(o,tb)); }
-    { const se=p.querySelector('[data-lpsel]');
-      const need=()=>{ if(!se||se.value===''){ showError('프리셋을 셀렉트에서 먼저 고르세요.'); return null; } return +se.value; };
-      const sv=p.querySelector('[data-lpsave]'); if(sv)sv.addEventListener('click',()=>saveLayerPreset(o));
-      const ad=p.querySelector('[data-lpadd]'); if(ad)ad.addEventListener('click',()=>{ const i=need(); if(i!=null)applyLayerPreset(i); });
-      const dl=p.querySelector('[data-lpdel]'); if(dl)dl.addEventListener('click',()=>{ const i=need(); if(i!=null)delLayerPreset(i); }); }
     p.querySelectorAll('[data-tr]').forEach(el=>el.addEventListener('change',ev=>{
       const tr=(el.dataset.tr==='in')?o.trIn:o.trOut; tr.type=ev.target.value; }));
     p.querySelectorAll('[data-trd]').forEach(el=>el.addEventListener('input',ev=>{
@@ -7623,21 +7625,35 @@ void main(){
   function objPropRange(p){ if(/^fx\d+$/.test(p)) return {min:0,max:1}; if(p==='kzoom')return {min:0,max:2}; if(p==='kshake')return {min:0,max:1}; if(p==='famt')return {min:0,max:1};
     return p==='opacity'?{min:0,max:1}:(p==='x'||p==='y')?{min:0,max:1}:p==='scale'?{min:0.05,max:10}:{min:-180,max:180}; }
   function objPropStatic(o,p){ const fm=p.match(/^fx(\d+)$/); if(fm){ const f=o&&o.fx&&o.fx[+fm[1]]; return f?Math.max(0,Math.min(1,+f.amount||0)):0; } return p==='scale'?1:(o&&o[p]!==undefined?o[p]:0); }
-  // 대역 에너지 엔벨로프(어택 즉시·릴리즈 지수) — 오디오 링크 신호원. ovrFreq 주입 시 오프라인 렌더도 동일 값 → 내보내기 재현.
-  const audEnv={low:0,mid:0,high:0,lvl:0}; let _audT=null;
+  // 대역 에너지 — 오디오 링크 신호원. ovrFreq 주입 시 오프라인 렌더도 동일 값 → 내보내기 재현.
+  // audRaw = 프레임당 원시 대역 에너지(0~1). 엔벨로프(게이트·어택·릴리즈)는 링크마다 linkEnv에서 개별 적용.
+  const audRaw={low:0,mid:0,high:0,lvl:0}; let _audT=null, _audFD=null, _audBinHz=0;
   const AUD_BANDS={low:[30,150],mid:[400,2500],high:[4000,12000],lvl:[40,14000]};
+  function bandRawRange(f0,f1){ const FD=_audFD, binHz=_audBinHz; if(!FD||binHz<=0)return 0;
+    if(f1<f0){ const t2=f0; f0=f1; f1=t2; }
+    const i0=Math.max(1,Math.floor(f0/binHz)), i1=Math.min(FD.length-1,Math.ceil(f1/binHz));
+    if(i1<i0)return 0; let s=0; for(let i=i0;i<=i1;i++)s+=FD[i];
+    return Math.pow((s/(i1-i0+1))/255,1.5); }
   function audioBandsNow(tSec){
     let FD=null,binHz=0;
     if(ovrFreq){ FD=ovrFreq; binHz=48000/1024; }
     else if(hasAudio()&&analyser&&freqData&&(tlPlaying||recording)){ analyser.getByteFrequencyData(freqData); FD=freqData; binHz=((audioCtx&&audioCtx.sampleRate)||44100)/analyser.fftSize; }
-    const dt=(_audT==null)?1/60:Math.max(0.001,Math.min(0.2,Math.abs(tSec-_audT))); _audT=tSec;
-    const rel=Math.exp(-dt/0.28);
-    for(const b in AUD_BANDS){ let raw=0;
-      if(FD&&binHz>0){ const f0=AUD_BANDS[b][0],f1=AUD_BANDS[b][1];
-        const i0=Math.max(1,Math.floor(f0/binHz)), i1=Math.min(FD.length-1,Math.ceil(f1/binHz));
-        if(i1>=i0){ let s=0; for(let i=i0;i<=i1;i++)s+=FD[i]; raw=Math.pow((s/(i1-i0+1))/255,1.5); } }
-      audEnv[b]=Math.max(raw,audEnv[b]*rel); if(audEnv[b]<0.001)audEnv[b]=0; }
+    _audFD=FD; _audBinHz=binHz; _audT=tSec;
+    for(const b in AUD_BANDS) audRaw[b]=bandRawRange(AUD_BANDS[b][0],AUD_BANDS[b][1]);
   }
+  // 링크별 엔벨로프 — raw → 게이트(thr) → 어택/릴리즈 스무딩. 시간축이 tSec라 미리보기=내보내기 동일.
+  function linkEnv(lk,tSec){
+    let raw=(lk.band==='custom')?bandRawRange(+lk.f0||60,+lk.f1||4000):(audRaw[lk.band]||0);
+    const thr=Math.max(0,Math.min(0.9,+lk.thr||0));
+    if(thr>0) raw=(raw<=thr)?0:(raw-thr)/(1-thr);
+    const st2=lk._e||(lk._e={v:0,t:null});
+    const dt=(st2.t==null)?1/60:Math.max(0.001,Math.min(0.2,Math.abs(tSec-st2.t))); st2.t=tSec;
+    const atk=Math.max(0,Math.min(0.5,+lk.atk||0));
+    const rel=Math.max(0.03,Math.min(2,(lk.rel==null?0.28:+lk.rel)));
+    if(raw>st2.v) st2.v=(atk<=0.002)?raw:(raw+(st2.v-raw)*Math.exp(-dt/atk));
+    else st2.v=raw+(st2.v-raw)*Math.exp(-dt/rel);
+    if(st2.v<0.001)st2.v=0;
+    return st2.v; }
   function autoStatic(k){ if(isObjKey(k)){ const pp=objKeyParts(k); return pp?objPropStatic(findObj(pp.id),pp.prop):0; } if(GAUTO_LABELS[k]) return +grad[k.slice(1)]||0; return st[k]; }
   function laneLabel(k){ if(isObjKey(k)){ const pp=objKeyParts(k); const o=pp&&findObj(pp.id);
     const fm=pp&&pp.prop&&pp.prop.match(/^fx(\d+)$/);
@@ -7649,7 +7665,11 @@ void main(){
   function captureAuto(){ const o={}; for(const k in auto){ const a=auto[k]; if(!a) continue;
     const hasP=a.pts&&a.pts.length, hasL=a.lk&&a.lk.on; if(!hasP&&!hasL) continue;
     const q={on:!!a.on,pts:(a.pts||[]).map(p=>{ const r={t:p.t,v:p.v}; if(p.m&&p.m!=='smooth')r.m=p.m; if(p.m==='bezier'&&p.h&&p.h.length===4)r.h=p.h.slice(); return r; })};
-    if(hasL) q.lk={on:true,band:a.lk.band,amt:Math.max(-1,Math.min(1,+a.lk.amt||0))};
+    if(hasL){ const L=a.lk; q.lk={on:true,band:L.band,amt:Math.max(-1,Math.min(1,+L.amt||0))};
+      if(L.band==='custom'){ q.lk.f0=Math.max(20,Math.min(16000,+L.f0||60)); q.lk.f1=Math.max(20,Math.min(16000,+L.f1||4000)); }
+      if(+L.thr>0) q.lk.thr=Math.max(0,Math.min(0.9,+L.thr));
+      if(+L.atk>0) q.lk.atk=Math.max(0,Math.min(0.5,+L.atk));
+      if(L.rel!=null&&Math.abs(+L.rel-0.28)>0.001) q.lk.rel=Math.max(0.03,Math.min(2,+L.rel)); }
     o[k]=q; } return o; }
   function sanePt(p){ const q={t:+p.t,v:+p.v};
     if(p.m==='linear'||p.m==='hold') q.m=p.m;
@@ -7662,7 +7682,12 @@ void main(){
       const hasP=Array.isArray(a.pts)&&a.pts.length, hasL=a.lk&&a.lk.on;
       if(!hasP&&!hasL) continue;
       const na={on:!!a.on,pts:(Array.isArray(a.pts)?a.pts.map(sanePt).sort((x,y)=>x.t-y.t):[])};
-      if(a.lk){ na.lk={on:!!a.lk.on,band:AUD_BANDS[a.lk.band]?a.lk.band:'low',amt:Math.max(-1,Math.min(1,+a.lk.amt||0))}; }
+      if(a.lk){ const L=a.lk; const band=(AUD_BANDS[L.band]||L.band==='custom')?L.band:'low';
+        na.lk={on:!!L.on,band:band,amt:Math.max(-1,Math.min(1,+L.amt||0))};
+        if(band==='custom'){ na.lk.f0=Math.max(20,Math.min(16000,+L.f0||60)); na.lk.f1=Math.max(20,Math.min(16000,+L.f1||4000)); }
+        if(+L.thr>0) na.lk.thr=Math.max(0,Math.min(0.9,+L.thr));
+        if(+L.atk>0) na.lk.atk=Math.max(0,Math.min(0.5,+L.atk));
+        if(L.rel!=null) na.lk.rel=Math.max(0.03,Math.min(2,+L.rel)); }
       auto[k]=na; autoKeys.push(k); } }
     KEYS.forEach(k=>{ const el=Q('#ls_'+k); if(el) el.dispatchEvent(new Event('input')); });
     if(typeof renderTimeline==='function') renderTimeline(); }
@@ -8089,7 +8114,7 @@ void main(){
       const exp=expandedLanes.has(key);
       const lab=mk('ls-rlabel auto'+(exp?' expanded':''));
       lab.innerHTML='<span class="ls-rl-name">'+laneLabel(key)+'</span>'+
-        ((a.lk&&a.lk.on)?'<span class="ls-rl-link" title="오디오 연결됨 ('+({low:'저역',mid:'중역',high:'고역',lvl:'전체'})[a.lk.band]+') — 노브 우클릭으로 편집">♪</span>':'')+
+        ((a.lk&&a.lk.on)?'<span class="ls-rl-link" title="오디오 연결됨 ('+(a.lk.band==='custom'?(Math.round(+a.lk.f0||60)+'–'+Math.round(+a.lk.f1||4000)+'Hz'):({low:'저역',mid:'중역',high:'고역',lvl:'전체'})[a.lk.band]||a.lk.band)+') — 노브 우클릭으로 편집">♪</span>':'')+
         '<span class="ls-rl-g'+(exp?' on':'')+'" title="그래프 편집 (베지어 핸들)">∿</span>'+
         '<span class="ls-autotog'+(a.on?' on':'')+'" title="사용/해제">'+(a.on?'ON':'OFF')+'</span>'+
         '<span class="ls-rl-x" title="레인 삭제">×</span>';
@@ -8273,7 +8298,7 @@ void main(){
     if(v===undefined) v=(base!==undefined)?base:autoStatic(k);
     const a=auto[k];
     if(a&&a.on&&a.lk&&a.lk.on&&Math.abs(+a.lk.amt||0)>0.0001){   // 오디오 링크: 대역 에너지 × 강도 × 레인지 폭 가산
-      const r2=paramRange(k); const e=audEnv[a.lk.band]||0;
+      const r2=paramRange(k); const e=linkEnv(a.lk,t);
       v=(+v||0)+e*(+a.lk.amt)*(r2.max-r2.min);
       v=Math.max(r2.min,Math.min(r2.max,v)); }
     return v; }
