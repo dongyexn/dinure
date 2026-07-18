@@ -1112,7 +1112,7 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
   background:var(--c-card); border:1px solid var(--c-bd); border-radius:6px; color:var(--c-t1); }
 .ls-clrpop .vals input[data-cf=hex]{ grid-column:2 / -1; text-align:left; padding-left:7px; letter-spacing:.5px; }
 .ls-clrpop .qrow{ display:flex; gap:6px; }
-.ls-clrpop .qrow button{ flex:1; height:20px; padding:0; border-radius:6px; border:1px solid var(--c-bd2); cursor:pointer; }
+.ls-clrpop .qrow button{ flex:1 1 0; min-width:0; width:auto; height:20px; margin:0; padding:0; border-radius:6px; border:1px solid var(--c-bd2); cursor:pointer; }
 .ls-clrpop .qrow button:hover{ border-color:var(--acc); }
 .ls-rl-link{ color:var(--acc); font-size:11px; font-weight:800; margin:0 1px; animation:lsPulse 1.6s ease-in-out infinite; }
 @keyframes lsPulse{ 0%,100%{opacity:.55} 50%{opacity:1} }
@@ -5809,6 +5809,7 @@ void main(){
     scheduleUndoCommit();
   },{passive:false,capture:true});
   function renderGradColors(){ const box=Q('#ls_gcolors'); if(!box)return;
+    if(document.querySelector('.ls-clrpop'))return;   // 피커 세션 동안 슬롯 DOM 동결 — 앵커 분리로 위임 이벤트 유실 방지(닫힘 change에서 재생성)
     let h='';
     for(let i=0;i<5;i++){
       if(i<grad.colors.length){
@@ -6514,7 +6515,7 @@ void main(){
     const r0=anchor.getBoundingClientRect(), pw=216;
     kfPop.style.left=Math.max(8,Math.min(window.innerWidth-pw-8,r0.left+r0.width/2-pw/2))+'px';
     const phh=kfPop.offsetHeight||230;
-    kfPop.style.top=(r0.top-phh-8<8?(r0.bottom+8):(r0.top-phh-8))+'px';
+    kfPop.style.top=Math.max(8,Math.min(window.innerHeight-phh-8,(r0.top-phh-8<8?(r0.bottom+8):(r0.top-phh-8))))+'px';
     kfPop.addEventListener('pointerdown',e=>e.stopPropagation());
     const cv=kfPop.querySelector('canvas'), cx=cv.getContext('2d');
     const dot=kfPop.querySelector('.dot'), hueEl=kfPop.querySelector('.hue'), hued=kfPop.querySelector('.hued');
@@ -7628,9 +7629,9 @@ void main(){
   root.addEventListener('click',e=>{
     const inp=e.target.closest('input[type=color]'); if(!inp) return;
     e.preventDefault(); e.stopPropagation();
-    openColorPop(inp, inp.value||'#000000', v=>{ inp.value=v;
-      inp.dispatchEvent(new Event('input',{bubbles:true}));
-      inp.dispatchEvent(new Event('change',{bubbles:true})); });
+    openColorPop(inp, inp.value||'#000000', v=>{ inp.value=v;                 // 드래그 중엔 input만 — change 핸들러의 행 재생성으로 앵커가 분리되는 것 방지
+      inp.dispatchEvent(new Event('input',{bubbles:true})); });
+    if(kfPop) kfPop._onClose=()=>{ inp.dispatchEvent(new Event('change',{bubbles:true})); };   // 닫힐 때 1회 확정
   },true);
   root.querySelectorAll('.ls-lyr-addbtn').forEach(b=>b.addEventListener('click',()=>{ const t=b.dataset.add; if(t==='text')addText(); else if(t==='image')addImage(); else if(t==='video')addVideo(); else if(t==='shape')addShape(); else if(t==='spectrum')addSpectrum(); else if(t==='progress')addProgress(); else if(t==='kick')addKick();
     else if(t==='audio'){ if(tracks.length>=MAXTR) showError('음원 트랙은 최대 '+MAXTR+'개예요.'); else aInput.click(); }
@@ -7900,7 +7901,8 @@ void main(){
 
   // ===== 키프레임 팝업 · 클립보드 · 단축키 =====
   let kfPop=null, kfClip=null, kfTip=null;
-  function closeKfPop(){ if(kfPop){ const wasClr=!!(kfPop.classList&&kfPop.classList.contains('ls-clrpop')); kfPop.remove(); kfPop=null;
+  function closeKfPop(){ if(kfPop){ const wasClr=!!(kfPop.classList&&kfPop.classList.contains('ls-clrpop')); const fin=kfPop._onClose; kfPop.remove(); kfPop=null;
+    if(fin){ try{ fin(); }catch(e){} }                                                  // 색 확정 change 1회 — 팝업 제거 후라 행 재생성 안전
     if(wasClr) setTimeout(()=>{ try{ renderProjectColors(true); }catch(e){} },0); } }   // 피커 닫힘 후 팔레트 동기화(재오픈 시엔 위 동결 가드가 무해화)
   function showKfTip(x,y,t,v){ if(!kfTip){ kfTip=document.createElement('div'); kfTip.className='ls-kftip'; document.body.appendChild(kfTip); }
     kfTip.textContent=t.toFixed(2)+'s · '+(Math.abs(v)<10?v.toFixed(2):Math.round(v));
