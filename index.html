@@ -4294,7 +4294,7 @@ function createArtwork(){
             <button class="ls-chip" data-h="3000">3000</button>
           </div>
         </div>
-        <div class="ls-hdur"><span>길이</span><input type="number" id="ls_durin" min="5" max="600" step="5" value="60"><span>초</span></div>
+        <div class="ls-hdur"><span>길이</span><input type="number" id="ls_durin" min="5" max="3600" step="5" value="60"><span>초</span></div>
         <div class="ls-menu">
           <button class="ls-menubtn" data-pop="fps"><span class="ls-mlab">프레임</span></button>
           <div class="ls-pop ls-pop-down" id="ls_fps">
@@ -4358,8 +4358,8 @@ function createArtwork(){
           <div id="ls_projfonts"></div>
           <div class="ls-osec">영상 페이드</div>
           <div class="ls-grid ls-ggrid">
-              <div class="ls-orow" style="margin:0"><span class="ls-scrub">인</span><div class="ls-oinline ls-xy"><input type="number" id="ls_vfi" step="0.1" min="0" max="600" value="0"> s</div></div>
-              <div class="ls-orow" style="margin:0"><span class="ls-scrub">아웃</span><div class="ls-oinline ls-xy"><input type="number" id="ls_vfo" step="0.1" min="0" max="600" value="0"> s</div></div>
+              <div class="ls-orow" style="margin:0"><span class="ls-scrub">인</span><div class="ls-oinline ls-xy"><input type="number" id="ls_vfi" step="0.1" min="0" max="3600" value="0"> s</div></div>
+              <div class="ls-orow" style="margin:0"><span class="ls-scrub">아웃</span><div class="ls-oinline ls-xy"><input type="number" id="ls_vfo" step="0.1" min="0" max="3600" value="0"> s</div></div>
           </div>
           <div class="ls-ghint" style="margin-top:2px">캔버스 바깥을 클릭하면 언제든 이 패널이 열려요 — 프로젝트에 쓰인 컬러를 한자리에서 교체할 수 있어요</div>
           </div>
@@ -5772,14 +5772,27 @@ void main(){
       (collectProjFonts().get(from)||[]).forEach(fn=>fn(to)); sel.dataset.pf=to;
       refreshObjs(); scheduleUndoCommit(); renderProjectFonts(true);
       if(objPop&&objPop.classList.contains('on')&&selId!=null) openPop(selId); }); } }   // 열려 있는 인스펙터의 폰트 셀렉트 동기화
-  // ===== 폰트 셀렉트 휠 스크롤 — 셀렉트 위에서 휠을 굴리면 폰트가 바로 바뀌며 적용, 클릭은 평소처럼 목록 =====
-  function isFontSel(el){ return !!el&&el.tagName==='SELECT'&&(el.dataset.f==='font'||el.dataset.f==='ptfont'||el.dataset.pf!==undefined); }
+  // ===== 셀렉트·노브 휠 조정 — 모든 셀렉트/슬라이더 위에서 휠을 굴리면 값이 바로 바뀌며 적용(Shift=×5), 클릭은 평소처럼 =====
   root.addEventListener('wheel',e=>{
-    const el=e.target; if(!isFontSel(el))return;
-    e.preventDefault(); e.stopPropagation();
-    const idx=Math.max(0,Math.min(el.options.length-1,el.selectedIndex+(e.deltaY>0?1:-1)));
-    if(idx===el.selectedIndex)return;
-    el.selectedIndex=idx;
+    const el=e.target; if(!el||el.disabled)return;
+    const dn=e.deltaY>0;
+    if(el.tagName==='SELECT'){
+      e.preventDefault(); e.stopPropagation();
+      let idx=el.selectedIndex, d=dn?1:-1;
+      do{ idx+=d; }while(idx>=0&&idx<el.options.length&&el.options[idx].disabled);   // 비활성 옵션 건너뜀
+      if(idx<0||idx>=el.options.length||idx===el.selectedIndex)return;
+      el.selectedIndex=idx;
+    }else if(el.tagName==='INPUT'&&el.type==='range'){
+      e.preventDefault(); e.stopPropagation();
+      const s0=parseFloat(el.step), mn=parseFloat(el.min), mx=parseFloat(el.max);
+      const stp=(isFinite(s0)&&s0>0)?s0:((isFinite(mn)&&isFinite(mx))?(mx-mn)/100:1);
+      const cur=parseFloat(el.value)||0;
+      let v=cur+(dn?-stp:stp)*(e.shiftKey?5:1);                                      // 휠 위=증가, Shift=큰 폭
+      if(isFinite(mn))v=Math.max(mn,v); if(isFinite(mx))v=Math.min(mx,v);
+      const dec=(String(stp).split('.')[1]||'').length; v=+v.toFixed(Math.min(6,dec));
+      if(v===cur)return;
+      el.value=v;
+    }else return;
     el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true}));
     scheduleUndoCommit();
   },{passive:false,capture:true});
@@ -5910,7 +5923,7 @@ void main(){
 
   // ===== 멀티트랙 오디오 엔진 (AudioBuffer 정밀 스케줄 + 크로스페이드) =====
   const MAXTR=3; const FLOW=60;   // FLOW = fx 배경 루프 주기(고정 60s). 프로젝트 길이는 st.dur(projDur)로 분리.
-  function projDur(){ return Math.max(5,Math.min(600,(st&&st.dur)||60)); }
+  function projDur(){ return Math.max(5,Math.min(3600,(st&&st.dur)||60)); }
   let tlZoom=1;  // 타임라인 가로 줌 (1~8×)
   let markers=[];              // 타임라인 마커(초). 룰러 더블클릭/M키 추가, 드래그 이동, 더블클릭 삭제
   let waIn=null, waOut=null;   // 렌더 구간(work area). I/O 키·Shift+룰러 드래그로 지정 — 지정 시 해당 구간만 내보냄
@@ -6175,7 +6188,7 @@ void main(){
   function setAR(v){ v=parseFloat(v)||0.5625; const _old=st.ar; st.ar=v; fixObjAspect(_old,v); stage.style.setProperty('--ls-ar',v); _setChip('#ls_ratios','data-ar',v); resize(); }
   function setResH(v){ v=parseInt(v,10)||1080; st.outH=v; _setChip('#ls_res','data-h',v); }
   function setFPS(v){ v=parseInt(v,10)||30; st.fps=v; _setChip('#ls_fps','data-fps',v); }
-  function setDur(v){ v=Math.max(5,Math.min(600,parseFloat(v)||60)); st.dur=v; const di=header.querySelector('#ls_durin'); if(di)di.value=v; renderTimeline(); }
+  function setDur(v){ v=Math.max(5,Math.min(3600,parseFloat(v)||60)); st.dur=v; const di=header.querySelector('#ls_durin'); if(di)di.value=v; renderTimeline(); }
 
   // ===== 프로젝트 전체 상태 저장/복원 =====
   // 저장 대상: 비율·해상도·프레임·길이·마커·렌더구간 + 배경이미지·배경효과값·영상페이드·오토메이션
@@ -7600,7 +7613,7 @@ void main(){
   st.outH=1080; st.fps=30; st.pv=1; st.vfadeIn=0; st.vfadeOut=0;
   const durIn=Q('#ls_durin');
   if(durIn){ ['pointerdown','click'].forEach(ev=>durIn.addEventListener(ev,e=>e.stopPropagation()));
-    durIn.addEventListener('change',()=>{ st.dur=Math.max(5,Math.min(600,parseFloat(durIn.value)||60)); durIn.value=st.dur;
+    durIn.addEventListener('change',()=>{ st.dur=Math.max(5,Math.min(3600,parseFloat(durIn.value)||60)); durIn.value=st.dur;
       if(tlPlaying){ stopSources(); tlPlaying=false; tlFromT=0; updPlayBtns(); }
       renderTimeline(); seekTo(Math.min(1,lastT/projDur())); showError('프로젝트 길이: '+fmtT(st.dur)); }); }
   Q('#ls_res').addEventListener('click',e=>{ const b=e.target.closest('.ls-chip'); if(!b)return;
@@ -7994,7 +8007,7 @@ void main(){
 
     // ---- 시간 축 (고정) ----
     const axis=mk('ls-axis'); const axPad=mk('ls-axis-pad'); const ruler=mk('ls-ruler');
-    const tickStep=total<=90?10:(total<=240?30:60);
+    const tickStep=total<=90?10:(total<=240?30:(total<=1200?60:300));   // 장편(최대 60분)은 5분 눈금
     for(let s=0;s<=total;s+=tickStep){ const tk=mk('ls-ruler-tick'+(s+tickStep>total?' last':'')); tk.style.left=(s/total*100)+'%'; tk.textContent=fmtT(s); ruler.appendChild(tk);
       const ln=mk('ls-ruler-line'); ln.style.left=(s/total*100)+'%'; ruler.appendChild(ln); }
     { const sub=tickStep/5;                                               // 보조 눈금 — 주 눈금 사이 4개
@@ -8189,7 +8202,7 @@ void main(){
     ov.innerHTML='<div class="ls-modal-box">'+
       '<div class="ls-modal-h">구간 선택</div>'+
       '<div class="ls-modal-name"></div>'+
-      '<div class="ls-modal-sub">'+fmtT(dur)+' 음원에서 사용할 '+fmtT(win)+' 구간을 드래그로 고르세요. 전체를 넣고 싶으면 “전체 사용”을 누르면 프로젝트 길이가 음원에 맞춰집니다(최대 '+fmtT(Math.min(600,dur))+').</div>'+
+      '<div class="ls-modal-sub">'+fmtT(dur)+' 음원에서 사용할 '+fmtT(win)+' 구간을 드래그로 고르세요. 전체를 넣고 싶으면 “전체 사용”을 누르면 프로젝트 길이가 음원에 맞춰집니다(최대 '+fmtT(Math.min(3600,dur))+').</div>'+
       '<div class="ls-wavewrap"><canvas class="ls-wave"></canvas><div class="ls-wave-win"><span class="ls-ww-grip l"></span><span class="ls-ww-grip r"></span></div></div>'+
       '<div class="ls-modal-info"><span class="ls-mi-start">0:00</span><span class="ls-mi-mid">선택 '+fmtT(win)+'</span><span class="ls-mi-end">1:00</span></div>'+
       '<div class="ls-modal-btns"><button class="ls-mbtn preview">▶ 선택 구간 듣기</button><span class="ls-mbtn-sp"></span><button class="ls-mbtn full">전체 사용</button><button class="ls-mbtn cancel">취소</button><button class="ls-mbtn ok">이 구간 추가</button></div>'+
@@ -8225,7 +8238,7 @@ void main(){
     prevBtn.addEventListener('click',()=>{ if(prevOn) stopPrev(); else startPrev(); });
     function close(val){ stopPrev(); ov.remove(); resolve(val); }
     ov.querySelector('.cancel').addEventListener('click',()=>close(null));
-    ov.querySelector('.full').addEventListener('click',()=>{ const newLen=Math.min(600,Math.max(5,dur));
+    ov.querySelector('.full').addEventListener('click',()=>{ const newLen=Math.min(3600,Math.max(5,dur));
       setDur(newLen); close({start:0,end:Math.min(dur,newLen)}); });
     ov.querySelector('.ok').addEventListener('click',()=>{ const s=Math.max(0,Math.min(dur-win,winStart)); close({start:s,end:Math.min(dur,s+win)}); });
     requestAnimationFrame(()=>{ draw(); place(); });
