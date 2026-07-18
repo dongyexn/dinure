@@ -5934,7 +5934,10 @@ void main(){
   renderGradColors();
 
   // ===== 멀티트랙 오디오 엔진 (AudioBuffer 정밀 스케줄 + 크로스페이드) =====
-  const MAXTR=3; const FLOW=60;   // FLOW = fx 배경 루프 주기(고정 60s). 프로젝트 길이는 st.dur(projDur)로 분리.
+  const MAXTR=3; const FLOW=60;   // FLOW = fx 배경 위상 사이클 기준(≈60s). 프로젝트 길이는 st.dur(projDur)로 분리.
+  // fx 위상: 예전 ((t/60)%1) 랩은 매 60초마다 비정수 계수 항(sin(ph·0.7)·드리프트 등)이 점프해 장편에서 1분마다 미세 히치 발생.
+  // 길이를 정수 사이클로 스냅해 랩 없이 연속 — 속도 동일(사이클≈60s), 정수 계수 항은 루프 이음새도 그대로 무결.
+  function fxPhase(t){ const D=projDur(); const N=Math.max(1,Math.round(D/FLOW)); return 2*Math.PI*(t/D)*N; }
   function projDur(){ return Math.max(5,Math.min(3600,(st&&st.dur)||60)); }
   let tlZoom=1;  // 타임라인 가로 줌 (1~8×)
   let markers=[];              // 타임라인 마커(초). 룰러 더블클릭/M키 추가, 드래그 이동, 더블클릭 삭제
@@ -8422,7 +8425,7 @@ void main(){
     else if(playing){ tSec=((((now-startT)/1000)%dur)+dur)%dur;
       if(waLoop && waActive() && (tSec<waIn-0.05||tSec>=waOut)){ startT=now-Math.max(0,waIn)*1000; tSec=Math.max(0,waIn); } }
     else tSec=Math.max(0,Math.min(dur,pausedT));
-    const phase=2*Math.PI*((tSec/FLOW)%1);
+    const phase=fxPhase(tSec);
     lastPhase=phase; lastT=tSec;
     const lv=audioLevels();
     { const hide=(playing||tlPlaying||recording); if(objLayer.style.display!==(hide?'none':'')) objLayer.style.display=hide?'none':''; }
@@ -8461,7 +8464,7 @@ void main(){
     if(hasAudio()){ seekTimeline(r*dur); }
     else if(playing){ startT=performance.now()-r*dur*1000; }
     else { pausedT=r*dur; }
-    lastT=r*dur; lastPhase=2*Math.PI*((lastT/FLOW)%1); updTimebar(lastT); }
+    lastT=r*dur; lastPhase=fxPhase(lastT); updTimebar(lastT); }
 
   // image / audio file inputs
   const fileInput=Q('#ls_file');
@@ -8501,7 +8504,7 @@ void main(){
     if(grid3) grid3.classList.remove('on');       // 격자는 결과물에 포함하지 않음
     offlineRendering=true;
     try{ canvas.width=w; canvas.height=h;
-      const t=lastT, phase=2*Math.PI*((t/FLOW)%1); const lv=(typeof audioLevels==='function')?audioLevels():0;
+      const t=lastT, phase=fxPhase(t); const lv=(typeof audioLevels==='function')?audioLevels():0;
       drawScene(t,phase,lv,false);                // 출력 해상도로 현재 프레임 1장 렌더
       await new Promise(res=>{ canvas.toBlob(blob=>{ if(blob){ const url=URL.createObjectURL(blob);
         const stamp=new Date().toISOString().slice(0,16).replace(/[:T]/g,'');
@@ -8685,7 +8688,7 @@ void main(){
         const t=rT0+i/fps;                                  // work area 지정 시 절대시간으로 렌더
         ovrFreq=anal?anal.freq[i]:null;
         if(hasVid) await seekVideosExact(t);
-        drawScene(t, 2*Math.PI*((t/FLOW)%1), anal?anal.kick[i]:0, false); // phase는 FLOW 루프 유지
+        drawScene(t, fxPhase(t), anal?anal.kick[i]:0, false); // 연속 위상 — 프리뷰와 동일
         const vf=new VideoFrame(canvas,{timestamp:Math.round(i*1e6/fps),duration:Math.round(1e6/fps)});
         venc.encode(vf,{keyFrame:(i%gop)===0}); vf.close();
         while(venc.encodeQueueSize>4 && !_off.cancel && !encErr) await yieldTask();
