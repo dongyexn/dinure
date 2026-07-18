@@ -739,7 +739,7 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 @media (max-width:920px){ body.ls-hdr-on .topbar{ flex-wrap:wrap; padding-top:7px; padding-bottom:7px; } }
 .ls-hdur{ display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--c-t2);
   background:var(--c-card); border:1px solid var(--c-bd); border-radius:10px; padding:0 11px; height:32px; }
-.ls-hdur input{ width:46px; background:transparent; border:none; outline:none; color:var(--c-t1);
+.ls-hdur input{ width:58px; background:transparent; border:none; outline:none; color:var(--c-t1);
   font-size:12.5px; font-weight:700; font-family:inherit; text-align:center; -moz-appearance:textfield; }
 .ls-hdur input::-webkit-outer-spin-button,.ls-hdur input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
 
@@ -1020,6 +1020,7 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-pop::before{ content:''; position:absolute; left:-5px; top:13px; width:9px; height:9px; rotate:45deg;
   background:var(--c-panel); border-left:1px solid var(--c-bd2); border-bottom:1px solid var(--c-bd2); }
 .ls-pop .ls-chip{ width:100%; text-align:center; padding:8px 12px; }
+.ls-chipdim{ display:block; font-size:10px; font-weight:500; opacity:.62; margin-top:2px; letter-spacing:.02em; font-variant-numeric:tabular-nums; }
 .ls-pop-down{ left:0; top:calc(100% + 8px); }
 .ls-pop-down::before{ left:16px; top:-5px; rotate:135deg; border:none; border-top:1px solid var(--c-bd2); border-right:1px solid var(--c-bd2); }
 @media (max-width:920px){
@@ -1243,6 +1244,7 @@ body.ls-hdr-on #topActions{ flex:0 1 auto; min-width:0; margin-left:auto; }
 .ls-kfbtn:hover{ border-color:var(--acc); color:var(--acc); }
 .ls-beatline{ position:absolute; top:0; bottom:0; width:1px; background:var(--acc); opacity:.16; pointer-events:none; }
 .ls-typopop{ position:fixed; z-index:10001; width:252px; padding:13px 14px; display:flex; flex-direction:column; gap:10px;
+  max-height:calc(100vh - 16px); overflow-y:auto;
   background:var(--c-panel,#141415); border:1px solid var(--c-bd2,rgba(255,255,255,.16)); border-radius:13px;
   box-shadow:0 18px 48px -14px rgba(0,0,0,.85); }
 .ls-typopop .ls-orow{ margin:0; }
@@ -6185,8 +6187,13 @@ void main(){
     objs.forEach(o=>{ o.w=Math.max(0.005,Math.min(10,o.w*r)); });
     layerTexCache.clear(); refreshObjs();
   }
-  function setAR(v){ v=parseFloat(v)||0.5625; const _old=st.ar; st.ar=v; fixObjAspect(_old,v); stage.style.setProperty('--ls-ar',v); _setChip('#ls_ratios','data-ar',v); resize(); }
+  function setAR(v){ v=parseFloat(v)||0.5625; const _old=st.ar; st.ar=v; fixObjAspect(_old,v); stage.style.setProperty('--ls-ar',v); _setChip('#ls_ratios','data-ar',v); syncResChips(); resize(); }
   function setResH(v){ v=parseInt(v,10)||1080; st.outH=v; _setChip('#ls_res','data-h',v); }
+  function syncResChips(){ const pop=header.querySelector('#ls_res'); if(!pop)return;   // 비율이 바뀌면 각 해상도가 실제 몇×몇인지 표기
+    const ev2=n=>Math.max(2,2*Math.round(n/2)), ar=st.ar||0.5625;
+    pop.querySelectorAll('.ls-chip[data-h]').forEach(c=>{ const h=parseInt(c.dataset.h,10)||1080;
+      const d=ar>=1?ev2(h*ar)+'×'+ev2(h):ev2(h)+'×'+ev2(h/ar);
+      c.innerHTML=c.dataset.h+'<span class="ls-chipdim">'+d+'</span>'; }); }
   function setFPS(v){ v=parseInt(v,10)||30; st.fps=v; _setChip('#ls_fps','data-fps',v); }
   function setDur(v){ v=Math.max(5,Math.min(3600,parseFloat(v)||60)); st.dur=v; const di=header.querySelector('#ls_durin'); if(di)di.value=v; renderTimeline(); }
 
@@ -6698,8 +6705,9 @@ void main(){
     const o={id:objSeq++,type:'progress',x:.5,y:.74,rot:0,opacity:.95,w:w,h:h,color:'#ffffff',ptitle:'',partist:'',ptfont:'sans',ptsize:17,pasize:12};
     objs.push(o); selectObj(o.id); openPop(o.id); syncLayerTracks(); }
   // ===== 타이포그래피 팝업 (피그마식) — 웨이트·이탤릭·대소문자·장식·행간 =====
-  let typoPop=null;
-  function closeTypoPop(){ if(typoPop){ typoPop.remove(); typoPop=null; document.removeEventListener('pointerdown',_typoOut,true); } }
+  let typoPop=null, _typoPlace=null;
+  function closeTypoPop(){ if(typoPop){ typoPop.remove(); typoPop=null; document.removeEventListener('pointerdown',_typoOut,true);
+    if(_typoPlace){ window.removeEventListener('resize',_typoPlace); _typoPlace=null; } } }
   function _typoOut(e){ if(typoPop&&!typoPop.contains(e.target)&&!(e.target.closest&&e.target.closest('[data-typo]'))) closeTypoPop(); }
   function openTypoPop(o,btn){ if(typoPop){ closeTypoPop(); return; }
     const p2=document.createElement('div'); p2.className='ls-typopop';
@@ -6714,9 +6722,18 @@ void main(){
       '<div class="ls-orow"><span>행간 <span class="ls-oval" data-tpv="lh" style="float:right">'+(((+o.lh)||1.25)).toFixed(2)+'</span></span><input type="range" data-tp="lh" min="0.9" max="2.2" step="0.05" value="'+(((+o.lh)||1.25))+'"></div>'+
       '<div class="ls-ghint" style="margin:0">웨이트·이탤릭은 폰트가 지원할 때 그대로, 아니면 브라우저가 합성해요</div>';
     root.appendChild(p2);
-    const r2=btn.getBoundingClientRect();
-    p2.style.left=Math.max(8,Math.min(window.innerWidth-p2.offsetWidth-8,r2.right-p2.offsetWidth))+'px';
-    p2.style.top=Math.max(8,Math.min(window.innerHeight-p2.offsetHeight-8,r2.bottom+8))+'px';
+    const place2=()=>{ const r2=btn.getBoundingClientRect(), vw=window.innerWidth, vh=window.innerHeight;
+      const w=p2.offsetWidth||280, h=p2.offsetHeight||320;
+      let L=r2.right-w, T=r2.bottom+8;
+      if(T+h>vh-8) T=r2.top-h-8;                                    // 아래 공간 부족 → 버튼 위로 플립
+      L=Math.max(8,Math.min(vw-w-8,L)); T=Math.max(8,Math.min(vh-h-8,T));
+      p2.style.left=L+'px'; p2.style.top=T+'px';
+      const pr=p2.getBoundingClientRect(); let dx=0,dy=0;           // 실측 보정 — transform 조상 등 좌표계가 어긋나도 화면 안으로
+      if(pr.right>vw-8)dx=vw-8-pr.right; if(pr.left+dx<8)dx=8-pr.left;
+      if(pr.bottom>vh-8)dy=vh-8-pr.bottom; if(pr.top+dy<8)dy=8-pr.top;
+      if(dx||dy){ p2.style.left=(parseFloat(p2.style.left)+dx)+'px'; p2.style.top=(parseFloat(p2.style.top)+dy)+'px'; } };
+    place2(); requestAnimationFrame(place2);                        // 레이아웃 확정 후 한 번 더 보정
+    _typoPlace=place2; window.addEventListener('resize',place2);
     const upd=()=>{ measureText(o); refreshObjs(); };
     p2.querySelector('[data-tp="fw"]').addEventListener('change',e=>{ o.fw=e.target.value?+e.target.value:null; upd(); });
     p2.querySelector('[data-tp="italic"]').addEventListener('click',e=>{ o.italic=!o.italic; e.currentTarget.classList.toggle('on',o.italic); upd(); });
@@ -7605,7 +7622,7 @@ void main(){
   Q('#ls_ratios').addEventListener('click',e=>{ const b=e.target.closest('.ls-chip'); if(!b)return;
     e.currentTarget.querySelectorAll('.ls-chip').forEach(c=>c.classList.toggle('on',c===b));
     { const _old=st.ar; st.ar=parseFloat(b.dataset.ar); fixObjAspect(_old,st.ar); }
-    stage.style.setProperty('--ls-ar',st.ar);
+    stage.style.setProperty('--ls-ar',st.ar); syncResChips();
     closeMenus(); resize(); scheduleUndoCommit(); });
   stage.style.setProperty('--ls-ar',st.ar);
 
@@ -7619,6 +7636,7 @@ void main(){
   Q('#ls_res').addEventListener('click',e=>{ const b=e.target.closest('.ls-chip'); if(!b)return;
     e.currentTarget.querySelectorAll('[data-h]').forEach(c=>c.classList.toggle('on',c===b)); st.outH=parseInt(b.dataset.h,10)||1080;
     closeMenus(); });
+  syncResChips();
   Q('#ls_fps').addEventListener('click',e=>{ const b=e.target.closest('.ls-chip'); if(!b)return;
     e.currentTarget.querySelectorAll('.ls-chip').forEach(c=>c.classList.toggle('on',c===b)); st.fps=parseInt(b.dataset.fps,10)||30;
     closeMenus(); });
