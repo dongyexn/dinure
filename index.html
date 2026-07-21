@@ -4662,7 +4662,6 @@ void main(){
   vec2 p=gl_FragCoord.xy;
   vec3 dst=texture(uDst,p/uRes).rgb;
   vec2 q=p-uCenter;
-  q=vec2(q.x*uRotCS.x-q.y*uRotCS.y, q.x*uRotCS.y+q.y*uRotCS.x);
   if(abs(uTilt.x)+abs(uTilt.y)>0.0005){                    // 3D 기울기 — 픽셀별 역호모그래피라 PS1식 텍스처 휨 없음
     float sa=sin(uTilt.y),ca=cos(uTilt.y),sb=sin(uTilt.x),cb=cos(uTilt.x),f=uTilt.z;
     float a11=f*ca+q.x*sa, a12=f*sb*sa-q.x*sb*ca;
@@ -4673,6 +4672,7 @@ void main(){
     if(f-l.x*sa+l.y*sb*ca<f*0.08){ frag=vec4(dst,1.0); return; }   // 카메라 근접·후방 절단
     q=l;
   }
+  q=vec2(q.x*uRotCS.x-q.y*uRotCS.y, q.x*uRotCS.y+q.y*uRotCS.x);   // 평면 내 회전 — 틸트보다 먼저 적용(역매핑이라 뒤에 위치)
   vec2 suv=q/(2.0*uHalf)+0.5;
   float sl=floor(suv.y*22.0);
   if(uTrIn.x>2.5&&uTrIn.y<1.0){ float g=1.0-uTrIn.y;       // glitch 수평 슬라이스 변위 (샘플 전)
